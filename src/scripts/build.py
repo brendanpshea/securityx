@@ -58,6 +58,31 @@ def inject_callout_classes(html_content):
         
     return html_content
 
+def relax_list_formatting(text):
+    """
+    Automatically inserts a blank line before markdown lists if the user forgot one.
+    This makes the markdown parser less sensitive and prevents lists from being
+    smashed into the previous paragraph.
+    """
+    lines = text.split('\n')
+    new_lines = []
+    
+    list_marker_pattern = re.compile(r'^(?:\s*>\s*)?(?:[-*+]|\d+\.)\s+')
+    
+    for i, line in enumerate(lines):
+        if list_marker_pattern.match(line):
+            if i > 0:
+                prev_line = lines[i-1].strip()
+                if prev_line and prev_line != '>':
+                    if not list_marker_pattern.match(lines[i-1]):
+                        if line.lstrip().startswith('>'):
+                            new_lines.append('>')
+                        else:
+                            new_lines.append('')
+        new_lines.append(line)
+        
+    return '\n'.join(new_lines)
+
 def build():
     print(f"Building chapters from {SRC_DIR} to {DOCS_DIR}...")
     
@@ -77,6 +102,9 @@ def build():
         first_line = text.split('\n')[0]
         if first_line.startswith('# '):
             title = first_line[2:].strip()
+            
+        # Relax list formatting
+        text = relax_list_formatting(text)
             
         # Convert to HTML
         raw_html = md.convert(text)

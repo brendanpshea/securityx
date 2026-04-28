@@ -127,11 +127,13 @@ A standard risk analysis for a bank might consider a temporary internet outage. 
 
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong>
-A company realizes that an older, unsupported legacy server is highly vulnerable to attack.
-- <strong>Mitigation:</strong> They install a Web Application Firewall (WAF) in front of the server to block malicious traffic.
-- <strong>Transference:</strong> They purchase a $1 million cyber insurance policy specifically covering web breaches.
-- <strong>Avoidance:</strong> They permanently shut down the legacy server and migrate the functionality to a modern, secure cloud provider.
-- <strong>Acceptance:</strong> They determine the server only holds public marketing brochures, so they leave it running as-is and accept the risk of it being defaced.</p>
+A company realizes that an older, unsupported legacy server is highly vulnerable to attack.</p>
+<ul>
+<li><strong>Mitigation:</strong> They install a Web Application Firewall (WAF) in front of the server to block malicious traffic.</li>
+<li><strong>Transference:</strong> They purchase a $1 million cyber insurance policy specifically covering web breaches.</li>
+<li><strong>Avoidance:</strong> They permanently shut down the legacy server and migrate the functionality to a modern, secure cloud provider.</li>
+<li><strong>Acceptance:</strong> They determine the server only holds public marketing brochures, so they leave it running as-is and accept the risk of it being defaced.</li>
+</ul>
 </blockquote>
 <h3>GRC Tools, Mapping, and Continuous Monitoring</h3>
 <p>In a modern enterprise, managing risk across thousands of servers, hundreds of third-party vendors, and dozens of compliance frameworks is mathematically impossible using manual spreadsheets. To handle this complexity, organizations deploy <strong>Governance, Risk, and Compliance (GRC) Tools</strong>.</p>
@@ -161,6 +163,159 @@ ALE = $40,000 × 0.5 = <strong>$20,000</strong>.</p>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong>
 Based on Darcy's calculations, if a new threat intelligence report indicated that a hostile nation-state was targeting investment firms, increasing the DDoS ARO to 2.0, how would that change the ALE and the final budget recommendation?</p>
+</blockquote>
+<hr />
+<h2>Who Are Our Adversaries?</h2>
+<p>Once we understand our assets and the impact if they are compromised, the next step is to understand <em>who</em> might compromise them. A vulnerability without a threat actor is just a theoretical problem. In the real world, adversaries actively hunt for vulnerabilities to exploit. Understanding the nature of these adversaries allows security teams to build highly targeted, efficient defenses rather than relying on generic, "catch-all" strategies.</p>
+<h3>Threat Actor Motivations and Resources</h3>
+<p>Not all hackers are equal. A teenager in their basement has a vastly different operational capacity than a highly funded military cyber-unit. To accurately model threats, we must categorize adversaries based on their <strong>Motivations</strong> and their <strong>Resources</strong>.</p>
+<p><strong>Motivations</strong> drive <em>why</em> the attack is happening. Common motivations include:</p>
+<ul>
+<li><strong>Financial Gain:</strong> The most common motivation. These actors deploy ransomware, steal credit card numbers, or conduct corporate extortion.</li>
+<li><strong>Geopolitical / Cyber Warfare:</strong> State-sponsored actors attacking critical infrastructure (power grids, voting systems) to destabilize rival nations.</li>
+<li><strong>Activism (Hacktivism):</strong> Ideologically driven attacks. A hacktivist group might deface a corporate website or leak internal emails to protest a company's environmental policies.</li>
+<li><strong>Notoriety:</strong> Often referred to as "Script Kiddies," these actors launch attacks simply for bragging rights within hacker communities or to prove a point.</li>
+<li><strong>Espionage:</strong> The quiet, long-term theft of intellectual property, such as stealing the blueprints for a competitor's new fighter jet.</li>
+</ul>
+<blockquote class="callout-key-point">
+<p><strong class="callout-title">Key Point</strong>
+A threat actor's motivation directly influences their behavior. A financially motivated attacker wants a quick payout; if your defenses are too difficult to breach, they will move on to an easier target. Conversely, an espionage-focused attacker (like a nation-state) is incredibly patient. They will spend months slowly bypassing your defenses to steal specific data without raising an alarm.</p>
+</blockquote>
+<p><strong>Resources</strong> and <strong>Capabilities</strong> dictate <em>how</em> the attack is executed. We evaluate an adversary's resources across three dimensions:</p>
+<ul>
+<li><strong>Time and Money:</strong> Does the attacker have unlimited government funding and years to plan an attack, or are they a lone criminal needing a quick payday?</li>
+<li><strong>Knowledge and Exploit Creation:</strong> Advanced attackers do not rely on known vulnerabilities. They possess the engineering talent to discover brand-new, unpatched flaws (Zero-Days) and create custom malware from scratch.</li>
+<li><strong>Supply Chain Access:</strong> The most elite adversaries can physically intercept hardware during shipping or compromise a trusted vendor to poison software updates before they ever reach the target.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Threat Actor Type</th>
+<th style="text-align: left;">Primary Motivation</th>
+<th style="text-align: left;">Resources &amp; Capabilities</th>
+<th style="text-align: left;">Typical Tactics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Nation-State / APT (Advanced Persistent Threat)</strong></td>
+<td style="text-align: left;">Espionage, Geopolitical dominance</td>
+<td style="text-align: left;">Unlimited funding, custom zero-day exploits, massive intelligence networks.</td>
+<td style="text-align: left;">"Low and slow" attacks, supply chain compromise, long-term persistence.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Organized Crime</strong></td>
+<td style="text-align: left;">Financial gain</td>
+<td style="text-align: left;">High funding, sophisticated ransomware operations, access to the dark web economy.</td>
+<td style="text-align: left;">Ransomware-as-a-Service (RaaS), phishing, extortion.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Hacktivist</strong></td>
+<td style="text-align: left;">Ideological/Political</td>
+<td style="text-align: left;">Variable (often low funding, but high numbers and coordination).</td>
+<td style="text-align: left;">DDoS attacks, website defacement, public data dumps.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Insider Threat</strong></td>
+<td style="text-align: left;">Financial gain, revenge, or accidental</td>
+<td style="text-align: left;">Pre-existing access to the network, knowledge of internal security protocols.</td>
+<td style="text-align: left;">Data exfiltration, sabotage, accidental misconfiguration.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><em>Table 2.2: Threat Actor Characteristics and Profiles.</em></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+<h3>Supply Chain, Vendor, and Subprocessor Risk</h3>
+<p>One of the most dangerous adversary capabilities is exploiting the <strong>Supply Chain</strong>. Modern enterprises do not operate in a vacuum; they rely on a vast network of third-party vendors, software providers, and contractors. </p>
+<p><strong>Vendor Risk</strong> occurs when an organization grants a trusted third party access to its network or data. For example, a hospital might hire an external accounting firm to process its payroll. If the accounting firm has weak security, an attacker can hack the firm and use their trusted connection to pivot directly into the hospital's heavily fortified internal network.</p>
+<p>The risk expands further with <strong>Subprocessors</strong>. A subprocessor is a fourth-party: it is the vendor that your vendor uses. If the hospital's accounting firm uses a cloud hosting provider to store the payroll data, that cloud provider is a subprocessor. Even if the hospital meticulously vetted the accounting firm, a breach at the unvetted cloud hosting provider will still result in the hospital's data being stolen.</p>
+<blockquote class="callout-warning">
+<p><strong class="callout-title">Warning</strong>
+An organization can outsource its <em>operations</em> to a vendor, but it can never outsource its <em>risk</em>. If your vendor suffers a breach and loses your customers' credit card numbers, the regulatory agencies and the media will blame <em>your</em> organization, not the vendor.</p>
+</blockquote>
+<p>To mitigate third-party risk, organizations must establish rigorous vendor management programs. This includes requiring vendors to pass security audits (such as providing a SOC 2 report), enforcing the principle of least privilege for vendor network access, and actively monitoring the vendor's cybersecurity posture.</p>
+<!-- -->
+
+<blockquote class="callout-case-study">
+<p><strong class="callout-title">Case Study</strong>
+<strong>The Target HVAC Vendor Breach (Third-Party Risk)</strong></p>
+<p>In 2013, the retail giant Target suffered one of the most infamous data breaches in history, resulting in the theft of 40 million credit and debit card numbers. The breach was a masterclass in exploiting third-party vendor risk.</p>
+<p>Target had invested millions of dollars in robust perimeter security for their corporate network and point-of-sale (POS) systems. However, a financially motivated cybercriminal syndicate realized that attacking Target's formidable defenses directly would be too difficult. Instead, the attackers identified a softer target: Fazio Mechanical Services, a small heating, ventilation, and air conditioning (HVAC) company that serviced Target's stores.</p>
+<p>Because Fazio monitored the temperature of the stores, Target had granted the HVAC vendor remote access to its vendor portal. The attackers launched a simple phishing campaign against Fazio employees and successfully infected the small vendor's computers with a credential-stealing trojan.</p>
+<p>Using the stolen credentials, the attackers logged into Target's vendor portal. From there, they were able to pivot out of the vendor system and traverse Target's internal network until they reached the POS registers. The attackers deployed custom malware onto the cash registers that scraped the credit card data from the magnetic stripe the exact moment a customer swiped their card, before the data could be encrypted. </p>
+<p>This catastrophic breach demonstrated that an enterprise's security is only as strong as its weakest vendor. It fundamentally changed how the cybersecurity industry approaches third-party risk and network segmentation.</p>
+</blockquote>
+<!-- -->
+
+<blockquote class="callout-thought">
+<p><strong class="callout-title">Thought Question</strong>
+If Target had implemented strict network microsegmentation—completely isolating the HVAC vendor portal on a separate VLAN from the point-of-sale network—how would the outcome of this attack have changed?</p>
+</blockquote>
+<hr />
+<h2>How Do We Model Threats Effectively?</h2>
+<p>Once we know <em>who</em> our adversaries are and what they are after, we must understand <em>how</em> they will attack us. This is the domain of <strong>Threat Modeling</strong>. Threat modeling is a structured process used to identify potential threats, discover where a system is most vulnerable, and define countermeasures to prevent or mitigate the effects of cyberattacks.</p>
+<p>Instead of guessing what an attacker might do, security professionals use established, formalized frameworks to dissect and analyze cyber threats.</p>
+<h3>Threat Modeling Frameworks</h3>
+<p>The CompTIA SecurityX exam requires a deep understanding of several prominent threat modeling frameworks. Each framework serves a slightly different purpose—some focus on the software development lifecycle, while others focus on active network intrusions.</p>
+<h4>The Lockheed Martin Cyber Kill Chain</h4>
+<p>Developed by Lockheed Martin, the Cyber Kill Chain models the sequential phases an adversary must complete to successfully execute a cyberattack. The core philosophy is that an attack is a <em>chain</em> of events; if the defending organization can break the chain at any point, the attack fails.</p>
+<p><img alt="The Lockheed Martin Cyber Kill Chain" src="../assets/images/ch02_cyber_kill_chain.png" /></p>
+<ol>
+<li><strong>Reconnaissance:</strong> The attacker gathers intelligence on the target (e.g., searching LinkedIn for employee emails, scanning for open firewall ports).</li>
+<li><strong>Weaponization:</strong> The attacker couples a remote access trojan with an exploit into a deliverable payload (e.g., creating a malicious PDF file).</li>
+<li><strong>Delivery:</strong> The weaponized payload is transmitted to the target (e.g., sending the PDF via a phishing email).</li>
+<li><strong>Exploitation:</strong> The weapon triggers on the victim's system, exploiting a vulnerability to execute code.</li>
+<li><strong>Installation:</strong> The attacker installs a backdoor or malware on the victim's system to ensure they don't lose access if the system reboots.</li>
+<li><strong>Command and Control (C2):</strong> The compromised system reaches out to the attacker's external server to establish a two-way communication channel.</li>
+<li><strong>Actions on Objectives:</strong> With hands-on keyboard access, the attacker accomplishes their goal (e.g., encrypting files for ransom, exfiltrating data).</li>
+</ol>
+<blockquote class="callout-key-point">
+<p><strong class="callout-title">Key Point</strong>
+The earlier in the Kill Chain an attack is stopped, the cheaper and easier it is to remediate. Blocking a phishing email during the <em>Delivery</em> phase costs almost nothing. Stopping ransomware during the <em>Actions on Objectives</em> phase can cost millions of dollars.</p>
+</blockquote>
+<h4>The Diamond Model of Intrusion Analysis</h4>
+<p>While the Cyber Kill Chain focuses on the <em>sequence</em> of an attack, the <strong>Diamond Model</strong> focuses on the <em>relationships</em> between four core features of every malicious event. </p>
+<p><img alt="The Diamond Model of Intrusion Analysis" src="../assets/images/ch02_diamond_model.png" /></p>
+<p>The Diamond Model connects:</p>
+<ul>
+<li><strong>Adversary:</strong> The threat actor behind the attack.</li>
+<li><strong>Victim:</strong> The target organization or individual.</li>
+<li><strong>Capability:</strong> The tools, malware, or exploits the adversary used.</li>
+<li><strong>Infrastructure:</strong> The physical or logical communication structures the adversary used to deliver the capability (e.g., compromised IP addresses, domain names).</li>
+</ul>
+<p>Analysts use the Diamond Model to pivot from knowns to unknowns. If an analyst detects a specific IP address (Infrastructure) delivering a specific trojan (Capability) to their network (Victim), they can cross-reference threat intelligence databases to potentially identify the Nation-State (Adversary) that exclusively uses that combination.</p>
+<h4>MITRE ATT&amp;CK</h4>
+<p>The MITRE ATT&amp;CK (Adversarial Tactics, Techniques, and Common Knowledge) framework is a globally accessible knowledge base of adversary tactics and techniques based on real-world observations. Unlike the theoretical Cyber Kill Chain, MITRE ATT&amp;CK is highly practical and granular. It provides a massive matrix detailing the exact methods attackers use to bypass specific defenses, such as how to dump credentials from Windows memory or how to bypass multi-factor authentication.</p>
+<h4>STRIDE, CAPEC, and OWASP</h4>
+<p>When modeling threats during the software engineering and application development phase, different frameworks are used:</p>
+<ul>
+<li><strong>STRIDE:</strong> Created by Microsoft, it is an acronym for modeling software threats: <strong>S</strong>poofing, <strong>T</strong>ampering, <strong>R</strong>epudiation, <strong>I</strong>nformation Disclosure, <strong>D</strong>enial of Service, and <strong>E</strong>levation of Privilege.</li>
+<li><strong>CAPEC:</strong> The Common Attack Pattern Enumeration and Classification is a dictionary of known attack patterns used by adversaries to exploit weaknesses in applications.</li>
+<li><strong>OWASP:</strong> The Open Worldwide Application Security Project is a nonprofit foundation that maintains the "OWASP Top 10," the globally recognized standard document representing the ten most critical security risks to web applications (such as Injection attacks and Broken Access Control).</li>
+</ul>
+<h3>Determining the Attack Surface</h3>
+<p>To model threats effectively, you must understand your organization's <strong>Attack Surface</strong>—the total sum of all possible points where an unauthorized user can enter or extract data from an environment.</p>
+<p>Security architects map the attack surface by charting <strong>Data Flows</strong> and identifying <strong>Trust Boundaries</strong>. A trust boundary is anywhere data changes its level of trust. For example, the border between the public internet (untrusted) and the corporate internal network (trusted) is a primary trust boundary, usually guarded by a firewall. The border between an employee's laptop and the heavily restricted payroll database is another internal trust boundary.</p>
+<p>Whenever data crosses a trust boundary, it must be validated, authenticated, and encrypted.</p>
+<blockquote class="callout-warning">
+<p><strong class="callout-title">Warning</strong>
+A common flaw in legacy threat modeling is assuming the internal network is entirely "trusted." Modern adversaries exploit this by breaching a low-level employee's laptop and then moving laterally through the internal network unopposed. This is why modern architectures advocate for Zero Trust.</p>
+</blockquote>
+<h3>The Impact of Organizational Change</h3>
+<p>An organization's attack surface is not static; it changes dramatically during major business events. Security teams must continuously update their threat models to account for:</p>
+<ul>
+<li><strong>Mergers and Acquisitions (M&amp;A):</strong> When one company buys another, they acquire the target company's network, data, <em>and</em> technical debt. If the acquired company has poor security, connecting their network to the parent company's network creates a massive, unvetted attack surface.</li>
+<li><strong>Divestitures:</strong> When a company spins off a division, security teams must cleanly sever data flows, revoke access credentials, and ensure the divested entity does not retain unauthorized access to the parent company's intellectual property.</li>
+</ul>
+<!-- -->
+
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+During a corporate acquisition, the acquiring company's security team performs enumeration discovery (scanning the acquired company's external IP addresses) to determine their new attack surface. They discover a dozen legacy web servers running outdated, vulnerable software that the acquired company's IT team had completely forgotten about. By threat modeling this new surface, they realize an attacker could use these forgotten servers to pivot into the newly merged corporate network.</p>
 </blockquote>
         </main>
     </div>
