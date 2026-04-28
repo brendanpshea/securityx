@@ -1,26 +1,26 @@
 # CompTIA SecurityX CAS-005 Exam Objectives Tracking
 
 ## Domain 1.0 Governance, Risk, and Compliance Given a set of organizational security requirements, implement the appropriate governance components.
-- [ ] Security program documentation (Chapter   )
-  - [ ] Policies
-  - [ ] Procedures
-  - [ ] Standards
-  - [ ] Guidelines
-- [ ] Security program management (Chapter   )
-  - [ ] Awareness and training
-    - [ ] Phishing
-    - [ ] Security
-    - [ ] Social engineering
-    - [ ] Privacy
-    - [ ] Operational security
-    - [ ] Situational awareness
-  - [ ] Communication
-  - [ ] Reporting
-  - [ ] Management commitment
-  - [ ] Responsible, accountable, consulted, and informed (RACI) matrix
-- [ ] Governance frameworks (Chapter   )
-  - [ ] Control Objectives for Information and Related Technologies (COBIT)
-  - [ ] Information Technology Infrastructure Library (ITIL)
+- [x] Security program documentation (Chapter 1)
+  - [x] Policies
+  - [x] Procedures
+  - [x] Standards
+  - [x] Guidelines
+- [ ] Security program management (Chapter 1)
+  - [x] Awareness and training
+    - [x] Phishing
+    - [x] Security
+    - [x] Social engineering
+    - [x] Privacy
+    - [x] Operational security
+    - [x] Situational awareness
+  - [x] Communication
+  - [x] Reporting
+  - [x] Management commitment
+  - [x] Responsible, accountable, consulted, and informed (RACI) matrix
+- [x] Governance frameworks (Chapter 1)
+  - [x] Control Objectives for Information and Related Technologies (COBIT)
+  - [x] Information Technology Infrastructure Library (ITIL)
 - [ ] Change/configuration management (Chapter   )
   - [ ] Asset management life cycle
   - [ ] Configuration management database (CMDB)
@@ -31,12 +31,12 @@
   - [ ] Compliance tracking
   - [ ] Documentation
   - [ ] Continuous monitoring
-- [ ] Data governance in (Chapter   ) staging environments
-  - [ ] Production
-  - [ ] Development
-  - [ ] Testing
-  - [ ] Quality assurance (QA)
-  - [ ] Data life cycle management
+- [ ] Data governance in (Chapter 1) staging environments
+  - [x] Production
+  - [x] Development
+  - [x] Testing
+  - [x] Quality assurance (QA)
+  - [x] Data life cycle management
 
 ### 1.2 Given a set of organizational security requirements, perform risk management activities.
 - [ ] Impact analysis (Chapter   )
@@ -78,32 +78,32 @@
 - [ ] Breach response (Chapter   )
 
 ### 1.3 Explain how compliance affects information security strategies.
-- [ ] Awareness of industry- (Chapter   ) specific compliance
-  - [ ] Healthcare
-  - [ ] Financial
+- [ ] Awareness of industry- (Chapter 1) specific compliance
+  - [x] Healthcare
+  - [x] Financial
   - [ ] Government
   - [ ] Utilities
-- [ ] Industry standards (Chapter   )
-  - [ ] Payment Card Industry Data Security Standard (PCI DSS)
-  - [ ] International Organization for Standardization/International Electrotechnical Commission (ISO/IEC) 27000 series
+- [ ] Industry standards (Chapter 1)
+  - [x] Payment Card Industry Data Security Standard (PCI DSS)
+  - [x] International Organization for Standardization/International Electrotechnical Commission (ISO/IEC) 27000 series
   - [ ] Digital Markets Act (DMA)
 - [ ] Security and reporting frameworks (Chapter   )
   - [ ] Benchmarks
   - [ ] Foundational best practices
-  - [ ] System and Organization Controls 2 (SOC 2)
-  - [ ] National Institute of Standards and Technology Cybersecurity Framework (NIST CSF)
+  - [x] System and Organization Controls 2 (SOC 2)
+  - [x] National Institute of Standards and Technology Cybersecurity Framework (NIST CSF)
   - [ ] Center for Internet Security (CIS)
   - [ ] Cloud Security Alliance (CSA)
-- [ ] Audits vs. assessments (Chapter   ) vs. certifications
-  - [ ] External
-  - [ ] Internal
-- [ ] Privacy regulations (Chapter   )
-  - [ ] General Data Protection Regulation (GDPR)
-  - [ ] California Consumer Privacy Act (CCPA)
-  - [ ] General Data Protection Law (LGPD)
-  - [ ] Children’s Online Privacy Act (COPPA)
-- [ ] Awareness of cross-jurisdictional (Chapter   ) compliance requirements
-  - [ ] e-discovery
+- [x] Audits vs. assessments (Chapter 1) vs. certifications
+  - [x] External
+  - [x] Internal
+- [ ] Privacy regulations (Chapter 1)
+  - [x] General Data Protection Regulation (GDPR)
+  - [x] California Consumer Privacy Act (CCPA)
+  - [x] General Data Protection Law (LGPD)
+  - [x] Children’s Online Privacy Act (COPPA)
+- [ ] Awareness of cross-jurisdictional (Chapter 1) compliance requirements
+  - [x] e-discovery
 
 ### 1.4 Given a scenario, perform threat-modeling activities.
 - [ ] Actor characteristics (Chapter   )

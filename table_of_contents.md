@@ -43,7 +43,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Chapter Review and Conclusion**
 
 #### Chapter 2: Risk Management and Threat Modeling
-*Maps to Objectives: 1.2, 1.4*
+*Maps to Objectives: 1.1, 1.2, 1.4*
 
 **Learning Outcomes:**
 1. **Conduct** impact analyses using quantitative and qualitative risk assessment methodologies.
@@ -54,11 +54,13 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 6. **Apply** industry frameworks (MITRE ATT&CK, Cyber Kill Chain, STRIDE) to threat-modeling activities.
 7. **Determine** an organization's attack surface through architecture reviews and enumeration discovery.
 8. **Assess** the applicability of threats to organizations with and without existing systems in place.
+9. **Implement** Governance, Risk, and Compliance (GRC) tools for automation and continuous monitoring.
 
 **Chapter Outline:**
 - **Introduction**
 - **How Do We Measure and Prioritize Risk?**
   - Quantitative vs. Qualitative Analysis
+  - GRC Tools, Mapping, and Continuous Monitoring
   - *Diagram:* The Risk Assessment Workflow
   - Risk Appetite and Tolerance
   - *Table:* Quantitative vs. Qualitative Risk Metrics
@@ -223,7 +225,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Chapter Review and Conclusion**
 
 #### Chapter 7: Enterprise Cloud and Hybrid Security
-*Maps to Objectives: 2.5*
+*Maps to Objectives: 1.3, 2.5*
 
 **Learning Outcomes:**
 1. **Design** secure cloud architectures utilizing Cloud Access Security Brokers (CASBs).
@@ -234,6 +236,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 6. **Evaluate** cloud data security considerations, including exposure, leakage, and data remanence.
 7. **Formulate** customer-to-cloud connectivity strategies for hybrid infrastructures.
 8. **Implement** proactive, detective, and preventative cloud control strategies.
+9. **Integrate** government and industry-specific compliance requirements (e.g., FedRAMP) into cloud architectures.
 
 **Chapter Outline:**
 - **Introduction**
@@ -297,7 +300,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Chapter Review and Conclusion**
 
 #### Chapter 9: Network, Endpoint, and Infrastructure Engineering
-*Maps to Objectives: 3.2, 3.3*
+*Maps to Objectives: 1.1, 3.2, 3.3*
 
 **Learning Outcomes:**
 1. **Analyze** requirements to enhance the security of endpoints using EDR, anti-malware, and host-based firewalls.
@@ -308,9 +311,13 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 6. **Implement** email security protocols, including DKIM, SPF, DMARC, and S/MIME.
 7. **Mitigate** DoS and DDoS attacks targeting network and application resources.
 8. **Manage** and secure mobile devices using MDM technologies and browser isolation.
+9. **Implement** robust change and configuration management processes, utilizing a CMDB and tracking the asset management lifecycle.
 
 **Chapter Outline:**
 - **Introduction**
+- **How Do We Manage Infrastructure Changes?**
+  - Change and Configuration Management
+  - Asset Management Lifecycle and CMDB
 - **How Do We Lock Down Endpoints and Servers?**
   - EDR, Anti-Malware, and Host Firewalls
   - Browser Isolation and Configuration Management
@@ -331,7 +338,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Chapter Review and Conclusion**
 
 #### Chapter 10: Securing Specialized, OT, and Legacy Systems
-*Maps to Objectives: 3.5*
+*Maps to Objectives: 1.3, 3.5*
 
 **Learning Outcomes:**
 1. **Analyze** the security requirements of Operational Technology (OT), including SCADA, ICS, and HVAC systems.
@@ -355,7 +362,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - *Diagram:* Purdue Model for ICS Security Architecture
   - *Diagram:* Segmenting a Corporate Wireless Network
 - **What Are the Industry-Specific Infrastructure Challenges?**
-  - Utilities, Healthcare, and Defense
+  - Utilities (NERC CIP), Healthcare, and Defense
   - *Historical Case Study:* The Oldsmar, Florida Water Treatment Plant Hack
 - **How Do We Protect What We Cannot Patch?**
   - Compensating Controls for Obsolete Systems
