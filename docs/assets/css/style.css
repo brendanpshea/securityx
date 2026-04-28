@@ -7,7 +7,7 @@
   --bg-color: #0f172a;        /* Slate 900 */
   --surface-color: #1e293b;   /* Slate 800 */
   --text-primary: #f8fafc;    /* Slate 50 */
-  --text-secondary: #94a3b8;  /* Slate 400 */
+  --text-secondary: #cbd5e1;  /* Slate 300 (AAA Contrast) */
   
   /* Accents */
   --accent-cyan: #06b6d4;     /* Cyan 500 */
@@ -210,17 +210,17 @@ blockquote p:last-child {
   margin-bottom: 0;
 }
 
-blockquote strong {
+.callout-title {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 1.1em;
 }
 
-.callout-case-study strong { color: var(--accent-cyan); }
-.callout-warning strong { color: var(--warning-border); }
-.callout-key-point strong { color: var(--keypoint-border); }
-.callout-thought strong { color: var(--thought-border); }
-.callout-example strong { color: var(--example-border); }
+.callout-case-study .callout-title { color: var(--accent-cyan); }
+.callout-warning .callout-title { color: var(--warning-border); }
+.callout-key-point .callout-title { color: var(--keypoint-border); }
+.callout-thought .callout-title { color: var(--thought-border); }
+.callout-example .callout-title { color: var(--example-border); }
 
 /* Navigation / Header */
 header {

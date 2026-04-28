@@ -27,27 +27,27 @@
 <h2>What Does a Modern Architecture Look Like?</h2>
 <p>A modern architecture relies heavily on dynamic scaling and identity management. By leveraging APIs, microservices can communicate seamlessly.</p>
 <blockquote class="callout-key-point">
-<p><strong>Key Point</strong> 
+<p><strong class="callout-title">Key Point</strong> 
 An API Gateway acts as the single point of entry for all clients, handling routing, composition, and translation.</p>
 </blockquote>
 <h3>The Role of IAM</h3>
 <p>Identity and Access Management (IAM) is the cornerstone of cloud security. If you lose control of your identities, you lose control of your data.</p>
 <blockquote class="callout-warning">
-<p><strong>Warning</strong> 
+<p><strong class="callout-title">Warning</strong> 
 Never hardcode AWS Access Keys into your source code. If committed to a public repository, attackers will scrape and exploit them within seconds.</p>
 </blockquote>
 <hr />
 <h2>How Do Attackers Exploit Architecture?</h2>
 <p>Consider a scenario where a Web Application Firewall (WAF) is misconfigured to blindly trust internal traffic.</p>
 <blockquote class="callout-case-study">
-<p><strong>Case Study</strong> 
+<p><strong class="callout-title">Case Study</strong> 
 <strong>The Capital One AWS Breach</strong>
 In 2019, an attacker exploited a misconfigured open-source WAF to perform a Server-Side Request Forgery (SSRF) attack. The WAF, acting with high-privilege IAM roles, queried the AWS metadata service and returned temporary credentials to the attacker. This resulted in the theft of data belonging to over 100 million customers. </p>
 </blockquote>
 <!-- -->
 
 <blockquote class="callout-thought">
-<p><strong>Thought Question</strong>
+<p><strong class="callout-title">Thought Question</strong>
 How would implementing Zero Trust principles have mitigated the impact of the SSRF vulnerability in the Capital One breach?</p>
 </blockquote>
 <hr />

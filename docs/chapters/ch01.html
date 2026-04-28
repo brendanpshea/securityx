@@ -43,7 +43,7 @@
 <p><img alt="The Governance Documentation Hierarchy" src="../assets/images/ch01_governance_hierarchy.png" />
 <em>Figure 1.1: The Governance Documentation Hierarchy moving from broad mandates to specific instructions.</em></p>
 <blockquote class="callout-key-point">
-<p><strong>Key Point</strong>
+<p><strong class="callout-title">Key Point</strong>
 The distinction between mandatory and optional documentation is a common exam focus. Policies, Standards, and Procedures are strictly mandatory. Guidelines are highly recommended but inherently optional.</p>
 </blockquote>
 <p>Let us break down each of these components in detail.</p>
@@ -51,28 +51,28 @@ The distinction between mandatory and optional documentation is a common exam fo
 A <strong>Policy</strong> is a high-level, broad statement of management's intent, beliefs, and goals. Policies are the absolute highest tier of the documentation hierarchy. They do not contain technical specifics, nor do they provide instructions on how to configure a system. Instead, they dictate <em>what</em> the organization requires and <em>why</em> it is required. Because they avoid technical specifics (like naming a specific brand of firewall or a specific operating system), policies rarely change unless the fundamental business model or legal landscape shifts.</p>
 <p>Policies are entirely mandatory. Violating a policy is usually a fireable offense. Crucially, a true policy must be signed and endorsed by senior executive management, such as the Chief Executive Officer (CEO) or the Board of Directors. This executive signature is what gives the policy its authority. </p>
 <blockquote class="callout-example">
-<p><strong>Example</strong>
+<p><strong class="callout-title">Example</strong>
 An "Acceptable Use Policy" (AUP) might state: "Employees must use strong authentication to access company resources, and company systems may not be used to access illicit material." Notice that it does not specify <em>how</em> strong the authentication must be, only that it is required.</p>
 </blockquote>
 <p><strong>2. Standards (The "Metrics")</strong>
 If the policy states that something must be done, the <strong>Standard</strong> defines the specific, measurable requirements that must be met to comply with that policy. Standards bridge the gap between high-level policy and low-level procedure. They are mandatory, specific rules that establish a baseline of security across the organization.</p>
 <p>Standards often dictate the specific technologies, configurations, or mathematical thresholds that are required. Unlike policies, standards will change as technology evolves. If a new cryptographic vulnerability is discovered, the encryption standard will be updated, but the overarching policy requiring encryption remains the same.</p>
 <blockquote class="callout-example">
-<p><strong>Example</strong>
+<p><strong class="callout-title">Example</strong>
 Supporting the AUP mentioned above, an "Authentication Standard" might state: "All employee passwords must be a minimum of 14 characters in length, include at least one special character, and be rotated every 90 days. Multi-Factor Authentication (MFA) utilizing time-based one-time passwords (TOTP) is required for all external access."</p>
 </blockquote>
 <p><strong>3. Guidelines (The "Recommendations")</strong>
 A <strong>Guideline</strong> is a suggestion or a recommendation on how to accomplish a task or meet a standard. Guidelines are the only document in this hierarchy that are <em>optional</em>. They are designed to help employees navigate complex situations where a strict standard might not apply or where flexibility is beneficial.</p>
 <p>Guidelines often contain best practices, tips, or methodologies. While employees are highly encouraged to follow guidelines, they will not be formally disciplined for utilizing an alternative, equally secure method, provided the mandatory standards and policies are still met.</p>
 <blockquote class="callout-example">
-<p><strong>Example</strong>
+<p><strong class="callout-title">Example</strong>
 A "Password Creation Guideline" might state: "We recommend using a passphrase—a sequence of four or more random words—rather than a complex string of random characters, as passphrases are easier to remember and mathematically harder for an attacker to crack." The employee doesn't <em>have</em> to use a passphrase, but if they do, they will still meet the 14-character standard.</p>
 </blockquote>
 <p><strong>4. Procedures (The "How")</strong>
 A <strong>Procedure</strong> is a step-by-step, highly detailed set of instructions designed to accomplish a specific task. Procedures are mandatory; if a procedure exists for a task, the employee must follow it exactly as written. This ensures consistency, minimizes human error, and guarantees that the outcome complies with the overarching standards and policies.</p>
 <p>Procedures are heavily tied to specific technologies, software versions, and vendor platforms. Consequently, they are the most frequently updated documents in the hierarchy. If the company switches from Microsoft Azure to Amazon Web Services (AWS), the high-level Cloud Security Policy might remain unchanged, but every single provisioning procedure will have to be completely rewritten.</p>
 <blockquote class="callout-example">
-<p><strong>Example</strong>
+<p><strong class="callout-title">Example</strong>
 A "User Offboarding Procedure" might state: </p>
 <ol>
 <li>Open the Active Directory Users and Computers console.</li>
@@ -125,7 +125,7 @@ A "User Offboarding Procedure" might state: </p>
 </tbody>
 </table>
 <blockquote class="callout-warning">
-<p><strong>Warning</strong>
+<p><strong class="callout-title">Warning</strong>
 A common point of failure in enterprise governance is "policy rot." This occurs when organizations write comprehensive policies to satisfy an auditor but fail to update their granular procedures to match reality. If your written procedure says to use an old tool that was decommissioned three years ago, your governance is broken, and during a crisis, staff will be forced to improvise—often insecurely.</p>
 </blockquote>
 <h3>RACI Matrices and Management Commitment</h3>
@@ -141,7 +141,7 @@ A common point of failure in enterprise governance is "policy rot." This occurs 
 <p><img alt="Example RACI Matrix" src="../assets/images/ch01_raci_matrix.png" />
 <em>Figure 1.2: An example RACI Matrix defining roles during an active security incident.</em></p>
 <blockquote class="callout-thought">
-<p><strong>Thought Question</strong>
+<p><strong class="callout-title">Thought Question</strong>
 Looking at a RACI matrix, why is it functionally disastrous to assign the 'Accountable' (A) role to an entire department (e.g., "The Security Team") rather than a single, specific individual (e.g., "The CISO")?</p>
 </blockquote>
 <h4>The Reality of Management Commitment</h4>
@@ -168,7 +168,7 @@ Looking at a RACI matrix, why is it functionally disastrous to assign the 'Accou
 <li><strong>Smishing (SMS Phishing):</strong> Social engineering conducted via text message. These often exploit urgency, such as a fake message from the CEO claiming they are stuck in a meeting and urgently need the employee to purchase gift cards.</li>
 </ul>
 <blockquote class="callout-example">
-<p><strong>Example</strong>
+<p><strong class="callout-title">Example</strong>
 A spear-phishing email targeting an HR representative might look like this: </p>
 <p>"Hi Susan, 
 I've attached my updated resume for the Senior Network Engineer position. I noticed the portal was down, so I'm sending it directly. 
@@ -187,14 +187,14 @@ Thanks, John" </p>
 <li><strong>Public Conversations:</strong> Discussing sensitive upcoming mergers, unpatched vulnerabilities, or executive travel plans while sitting in a crowded coffee shop or riding in an elevator.</li>
 </ul>
 <blockquote class="callout-warning">
-<p><strong>Warning</strong>
+<p><strong class="callout-title">Warning</strong>
 LinkedIn is an absolute goldmine for attackers. When an IT administrator updates their LinkedIn profile to boast about successfully migrating the company's servers to "Windows Server 2012 R2," they have inadvertently informed every attacker in the world exactly which operating system (and which corresponding vulnerabilities) the company is running. </p>
 </blockquote>
 <p>Building OPSEC awareness requires training employees to view their daily actions through the eyes of an adversary. It requires teaching staff that security is not just about what happens on their computer screen, but what happens in the physical world around them. This heightened state of vigilance is known as <strong>Situational Awareness</strong>—the ability to identify, process, and comprehend critical elements of information about what is happening in the environment to protect sensitive data from exposure.</p>
 <!-- -->
 
 <blockquote class="callout-case-study">
-<p><strong>Case Study</strong>
+<p><strong class="callout-title">Case Study</strong>
 <strong>Snow White and the Poisoned Apple (Phishing)</strong></p>
 <p>Snow White serves as the Governance, Risk, and Compliance (GRC) Analyst for Seven Dwarfs Mining, a highly profitable gemstone extraction company. Her workforce consists entirely of miners who excel at their physical jobs but possess very little technical literacy. </p>
 <p>The company was facing a severe security crisis. A persistent threat actor, posing as the CEO of a trusted vendor named "Evil Queen Logistics," was bombarding the miners with highly convincing spear-phishing emails containing malicious attachments disguised as invoice PDFs. Because the miners regularly handled logistics invoices, the click rate was alarmingly high, leading to several ransomware scares.</p>
@@ -205,7 +205,7 @@ LinkedIn is an absolute goldmine for attackers. When an IT administrator updates
 <!-- -->
 
 <blockquote class="callout-thought">
-<p><strong>Thought Question</strong>
+<p><strong class="callout-title">Thought Question</strong>
 Why is a punitive approach (e.g., firing or reprimanding an employee) generally considered counterproductive when an employee falls for a simulated phishing test?</p>
 </blockquote>
 <h2>Which Governance Frameworks Matter Most?</h2>
@@ -220,7 +220,7 @@ Developed by ISACA, COBIT is a high-level framework designed primarily for execu
 Developed originally by the UK government, ITIL is the global standard for IT Service Management (ITSM). If COBIT is for the Board of Directors, ITIL is for the IT Helpdesk and Operations teams. ITIL focuses on delivering IT services efficiently and reliably. </p>
 <p>Where COBIT dictates the objective, ITIL provides the specific, granular processes to achieve it. Returning to our previous example, if COBIT mandates an incident management mechanism, ITIL provides the exact workflow: how to log a ticket, how to assign severity levels, how to escalate the ticket from Tier 1 to Tier 2 support, and how to conduct a post-incident review.</p>
 <blockquote class="callout-example">
-<p><strong>Example</strong>
+<p><strong class="callout-title">Example</strong>
 A hospital uses <strong>COBIT</strong> to align its IT department with its business goal of maintaining uninterrupted patient care. COBIT dictates a control objective: "System changes must not disrupt critical operations." </p>
 <p>To fulfill this objective, the hospital's IT department uses <strong>ITIL</strong> to establish a formal Change Advisory Board (CAB). The ITIL process requires that before any server is patched, a formal change ticket must be submitted, the rollback plan must be reviewed, and the CAB must approve the patch during a weekly meeting.</p>
 </blockquote>
@@ -282,7 +282,7 @@ A hospital uses <strong>COBIT</strong> to align its IT department with its busin
 </ol>
 <p>A massive, recurring failure in enterprise governance occurs when the boundaries between these environments break down—specifically, the practice of using live Production data in the Staging environment.</p>
 <blockquote class="callout-warning">
-<p><strong>Warning</strong>
+<p><strong class="callout-title">Warning</strong>
 Staging and Development environments almost never have the same rigorous security controls, strict access management, or comprehensive logging as the Production environment. If you copy live customer data into Staging, you are exposing sensitive information to a highly vulnerable environment.</p>
 </blockquote>
 <p>Software developers constantly request live Production data for testing. They argue that testing with real data is the only way to accurately simulate how the new software will perform and to catch obscure bugs. From a purely functional standpoint, they are correct. Real data is messy, unpredictable, and perfect for testing. From a security and governance standpoint, however, this practice is a catastrophic risk.</p>
@@ -293,7 +293,7 @@ Staging and Development environments almost never have the same rigorous securit
 <li><strong>Targeted Attacks:</strong> Attackers know that Staging servers are often spun up quickly, lack Web Application Firewalls (WAFs), and use weak default passwords. They will actively hunt for Staging subdomains (e.g., <code>test.company.com</code> or <code>qa-api.company.com</code>) specifically to steal the live data improperly stored there.</li>
 </ul>
 <blockquote class="callout-key-point">
-<p><strong>Key Point</strong>
+<p><strong class="callout-title">Key Point</strong>
 A core tenet of data governance is the strict separation of environments. Production data must never cross the boundary into Staging or Development without undergoing rigorous data sanitization.</p>
 </blockquote>
 <p>To satisfy the developers' need for realistic testing data while maintaining strict security governance, organizations employ a technique known as <strong>Data Masking</strong> (or Data Obfuscation). </p>
@@ -323,7 +323,7 @@ Enacted by the European Union (EU) in 2018, the GDPR is arguably the most conseq
 Following the EU's lead, California enacted the CCPA. While similar to the GDPR, it places a heavier emphasis on the consumer's right to know exactly what data is being collected and the explicit right to "opt-out" of the sale of that data. Because California represents one of the largest economies in the world, the CCPA functionally operates as a national standard for tech companies operating in the United States.</p>
 <p>Other notable privacy regulations include the <strong>General Data Protection Law (LGPD)</strong>, which serves as Brazil's national privacy law and heavily mirrors the GDPR, and the <strong>Children’s Online Privacy Protection Act (COPPA)</strong>, a US law imposing strict requirements on operators of websites directed to children under 13 years of age.</p>
 <blockquote class="callout-key-point">
-<p><strong>Key Point</strong>
+<p><strong class="callout-title">Key Point</strong>
 A massive challenge introduced by laws like the GDPR is <strong>Data Sovereignty</strong>. Data sovereignty is the legal concept that digital data is subject to the laws of the country in which it is physically stored. The GDPR heavily restricts organizations from moving EU citizen data to servers located in countries (like the United States) that do not have equivalently strict privacy laws.</p>
 </blockquote>
 <h3>Industry-Specific Standards: HIPAA and PCI DSS</h3>
@@ -335,13 +335,13 @@ If an organization operates in the United States healthcare sector, it must comp
 Unlike the GDPR or HIPAA, PCI DSS is <em>not</em> a government law. It is a contractual security standard mandated by the major credit card brands (Visa, Mastercard, American Express). Any organization that accepts, processes, stores, or transmits credit card information must comply with PCI DSS.</p>
 <p>PCI DSS is highly prescriptive. It dictates exactly how networks must be segmented (credit card data must be isolated on its own highly secure network VLAN), requires annual penetration testing, and mandates the use of specific encryption protocols. </p>
 <blockquote class="callout-warning">
-<p><strong>Warning</strong>
+<p><strong class="callout-title">Warning</strong>
 Because PCI DSS is not a law, you cannot be sent to prison by the government for violating it. However, the punishment is arguably worse for a business: the credit card companies will simply revoke your ability to process credit cards. For a modern e-commerce retailer, losing the ability to accept Visa or Mastercard is an immediate death sentence for the business.</p>
 </blockquote>
 <!-- -->
 
 <blockquote class="callout-case-study">
-<p><strong>Case Study</strong>
+<p><strong class="callout-title">Case Study</strong>
 <strong>The Meta GDPR Fine (2023)</strong></p>
 <p>To understand the sheer power of modern compliance laws, we must look at the historic penalty levied against Meta (the parent company of Facebook and Instagram) in May 2023. </p>
 <p>For years, Meta had been transferring the personal data of its European users to its massive data centers located in the United States. This was originally legal under an international data transfer agreement known as "Privacy Shield." However, European courts invalidated Privacy Shield because they ruled that U.S. intelligence agencies had too much surveillance reach, meaning EU citizens' data was not adequately protected from government snooping once it landed on American soil.</p>
@@ -352,7 +352,7 @@ Because PCI DSS is not a law, you cannot be sent to prison by the government for
 <!-- -->
 
 <blockquote class="callout-thought">
-<p><strong>Thought Question</strong>
+<p><strong class="callout-title">Thought Question</strong>
 Given the complexities of Data Sovereignty highlighted by the Meta case, how might a global cloud provider (like Amazon Web Services or Microsoft Azure) need to physically structure their data centers to attract European customers?</p>
 </blockquote>
 <hr />

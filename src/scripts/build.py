@@ -54,7 +54,7 @@ def inject_callout_classes(html_content):
         # Look for <blockquote><p><strong>[Tag]</strong>
         pattern = re.compile(rf'(<blockquote>\s*<p>\s*<strong>{escaped_tag}</strong>)', re.IGNORECASE)
         # Replace the <blockquote> and remove the brackets from the tag
-        html_content = pattern.sub(rf'<blockquote class="{css_class}">\n<p><strong>{title}</strong>', html_content)
+        html_content = pattern.sub(rf'<blockquote class="{css_class}">\n<p><strong class="callout-title">{title}</strong>', html_content)
         
     return html_content
 
