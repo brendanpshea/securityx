@@ -59,7 +59,8 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 **Chapter Outline:**
 - **Introduction**
 - **How Do We Measure and Prioritize Risk?**
-  - Quantitative vs. Qualitative Analysis
+  - Quantitative vs. Qualitative Analysis (and Risk Assessment Frameworks)
+  - Impact Analysis and Extreme but Plausible Scenarios
   - GRC Tools, Mapping, and Continuous Monitoring
   - *Diagram:* The Risk Assessment Workflow
   - Risk Appetite and Tolerance
@@ -68,15 +69,17 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Who Are Our Adversaries?**
   - Threat Actor Motivations and Resources
   - *Table:* Threat Actor Characteristics (Nation-State, Hacktivist, Insider)
-  - Supply Chain and Vendor Risk
+  - Supply Chain, Vendor, and Subprocessor Risk
   - *Historical Case Study:* The Target HVAC Vendor Breach (Third-Party Supply Chain)
 - **How Do We Model Threats Effectively?**
-  - Frameworks: MITRE ATT&CK, STRIDE, and Cyber Kill Chain
-  - Determining the Attack Surface
+  - Frameworks: MITRE ATT&CK, STRIDE, Cyber Kill Chain, Diamond Model, CAPEC, and OWASP
+  - Determining the Attack Surface (Data Flows and Trust Boundaries)
+  - The Impact of Organizational Change (Mergers, Acquisitions, Divestitures)
   - *Diagram:* Visualizing the Cyber Kill Chain
 - **What is the Plan for the Worst-Case Scenario?**
   - Crisis Management and Breach Response
-  - BCDR and Availability Risk
+  - BCDR, Availability Risk, and Backup Strategies (Connected vs. Disconnected)
+  - Integrity Risk (Hashing, Remote Journaling, Antitampering)
   - *Diagram:* BCDR Planning Lifecycle
 - **Chapter Review and Conclusion**
 
