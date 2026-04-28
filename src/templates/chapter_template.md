@@ -1,6 +1,7 @@
 # Chapter X: [Chapter Title Here]
 
 **Learning Outcomes:**
+
 - **[Verb]** [Outcome 1]
 - **[Verb]** [Outcome 2]
 

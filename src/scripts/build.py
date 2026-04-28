@@ -39,20 +39,21 @@ def inject_callout_classes(html_content):
     """
     Parses HTML blockquotes and injects specific CSS classes
     based on the bolded tag (e.g., [Case Study], [Warning]).
+    It also removes the brackets from the final output.
     """
-    # Define mapping from text tag to css class
-    callout_map = {
-        r"\[Case Study\]": "callout-case-study",
-        r"\[Warning\]": "callout-warning",
-        r"\[Key Point\]": "callout-key-point",
-        r"\[Thought Question\]": "callout-thought"
-    }
+    callouts = [
+        ("[Case Study]", "callout-case-study", "Case Study"),
+        ("[Warning]", "callout-warning", "Warning"),
+        ("[Key Point]", "callout-key-point", "Key Point"),
+        ("[Thought Question]", "callout-thought", "Thought Question")
+    ]
     
-    for tag, css_class in callout_map.items():
+    for tag, css_class, title in callouts:
+        escaped_tag = re.escape(tag)
         # Look for <blockquote><p><strong>[Tag]</strong>
-        pattern = re.compile(rf'(<blockquote>\s*<p>\s*<strong>{tag}</strong>)', re.IGNORECASE)
-        # Replace the <blockquote> with <blockquote class="class">
-        html_content = pattern.sub(rf'<blockquote class="{css_class}">\n<p><strong>{tag}</strong>', html_content)
+        pattern = re.compile(rf'(<blockquote>\s*<p>\s*<strong>{escaped_tag}</strong>)', re.IGNORECASE)
+        # Replace the <blockquote> and remove the brackets from the tag
+        html_content = pattern.sub(rf'<blockquote class="{css_class}">\n<p><strong>{title}</strong>', html_content)
         
     return html_content
 

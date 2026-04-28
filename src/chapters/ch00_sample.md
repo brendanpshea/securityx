@@ -1,6 +1,7 @@
 # Chapter 0: The Architecture of Wonder
 
 **Learning Outcomes:**
+
 - **Identify** the core components of a secure cloud infrastructure.
 - **Explain** the mechanics of an SSRF attack.
 

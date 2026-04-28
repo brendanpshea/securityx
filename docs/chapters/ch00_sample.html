@@ -16,29 +16,31 @@
         </header>
         <main>
             <h1>Chapter 0: The Architecture of Wonder</h1>
-<p><strong>Learning Outcomes:</strong>
-- <strong>Identify</strong> the core components of a secure cloud infrastructure.
-- <strong>Explain</strong> the mechanics of an SSRF attack.</p>
+<p><strong>Learning Outcomes:</strong></p>
+<ul>
+<li><strong>Identify</strong> the core components of a secure cloud infrastructure.</li>
+<li><strong>Explain</strong> the mechanics of an SSRF attack.</li>
+</ul>
 <h2>Introduction</h2>
 <p>Security is not just about building walls; it's about understanding how the pieces fit together. In this sample chapter, we will explore the formatting and aesthetic elements that make up our premium textbook experience.</p>
 <hr />
 <h2>What Does a Modern Architecture Look Like?</h2>
 <p>A modern architecture relies heavily on dynamic scaling and identity management. By leveraging APIs, microservices can communicate seamlessly.</p>
 <blockquote class="callout-key-point">
-<p><strong>\[Key Point\]</strong> 
+<p><strong>Key Point</strong> 
 An API Gateway acts as the single point of entry for all clients, handling routing, composition, and translation.</p>
 </blockquote>
 <h3>The Role of IAM</h3>
 <p>Identity and Access Management (IAM) is the cornerstone of cloud security. If you lose control of your identities, you lose control of your data.</p>
 <blockquote class="callout-warning">
-<p><strong>\[Warning\]</strong> 
+<p><strong>Warning</strong> 
 Never hardcode AWS Access Keys into your source code. If committed to a public repository, attackers will scrape and exploit them within seconds.</p>
 </blockquote>
 <hr />
 <h2>How Do Attackers Exploit Architecture?</h2>
 <p>Consider a scenario where a Web Application Firewall (WAF) is misconfigured to blindly trust internal traffic.</p>
 <blockquote class="callout-case-study">
-<p><strong>\[Case Study\]</strong> 
+<p><strong>Case Study</strong> 
 <strong>The Capital One AWS Breach</strong>
 In 2019, an attacker exploited a misconfigured open-source WAF to perform a Server-Side Request Forgery (SSRF) attack. The WAF, acting with high-privilege IAM roles, queried the AWS metadata service and returned temporary credentials to the attacker. This resulted in the theft of data belonging to over 100 million customers. </p>
 <p><strong>[Thought Question]</strong>
