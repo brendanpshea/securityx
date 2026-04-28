@@ -45,7 +45,8 @@ def inject_callout_classes(html_content):
         ("[Case Study]", "callout-case-study", "Case Study"),
         ("[Warning]", "callout-warning", "Warning"),
         ("[Key Point]", "callout-key-point", "Key Point"),
-        ("[Thought Question]", "callout-thought", "Thought Question")
+        ("[Thought Question]", "callout-thought", "Thought Question"),
+        ("[Example]", "callout-example", "Example")
     ]
     
     for tag, css_class, title in callouts:

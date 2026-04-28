@@ -32,6 +32,8 @@
 > **[Title of the Scenario]**
 > [Detailed narrative of the historical or fictional case study. Explain the mechanics of what happened, why it matters, and how it relates to the learning objective.]
 
+<!-- -->
+
 > **[Thought Question]**
 > [Ask a rhetorical or reflective question to test student comprehension based on the case study.]
 

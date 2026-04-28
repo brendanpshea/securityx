@@ -32,6 +32,8 @@ Consider a scenario where a Web Application Firewall (WAF) is misconfigured to b
 > **The Capital One AWS Breach**
 > In 2019, an attacker exploited a misconfigured open-source WAF to perform a Server-Side Request Forgery (SSRF) attack. The WAF, acting with high-privilege IAM roles, queried the AWS metadata service and returned temporary credentials to the attacker. This resulted in the theft of data belonging to over 100 million customers. 
 
+<!-- -->
+
 > **[Thought Question]**
 > How would implementing Zero Trust principles have mitigated the impact of the SSRF vulnerability in the Capital One breach?
 

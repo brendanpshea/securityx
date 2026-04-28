@@ -12,20 +12,23 @@
   /* Accents */
   --accent-cyan: #06b6d4;     /* Cyan 500 */
   --accent-cyan-glow: rgba(6, 182, 212, 0.2);
-  --accent-purple: #8b5cf6;   /* Violet 500 */
+  --accent-purple: #a78bfa;   /* Violet 400 (Improved Contrast) */
   
   /* Callout Colors */
   --case-study-bg: rgba(6, 182, 212, 0.1);
-  --case-study-border: #06b6d4;
+  --case-study-border: #22d3ee; /* Cyan 400 */
   
   --warning-bg: rgba(245, 158, 11, 0.1);
-  --warning-border: #f59e0b;  /* Amber 500 */
+  --warning-border: #fbbf24;  /* Amber 400 (Improved Contrast) */
   
   --keypoint-bg: rgba(16, 185, 129, 0.1);
-  --keypoint-border: #10b981; /* Emerald 500 */
+  --keypoint-border: #34d399; /* Emerald 400 (Improved Contrast) */
 
   --thought-bg: rgba(139, 92, 246, 0.1);
-  --thought-border: #8b5cf6;  /* Violet 500 */
+  --thought-border: #a78bfa;  /* Violet 400 (Improved Contrast) */
+
+  --example-bg: rgba(96, 165, 250, 0.1);
+  --example-border: #60a5fa;  /* Blue 400 */
 
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -194,6 +197,11 @@ blockquote {
   border-left-color: var(--thought-border);
 }
 
+.callout-example {
+  background-color: var(--example-bg);
+  border-left-color: var(--example-border);
+}
+
 blockquote p:first-child {
   margin-top: 0;
 }
@@ -212,6 +220,7 @@ blockquote strong {
 .callout-warning strong { color: var(--warning-border); }
 .callout-key-point strong { color: var(--keypoint-border); }
 .callout-thought strong { color: var(--thought-border); }
+.callout-example strong { color: var(--example-border); }
 
 /* Navigation / Header */
 header {
