@@ -393,17 +393,75 @@ If the attackers had lingered in the Wonderland Logistics network for six months
 <h3>Key Terms Review</h3>
 <ul>
 <li><strong>Risk:</strong> The probability of a threat exploiting a vulnerability and the resulting business impact.</li>
+<li><strong>Quantitative Risk Analysis:</strong> Determining risk using hard financial data and historical statistics to calculate exact dollar amounts.</li>
+<li><strong>Qualitative Risk Analysis:</strong> Determining risk using subjective judgment, experience, and descriptive labels (e.g., Low, Medium, High).</li>
 <li><strong>Single Loss Expectancy (SLE):</strong> The financial cost of a single occurrence of a threat.</li>
 <li><strong>Annualized Rate of Occurrence (ARO):</strong> The historical probability of a threat occurring in a single year.</li>
 <li><strong>Annualized Loss Expectancy (ALE):</strong> The total financial loss expected from a threat per year (SLE × ARO).</li>
 <li><strong>Risk Appetite vs. Tolerance:</strong> Appetite is the broad willingness to take risk for strategic goals; Tolerance is the specific, measurable deviation allowed.</li>
+<li><strong>Risk Treatment Strategies:</strong> The four choices a business has when facing risk: Mitigation (reducing), Transference (insurance), Avoidance (canceling), or Acceptance (ignoring).</li>
+<li><strong>GRC Tools:</strong> Governance, Risk, and Compliance platforms used to map controls, automate audits, and provide continuous security monitoring.</li>
+<li><strong>Nation-State / APT:</strong> Highly funded, government-sponsored adversaries focused on geopolitical dominance, espionage, or destructive cyber warfare.</li>
+<li><strong>Hacktivist:</strong> An adversary primarily motivated by ideology or politics rather than financial gain.</li>
+<li><strong>Organized Crime:</strong> Adversaries motivated purely by financial gain, often operating Ransomware-as-a-Service (RaaS) operations.</li>
+<li><strong>Insider Threat:</strong> An adversary (malicious or accidental) who already has legitimate access to the internal network.</li>
+<li><strong>Vendor &amp; Subprocessor Risk:</strong> The risk introduced by a third-party vendor (or the vendor's vendor) suffering a breach that exposes the primary organization's data.</li>
 <li><strong>Zero-Day Exploit:</strong> A cyberattack that occurs on the same day a weakness is discovered in software, meaning no patch exists.</li>
 <li><strong>Cyber Kill Chain:</strong> A framework modeling the sequential phases of a cyberattack.</li>
 <li><strong>MITRE ATT&amp;CK:</strong> A granular knowledge base of adversary tactics and techniques.</li>
+<li><strong>STRIDE:</strong> A threat modeling framework for software development (Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege).</li>
+<li><strong>CAPEC &amp; OWASP:</strong> Frameworks listing common attack patterns (CAPEC) and the top critical web application security risks (OWASP).</li>
+<li><strong>Attack Surface:</strong> The total sum of all possible points where an unauthorized user can enter or extract data from an environment.</li>
 <li><strong>Trust Boundary:</strong> Any point in a system where data changes its level of trust (e.g., passing from the public internet into a private network).</li>
 <li><strong>Connected vs. Disconnected Backups:</strong> Connected backups are fast but vulnerable to ransomware; disconnected (air-gapped) backups are offline and immune to network attacks.</li>
 <li><strong>Remote Journaling:</strong> Transmitting database transaction logs offsite in real-time to prevent data loss.</li>
 </ul>
+<h3>Review Questions</h3>
+<ol>
+<li>Qualitative risk analysis uses hard financial metrics, such as calculating the Annualized Loss Expectancy in exact dollar amounts.</li>
+<li>The fundamental equation of risk is calculated as Threat multiplied by Vulnerability multiplied by Impact.</li>
+<li>A disconnected (air-gapped) backup strategy is highly effective against network-based ransomware because the attacker cannot physically reach the backup media.</li>
+<li>An organization's Risk Tolerance is the broad, overarching amount of risk it is willing to aggressively pursue to achieve its strategic goals.</li>
+<li>The Lockheed Martin Cyber Kill Chain theorizes that breaking any single link in an attack sequence will cause the entire attack to fail.</li>
+<li>In the Diamond Model of Intrusion Analysis, an IP address used by an attacker to deliver malware is categorized as Infrastructure.</li>
+<li>Nation-State actors, or Advanced Persistent Threats (APTs), are primarily motivated by espionage and geopolitical dominance rather than quick financial payouts.</li>
+<li>GRC tools are used to automate compliance tracking and continuously monitor infrastructure for unauthorized configuration changes.</li>
+<li>A subprocessor is a direct vendor that your organization hires, such as an accounting firm processing your payroll.</li>
+<li>The "Transference" risk treatment strategy involves permanently shutting down a vulnerable legacy server to completely eliminate the risk.</li>
+<li>The MITRE ATT&amp;CK framework provides a granular matrix of specific tactics and techniques adversaries use to bypass defenses.</li>
+<li>Connected backups are generally considered more secure against modern ransomware than offline tape backups due to their rapid restoration speeds.</li>
+<li>In the STRIDE threat modeling framework, the "S" stands for Software, focusing on vulnerabilities within custom code.</li>
+<li>Remote journaling transmits database transaction logs to an offsite server in real-time, mitigating integrity risk by allowing for precise data reconstruction.</li>
+<li>An organization can fully outsource its regulatory risk by hiring a highly secure third-party vendor to handle all customer data.</li>
+<li>A zero-day exploit refers to a malware attack that takes exactly zero days to execute once it breaches the network perimeter.</li>
+<li>Extreme but plausible scenarios, known as Black Swan events, should be ignored during risk analysis because their Annualized Rate of Occurrence is too difficult to calculate.</li>
+<li>A trust boundary is anywhere data changes its level of trust, such as moving from the public internet into a corporate network.</li>
+<li>A Breach Response Plan is a purely technical document detailing exactly how network engineers should reconfigure firewalls during a malware outbreak.</li>
+<li>Hashing critical files allows security engineers to prove data integrity by detecting if even a single bit of the file has been tampered with.</li>
+</ol>
+<h4>Answer Key</h4>
+<ol>
+<li><strong>False:</strong> Quantitative analysis uses hard financial data. Qualitative uses subjective labels (Low, Medium, High).</li>
+<li><strong>True:</strong> If any of these three variables are zero, the total risk is zero.</li>
+<li><strong>True:</strong> Offline backups are immune to standard network ransomware.</li>
+<li><strong>False:</strong> That describes Risk Appetite. Risk Tolerance is the specific, measurable deviation from that appetite.</li>
+<li><strong>True:</strong> The model is built on the philosophy that defense-in-depth at any stage stops the final objective.</li>
+<li><strong>True:</strong> Infrastructure represents the physical or logical communication structures used.</li>
+<li><strong>True:</strong> They often conduct "low and slow" attacks to quietly exfiltrate intelligence over years.</li>
+<li><strong>True:</strong> GRC platforms map controls to frameworks and automate auditing workflows.</li>
+<li><strong>False:</strong> A subprocessor is a fourth-party (the vendor that your vendor uses).</li>
+<li><strong>False:</strong> That describes Risk Avoidance. Transference involves shifting the financial burden, usually via insurance.</li>
+<li><strong>True:</strong> It is heavily used by defenders to map specific, real-world attacker behaviors to mitigations.</li>
+<li><strong>False:</strong> Connected backups are highly vulnerable because ransomware can easily spread to them across the active network connection.</li>
+<li><strong>False:</strong> The "S" stands for Spoofing.</li>
+<li><strong>True:</strong> This ensures that even if the primary database is encrypted, the transactions can be perfectly rebuilt.</li>
+<li><strong>False:</strong> Operations can be outsourced, but liability/risk remains permanently with the primary organization.</li>
+<li><strong>False:</strong> A zero-day exploit refers to an attack exploiting a vulnerability that has no known patch (the vendor has had "zero days" to fix it).</li>
+<li><strong>False:</strong> They must be modeled to build resilient crisis management plans that handle worst-case conditions.</li>
+<li><strong>True:</strong> Data crossing a trust boundary must be validated, authenticated, and encrypted.</li>
+<li><strong>False:</strong> It is primarily a human-centric document for crisis management (PR, Legal, Executive Leadership roles).</li>
+<li><strong>True:</strong> Hashing provides mathematical proof of integrity against tampering.</li>
+</ol>
         </main>
     </div>
 </body>
