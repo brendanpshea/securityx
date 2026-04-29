@@ -171,11 +171,11 @@ Based on Darcy's calculations, if a new threat intelligence report indicated tha
 <p>Not all hackers are equal. A teenager in their basement has a vastly different operational capacity than a highly funded military cyber-unit. To accurately model threats, we must categorize adversaries based on their <strong>Motivations</strong> and their <strong>Resources</strong>.</p>
 <p><strong>Motivations</strong> drive <em>why</em> the attack is happening. Common motivations include:</p>
 <ul>
-<li><strong>Financial Gain:</strong> The most common motivation. These actors deploy ransomware, steal credit card numbers, or conduct corporate extortion.</li>
-<li><strong>Geopolitical / Cyber Warfare:</strong> State-sponsored actors attacking critical infrastructure (power grids, voting systems) to destabilize rival nations.</li>
-<li><strong>Activism (Hacktivism):</strong> Ideologically driven attacks. A hacktivist group might deface a corporate website or leak internal emails to protest a company's environmental policies.</li>
-<li><strong>Notoriety:</strong> Often referred to as "Script Kiddies," these actors launch attacks simply for bragging rights within hacker communities or to prove a point.</li>
-<li><strong>Espionage:</strong> The quiet, long-term theft of intellectual property, such as stealing the blueprints for a competitor's new fighter jet.</li>
+<li><strong>Financial Gain (Organized Crime):</strong> The most common motivation. These actors operate like legitimate businesses with HR departments and customer support. <em>Example: The Conti ransomware gang extorting millions from healthcare organizations.</em></li>
+<li><strong>Geopolitical / Cyber Warfare (Nation-State):</strong> Highly funded, state-sponsored actors attacking critical infrastructure to destabilize rival nations. <em>Example: The Stuxnet worm, reportedly built by US and Israeli intelligence, which physically destroyed Iranian nuclear centrifuges.</em></li>
+<li><strong>Activism (Hacktivism):</strong> Ideologically driven attacks. A hacktivist group might deface a corporate website or leak internal emails to protest a company's environmental policies. <em>Example: The collective Anonymous launching DDoS attacks against oppressive regimes.</em></li>
+<li><strong>Notoriety:</strong> Often referred to as "Script Kiddies," these actors lack technical skill and launch pre-built attacks simply for bragging rights within hacker communities or to prove a point.</li>
+<li><strong>Espionage (APT):</strong> The quiet, long-term theft of intellectual property or state secrets. <em>Example: APT29 (Cozy Bear) breaching government agencies to quietly monitor internal communications for years without being detected.</em></li>
 </ul>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong>
@@ -289,7 +289,11 @@ The earlier in the Kill Chain an attack is stopped, the cheaper and easier it is
 </ul>
 <p>Analysts use the Diamond Model to pivot from knowns to unknowns. If an analyst detects a specific IP address (Infrastructure) delivering a specific trojan (Capability) to their network (Victim), they can cross-reference threat intelligence databases to potentially identify the Nation-State (Adversary) that exclusively uses that combination.</p>
 <h4>MITRE ATT&amp;CK</h4>
-<p>The MITRE ATT&amp;CK (Adversarial Tactics, Techniques, and Common Knowledge) framework is a globally accessible knowledge base of adversary tactics and techniques based on real-world observations. Unlike the theoretical Cyber Kill Chain, MITRE ATT&amp;CK is highly practical and granular. It provides a massive matrix detailing the exact methods attackers use to bypass specific defenses, such as how to dump credentials from Windows memory or how to bypass multi-factor authentication.</p>
+<p>The MITRE ATT&amp;CK (Adversarial Tactics, Techniques, and Common Knowledge) framework is a globally accessible knowledge base of adversary tactics and techniques based on real-world observations. Unlike the theoretical Cyber Kill Chain, MITRE ATT&amp;CK is highly practical and granular. It provides a massive matrix detailing the exact methods attackers use to bypass specific defenses.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+A security team wants to defend against attackers stealing passwords. They look up the <strong>Tactic</strong> of "Credential Access" in the MITRE ATT&amp;CK matrix. Under this Tactic, they find the specific <strong>Technique</strong> "OS Credential Dumping" (T1003). MITRE explains that attackers frequently target the LSASS memory process in Windows to extract plaintext passwords. MITRE then provides the exact commands an attacker would run, and lists specific <strong>Mitigations</strong>, such as enabling Windows Credential Guard, to stop it.</p>
+</blockquote>
 <h4>STRIDE, CAPEC, and OWASP</h4>
 <p>When modeling threats during the software engineering and application development phase, different frameworks are used:</p>
 <ul>
@@ -297,13 +301,28 @@ The earlier in the Kill Chain an attack is stopped, the cheaper and easier it is
 <li><strong>CAPEC:</strong> The Common Attack Pattern Enumeration and Classification is a dictionary of known attack patterns used by adversaries to exploit weaknesses in applications.</li>
 <li><strong>OWASP:</strong> The Open Worldwide Application Security Project is a nonprofit foundation that maintains the "OWASP Top 10," the globally recognized standard document representing the ten most critical security risks to web applications (such as Injection attacks and Broken Access Control).</li>
 </ul>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+A software engineer is designing a new customer login portal and uses <strong>STRIDE</strong> to threat model the code before deploying it.</p>
+<ul>
+<li><strong>S</strong>poofing: Could a hacker pretend to be a legitimate customer? <em>(Mitigation: Require Multi-Factor Authentication)</em></li>
+<li><strong>T</strong>ampering: Could a hacker intercept and change the password reset link in transit? <em>(Mitigation: Enforce HTTPS/TLS encryption)</em></li>
+<li><strong>R</strong>epudiation: If a customer makes a massive purchase, could they later deny doing it? <em>(Mitigation: Log the IP address and exact timestamp of every transaction)</em></li>
+</ul>
+</blockquote>
 <h3>Determining the Attack Surface</h3>
 <p>To model threats effectively, you must understand your organization's <strong>Attack Surface</strong>—the total sum of all possible points where an unauthorized user can enter or extract data from an environment.</p>
 <p>Security architects map the attack surface by charting <strong>Data Flows</strong> and identifying <strong>Trust Boundaries</strong>. A trust boundary is anywhere data changes its level of trust. For example, the border between the public internet (untrusted) and the corporate internal network (trusted) is a primary trust boundary, usually guarded by a firewall. The border between an employee's laptop and the heavily restricted payroll database is another internal trust boundary.</p>
 <p>Whenever data crosses a trust boundary, it must be validated, authenticated, and encrypted.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+Consider an employee working from a coffee shop who needs to access a corporate database. The coffee shop's public Wi-Fi is highly <strong>untrusted</strong>. The employee connects to the corporate VPN, passing through the first <strong>Trust Boundary</strong> (the corporate edge firewall). Even though they are now on the internal network, the database itself sits behind a second internal Trust Boundary (a database firewall). The employee must re-authenticate with database-specific credentials to cross this second boundary, ensuring that a compromised laptop cannot automatically extract sensitive records.</p>
+</blockquote>
+<!-- -->
+
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong>
-A common flaw in legacy threat modeling is assuming the internal network is entirely "trusted." Modern adversaries exploit this by breaching a low-level employee's laptop and then moving laterally through the internal network unopposed. This is why modern architectures advocate for Zero Trust.</p>
+A common flaw in legacy threat modeling is assuming the entire internal network is a single "trusted" zone without internal boundaries. Modern adversaries exploit this by breaching a low-level employee's laptop and then moving laterally through the internal network unopposed. This is why modern architectures advocate for <strong>Zero Trust</strong>—a model where no user or device is trusted by default, even if they are already inside the corporate perimeter.</p>
 </blockquote>
 <h3>The Impact of Organizational Change</h3>
 <p>An organization's attack surface is not static; it changes dramatically during major business events. Security teams must continuously update their threat models to account for:</p>
