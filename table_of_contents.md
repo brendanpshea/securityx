@@ -87,33 +87,39 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 *Maps to Objectives: 1.5*
 
 **Learning Outcomes:**
-1. **Summarize** the legal, ethical, and privacy implications of organizational AI adoption.
-2. **Analyze** threats specific to AI models, including prompt injection, data poisoning, and model inversion.
-3. **Evaluate** the risks associated with AI-enabled attacks such as deepfakes and automated exploit generation.
-4. **Formulate** guardrails and DLP strategies for the use of AI-enabled assistants and digital workers.
-5. **Assess** the risks of sensitive information disclosure and excessive agency in AI systems.
-6. **Design** organizational policies to safely govern the use of generative AI tools.
-7. **Evaluate** the impact of explainable versus non-explainable AI models on security investigations.
+1. **Summarize** the legal, ethical, and privacy implications of organizational AI adoption, including explainability.
+2. **Analyze** direct threats to AI models, including prompt injection, insecure output handling, data poisoning, and model DoS.
+3. **Evaluate** the risks associated with AI-enabled attacks such as deepfakes, automated exploit generation, and AI pipeline injections.
+4. **Formulate** guardrails, access controls, and DLP strategies for the use of AI-enabled assistants and digital workers.
+5. **Assess** the risks of sensitive information disclosure, overreliance, and excessive agency in AI systems.
+6. **Identify** vulnerabilities within the AI supply chain, including model theft and model inversion.
 
 **Chapter Outline:**
 - **Introduction**
 - **What Are the Security Implications of AI Adoption?**
-  - Legal, Ethical, and Privacy Concerns
+  - Legal, Ethical, and Privacy Concerns (Potential Misuse)
   - Explainable vs. Non-Explainable Models
   - *Diagram:* The AI/ML Development Pipeline and Trust Boundaries
-  - *Fictional Case Study:* Count Dracula (CISO at Transylvanian Blood Bank) mitigating excessive agency in a medical AI system.
-- **How Are Adversaries Weaponizing AI?**
+- **How Are Adversaries Weaponizing AI? (AI-Enabled Attacks)**
   - Deepfakes and Digital Interactivity
-  - Automated Exploit Generation
+  - Automated Exploit Generation and Social Engineering at Scale
+  - AI Pipeline Injections
   - *Diagram:* Deepfake Generation Workflow vs. Detection
   - *Historical Case Study:* 2019 UK Energy Firm Deepfake CEO Voice Fraud
-- **How Do We Protect AI Models from Attack?**
-  - Prompt Injection and Data Poisoning
-  - Model Theft and Inversion
+- **How Do We Protect AI Models from Attack? (OWASP Top 10 for LLMs)**
+  - Prompt Injection and Insecure Output Handling
+  - Training Data Poisoning and Model Denial of Service (DoS)
+  - Model Theft and Model Inversion
+  - Supply Chain Vulnerabilities in AI Models
+  - *Diagram:* Direct vs. Indirect Prompt Injection Attack Flow
   - *Table:* AI Threats vs. Traditional Software Threats
-- **How Can We Safely Govern AI in the Enterprise?**
-  - Guardrails for AI Assistants
-  - Data Loss Prevention (DLP) for LLMs
+- **How Can We Safely Govern AI in the Enterprise? (Risks of AI Usage)**
+  - Combating Overreliance and the Illusion of Competence
+  - Sensitive Information Disclosure (To and From the Model)
+  - Mitigating Excessive Agency and Insecure Plug-in Design
+  - Governing AI Assistants: Guardrails, Access/Permissions, and DLP
+  - *Diagram:* The Excessive Agency Attack Vector (LLM executing unauthorized API calls)
+  - *Fictional Case Study:* Count Dracula (CISO at Transylvanian Blood Bank) mitigating excessive agency in a medical AI system.
   - *Table:* Enterprise AI Acceptable Use Guidelines
 - **Chapter Review and Conclusion**
 
