@@ -55,6 +55,14 @@ def inject_callout_classes(html_content):
         pattern = re.compile(rf'(<blockquote>\s*<p>\s*<strong>{escaped_tag}</strong>)', re.IGNORECASE)
         # Replace the <blockquote> and remove the brackets from the tag
         html_content = pattern.sub(rf'<blockquote class="{css_class}">\n<p><strong class="callout-title">{title}</strong>', html_content)
+
+    for tag, css_class, title in callouts:
+        escaped_tag = re.escape(tag)
+        nested_pattern = re.compile(rf'</p>\s*<p>\s*<strong>{escaped_tag}</strong>', re.IGNORECASE)
+        html_content = nested_pattern.sub(
+            rf'</p>\n</blockquote>\n<blockquote class="{css_class}">\n<p><strong class="callout-title">{title}</strong>',
+            html_content,
+        )
         
     return html_content
 
@@ -83,6 +91,25 @@ def relax_list_formatting(text):
         
     return '\n'.join(new_lines)
 
+def separate_adjacent_callouts(text):
+    """
+    Inserts a blank line before a new markdown callout blockquote tag when it
+    immediately follows another blockquote. Without this, Markdown treats the
+    second callout as part of the first blockquote, which causes styling bleed.
+    """
+    lines = text.split('\n')
+    new_lines = []
+    callout_pattern = re.compile(r'^>\s+\*\*\[(Case Study|Warning|Key Point|Thought Question|Example)\]\*\*\s*$')
+
+    for i, line in enumerate(lines):
+        if callout_pattern.match(line) and i > 0:
+            prev_line = lines[i - 1]
+            if prev_line.strip().startswith('>') and prev_line.strip() != '>':
+                new_lines.append('')
+        new_lines.append(line)
+
+    return '\n'.join(new_lines)
+
 def build():
     print(f"Building chapters from {SRC_DIR} to {DOCS_DIR}...")
     
@@ -105,6 +132,7 @@ def build():
             
         # Relax list formatting
         text = relax_list_formatting(text)
+        text = separate_adjacent_callouts(text)
             
         # Convert to HTML
         raw_html = md.convert(text)

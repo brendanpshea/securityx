@@ -46,7 +46,9 @@
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong>
 In early 2023, engineers at a major consumer electronics company accidentally leaked highly confidential, proprietary source code by pasting it into a public generative AI chatbot to help them identify bugs. Because the company had not established a private, sandboxed AI environment, their trade secrets were ingested by the public model, creating a massive intellectual property crisis.</p>
-<p><strong>[Warning]</strong>
+</blockquote>
+<blockquote class="callout-warning">
+<p><strong class="callout-title">Warning</strong>
 The potential misuse of AI extends beyond accidental bias. If an enterprise builds an AI system to analyze customer behavior, it must enforce strict ethical boundaries. Using AI to predict when a customer is experiencing severe financial distress in order to aggressively target them with high-interest predatory loans is an example of unethical AI misuse that invites severe regulatory backlash.</p>
 </blockquote>
 <h3>Explainable vs. Non-Explainable Models</h3>
@@ -211,6 +213,9 @@ To govern this behavior, security teams must deploy modern DLP architectures spe
 <li><strong>Enterprise-Tenant AI Environments:</strong> The most effective DLP strategy is to provide a safe, sanctioned alternative to public tools. Organizations purchase "Enterprise-Tier" licenses for major LLMs. In an Enterprise Tenant, the vendor legally guarantees that no corporate data submitted to the prompt will ever be used to train the public model, and all data is encrypted at rest within a private, sandboxed cloud instance. </li>
 <li><strong>Context-Aware DLP Agents:</strong> Next-generation endpoint agents do not just look for Regex patterns; they use lightweight, localized machine learning models to analyze the <em>context</em> and <em>sentiment</em> of the text an employee is typing into a browser window. If the agent detects semantic patterns matching proprietary source code or legal contracts, it instantly overlays a warning screen, blocking the paste action and redirecting the employee to the sanctioned Enterprise AI environment.</li>
 </ul>
+<h3>Combating Overreliance and the Illusion of Competence</h3>
+<p>One of the most subtle risks of AI usage is not overtly malicious behavior, but misplaced trust. LLMs produce fluent, authoritative-sounding output even when they are wrong. This creates an <strong>illusion of competence</strong>: the human operator begins to assume the model is reliable because it sounds confident, not because it has been validated.</p>
+<p>This is why organizations must explicitly train staff against <strong>overreliance</strong>. Analysts should treat AI output as a draft or a lead, not a final answer. Engineers must verify generated code. Legal teams must validate generated citations. Incident responders must corroborate AI summaries against raw logs and primary evidence. The more polished the model sounds, the more disciplined the human review process must be.</p>
 <h3>Defining an Acceptable Use Policy (AUP) for Generative AI</h3>
 <p>Technology alone cannot solve a human behavioral problem. The foundation of AI Governance is the <strong>Acceptable Use Policy (AUP)</strong>. An AUP is a legally binding internal document that explicitly dictates what employees are allowed to do—and forbidden from doing—with corporate IT assets.</p>
 <p>Every organization must update its AUP to address Generative AI specifically. A robust AI AUP must mandate the following rules:</p>
@@ -218,11 +223,16 @@ To govern this behavior, security teams must deploy modern DLP architectures spe
 <li><strong>Zero-Trust for Code Generation:</strong> Software developers are strictly prohibited from copying proprietary corporate source code into unauthorized, public AI chatbots to hunt for bugs. Furthermore, any code <em>generated</em> by an AI must be treated as untrusted third-party code. It must undergo rigorous peer review and automated static application security testing (SAST) before being merged into the production codebase, as AI frequently hallucinates insecure functions or obsolete cryptographic libraries.</li>
 <li><strong>The "Human-in-the-Loop" Mandate:</strong> AI output cannot be published or acted upon without human verification. If an employee uses an AI to draft a legal contract, a human lawyer must review it. If the AI hallucinates a nonexistent legal precedent, the corporation—not the AI vendor—is legally liable for the fallout.</li>
 <li><strong>Prohibition of PII and PHI Submission:</strong> Under no circumstances may an employee submit Personally Identifiable Information (PII) or Protected Health Information (PHI) to any AI system that has not been explicitly vetted, audited, and cleared by the Chief Information Security Officer (CISO) and the Legal department.</li>
+<li><strong>Disclosure of AI Usage:</strong> If an AI assistant interacts with customers, influences regulated business decisions, or generates content that appears authoritative, the organization should require clear disclosure that AI was used. Hidden automation erodes trust and can create legal problems when users believe they are interacting solely with a human expert.</li>
 </ol>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong>
 An Acceptable Use Policy is worthless if employees do not understand it. Security Awareness Training must be updated quarterly to reflect the rapidly changing AI landscape. Employees must be shown real-world examples of how seemingly innocent prompts can result in devastating corporate data breaches.</p>
 </blockquote>
+<h3>Excessive Agency and Insecure Plug-in Design</h3>
+<p>The most dangerous AI assistants are not the ones that merely answer questions; they are the ones that can <em>act</em>. Once an LLM is connected to plug-ins, browser agents, workflow tools, ticketing systems, or payment APIs, the model gains <strong>agency</strong>. If that agency is broader than the business process requires, a single prompt injection can escalate from bad text generation into real operational damage.</p>
+<p>This is where <strong>Insecure Plug-in Design</strong> becomes an AI-enabled attack path. A poorly designed plug-in might grant the model broad OAuth scopes, expose internal APIs without secondary approval, or trust the model to decide when a destructive action is justified. An attacker who poisons the prompt stream may then cause the assistant to send emails, exfiltrate records, approve refunds, open firewall rules, or invoke external webhooks.</p>
+<p>Defenders reduce this risk through the same principles used elsewhere in security engineering: least privilege, scoped tokens, explicit allowlists, out-of-band approval for high-risk actions, and strong separation between "suggest" and "execute." The AI can recommend an action, but a deterministic control or human approver should decide whether the action is actually carried out.</p>
 <h3>The Fictional Case Study</h3>
 <p>To solidify these concepts, let us examine how a security leader handles the intersection of AI adoption, regulatory compliance, and data privacy in a high-stakes environment.</p>
 <blockquote class="callout-case-study">

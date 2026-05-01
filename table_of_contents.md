@@ -37,7 +37,9 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Data Governance in Staging and Production
   - *Table:* Comparing Major IT Governance Frameworks
 - **How Does Compliance Shape Security Strategy?**
-  - Industry Standards (PCI DSS, ISO 27000)
+  - Industry-Specific Compliance (Healthcare, Financial, Government, Utilities)
+  - Industry Standards and Market Regulation (PCI DSS, ISO 27000, DMA)
+  - Security and Reporting Frameworks (SOC 2, NIST CSF, CIS Benchmarks, CIS Controls, CSA CCM)
   - Privacy Regulations (GDPR, CCPA)
   - *Historical Case Study:* Meta GDPR Fine (€1.2 Billion Data Transfer Ruling) 
 - **Chapter Review and Conclusion**
@@ -62,6 +64,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Quantitative vs. Qualitative Analysis (and Risk Assessment Frameworks)
   - Impact Analysis and Extreme but Plausible Scenarios
   - GRC Tools, Mapping, and Continuous Monitoring
+  - Validation and Testing of Risk Treatments
   - *Diagram:* The Risk Assessment Workflow
   - Risk Appetite and Tolerance
   - *Table:* Quantitative vs. Qualitative Risk Metrics
@@ -73,13 +76,18 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - *Historical Case Study:* The Target HVAC Vendor Breach (Third-Party Supply Chain)
 - **How Do We Model Threats Effectively?**
   - Frameworks: MITRE ATT&CK, STRIDE, Cyber Kill Chain, Diamond Model, CAPEC, and OWASP
-  - Determining the Attack Surface (Data Flows and Trust Boundaries)
-  - The Impact of Organizational Change (Mergers, Acquisitions, Divestitures)
+  - Threat Modeling Methods (Abuse Cases, Antipatterns, Attack Trees/Graphs)
+  - Determining the Attack Surface (Architecture Reviews, Code Reviews, User Factors, Data Flows, and Trust Boundaries)
+  - Enumeration and Discovery (Third-Party Connections, Unsanctioned Assets, Cloud Services, Public Digital Presence)
+  - Legal and Business Constraints (Legal Holds, Due Diligence, Due Care, Export Controls, Contractual Obligations)
+  - The Impact of Organizational Change (Mergers, Acquisitions, Divestitures, Staffing Changes)
+  - Modeling Existing Environments vs. Greenfield Designs
   - *Diagram:* Visualizing the Cyber Kill Chain
 - **What is the Plan for the Worst-Case Scenario?**
   - Crisis Management and Breach Response
   - BCDR, Availability Risk, and Backup Strategies (Connected vs. Disconnected)
-  - Integrity Risk (Hashing, Remote Journaling, Antitampering)
+  - Confidentiality Risk (Data Leak Response, Sensitive Data Breaches, Incident Response Testing)
+  - Integrity Risk (Hashing, Remote Journaling, Interference, Antitampering)
   - *Diagram:* BCDR Planning Lifecycle
 - **Chapter Review and Conclusion**
 
@@ -117,7 +125,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Combating Overreliance and the Illusion of Competence
   - Sensitive Information Disclosure (To and From the Model)
   - Mitigating Excessive Agency and Insecure Plug-in Design
-  - Governing AI Assistants: Guardrails, Access/Permissions, and DLP
+  - Governing AI Assistants: Guardrails, Access/Permissions, DLP, and Disclosure of AI Usage
   - *Diagram:* The Excessive Agency Attack Vector (LLM executing unauthorized API calls)
   - *Fictional Case Study:* Count Dracula (CISO at Transylvanian Blood Bank) mitigating excessive agency in a medical AI system.
   - *Table:* Enterprise AI Acceptable Use Guidelines
@@ -143,23 +151,29 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 **Chapter Outline:**
 - **Introduction**
 - **How Do We Architect Resilient Systems?**
-  - Component Placement (Firewalls, WAFs, Proxies)
-  - Load Balancing and Scaling
+  - Component Placement (Firewalls, IPS/IDS, WAFs, Proxies, Reverse Proxies, API Gateways, VPNs, NAC, Sensors, Collectors, CDNs)
+  - Availability and Integrity Design (Load Balancing, Recoverability, Interoperability, Geographic Placement, Persistence)
   - *Diagram:* High-Availability Enterprise Network Architecture
   - *Diagram:* Active-Active vs. Active-Passive Load Balancing
 - **What Does Zero Trust Actually Mean?**
+  - Continuous Authorization and Context-Based Reauthentication
+  - API Integration, Validation, and Always-On Access Patterns
+  - Asset Identification, Management, and Attestation
   - Deperimeterization and Continuous Authorization
   - Defining Subject-Object Relationships
   - *Table:* Traditional Perimeter vs. Zero Trust Architecture
   - *Fictional Case Study:* Prospero (Network Architect at Milan Island Telecom) implements SASE for a remote workforce.
 - **How Do We Enforce Security Boundaries?**
-  - Microsegmentation and SASE
-  - Software-Defined Networking (SDN)
+  - Attack Surface Management, Hardening, and Defense-in-Depth
+  - Microsegmentation, Data Perimeters, and Secure Zones
+  - Software-Defined Networking (SDN) and Third-Party Integration Boundaries
+  - Centralized Logging, Alerting, Continuous Monitoring, and Sensor Placement
   - *Historical Case Study:* Google BeyondCorp (Shifting to Zero Trust Architecture)
   - *Table:* Physical vs. Logical Security Boundaries
 - **How Do We Protect Data at Scale?**
   - Classification, Labeling, and Tagging
-  - DLP at Rest and in Transit
+  - DLP at Rest, In Transit, and Through Data Discovery
+  - Control Effectiveness Through Assessments, Scanning, and Metrics
   - *Diagram:* DLP Implementation Across Network Layers
 - **Chapter Review and Conclusion**
 
@@ -179,21 +193,27 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 **Chapter Outline:**
 - **Introduction**
 - **How Do We Manage the Identity Lifecycle?**
+  - Credential Issuance and Self-Provisioning
   - Provisioning and Deprovisioning
-  - Federation and SSO
+  - Subject Access Control (Users, Processes, Devices, and Services)
+  - Federation, Identity Providers, Service Providers, and SSO
   - *Diagram:* Federated Identity and SSO Workflow (SAML/OIDC)
   - *Fictional Case Study:* Emma Woodhouse (IAM Specialist at Highbury Networks) rapidly revoking access during an offboarding crisis.
 - **Which Access Control Model is Right for the Job?**
   - ABAC, MAC, DAC, and RBAC
-  - Conditional Access and Geographic Location
+  - Policy Decision and Enforcement Points
+  - Conditional Access, User-to-Device Binding, Geographic Location, and Time-Based Controls
+  - Attestation, Biometrics, Identity Proofing, and Device Trust
+  - Physical and Logical Access Control Systems
   - *Table:* Access Control Models Comparison
   - *Diagram:* Biometric Authentication Process Flow
 - **How Do We Secure High-Privilege Accounts?**
   - Privileged Access Management (PAM)
   - Secrets Management and Credential Rotation
+  - Logging, Auditing, and Cloud IAM Trust Policies
   - *Historical Case Study:* SolarWinds and the Golden SAML Attack
 - **How Do We Troubleshoot Authentication Failures?**
-  - Resolving SAML, OAuth, and Kerberos Issues
+  - Resolving SAML, OAuth, OpenID Connect, Kerberos, EAP, 802.1X, and SAE Issues
   - Investigating Biometric and MFA Anomalies
   - *Table:* SAML vs. OAuth vs. OpenID Connect
 - **Chapter Review and Conclusion**
@@ -216,13 +236,20 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **How Do We Bake Security into the SDLC?**
   - Functional vs. Non-Functional Requirements
   - Trade-offs Between Security and Usability
+  - Coding Standards, Linting, and Branch Protection
   - *Diagram:* Integrating Security into the CI/CD Pipeline
 - **What Are the Best Tools for Software Assurance?**
-  - SAST, DAST, IAST, and RASP
+  - SAST, DAST, IAST, RASP, and Formal Methods
   - Software Composition Analysis and SBoMs
+  - Testing Activities (Canary, Regression, Integration, Automated Retest, Unit)
   - *Table:* When to Use SAST, DAST, and RASP
   - *Historical Case Study:* Log4Shell and the Importance of SBoMs
+- **How Do We Automate Secure Delivery and Manage Support Boundaries?**
+  - CI/CD Pipelines and Continuous Improvement
+  - Software and Hardware Supply Chain Risk Management
+  - End-of-Life (EOL) and Supportability Planning
 - **How Do We Establish Hardware Roots of Trust?**
+  - Certification and Validation Processes
   - TPMs, HSMs, and vTPMs
   - Secure Enclaves and Coprocessors
   - *Table:* Hardware vs. Software Roots of Trust
@@ -251,7 +278,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Introduction**
 - **Who is Responsible for Cloud Security?**
   - The Shared Responsibility Model
-  - Customer-Managed vs. Cloud-Managed Keys
+  - Customer-Managed vs. Cloud-Managed Keys and Licenses
   - *Diagram:* The Cloud Shared Responsibility Model (IaaS/PaaS/SaaS)
   - *Table:* Security Responsibilities by Cloud Service Model
 - **How Do We Secure Cloud Workloads and Containers?**
@@ -259,14 +286,19 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Serverless Functions and Resources
   - *Table:* Security Controls for Containers vs. Serverless
   - *Fictional Case Study:* Dorothy Gale (Cloud Architect at Emerald City Solutions) securing a sprawling serverless architecture.
+- **How Do We Automate Cloud Delivery Securely?**
+  - CI/CD Pipelines for Cloud Platforms
+  - Terraform, Ansible, and Package Monitoring
 - **How Do We Govern Cloud Access and APIs?**
-  - CASBs and Shadow IT Detection
+  - CASBs (API-Based and Proxy-Based) and Shadow IT Detection
   - API Authorization and Rate Limiting
   - *Diagram:* API Gateway Architecture
   - *Historical Case Study:* The Capital One AWS SSRF Breach
 - **How Do We Protect Cloud Data?**
-  - Data Exposure and Remanence
+  - Data Exposure, Leakage, Remanence, and Insecure Storage Resources
+  - Proactive, Detective, and Preventative Cloud Controls
   - Customer-to-Cloud Connectivity
+  - Cloud Service Integration and Adoption
 - **Chapter Review and Conclusion**
 
 ---
@@ -290,17 +322,23 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Introduction**
 - **How Do We Architect a Robust PKI?**
   - Certificate Authorities and Registration
-  - Certificate Extensions and OCSP Stapling
+  - Certificate Extensions, Templates, and OCSP Stapling
+  - Certificate Deployment and Integration Approaches
   - *Diagram:* The PKI Certificate Issuance and Validation Process
   - *Table:* Types of Digital Certificates
 - **How Do We Apply Cryptography in the Real World?**
   - Data at Rest, in Transit, and in Use
-  - Code Signing and Software Provenance
+  - Secure Email, Non-Repudiation, and Privacy Use Cases
+  - Data Sanitization, Anonymization, and Tokenization
+  - Certificate-Based and Passwordless Authentication
+  - Code Signing, Digital Signatures, and Software Provenance
+  - Centralized vs. Decentralized Key Management
   - *Table:* Symmetric vs. Asymmetric Cryptography Use Cases
   - *Fictional Case Study:* The Mad Hatter (Lead Cryptographer at Teatime Tech) preventing an outage due to an expired root certificate.
 - **What Are Advanced Cryptographic Concepts?**
-  - Envelope Encryption and Hardware Acceleration
-  - Key Stretching and Splitting
+  - Envelope Encryption, AEAD, and Hardware Acceleration
+  - Key Stretching, Key Splitting, and Forward Secrecy
+  - Homomorphic Encryption, Secure Multiparty Computation, and Performance Trade-Offs
   - *Historical Case Study:* The DigiNotar Certificate Authority Compromise
   - *Diagram:* The TLS Handshake Explained
 - **How Will Quantum Computing Change Cryptography?**
@@ -326,19 +364,23 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Introduction**
 - **How Do We Manage Infrastructure Changes?**
   - Change and Configuration Management
-  - Asset Management Lifecycle and CMDB
+  - Asset Management Lifecycle, Inventory, and CMDB
 - **How Do We Lock Down Endpoints and Servers?**
-  - EDR, Anti-Malware, and Host Firewalls
+  - EDR, HIPS/HIDS, Anti-Malware, and Host Firewalls
+  - Endpoint Privilege Management, Application Control, SELinux, and Attack Surface Reduction
   - Browser Isolation and Configuration Management
   - *Table:* Endpoint Protection Features Comparison
   - *Diagram:* EDR Architecture vs. Traditional Antivirus
 - **How Do We Troubleshoot Network Defenses?**
   - Resolving IPS/IDS False Positives
-  - Correcting Routing and Switching Errors
+  - Correcting Routing, Switching, VPN/Tunnel, and ACL Errors
+  - Improving Observability and Sensor Coverage
   - *Historical Case Study:* WannaCry Ransomware (Network Propagation and Unpatched Systems)
 - **How Do We Secure Core Network Services?**
-  - DNS Security (DNSSEC, Sinkholing)
-  - Email Security (DKIM, SPF, DMARC)
+  - DNS Security (DNSSEC, Poisoning, Sinkholing, Zone Transfers)
+  - TLS Troubleshooting (Cipher Mismatch and PKI Issues)
+  - Email Security (DKIM, SPF, DMARC, S/MIME)
+  - DoS/DDoS and Resource Exhaustion
   - *Diagram:* How SPF, DKIM, and DMARC Prevent Email Spoofing
   - *Table:* Common Email Attack Types and Mitigations
 - **How Do We Manage Mobile and Remote Devices?**
@@ -439,10 +481,17 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - *Table:* Common Software Vulnerabilities and Mitigations
   - *Table:* Understanding CVSS Scoring Metrics
 - **How Can Automation Force-Multiply Security?**
-  - Scripting (Python, PowerShell) and IaC
-  - SOAR Playbooks and Auto-Containment
+  - Scripting (Python, PowerShell, Bash), Scheduled Tasks, and Event-Based Triggers
+  - IaC, Configuration Files, Cloud APIs/SDKs, and Webhooks
+  - Generative AI for Code Assist and Documentation
+  - SOAR Playbooks, Runbooks, and Auto-Containment
+  - Workflow Automation and Automated Patching
   - *Diagram:* An Automated SOAR Phishing Response Workflow
   - *Fictional Case Study:* Alice Liddell (IR Manager at Wonderland Logistics) automates containment with a custom Python script.
+- **How Do We Measure Exposure and Automate Remediation?**
+  - Vulnerability Scanning and Reporting
+  - SCAP Standards (OVAL, XCCDF, CPE, CVE, CVSS)
+  - Containerization in Automated Security Workflows
 - **How Do We Respond to an Active Security Incident?**
   - Timeline Reconstruction and Root Cause Analysis
   - Malware Sandboxing and Reverse Engineering
