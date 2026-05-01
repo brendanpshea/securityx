@@ -54,6 +54,10 @@ An account is never more vulnerable to social engineering than during enrollment
 <li><strong>Leaver workflows</strong> that disable accounts on the last day and fully delete them after a defined retention period.</li>
 <li><strong>Periodic access reviews</strong> where managers must affirm that each direct report still needs each privilege.</li>
 </ul>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+Cinderella joins Glass Slipper Tech as a backend systems administrator. Her joiner workflow grants the baseline "Engineering" role: email, Slack, GitHub, the staging AWS account, and a development Jira project. Six months later she transfers to the Payments team. The mover workflow adds her to the "Payments-Engineer" role (PCI-scoped staging, payments code repo, the on-call rotation) — and <em>removes</em> her access to the original team's repository and Jira project. Two years later she resigns. The leaver workflow, triggered by HR marking her terminated, disables her IdP account within minutes; SCIM propagates the disable to every federated SaaS app; her PAM vault entries are revoked; and after a 30-day legal-hold retention window, the account is deleted. At no point did anyone file a ticket asking for the old access to be removed — the lifecycle did it automatically.</p>
+</blockquote>
 <h3>Subject Access Control: Users, Processes, Devices, and Services</h3>
 <p>It is tempting to think of "identity" as something that belongs only to humans. In a modern enterprise, that mental model is dangerous. Identities also belong to:</p>
 <ul>
@@ -82,10 +86,10 @@ If your organization rotates user passwords every 90 days but cannot tell you wh
 <p><strong class="callout-title">Case Study</strong>
 <strong>Emma Woodhouse and the Offboarding Crisis at Highbury Networks</strong></p>
 <p>Emma Woodhouse had spent her first six months as the new IAM Specialist at Highbury Networks tidying up what her predecessor had left behind. Highbury was a fast-growing analytics firm with about 1,400 employees, dozens of contractors, and roughly 180 SaaS applications acquired through a decade of departmental purchases. Provisioning was reasonably automated for Microsoft 365 and the core CRM, but the rest of the SaaS portfolio was a patchwork of manual requests and shared admin consoles.</p>
-<p>The crisis began on a Friday afternoon. A senior data analyst named Frank had been terminated for cause that morning. HR processed the offboarding ticket immediately, and Emma's automation disabled Frank's account in Microsoft Entra ID within fifteen minutes. By all appearances, the offboarding was clean.</p>
-<p>Then, at 7:42 PM, Highbury's SOC paged Emma. Frank's email account had been disabled, but two other systems were still showing active sessions associated with him: a marketing analytics SaaS that had been onboarded by the marketing team three years earlier without going through IT, and a third-party data vendor's portal where Frank had been a designated power user. Neither was federated to Entra ID. Both used local credentials. Both had been used to download customer data after Frank's termination.</p>
+<p>The crisis began on a Friday afternoon. A senior data analyst named Moriarty had been terminated for cause that morning. HR processed the offboarding ticket immediately, and Emma's automation disabled Moriarty's account in Microsoft Entra ID within fifteen minutes. By all appearances, the offboarding was clean.</p>
+<p>Then, at 7:42 PM, Highbury's SOC paged Emma. Moriarty's email account had been disabled, but two other systems were still showing active sessions associated with him: a marketing analytics SaaS that had been onboarded by the marketing team three years earlier without going through IT, and a third-party data vendor's portal where Moriarty had been a designated power user. Neither was federated to Entra ID. Both used local credentials. Both had been used to download customer data after Moriarty's termination.</p>
 <p>The incident did not result in a major breach — Highbury's DLP caught the second download attempt and the legal team recovered the data — but it was a wake-up call. Emma spent the following quarter executing what she called the "federate or retire" project. Every SaaS application in the company had to either be brought under Entra ID's SSO umbrella, with deprovisioning tied to the HR feed, or be formally retired. Where an application could not support SAML or OIDC, Emma worked with vendors to enable SCIM-based provisioning so that account disable would happen automatically.</p>
-<p>Eighteen months later, Highbury could disable a departing employee's access across the entire SaaS portfolio in under five minutes. The incident with Frank was the last time the company learned about an unfederated application from its SOC instead of from its inventory.</p>
+<p>Eighteen months later, Highbury could disable a departing employee's access across the entire SaaS portfolio in under five minutes. The incident with Moriarty was the last time the company learned about an unfederated application from its SOC instead of from its inventory.</p>
 </blockquote>
 <hr />
 <h2>Which Access Control Model Is Right for the Job?</h2>
@@ -96,6 +100,16 @@ If your organization rotates user passwords every 90 days but cannot tell you wh
 <p><strong>Attribute-Based Access Control (ABAC)</strong> evaluates access decisions based on <em>attributes</em> of the subject, the object, the action, and the environment. A policy might say: "A user with department=Finance and clearance=Confidential may read documents tagged sensitivity=Confidential during business hours from a managed device." ABAC is far more flexible than RBAC and can express conditional logic, but it requires high-quality attribute data and careful policy authoring. A wrong attribute on a single document can grant or deny access in surprising ways.</p>
 <p><strong>Mandatory Access Control (MAC)</strong> enforces access decisions based on system-assigned classifications and labels that ordinary users cannot override. Government and military systems are the classic examples: a document classified Top Secret may only be read by subjects cleared to Top Secret, no matter who created the document. MAC is rigid by design — that rigidity is its security value.</p>
 <p><strong>Discretionary Access Control (DAC)</strong> allows the <em>owner</em> of a resource to decide who else may access it. Unix file permissions and Windows NTFS access control lists are familiar examples. DAC is flexible and intuitive but produces inconsistent enforcement and is easy for users to misconfigure (everyone has shared a folder "with the whole company" at some point).</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+Consider how each model handles the same request at Geneva Labs: <em>"Allow Dr. Moriartyenstein to read patient record #4471."</em></p>
+<ul>
+<li><strong>DAC:</strong> Whoever created the record (perhaps the admitting nurse) added Dr. Moriartyenstein to its ACL. If the nurse forgot, he cannot read it — even though clinically he should.</li>
+<li><strong>RBAC:</strong> Dr. Moriartyenstein has the role "Attending Physician — Cardiology." Anyone with that role can read any cardiology patient record. Simple, but the nephrology consult he also needs is invisible to him.</li>
+<li><strong>ABAC:</strong> A policy says: <em>"A physician may read a patient record if (treating_team contains physician.id) OR (consult_request exists for physician.id on patient.id)."</em> The decision is made fresh on each request from current attribute data.</li>
+<li><strong>MAC:</strong> The record carries a system-assigned label "PHI — Cardiology Ward." Only subjects whose clearance includes that label can read it, and no doctor — not even the chief of medicine — can override the label themselves.</li>
+</ul>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -159,6 +173,10 @@ If your organization rotates user passwords every 90 days but cannot tell you wh
 <li><em>Require step-up authentication when a user attempts to access a high-sensitivity application.</em></li>
 <li><em>Allow contractor accounts to sign in only between 7 AM and 7 PM in their working time zone.</em></li>
 </ul>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+A finance analyst tries to open the corporate ERP from a hotel Wi-Fi network on a Saturday evening. The conditional access engine evaluates the request: the user is in a permitted role (✓), but the device is unmanaged (✗), the location is outside the usual country (✗), and the time falls outside business hours (✗). Rather than allow or deny outright, the policy issues an <strong>obligation</strong>: grant access only after the user completes a step-up FIDO2 challenge AND restrict the session to read-only for two hours. The same user, on the same laptop, on Monday morning at the office, would have been signed in silently with no extra prompt. Same identity, same resource, completely different access decision — driven by context.</p>
+</blockquote>
 <p>Conditional access policies typically combine several signals: <strong>user-to-device binding</strong> (this credential is tied to this enrolled device), <strong>geographic location</strong> (where the request originated), <strong>time-based controls</strong> (when access is permitted), and <strong>device trust</strong> (is the endpoint compliant with patching, encryption, EDR posture). These are the same signals we discussed in Chapter 4's Zero Trust section — IAM is simply where most of them are evaluated.</p>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong>
@@ -200,6 +218,10 @@ A contractor needs access to one application, from one specific laptop, only dur
 <li><strong>Fine-grained access policies</strong> that define which workload, on which host, with which identity, may retrieve which secret.</li>
 <li><strong>Audit logging</strong> of every secret access.</li>
 </ul>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+A payment-processing microservice needs to talk to a PostgreSQL database. The insecure pattern: a <code>DATABASE_PASSWORD=hunter2</code> line in a <code>.env</code> file checked into git. The mature pattern: at startup, the service authenticates to HashiCorp Vault using its Kubernetes service-account token. Vault verifies the pod's identity with the cluster, confirms a policy that allows this workload to read <code>secret/payments/db</code>, and returns a <em>dynamically generated</em> database credential that is valid for 60 minutes. After 60 minutes the credential expires automatically; if the pod is still running it requests a fresh one. If an attacker dumps memory from one pod, they get a credential that dies within the hour — and Vault's audit log records exactly which pod, on which node, fetched which secret, when.</p>
+</blockquote>
 <p><strong>Rotation</strong> matters because the longer a secret lives, the more places it has been copied to and the more hands have seen it. Best practice is to rotate routinely <em>and</em> to rotate immediately after any suspected exposure. This applies equally to passwords, tokens, certificates, and keys. Crucially, the rotation process itself must be automated — a manual "rotate every 90 days" policy that depends on a human running a checklist will fail under operational pressure.</p>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong>
@@ -263,6 +285,10 @@ Hardcoded secrets in source code repositories are one of the most common root ca
 </tbody>
 </table>
 <p><strong>SAML troubleshooting</strong> almost always comes down to one of four issues: (1) the IdP and SP disagree on the entity ID or the assertion consumer URL, (2) the SAML response signature does not validate because the SP has the wrong IdP certificate or the certificate has expired, (3) clock skew between IdP and SP causes the assertion to be considered "not yet valid" or "expired," or (4) the user's attributes in the assertion do not match what the SP expects (e.g., the SP keys on email but the IdP sends UPN). A SAML tracer browser extension that captures the actual assertion is usually the fastest diagnostic tool.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong>
+A new SaaS app rolls out and every user sees "SAML response invalid" on first login. The IAM engineer captures the assertion with a SAML tracer and finds two things: the assertion's <code>NotBefore</code> is <code>14:02:11Z</code> and the SP's clock reads <code>13:59:48Z</code> — a 2-minute and 23-second skew that puts the assertion in the SP's "future." Worse, the assertion's <code>&lt;Audience&gt;</code> is <code>https://app.vendor.com/saml</code> but the SP was registered with the IdP as <code>https://app.vendor.com/saml/</code>. Two fixes — sync the SP host to NTP, and remove the trailing slash from the IdP's audience configuration — and the entire user base can log in. Both errors produced the same generic "invalid response" message; only the captured assertion told the real story.</p>
+</blockquote>
 <p><strong>OAuth and OIDC troubleshooting</strong> has its own characteristic problems. Redirect URI mismatches — even a trailing slash — will block the flow entirely. Scopes that the client requests but the authorization server has not granted will produce subtle authorization failures rather than authentication errors. The <strong>JWKS</strong> endpoint that the SP uses to fetch the IdP's public signing keys must be reachable and the keys must rotate gracefully; a stale JWKS cache after a key rotation will cause every token to fail validation simultaneously.</p>
 <h3>Kerberos, EAP, 802.1X, and SAE</h3>
 <p>Older but still ubiquitous protocols handle authentication on internal networks and Wi-Fi.</p>
