@@ -2,6 +2,11 @@
 
 This document outlines the editorial standards, formatting rules, and stylistic approach for the CompTIA SecurityX textbook. It serves as the primary reference for all chapter drafts.
 
+## Word count target:
+- Introduction of around 150 to 300 words
+- Each section 1,000 to 2,000 words
+- Overall chapter length of 6,000 to 8,000 words
+
 ## 1. Chapter Template and Style Sheet
 Every chapter must adhere to the following structural elements and callouts:
 - **Learning Outcomes:** Bulleted list at the start of the chapter, mapped to Bloom's Taxonomy.

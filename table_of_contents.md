@@ -223,13 +223,13 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 
 **Learning Outcomes:**
 1. **Define** functional and non-functional security requirements during the early stages of the systems life cycle.
-2. **Implement** software assurance testing techniques, including SAST, DAST, IAST, and RASP.
-3. **Design** continuous integration and continuous deployment (CI/CD) pipelines with integrated security checks.
-4. **Evaluate** supply chain risk management strategies for both software and hardware.
-5. **Implement** hardware roots of trust, including TPMs, HSMs, and vTPMs.
-6. **Assess** security coprocessors and secure enclaves to protect sensitive computation.
-7. **Design** self-healing hardware mechanisms and tamper detection countermeasures.
-8. **Evaluate** threat-actor tactics targeting firmware, memory, and electromagnetic interfaces.
+2. **Apply** software assurance techniques, including SAST, DAST, IAST, RASP, vulnerability analysis, SCA, SBoMs, and formal methods.
+3. **Design** CI/CD pipelines with coding standards, linting, branch protection, and comprehensive testing.
+4. **Evaluate** supply chain risk management strategies for both software and hardware, including EOL planning.
+5. **Implement** hardware assurance controls, including certification/validation processes and roots of trust (TPMs, HSMs, and vTPMs).
+6. **Assess** secure boot, measured boot, virtual hardware controls, host-based encryption, and self-encrypting drives.
+7. **Design** security coprocessor and secure enclave deployments with self-healing and tamper-detection capabilities.
+8. **Evaluate** threat-actor TTPs targeting firmware, memory, buses, and electromagnetic interfaces (including shimming, USB attacks, EMI, and EMP).
 
 **Chapter Outline:**
 - **Introduction**
@@ -239,7 +239,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Coding Standards, Linting, and Branch Protection
   - *Diagram:* Integrating Security into the CI/CD Pipeline
 - **What Are the Best Tools for Software Assurance?**
-  - SAST, DAST, IAST, RASP, and Formal Methods
+  - SAST, DAST, IAST, RASP, Vulnerability Analysis, and Formal Methods
   - Software Composition Analysis and SBoMs
   - Testing Activities (Canary, Regression, Integration, Automated Retest, Unit)
   - *Table:* When to Use SAST, DAST, and RASP
@@ -251,12 +251,17 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **How Do We Establish Hardware Roots of Trust?**
   - Certification and Validation Processes
   - TPMs, HSMs, and vTPMs
+  - Virtual Hardware and Host-Based Encryption
+  - Self-Encrypting Drives (SEDs)
   - Secure Enclaves and Coprocessors
   - *Table:* Hardware vs. Software Roots of Trust
   - *Fictional Case Study:* Victor Frankenstein (Bio-Tech Security Engineer at Geneva Labs) auditing embedded IoT hardware.
 - **How Do We Defend Against Hardware-Level Attacks?**
+  - Secure Boot and Measured Boot Integrity Chains
   - Firmware Tampering (BIOS/UEFI)
-  - Memory and EMI Exploitation
+  - Shimming and USB-Based Attacks
+  - Memory Exploitation, EMI, and EMP
+  - Tamper Detection and Self-Healing Hardware Responses
   - *Diagram:* Secure Boot and Measured Boot Process
 - **Chapter Review and Conclusion**
 
