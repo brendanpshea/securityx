@@ -188,7 +188,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 5. **Manage** secrets effectively, including the rotation and deletion of tokens, certificates, passwords, and keys.
 6. **Analyze** and resolve issues with authentication protocols.
 7. **Apply** endpoint privilege management and privileged access management (PAM) solutions.
-8. **Troubleshoot** IAM components across cloud and on-premises environments.
+8. **Troubleshoot** IAM components across cloud and on-premises environments, including common identity-centric attack paths and trust abuses.
 
 **Chapter Outline:**
 - **Introduction**
@@ -212,6 +212,11 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Secrets Management and Credential Rotation
   - Logging, Auditing, and Cloud IAM Trust Policies
   - *Historical Case Study:* SolarWinds and the Golden SAML Attack
+- **How Do Identity Attacks Actually Unfold?**
+  - Identity-Centric Attack Paths: Privilege Escalation, Credential Dumping, and Token Abuse
+  - Unauthorized Execution, Lateral Movement, and Defensive Evasion Against Identity Infrastructure
+  - Injections and Trust Boundary Manipulation in Identity Workflows
+  - *Table:* IAM-Centric TTPs, Symptoms, and Defensive Signals
 - **How Do We Troubleshoot Authentication Failures?**
   - Resolving SAML, OAuth, OpenID Connect, Kerberos, EAP, 802.1X, and SAE Issues
   - Investigating Biometric and MFA Anomalies
@@ -365,6 +370,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 7. **Mitigate** DoS and DDoS attacks targeting network and application resources.
 8. **Manage** and secure mobile devices using MDM technologies and browser isolation.
 9. **Implement** robust change and configuration management processes, utilizing a CMDB and tracking the asset management lifecycle.
+10. **Analyze** endpoint and infrastructure TTPs that drive credential theft, privilege escalation, unauthorized execution, lateral movement, and defensive evasion.
 
 **Chapter Outline:**
 - **Introduction**
@@ -374,12 +380,14 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **How Do We Lock Down Endpoints and Servers?**
   - EDR, HIPS/HIDS, Anti-Malware, and Host Firewalls
   - Endpoint Privilege Management, Application Control, SELinux, and Attack Surface Reduction
+  - Credential Dumping, Privilege Escalation, Unauthorized Execution, and Defensive Evasion on Endpoints
   - Browser Isolation and Configuration Management
   - *Table:* Endpoint Protection Features Comparison
   - *Diagram:* EDR Architecture vs. Traditional Antivirus
 - **How Do We Troubleshoot Network Defenses?**
   - Resolving IPS/IDS False Positives
   - Correcting Routing, Switching, VPN/Tunnel, and ACL Errors
+  - Lateral Movement Paths, Remote Administration Abuse, and Identity-Impacting Infrastructure Drift
   - Improving Observability and Sensor Coverage
   - *Historical Case Study:* WannaCry Ransomware (Network Propagation and Unpatched Systems)
 - **How Do We Secure Core Network Services?**
