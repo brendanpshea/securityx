@@ -1,0 +1,100 @@
+{
+  "id": "ch04-prospero-zero-trust",
+  "chapter": 4,
+  "title": "Prospero Redesigns the Milan Island Network",
+  "context_md": "Prospero, Network Architect at *Milan Island Telecom*, is dismantling the company's twenty-year-old castle-and-moat network. After the pandemic, two-thirds of the workforce became permanent remote, contractors connect from a dozen countries, and the company adopted three SaaS suites — none of which sit behind the corporate firewall.\n\nThe legacy design assumes that anyone inside the perimeter VPN is trustworthy. Prospero has been asked to fix this without forcing every remote worker to backhaul traffic through the Milan headquarters, which would crush the WAN links and add 200ms of latency to every Salesforce request.\n\nHis plan: collapse networking and security functions into a single cloud-delivered edge service, evaluate every request continuously rather than once at login, break the flat internal network into per-application segments small enough that a single compromised laptop cannot reach the customer billing database, and classify all data so that DLP rules can travel with files even when they leave the network.\n\nProspero also has to convince the auditors that he can *measure* whether the new controls work — not just claim they do.",
+  "prompt_md": "Complete Prospero's architecture brief by selecting the correct concept for each blank.",
+  "body_md": "Prospero will replace the legacy hub-and-spoke VPN with a **{{edge_service}}** that delivers SD-WAN, SWG, CASB, ZTNA, and FWaaS from cloud points of presence close to the user. This avoids backhaul while maintaining policy enforcement.\n\nRather than trusting the network location of a request, every access decision will be made at a **{{pdp}}**, which evaluates identity, device posture, and context. The decision is then enforced at the **{{pep}}** in front of each application. The guiding principle is that authorization is **{{auth_model}}** — re-evaluated on every request, not granted once at login.\n\nTo limit blast radius, Prospero will divide the data center into per-workload segments using **{{segmentation}}** — far finer-grained than traditional VLAN segmentation. This way, a compromised endpoint can reach only the specific services it has been explicitly authorized for.\n\nAll customer data will be assigned a sensitivity **{{label}}** at creation, and **{{dlp_state}}** DLP rules will scan email and SaaS uploads for matching content as it leaves the environment. Files at rest in cloud storage will be inspected by **{{discovery}}** scans to find mislabeled or shadow copies.\n\nFinally, to demonstrate effectiveness to auditors, Prospero will publish a quarterly dashboard of **{{metric}}** — quantitative evidence that the controls reduce real risk, not just compliance checkboxes.",
+  "blanks": {
+    "edge_service": {
+      "answer": "SASE (Secure Access Service Edge)",
+      "distractors": [
+        "Site-to-site IPsec VPN",
+        "MPLS backbone",
+        "Reverse proxy farm",
+        "Air-gapped enclave"
+      ],
+      "explanation": "SASE is the cloud-delivered convergence of SD-WAN with security services (SWG, CASB, ZTNA, FWaaS) — purpose-built for the deperimeterized, remote-first scenario described."
+    },
+    "pdp": {
+      "answer": "Policy Decision Point (PDP)",
+      "distractors": [
+        "Policy Enforcement Point (PEP)",
+        "Trust Anchor",
+        "Identity Provider",
+        "Certificate Authority"
+      ],
+      "explanation": "In Zero Trust architecture, the PDP evaluates context and produces an authorization decision; the PEP enforces that decision at the resource."
+    },
+    "pep": {
+      "answer": "Policy Enforcement Point (PEP)",
+      "distractors": [
+        "Policy Decision Point (PDP)",
+        "Service Mesh Sidecar",
+        "Reverse Proxy",
+        "Bastion Host"
+      ],
+      "explanation": "The PEP sits in the data path and applies the PDP's allow/deny decision to the actual request."
+    },
+    "auth_model": {
+      "answer": "continuous",
+      "distractors": [
+        "session-based",
+        "perimeter-based",
+        "one-time at login",
+        "anonymous"
+      ],
+      "explanation": "Continuous authorization (re-evaluating identity, device posture, and context on every request) is the core Zero Trust principle distinguishing it from traditional perimeter or session-based models."
+    },
+    "segmentation": {
+      "answer": "microsegmentation",
+      "distractors": [
+        "VLAN segmentation",
+        "subnet routing",
+        "physical air-gapping",
+        "flat layer-2 trunking"
+      ],
+      "explanation": "Microsegmentation creates per-workload (often per-process) policy boundaries — the granularity needed to limit east-west movement after compromise. VLANs operate at far coarser scope."
+    },
+    "label": {
+      "answer": "classification label",
+      "distractors": [
+        "MAC address",
+        "VLAN tag",
+        "ASN",
+        "TLS certificate"
+      ],
+      "explanation": "Data classification labels (e.g., Public / Internal / Confidential / Restricted) travel with the data and let DLP and access controls apply consistent rules across systems."
+    },
+    "dlp_state": {
+      "answer": "in-transit",
+      "distractors": [
+        "at-rest only",
+        "in-use only",
+        "off-host",
+        "decommissioned"
+      ],
+      "explanation": "Email and SaaS-upload inspection happens as data moves — DLP for data *in transit*. At-rest DLP scans stored files; in-use DLP watches endpoints during active editing."
+    },
+    "discovery": {
+      "answer": "data discovery",
+      "distractors": [
+        "vulnerability scanning",
+        "penetration testing",
+        "port scanning",
+        "fuzzing"
+      ],
+      "explanation": "Data discovery scans repositories for sensitive content, detecting mislabeled, shadow, or forgotten copies of regulated data."
+    },
+    "metric": {
+      "answer": "control effectiveness metrics",
+      "distractors": [
+        "uptime SLAs",
+        "help desk ticket volume",
+        "marketing KPIs",
+        "employee satisfaction scores"
+      ],
+      "explanation": "Auditors and the board want measurable evidence that controls work — coverage %, mean-time-to-detect, blocked vs. allowed event ratios, etc. Effectiveness metrics convert security claims into defensible numbers."
+    }
+  }
+}

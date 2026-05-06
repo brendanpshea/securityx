@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitzwilliam Darcy Quantifies a Vendor Risk - SecurityX Practice</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All Problems</a>
+        </header>
+        <main>
+            <p class="problem-chapter">Chapter 2</p>
+            <h1>Fitzwilliam Darcy Quantifies a Vendor Risk</h1>
+
+            <section class="problem-context"><p>Fitzwilliam Darcy, Director of Risk Management at <em>Derbyshire Holdings</em>, has just inherited oversight of the company's third-party HVAC contractor, <strong>Pemberley Climate Services</strong>. Pemberley's technicians plug their laptops directly into the corporate network when servicing chillers in the data center — a practice that survived an acquisition five years ago and was never re-evaluated.</p>
+<p>The asset Darcy is most worried about is the customer payment database, valued at <strong>$4,000,000</strong>. Based on Pemberley's poor patching record and recent breaches at peer firms, Darcy estimates that a Pemberley-originated compromise would destroy roughly <strong>25%</strong> of that asset's value, and that such an incident is plausible <strong>once every five years</strong>.</p>
+<p>Darcy is presenting to the board next month. The CEO, Mr. Bingley, wants three things: a defensible dollar figure for annual exposure, a clear classification of the threat actor profile (so legal can decide whether to involve law enforcement preemptively), and a recommended treatment strategy. Darcy also plans to map Pemberley's likely intrusion path against an industry framework, and to argue for a continuous-monitoring tool rather than the current annual questionnaire.</p></section>
+
+            <section class="problem-prompt"><p>Fill in each blank to complete Darcy's board memo, then click <strong>Submit</strong>.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch02-darcy-risk-modeling">
+                <p>Given the asset value and exposure factor, the <strong>Single Loss Expectancy (SLE)</strong> for a Pemberley-driven breach of the payment database is <strong><span class="cloze-blank" data-blank="sle"></span></strong>. With an annualized rate of occurrence of 0.2, the <strong>Annualized Loss Expectancy (ALE)</strong> is <strong><span class="cloze-blank" data-blank="ale"></span></strong>.</p>
+<p>Because Pemberley itself is unlikely to be the attacker — but is the <em>path</em> an attacker would use — Darcy classifies this as a <strong><span class="cloze-blank" data-blank="risk_category"></span></strong> risk. The most likely adversary profile, motivated by financial gain and possessing moderate but not nation-state-level resources, is the <strong><span class="cloze-blank" data-blank="actor"></span></strong>.</p>
+<p>To map the likely intrusion (initial access via the contractor laptop, then lateral movement to the database), Darcy will present the scenario using the <strong><span class="cloze-blank" data-blank="framework"></span></strong> framework, which catalogs adversary tactics and techniques observed in the wild.</p>
+<p>Given that the ALE exceeds the cost of network segmentation but the residual risk is still non-zero, Darcy recommends a <strong><span class="cloze-blank" data-blank="treatment"></span></strong> strategy — segment Pemberley onto an isolated VLAN and require jump-host access. To replace the static annual questionnaire with continuous visibility into Pemberley's security posture, Darcy will propose adopting a <strong><span class="cloze-blank" data-blank="monitoring_tool"></span></strong> platform.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch02-darcy-risk-modeling", "blanks": {"sle": {"answer": "$1,000,000", "distractors": ["$4,000,000", "$200,000", "$800,000", "$5,000,000"], "explanation": "SLE = Asset Value \u00d7 Exposure Factor = $4,000,000 \u00d7 0.25 = $1,000,000."}, "ale": {"answer": "$200,000", "distractors": ["$1,000,000", "$5,000,000", "$800,000", "$40,000"], "explanation": "ALE = SLE \u00d7 ARO = $1,000,000 \u00d7 0.2 (once every five years) = $200,000 per year."}, "risk_category": {"answer": "supply chain / third-party", "distractors": ["insider", "natural disaster", "compliance", "reputational"], "explanation": "When the threat is enabled by a vendor's access or process \u2014 not by the vendor's own malice \u2014 it is classified as supply-chain or third-party risk."}, "actor": {"answer": "Organized cybercrime group", "distractors": ["Nation-state APT", "Hacktivist", "Script kiddie", "Disgruntled insider"], "explanation": "Financially motivated, moderately resourced actors targeting payment data are the textbook profile of organized cybercrime \u2014 distinct from nation-states (geopolitical motive, top-tier resources) or hacktivists (ideological motive)."}, "framework": {"answer": "MITRE ATT&CK", "distractors": ["STRIDE", "OWASP Top 10", "Cyber Kill Chain", "NIST CSF"], "explanation": "MITRE ATT&CK is the standard catalog of real-world adversary tactics, techniques, and procedures (TTPs). STRIDE classifies threat *types* during design; the Kill Chain is a higher-level lifecycle; CSF is governance."}, "treatment": {"answer": "Mitigate (reduce)", "distractors": ["Accept", "Transfer (insure)", "Avoid (terminate)", "Ignore"], "explanation": "Implementing a control (segmentation + jump host) to lower likelihood or impact is risk *mitigation*. Transfer would be buying cyber insurance; avoidance would be ending the Pemberley contract entirely."}, "monitoring_tool": {"answer": "GRC (Governance, Risk, and Compliance)", "distractors": ["SIEM", "EDR", "DLP", "CASB"], "explanation": "GRC platforms automate continuous third-party assessment, control mapping, and compliance tracking \u2014 replacing one-off annual questionnaires. SIEM/EDR/DLP/CASB address different operational layers."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>

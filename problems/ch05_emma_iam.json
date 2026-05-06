@@ -1,0 +1,100 @@
+{
+  "id": "ch05-emma-iam-offboarding",
+  "chapter": 5,
+  "title": "Emma Woodhouse Handles a Hostile Offboarding",
+  "context_md": "Emma Woodhouse, IAM Specialist at *Highbury Networks*, gets a 4:55 p.m. call from HR: a senior systems engineer named Frank Churchill is being terminated for cause, effective immediately. Frank has accounts in roughly forty systems — Highbury's on-prem Active Directory, two cloud tenants, the customer support tool, the source code repository, the secrets vault, and a dozen SaaS apps onboarded over the years through the company's identity provider.\n\nEmma's nightmare: Highbury never finished cleaning up the IAM landscape after last year's acquisition, so some apps still use local accounts that were never wired to the IdP. Frank also held a long-lived API token for the deployment pipeline and has SSH keys cached on at least two laptops.\n\nEmma needs to revoke access cleanly, prevent Frank from re-authenticating with cached credentials, ensure none of his automation accounts continue running with his identity attached, and produce an audit-ready record for legal. She also wants to use this incident to push leadership toward closing the structural gaps — federation coverage, secrets rotation, and a real PAM rollout — before the next termination.",
+  "prompt_md": "Walk through Emma's offboarding playbook by selecting the correct option for each step.",
+  "body_md": "Emma's first action is to disable Frank's account at the **{{authority}}**, which acts as the single source of truth for any application connected via federation. For applications that remain SAML- or OIDC-federated, this single change effectively kills new sessions because each app trusts assertions issued by that source.\n\nHowever, federated logout does not invalidate **{{cached_artifact}}** that may already be sitting in Frank's browser or device. To kill those, Emma triggers a global session/token revocation in the IdP and the SaaS apps that support it.\n\nFor the long-lived deployment-pipeline token, Emma must perform an immediate **{{secret_action}}** — and going forward, Highbury should adopt **{{secret_practice}}** so that no human-owned credential lives longer than the human's tenure.\n\nThe SSH keys cached on Frank's laptops are best handled by removing his public key from the **{{ssh_location}}** on every server he could reach. Long-term, Emma will route all SSH access through a **{{pam_tool}}**, which brokers session-by-session credentials and records keystrokes for high-privilege sessions.\n\nFor the local accounts on un-federated legacy apps, Emma must disable each one manually; this is a textbook failure of **{{lifecycle_gap}}**. To prevent recurrence, Emma will propose **{{provisioning_protocol}}**, the standard for automating provisioning and deprovisioning across SaaS.\n\nFinally, to give legal a defensible timeline of every revocation action, Emma exports the **{{audit_artifact}}** from the IdP, PAM, and source repo.",
+  "blanks": {
+    "authority": {
+      "answer": "Identity Provider (IdP)",
+      "distractors": [
+        "Service Provider (SP)",
+        "Domain Controller's DNS",
+        "Endpoint Detection (EDR) console",
+        "WAF policy editor"
+      ],
+      "explanation": "The IdP is the federated source of truth. Disabling the account there cuts off authentication for every SP that trusts it."
+    },
+    "cached_artifact": {
+      "answer": "active session tokens / cookies",
+      "distractors": [
+        "DNS cache entries",
+        "ARP table entries",
+        "TLS certificates",
+        "BIOS firmware"
+      ],
+      "explanation": "Federation revokes the right to obtain *new* tokens but does not invalidate tokens already issued and cached client-side. Global sign-out / token revocation endpoints are needed to kill those."
+    },
+    "secret_action": {
+      "answer": "rotation (revoke and reissue)",
+      "distractors": [
+        "logging",
+        "obfuscation",
+        "hashing",
+        "compression"
+      ],
+      "explanation": "A compromised or orphaned long-lived secret must be rotated immediately — the old value revoked and any service that needs continued access reissued a new credential."
+    },
+    "secret_practice": {
+      "answer": "short-lived, automatically rotated credentials",
+      "distractors": [
+        "shared service-account passwords",
+        "passwords printed and stored in a safe",
+        "permanent API keys committed to source control",
+        "static credentials emailed to each engineer"
+      ],
+      "explanation": "Modern secrets management issues short-lived credentials (minutes-to-hours) and rotates automatically, so that a leaked or orphaned secret has a tightly bounded blast radius."
+    },
+    "ssh_location": {
+      "answer": "authorized_keys file",
+      "distractors": [
+        "/etc/passwd",
+        "/etc/hosts",
+        "known_hosts file",
+        "sudoers file"
+      ],
+      "explanation": "A user's accepted public keys live in ~/.ssh/authorized_keys on each server. known_hosts is the *client-side* list of trusted servers — different direction."
+    },
+    "pam_tool": {
+      "answer": "Privileged Access Management (PAM) solution",
+      "distractors": [
+        "MDM (Mobile Device Management)",
+        "SIEM",
+        "DLP gateway",
+        "Service mesh"
+      ],
+      "explanation": "PAM brokers privileged sessions, vaults credentials, issues just-in-time access, and records sessions — exactly what Highbury needs for high-risk admin access."
+    },
+    "lifecycle_gap": {
+      "answer": "deprovisioning",
+      "distractors": [
+        "authentication",
+        "authorization",
+        "auditing",
+        "encryption"
+      ],
+      "explanation": "Identity lifecycle = provisioning, modification, *deprovisioning*. Apps with un-cleaned local accounts after a termination are a deprovisioning failure."
+    },
+    "provisioning_protocol": {
+      "answer": "SCIM (System for Cross-domain Identity Management)",
+      "distractors": [
+        "SAML",
+        "OAuth 2.0",
+        "Kerberos",
+        "RADIUS"
+      ],
+      "explanation": "SCIM is the standard for automating create/update/delete of user accounts across SaaS apps. SAML/OIDC handle authentication; SCIM handles the lifecycle plumbing."
+    },
+    "audit_artifact": {
+      "answer": "access logs / audit trail",
+      "distractors": [
+        "performance counters",
+        "marketing analytics",
+        "build artifacts",
+        "code coverage reports"
+      ],
+      "explanation": "Access logs and audit trails (who, what, when, from where) are the legally defensible record that revocation actually occurred at a specific time."
+    }
+  }
+}
