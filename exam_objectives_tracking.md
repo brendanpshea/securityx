@@ -197,103 +197,103 @@
 ### 2.1 
 
 ## Domain 2.0 Security Architecture Given a scenario, analyze requirements to design resilient systems.
-- [ ] Component placement (Chapter 4 planned) and configuration
-  - [ ] Firewall
-  - [ ] Intrusion prevention system (IPS)
-  - [ ] Intrusion detection system (IDS)
-  - [ ] Vulnerability scanner
-  - [ ] Virtual private network (VPN)
-  - [ ] Network access control (NAC)
-  - [ ] Web application firewall (WAF)
-  - [ ] Proxy
-  - [ ] Reverse proxy
-  - [ ] Application programming interface (API) gateway
-  - [ ] Taps
-  - [ ] Collectors
-  - [ ] Content delivery network (CDN)
-- [ ] Availability and integrity (Chapter 4 planned) design considerations
-  - [ ] Load balancing
-  - [ ] Recoverability
-  - [ ] Interoperability
-  - [ ] Geographical considerations
-  - [ ] Vertical vs. horizontal scaling
-  - [ ] Persistence vs. non-persistence
+- [x] Component placement (Chapter 4) and configuration
+  - [x] Firewall
+  - [x] Intrusion prevention system (IPS)
+  - [x] Intrusion detection system (IDS)
+  - [x] Vulnerability scanner
+  - [x] Virtual private network (VPN)
+  - [x] Network access control (NAC)
+  - [x] Web application firewall (WAF)
+  - [x] Proxy
+  - [x] Reverse proxy
+  - [x] Application programming interface (API) gateway
+  - [x] Taps
+  - [x] Collectors
+  - [x] Content delivery network (CDN)
+- [x] Availability and integrity (Chapter 4) design considerations
+  - [x] Load balancing
+  - [x] Recoverability
+  - [x] Interoperability
+  - [x] Geographical considerations
+  - [x] Vertical vs. horizontal scaling
+  - [x] Persistence vs. non-persistence
 
 ### 2.2 Given a scenario, implement security in the early stages of the systems life cycle and throughout subsequent stages.
-- [ ] Security requirements definition (Chapter 6 planned)
-  - [ ] Functional requirements
-  - [ ] Non-functional requirements
-  - [ ] Security vs. usability trade-off
-- [ ] Software assurance (Chapter 6 planned)
-  - [ ] Static application security testing (SAST)
-  - [ ] Dynamic application security testing (DAST)
-  - [ ] Interactive application security testing (IAST)
-  - [ ] Runtime application self- protection (RASP)
-  - [ ] Vulnerability analysis
-  - [ ] Software composition analysis (SCA)
-  - [ ] Software bill of materials (SBoM)
-  - [ ] Formal methods
-- [ ] Continuous integration/ (Chapter 6 planned) continuous deployment (CI/CD)
-  - [ ] Coding standards and linting
-  - [ ] Branch protection
-  - [ ] Continuous improvement
-  - [ ] Testing activities
-    - [ ] Canary
-    - [ ] Regression
-    - [ ] Integration
-    - [ ] Automated test and retest
-    - [ ] Unit
-- [ ] Supply chain risk management (Chapter 6 planned)
-  - [ ] Software
-  - [ ] Hardware
-- [ ] Hardware assurance (Chapter 6 planned)
-  - [ ] Certification and validation process
-- [ ] End-of-life (EOL) considerations (Chapter 6 planned)
+- [x] Security requirements definition (Chapter 6)
+  - [x] Functional requirements
+  - [x] Non-functional requirements
+  - [x] Security vs. usability trade-off
+- [x] Software assurance (Chapter 6)
+  - [x] Static application security testing (SAST)
+  - [x] Dynamic application security testing (DAST)
+  - [x] Interactive application security testing (IAST)
+  - [x] Runtime application self- protection (RASP)
+  - [x] Vulnerability analysis
+  - [x] Software composition analysis (SCA)
+  - [x] Software bill of materials (SBoM)
+  - [x] Formal methods
+- [x] Continuous integration/ (Chapter 6) continuous deployment (CI/CD)
+  - [x] Coding standards and linting
+  - [x] Branch protection
+  - [x] Continuous improvement
+  - [x] Testing activities
+    - [x] Canary
+    - [x] Regression
+    - [x] Integration
+    - [x] Automated test and retest
+    - [x] Unit
+- [x] Supply chain risk management (Chapter 6)
+  - [x] Software
+  - [x] Hardware
+- [x] Hardware assurance (Chapter 6)
+  - [x] Certification and validation process
+- [x] End-of-life (EOL) considerations (Chapter 6)
 
 ### 2.3 Given a scenario, integrate appropriate controls in the design of a secure architecture.
-- [ ] Attack surface management (Chapter 4 planned) and reduction
-  - [ ] Vulnerability management
-  - [ ] Hardening
-  - [ ] Defense-in-depth
-  - [ ] Legacy components within an architecture
-- [ ] Detection and threat- (Chapter 4 planned) hunting enablers
-  - [ ] Centralized logging
-  - [ ] Continuous monitoring
-  - [ ] Alerting
-  - [ ] Sensor placement
-- [ ] Information and data security design (Chapter 4 planned)
-  - [ ] Classification models
-  - [ ] Data labeling
-  - [ ] Tagging strategies
-- [ ] DLP (Chapter 4 planned)
-  - [ ] At rest
-  - [ ] In transit
-  - [ ] Data discovery
-- [ ] Hybrid infrastructures (Chapter 7 planned)
-- [ ] Third-party integrations (Chapter 7 planned)
-- [ ] Control effectiveness (Chapter 4 planned)
-  - [ ] Assessments
-  - [ ] Scanning
-  - [ ] Metrics
+- [x] Attack surface management (Chapter 4) and reduction
+  - [x] Vulnerability management
+  - [x] Hardening
+  - [x] Defense-in-depth
+  - [x] Legacy components within an architecture
+- [x] Detection and threat- (Chapter 4) hunting enablers
+  - [x] Centralized logging
+  - [x] Continuous monitoring
+  - [x] Alerting
+  - [x] Sensor placement
+- [x] Information and data security design (Chapter 4)
+  - [x] Classification models
+  - [x] Data labeling
+  - [x] Tagging strategies
+- [x] DLP (Chapter 4)
+  - [x] At rest
+  - [x] In transit
+  - [x] Data discovery
+- [x] Hybrid infrastructures (Chapter 4)
+- [x] Third-party integrations (Chapter 4)
+- [x] Control effectiveness (Chapter 4)
+  - [x] Assessments
+  - [x] Scanning
+  - [x] Metrics
 
 ### 2.4 Given a scenario, apply security concepts to the design of access, authentication, and authorization systems.
-- [ ] Provisioning/deprovisioning (Chapter 5 planned)
-  - [ ] Credential issuance
-  - [ ] Self-provisioning
-- [ ] Federation (Chapter 5 planned)
-- [ ] Single sign-on (SSO) (Chapter 5 planned)
-- [ ] Conditional access (Chapter 5 planned)
-- [ ] Identity provider (Chapter 5 planned)
-- [ ] Service provider (Chapter 5 planned)
-- [ ] Attestations (Chapter 5 planned)
-- [ ] Policy decision and (Chapter 5 planned) enforcement points
-- [ ] Access control models (Chapter 5 planned)
-  - [ ] Role-based access control
-  - [ ] Rule-based access control
-  - [ ] Attribute-based access control (ABAC)
-  - [ ] Mandatory access control (MAC)
-  - [ ] Discretionary access control (DAC)
-- [ ] Logging and auditing (Chapter 5 planned)
+- [x] Provisioning/deprovisioning (Chapter 5)
+  - [x] Credential issuance
+  - [x] Self-provisioning
+- [x] Federation (Chapter 5)
+- [x] Single sign-on (SSO) (Chapter 5)
+- [x] Conditional access (Chapter 5)
+- [x] Identity provider (Chapter 5)
+- [x] Service provider (Chapter 5)
+- [x] Attestations (Chapter 5)
+- [x] Policy decision and (Chapter 5) enforcement points
+- [x] Access control models (Chapter 5)
+  - [x] Role-based access control
+  - [x] Rule-based access control
+  - [x] Attribute-based access control (ABAC)
+  - [x] Mandatory access control (MAC)
+  - [x] Discretionary access control (DAC)
+- [x] Logging and auditing (Chapter 5)
 - [ ] Public key infrastructure (Chapter 8 planned) (PKI) architecture
   - [ ] Certificate extensions
   - [ ] Certificate types
@@ -301,9 +301,9 @@
   - [ ] Certificate authority/registration authority (CA/RA)
   - [ ] Templates
   - [ ] Deployment/integration approach
-- [ ] Access control systems (Chapter 5 planned)
-  - [ ] Physical
-  - [ ] Logical
+- [x] Access control systems (Chapter 5)
+  - [x] Physical
+  - [x] Logical
 
 ### 2.5 Given a scenario, securely implement cloud capabilities in an enterprise environment.
 - [ ] Cloud access security (Chapter 7 planned) broker (CASB)
@@ -342,53 +342,53 @@
 - [ ] Cloud service adoption (Chapter 7 planned)
 
 ### 2.6 Given a scenario, integrate Zero Trust concepts into system architecture design.
-- [ ] Continuous authorization (Chapter 4 planned)
-- [ ] Context-based reauthentication (Chapter 4 planned)
-- [ ] Network architecture (Chapter 4 planned)
-  - [ ] Segmentation
-  - [ ] Microsegmentation
-  - [ ] VPN
-  - [ ] Always-on VPN
-- [ ] API integration and validation (Chapter 4 planned)
-- [ ] Asset identification, (Chapters 4-5 planned) management, and attestation
-- [ ] Security boundaries (Chapter 4 planned)
-  - [ ] Data perimeters
-  - [ ] Secure zone
-  - [ ] System components
-- [ ] Deperimeterization (Chapter 4 planned)
-  - [ ] Secure access service edge (SASE)
-  - [ ] Software-defined wide area network (SD-WAN)
-  - [ ] Software-defined networking
-- [ ] Defining subject-object (Chapter 4 planned) relationships
+- [x] Continuous authorization (Chapter 4)
+- [x] Context-based reauthentication (Chapter 4)
+- [x] Network architecture (Chapter 4)
+  - [x] Segmentation
+  - [x] Microsegmentation
+  - [x] VPN
+  - [x] Always-on VPN
+- [x] API integration and validation (Chapter 4)
+- [x] Asset identification, (Chapters 4-5) management, and attestation
+- [x] Security boundaries (Chapter 4)
+  - [x] Data perimeters
+  - [x] Secure zone
+  - [x] System components
+- [x] Deperimeterization (Chapter 4)
+  - [x] Secure access service edge (SASE)
+  - [x] Software-defined wide area network (SD-WAN)
+  - [x] Software-defined networking
+- [x] Defining subject-object (Chapter 4) relationships
 
 ## Domain 3.0 Security Engineering
 
 ### 3.1 Given a scenario, troubleshoot common issues with identity and access management (IAM) components in an enterprise environment.
-- [ ] Subject access control (Chapter 5 planned)
-  - [ ] User
-  - [ ] Process
-  - [ ] Device
-  - [ ] Service
-- [ ] Biometrics (Chapter 5 planned)
-- [ ] Secrets management (Chapter 5 planned)
-  - [ ] Tokens
-  - [ ] Certificates
-  - [ ] Passwords
-  - [ ] Keys
-  - [ ] Rotation
-  - [ ] Deletion
-- [ ] Conditional access (Chapter 5 planned)
-  - [ ] User-to-device binding
-  - [ ] Geographic location
-  - [ ] Time-based
-  - [ ] Configuration
-- [ ] Attestation (Chapter 5 planned)
-- [ ] Cloud IAM access and trust policies (Chapters 5 and 7 planned)
-- [ ] Logging and monitoring (Chapter 5 planned)
-- [ ] Privilege identity management (Chapter 5 planned)
-- [ ] Authentication and authorization (Chapter 5 planned)
-  - [ ] Security Assertions Markup Language (SAML)
-  - [ ] OpenID
+- [x] Subject access control (Chapter 5)
+  - [x] User
+  - [x] Process
+  - [x] Device
+  - [x] Service
+- [x] Biometrics (Chapter 5)
+- [x] Secrets management (Chapter 5)
+  - [x] Tokens
+  - [x] Certificates
+  - [x] Passwords
+  - [x] Keys
+  - [x] Rotation
+  - [x] Deletion
+- [x] Conditional access (Chapter 5)
+  - [x] User-to-device binding
+  - [x] Geographic location
+  - [x] Time-based
+  - [x] Configuration
+- [x] Attestation (Chapter 5)
+- [x] Cloud IAM access and trust policies (Chapter 5)
+- [x] Logging and monitoring (Chapter 5)
+- [x] Privilege identity management (Chapter 5)
+- [x] Authentication and authorization (Chapter 5)
+  - [x] Security Assertions Markup Language (SAML)
+  - [x] OpenID
 - [ ] Application control (Chapter 9 planned)
 - [ ] Endpoint detection response (EDR) (Chapter 9 planned)
 - [ ] Event logging and monitoring (Chapters 9 and 11 planned)
@@ -401,23 +401,23 @@
 - [ ] Browser isolation (Chapter 9 planned)
 - [ ] Configuration management (Chapter 9 planned)
 - [ ] Mobile device management (Chapter 9 planned) (MDM) technologies
-- [ ] Threat-actor tactics, techniques, (Chapters 5 and 9 planned) and procedures (TTPs)
+- [ ] Threat-actor tactics, techniques, (Chapters 5 and 9) and procedures (TTPs)
   - [ ] Injections
   - [ ] Privilege escalation
   - [ ] Credential dumping
   - [ ] Unauthorized execution
   - [ ] Lateral movement
   - [ ] Defensive evasion
-  - [ ] Multifactor authentication (MFA)
-  - [ ] SSO
-  - [ ] Kerberos
-  - [ ] Simultaneous authentication of equals (SAE)
-  - [ ] Privileged access management (PAM)
-  - [ ] Open Authorization (OAuth)
-  - [ ] Extensible Authentication Protocol (EAP)
-  - [ ] Identity proofing
-  - [ ] Institute for Electrical and Electronics Engineers (IEEE) 802.1X
-  - [ ] Federation
+  - [x] Multifactor authentication (MFA)
+  - [x] SSO
+  - [x] Kerberos
+  - [x] Simultaneous authentication of equals (SAE)
+  - [x] Privileged access management (PAM)
+  - [x] Open Authorization (OAuth)
+  - [x] Extensible Authentication Protocol (EAP)
+  - [x] Identity proofing
+  - [x] Institute for Electrical and Electronics Engineers (IEEE) 802.1X
+  - [x] Federation
 
 ### 3.2 Given a scenario, analyze requirements to enhance the security of endpoints and servers.
 - [ ] Endpoint and server security requirements (Chapter 9 planned)
@@ -448,21 +448,21 @@
   - [ ] Secure/Multipurpose Internet Mail Extension (S/MIME)
 
 ### 3.4 Given a scenario, implement hardware security technologies and techniques.
-- [ ] Roots of trust• Virtual hardware −Shimming (Chapter 6 planned)
-  - [ ] Trusted Platform Module (TPM)• Host-based encryption −Universal Serial Bus
-  - [ ] Hardware Security Module (HSM)• Self-encrypting drive (SED)(USB)-based attacks
-  - [ ] Virtual Trusted Platform• Secure Boot −Basic input/output system/Unified Module (vTPM)• Measured boot Extensible Firmware Interface
-- [ ] Security coprocessors (Chapter 6 planned)
-  - [ ] Central processing unit (CPU) security extensions
-  - [ ] Secure enclave
-- [ ] Self-healing hardware (Chapter 6 planned)
-- [ ] Tamper detection and (Chapter 6 planned) countermeasures
-- [ ] Threat-actor TTPs (Chapter 6 planned)
-  - [ ] Firmware tampering
-  - [ ] (BIOS/UEFI)
-  - [ ] Memory
-  - [ ] Electromagnetic interference (EMI)
-  - [ ] Electromagnetic pulse (EMP)
+- [x] Roots of trust• Virtual hardware −Shimming (Chapter 6)
+  - [x] Trusted Platform Module (TPM)• Host-based encryption −Universal Serial Bus
+  - [x] Hardware Security Module (HSM)• Self-encrypting drive (SED)(USB)-based attacks
+  - [x] Virtual Trusted Platform• Secure Boot −Basic input/output system/Unified Module (vTPM)• Measured boot Extensible Firmware Interface
+- [x] Security coprocessors (Chapter 6)
+  - [x] Central processing unit (CPU) security extensions
+  - [x] Secure enclave
+- [x] Self-healing hardware (Chapter 6)
+- [x] Tamper detection and (Chapter 6) countermeasures
+- [x] Threat-actor TTPs (Chapter 6)
+  - [x] Firmware tampering
+  - [x] (BIOS/UEFI)
+  - [x] Memory
+  - [x] Electromagnetic interference (EMI)
+  - [x] Electromagnetic pulse (EMP)
 
 ### 3.5 Given a set of requirements, secure specialized and legacy systems against threats.
 - [ ] Operational technology (OT) (Chapter 10 planned)
@@ -579,23 +579,23 @@
 ## Domain 4.0 Security Operations
 
 ### 4.1 Given a scenario, analyze data to enable monitoring and response activities.
-- [ ] Security information event (Chapter   ) management (SIEM)
+- [ ] Security information event (Chapter 11 planned) management (SIEM)
   - [ ] Event parsing
   - [ ] Event duplication
   - [ ] Non-reporting devices
   - [ ] Retention
   - [ ] Event false positives/false negatives
-- [ ] Aggregate data analysis (Chapter   )
+- [ ] Aggregate data analysis (Chapter 11 planned)
   - [ ] Correlation
   - [ ] Audit log reduction
   - [ ] Prioritization
   - [ ] Trends
-- [ ] Behavior baselines and analytics (Chapter   )
+- [ ] Behavior baselines and analytics (Chapter 11 planned)
   - [ ] Network
   - [ ] Systems
   - [ ] Users
   - [ ] Applications/services
-- [ ] Incorporating diverse data sources (Chapter   )
+- [ ] Incorporating diverse data sources (Chapter 11 planned)
   - [ ] Third-party reports and logs
   - [ ] Threat intelligence feeds
   - [ ] Vulnerability scans
@@ -606,7 +606,7 @@
   - [ ] Infrastructure device logs
   - [ ] Application logs
   - [ ] Cloud security posture management (CSPM) data
-- [ ] Alerting (Chapter   )
+- [ ] Alerting (Chapter 11 planned)
   - [ ] False positives/false negatives
   - [ ] Alert failures
   - [ ] Prioritization factors
@@ -617,12 +617,12 @@
     - [ ] Data classification
   - [ ] Malware
   - [ ] Vulnerabilities
-- [ ] Reporting and metrics (Chapter   )
+- [ ] Reporting and metrics (Chapter 11 planned)
   - [ ] Visualization
   - [ ] Dashboards
 
 ### 4.2 Given a scenario, analyze vulnerabilities and attacks, and recommend solutions to reduce the attack surface.
-- [ ] Vulnerabilities and attacks (Chapter   )
+- [ ] Vulnerabilities and attacks (Chapter 12 planned)
   - [ ] Injection
   - [ ] Cross-site scripting (XSS)
   - [ ] Unsafe memory utilization
@@ -643,7 +643,7 @@
   - [ ] Weak ciphers
   - [ ] Confused deputy
   - [ ] Implants
-- [ ] Mitigations (Chapter   )
+- [ ] Mitigations (Chapter 12 planned)
   - [ ] Input validation
   - [ ] Output encoding
   - [ ] Safe functions
@@ -670,34 +670,34 @@
   - [ ] Allow listing
 
 ### 4.3 Given a scenario, apply threat-hunting and threat intelligence concepts.
-- [ ] Internal intelligence sources (Chapter   )
+- [ ] Internal intelligence sources (Chapter 11 planned)
   - [ ] Adversary emulation engagements
   - [ ] Internal reconnaissance
   - [ ] Hypothesis-based searches
   - [ ] Honeypots
   - [ ] Honeynets
   - [ ] User behavior analytics (UBA)
-- [ ] External intelligence sources (Chapter   )
+- [ ] External intelligence sources (Chapter 11 planned)
   - [ ] Open-source intelligence (OSINT)
   - [ ] Dark web monitoring
   - [ ] Information sharing and analysis centers (ISACs)
   - [ ] Reliability factors
-- [ ] Counterintelligence and (Chapter   ) operational security
-- [ ] Threat intelligence platforms (TIPs) (Chapter   )
+- [ ] Counterintelligence and (Chapter 11 planned) operational security
+- [ ] Threat intelligence platforms (TIPs) (Chapter 11 planned)
   - [ ] Third-party vendors
-- [ ] Indicator of compromise (Chapter   ) (IoC) sharing
+- [ ] Indicator of compromise (Chapter 11 planned) (IoC) sharing
   - [ ] Structured Threat Information eXchange (STIX)
   - [ ] Trusted automated exchange of indicator information (TAXII)
-- [ ] Rule-based languages (Chapter   )
+- [ ] Rule-based languages (Chapter 11 planned)
   - [ ] Sigma
   - [ ] Yet Another Recursive Acronym (YARA)
   - [ ] Rita
   - [ ] Snort
-- [ ] Indicators of attack (Chapter   )
+- [ ] Indicators of attack (Chapter 11 planned)
   - [ ] TTPs
 
 ### 4.4 Given a scenario, analyze data and artifacts in support of incident response activities.
-- [ ] Malware analysis (Chapter   )
+- [ ] Malware analysis (Chapter 12 planned)
   - [ ] Detonation
   - [ ] IoC extractions
   - [ ] Sandboxing
@@ -705,24 +705,24 @@
     - [ ] Variant matching
     - [ ] Code similarity
     - [ ] Malware attribution
-- [ ] Reverse engineering (Chapter   )
+- [ ] Reverse engineering (Chapter 12 planned)
   - [ ] Disassembly and decompilation
   - [ ] Binary
   - [ ] Byte code
-- [ ] Volatile/non-volatile storage analysis (Chapter   )
-- [ ] Network analysis (Chapter   )
-- [ ] Host analysis (Chapter   )
-- [ ] Metadata analysis (Chapter   )
+- [ ] Volatile/non-volatile storage analysis (Chapter 12 planned)
+- [ ] Network analysis (Chapter 12 planned)
+- [ ] Host analysis (Chapter 12 planned)
+- [ ] Metadata analysis (Chapter 12 planned)
   - [ ] Email header
   - [ ] Images
   - [ ] Audio/video
   - [ ] Files/filesystem
-- [ ] Hardware analysis (Chapter   )
+- [ ] Hardware analysis (Chapter 12 planned)
   - [ ] Joint test action group (JTAG)
-- [ ] Data recovery and extraction (Chapter   )
-- [ ] Threat response (Chapter   )
-- [ ] Preparedness exercises (Chapter   )
-- [ ] Timeline reconstruction (Chapter   )
-- [ ] Root cause analysis (Chapter   )
-- [ ] Cloud workload protection platform (CWPP) (Chapter   )
-- [ ] Insider threat (Chapter   )
+- [ ] Data recovery and extraction (Chapter 12 planned)
+- [ ] Threat response (Chapter 12 planned)
+- [ ] Preparedness exercises (Chapter 12 planned)
+- [ ] Timeline reconstruction (Chapter 12 planned)
+- [ ] Root cause analysis (Chapter 12 planned)
+- [ ] Cloud workload protection platform (CWPP) (Chapter 12 planned)
+- [ ] Insider threat (Chapter 12 planned)

@@ -311,7 +311,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 ### Part III: Security Engineering and Applied Cryptography
 
 #### Chapter 8: Cryptography and Public Key Infrastructure
-*Maps to Objectives: 3.7, 3.8*
+*Maps to Objectives: 2.4, 3.7, 3.8*
 
 **Learning Outcomes:**
 1. **Architect** a Public Key Infrastructure (PKI).
@@ -319,7 +319,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 3. **Analyze** advanced cryptographic concepts, including key stretching, key splitting, and homomorphic encryption.
 4. **Apply** cryptographic techniques to secure data at rest, in transit, and in use.
 5. **Implement** envelope encryption and hardware acceleration.
-6. **Design** certificate-based and passwordless authentication mechanisms.
+6. **Design** certificate-based, passwordless, and mutual authentication mechanisms.
 7. **Formulate** data sanitization, anonymization, and tokenization strategies.
 8. **Evaluate** the use cases for immutable databases, blockchain, and secure multiparty computation.
 
@@ -335,9 +335,10 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Data at Rest, in Transit, and in Use
   - Secure Email, Non-Repudiation, and Privacy Use Cases
   - Data Sanitization, Anonymization, and Tokenization
-  - Certificate-Based and Passwordless Authentication
+  - Certificate-Based, Passwordless, and Mutual Authentication
   - Code Signing, Digital Signatures, and Software Provenance
   - Centralized vs. Decentralized Key Management
+  - Cryptographic Erase, Obfuscation, Serialization, and Lightweight Cryptography
   - *Table:* Symmetric vs. Asymmetric Cryptography Use Cases
   - *Fictional Case Study:* The Mad Hatter (Lead Cryptographer at Teatime Tech) preventing an outage due to an expired root certificate.
 - **What Are Advanced Cryptographic Concepts?**
@@ -352,7 +353,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **Chapter Review and Conclusion**
 
 #### Chapter 9: Network, Endpoint, and Infrastructure Engineering
-*Maps to Objectives: 1.1, 3.2, 3.3*
+*Maps to Objectives: 1.1, 3.1, 3.2, 3.3*
 
 **Learning Outcomes:**
 1. **Analyze** requirements to enhance the security of endpoints using EDR, anti-malware, and host-based firewalls.
@@ -448,6 +449,8 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 - **How Do We Make Sense of Security Data?**
   - SIEM Log Aggregation and Correlation
   - Prioritizing Alerts and Reducing Noise
+  - Diverse Data Sources (Endpoint, DLP, Vulnerability Scan, Third-Party, and CSPM Telemetry)
+  - Dashboards, Reporting, and Security Metrics
   - *Diagram:* The SIEM Data Pipeline (Collection to Alerting)
   - *Table:* STIX vs. TAXII (Threat Intelligence Sharing)
 - **How Do We Baseline Normal Behavior?**
@@ -474,14 +477,19 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 3. **Implement** Security Orchestration, Automation, and Response (SOAR) playbooks and runbooks.
 4. **Utilize** Security Content Automation Protocol (SCAP) standards for vulnerability scanning and reporting.
 5. **Analyze** malware artifacts using detonation, sandboxing, and reverse engineering.
-6. **Conduct** volatile and non-volatile storage, network, and host analysis during incident response.
-7. **Perform** root cause analysis and timeline reconstruction following a security breach.
-8. **Organize** and execute preparedness exercises to enhance enterprise threat response capabilities.
+6. **Conduct** volatile and non-volatile storage, network, host, metadata, and cloud workload analysis during incident response.
+7. **Perform** insider-threat investigations, root cause analysis, and timeline reconstruction following a security breach.
+8. **Organize** and execute preparedness exercises, threat response actions, and recovery workflows to enhance enterprise threat response capabilities.
 
 **Chapter Outline:**
 - **Introduction**
 - **How Do We Manage and Mitigate Vulnerabilities?**
-  - Input Validation and Memory-Safe Functions
+  - Injection, XSS, CSRF, SSRF, Deserialization, and Unsafe Memory Patterns
+  - Input Validation, Output Encoding, Atomic Functions, and Memory-Safe Functions
+  - Insecure Configuration, Embedded Secrets, Weak Ciphers, and Vulnerable Dependencies
+  - Least Privilege, Least Functionality, Fail-Secure Design, and Defense-in-Depth
+  - Dependency Management, Code Signing, Encryption, Allow Listing, and Key Rotation
+  - Updating and Patching Operating Systems, Software, Hypervisors, Firmware, and Images
   - SCAP standards (OVAL, CVE, CVSS)
   - *Table:* Common Software Vulnerabilities and Mitigations
   - *Table:* Understanding CVSS Scoring Metrics
@@ -498,11 +506,14 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - SCAP Standards (OVAL, XCCDF, CPE, CVE, CVSS)
   - Containerization in Automated Security Workflows
 - **How Do We Respond to an Active Security Incident?**
-  - Timeline Reconstruction and Root Cause Analysis
+  - Threat Response, Timeline Reconstruction, and Root Cause Analysis
   - Malware Sandboxing and Reverse Engineering
+  - Insider Threat Investigation and Preparedness Exercises
   - *Historical Case Study:* The Equifax Breach (Failed Vulnerability Management & IR)
   - *Diagram:* The NIST Incident Response Lifecycle
 - **How Do We Extract and Analyze Artifacts?**
   - Volatile vs. Non-Volatile Storage Analysis
+  - Network, Host, Metadata, and Cloud Workload Protection Platform (CWPP) Analysis
+  - Data Recovery and Extraction
   - Metadata and Hardware (JTAG) Analysis
 - **Chapter Review and Conclusion**
