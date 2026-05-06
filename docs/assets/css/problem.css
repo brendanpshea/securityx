@@ -1,0 +1,169 @@
+/* Interactive problem pages — extends style.css palette. */
+
+.problem-chapter {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  color: var(--accent-purple);
+  margin-bottom: 0.25rem;
+}
+
+.problem-context {
+  background-color: var(--surface-color);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 1.25rem 1.5rem;
+  border-radius: 6px;
+  margin: 1.5rem 0;
+}
+
+.problem-prompt {
+  margin: 1.5rem 0 1rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.problem-body p {
+  line-height: 1.9;
+}
+
+select.cloze-select {
+  display: inline-block;
+  background-color: var(--surface-color);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.2rem 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  margin: 0 0.15rem;
+  max-width: 100%;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+select.cloze-select:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px var(--accent-cyan-glow);
+}
+
+select.cloze-select.correct {
+  border-color: var(--keypoint-border);
+  box-shadow: 0 0 0 1px var(--keypoint-border);
+}
+
+select.cloze-select.incorrect {
+  border-color: #f87171;
+  box-shadow: 0 0 0 1px #f87171;
+}
+
+.explanations-panel {
+  margin-top: 2rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.explanations-panel h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  color: var(--accent-purple);
+}
+.explanations-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.explanations-list li {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+.explanations-list li:last-child { border-bottom: none; }
+.explanations-list strong { color: var(--text-primary); }
+.explain-mark {
+  flex: 0 0 1.25rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+.explain-correct .explain-mark { color: var(--keypoint-border); }
+.explain-incorrect .explain-mark, .explain-unanswered .explain-mark { color: #f87171; }
+
+.problem-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.btn {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.btn-primary {
+  background-color: var(--accent-cyan);
+  color: #0f172a;
+}
+.btn-primary:hover { background-color: #0891b2; }
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.btn-ghost:hover { color: var(--text-primary); border-color: rgba(255, 255, 255, 0.4); }
+
+.score-readout {
+  margin-left: auto;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+.score-readout.all-correct { color: var(--keypoint-border); font-weight: 600; }
+
+.problem-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 2rem;
+}
+.problem-list li {
+  margin-bottom: 0.6rem;
+}
+.problem-list a {
+  display: block;
+  background-color: var(--surface-color);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: border-color 0.15s, transform 0.15s;
+}
+.problem-list a:hover {
+  border-color: var(--accent-cyan);
+  transform: translateX(2px);
+}
+.ch-tag {
+  display: inline-block;
+  background-color: var(--accent-purple);
+  color: #0f172a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
+  margin-right: 0.75rem;
+  vertical-align: middle;
+}

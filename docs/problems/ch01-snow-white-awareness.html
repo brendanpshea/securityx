@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow White Builds an Awareness Program - SecurityX Practice</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All Problems</a>
+        </header>
+        <main>
+            <p class="problem-chapter">Chapter 1</p>
+            <h1>Snow White Builds an Awareness Program</h1>
+
+            <section class="problem-context"><p>Snow White has just been promoted to <strong>GRC Analyst</strong> at <em>Seven Dwarfs Mining</em>, a 400-person mining and refining company headquartered in the Black Forest. Last quarter, Grumpy clicked a link in an email claiming to be from the Queen's Royal Bank, exposing payroll data for the entire mining crew. The CEO, Doc, has asked Snow White to stand up a formal security awareness program before the next audit.</p>
+<p>Snow White's first task is to write the documentation that will govern the program. She knows the company already has a high-level board-approved statement saying "Seven Dwarfs Mining will protect customer and employee information." What it lacks are the mandatory rules, the step-by-step instructions for the help desk, and the recommended (but optional) tips for the dwarfs working remotely from the mine.</p>
+<p>She also needs to pick the right metrics, choose a phishing simulation cadence, and decide which framework to align her control objectives against. The audit committee has signaled they care most about IT process maturity rather than ITSM service delivery.</p></section>
+
+            <section class="problem-prompt"><p>Help Snow White complete her plan by selecting the correct option for each blank. Click <strong>Submit</strong> when you are done.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch01-snow-white-awareness">
+                <p>The board's high-level intent statement is a <strong><span class="cloze-blank" data-blank="intent_doc"></span></strong>. The mandatory rule that <em>all</em> employees must complete annual training within 30 days of hire is a <strong><span class="cloze-blank" data-blank="mandatory_doc"></span></strong>. The help desk's exact click-by-click steps for resetting a locked account belong in a <strong><span class="cloze-blank" data-blank="stepwise_doc"></span></strong>, while the optional remote-work tips Snow White wants to publish on the intranet are best classified as a <strong><span class="cloze-blank" data-blank="optional_doc"></span></strong>.</p>
+<p>To measure whether awareness is improving, Snow White will track the <strong><span class="cloze-blank" data-blank="primary_metric"></span></strong> on monthly simulated phishing campaigns. Because the audit committee cares about IT governance maturity, she will align her control objectives to <strong><span class="cloze-blank" data-blank="framework"></span></strong> rather than the alternative service-management framework. Finally, to make sure responsibility for incident response is unambiguous across Doc, Grumpy, and Snow White herself, she will document roles using a <strong><span class="cloze-blank" data-blank="responsibility_tool"></span></strong>.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch01-snow-white-awareness", "blanks": {"intent_doc": {"answer": "Policy", "distractors": ["Standard", "Procedure", "Guideline", "Baseline"], "explanation": "A Policy is the high-level, board-approved statement of management intent. Standards, procedures, and guidelines all derive from it."}, "mandatory_doc": {"answer": "Standard", "distractors": ["Policy", "Procedure", "Guideline", "Framework"], "explanation": "Standards specify the mandatory rules (e.g., 'all employees must complete training within 30 days') that implement a policy."}, "stepwise_doc": {"answer": "Procedure", "distractors": ["Policy", "Standard", "Guideline", "Runbook charter"], "explanation": "Procedures are the step-by-step instructions for performing a task \u2014 exactly what a help desk needs."}, "optional_doc": {"answer": "Guideline", "distractors": ["Policy", "Standard", "Procedure", "Regulation"], "explanation": "Guidelines are recommended (non-mandatory) practices. The 'optional' framing is the giveaway."}, "primary_metric": {"answer": "click-through rate on simulated phishing", "distractors": ["mean time to detect (MTTD)", "annualized loss expectancy (ALE)", "patch latency", "false-positive rate of the SIEM"], "explanation": "Click-through rate on simulated phishing is the standard KPI for awareness programs \u2014 it directly measures the behavior the program is trying to change."}, "framework": {"answer": "COBIT", "distractors": ["ITIL", "NIST 800-53", "PCI DSS", "GDPR"], "explanation": "COBIT focuses on IT governance and process maturity, which is what the audit committee asked for. ITIL is the service-management alternative."}, "responsibility_tool": {"answer": "RACI matrix", "distractors": ["Risk register", "SBOM", "CMDB entry", "Data flow diagram"], "explanation": "A RACI matrix assigns Responsible, Accountable, Consulted, and Informed roles \u2014 the canonical tool for clarifying who-does-what in incident response."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>
