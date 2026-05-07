@@ -415,6 +415,53 @@ A laptop recovered from an attacker is delivered to your forensics team. The BIO
 <li><strong>Tamper Detection:</strong> Physical and logical mechanisms that detect unauthorized access to hardware.</li>
 <li><strong>Self-Healing Hardware:</strong> Architectures that detect firmware or configuration corruption and automatically restore a verified trusted state.</li>
 </ul>
+<h3>Review Questions</h3>
+<p><strong>True / False</strong></p>
+<ol>
+<li>Non-functional security requirements should be documented with testable acceptance criteria so that automated pipelines can verify them, rather than as vague aspirational statements like "the system must be secure."</li>
+<li>Interactive Application Security Testing (IAST) detects vulnerabilities by sending malicious inputs against a running application from the outside without any access to source code or runtime instrumentation, in the same way an external attacker would.</li>
+<li>SAST analyzes source code, bytecode, or binaries without executing them, which is what allows it to run early and quickly in a CI pipeline before any test environment exists.</li>
+<li>A Hardware Security Module (HSM) is a chip soldered to the motherboard of an individual workstation or server whose primary purpose is to record cryptographic measurements of each boot component into Platform Configuration Registers for later remote attestation.</li>
+<li>Rowhammer is an attack in which a USB device's microcontroller firmware is reprogrammed so that the device impersonates a keyboard and injects an attacker-supplied keystroke payload faster than a user can intervene.</li>
+<li>A Software Bill of Materials (SBoM) is a machine-readable inventory of every component in a software product, and organizations that maintained current SBoMs were able to identify their Log4Shell exposure in hours rather than weeks.</li>
+<li>Measured Boot is a UEFI feature that <em>blocks</em> unsigned or untrusted boot components from executing by checking each component's signature against a database of authorized signing certificates before passing control to it.</li>
+<li>Software Composition Analysis (SCA) is a category of tools that examines the source code an organization writes for vulnerability patterns such as SQL injection, command injection, or use of deprecated cryptographic functions.</li>
+<li>Runtime Application Self-Protection (RASP) is an instrumentation approach used during testing in which an embedded agent observes the application as functional tests are executed and reports vulnerabilities with full data-flow context.</li>
+<li>A Self-Encrypting Drive supports cryptographic erasure, allowing an administrator to render all stored data permanently unreadable in milliseconds simply by destroying the drive's internal encryption key.</li>
+<li>Formal methods are mathematical specification and verification techniques used primarily in high-assurance contexts such as cryptographic libraries, operating system kernels, hypervisors, and avionics control software.</li>
+<li>Typical branch protection rules in modern version-control platforms include requiring pull requests before merging, requiring a minimum number of reviewers, requiring CI status checks to pass, and requiring cryptographically signed commits.</li>
+<li>End-of-Life (EOL) refers to the date at which a vendor publishes the first stable release of a product and begins offering paid support contracts to new customers.</li>
+<li>A DMA attack is performed by physically removing DRAM modules from a recently powered-off machine, cooling the chips to extend data retention, and reading their residual contents to recover encryption keys and credentials.</li>
+<li>TPM sealing allows encryption keys to be bound to specific PCR values, so that the keys are only released by the TPM when the system has booted through the expected sequence of measured components.</li>
+<li>A vTPM provides TPM functionality to a virtual machine via the hypervisor, allowing the guest OS to use BitLocker, Secure Boot, and remote attestation without dedicated physical hardware in the VM itself.</li>
+<li>Secure Boot is most effective when the firmware's Platform Key and Key Exchange Keys are enrolled from the hardware vendor and not replaceable without physical access, and when the <code>dbx</code> revocation list is kept current.</li>
+<li>A Trusted Platform Module is a hardware feature whose primary role is to restrict which physical memory regions DMA-capable peripherals such as Thunderbolt and FireWire devices are permitted to access, mitigating direct memory access attacks.</li>
+<li>TEMPEST refers to U.S. government standards addressing the risk of information leakage through unintentional electromagnetic emissions from computing equipment such as monitors, keyboards, processors, and cables.</li>
+<li>Regression testing is a release strategy in which a new application version is deployed to a small subset of users — typically around five percent — and monitored for anomalies before being rolled out more broadly.</li>
+</ol>
+<h4>Answer Key</h4>
+<ol>
+<li><strong>True.</strong> "The system must be secure" is not a requirement; testable, automatable acceptance criteria are.</li>
+<li><strong>False.</strong> The description fits <strong>DAST</strong>, not IAST. IAST uses an instrumentation agent embedded <em>inside</em> the running application during testing, which is what gives it full runtime context and lower false positives than the black-box approach described.</li>
+<li><strong>True.</strong> SAST is a static, pre-execution analysis — its speed and CI-friendliness are direct consequences of not needing a running system.</li>
+<li><strong>False.</strong> The description fits a <strong>TPM</strong>, not an HSM. TPMs are per-device chips that record boot measurements into PCRs and support attestation. An HSM is a tamper-resistant appliance for high-throughput enterprise cryptographic operations and master-key protection.</li>
+<li><strong>False.</strong> The description fits <strong>BadUSB / Rubber Ducky-style HID attacks</strong>. Rowhammer is a DRAM hardware vulnerability in which repeatedly accessing specific memory rows induces bit flips in adjacent rows, enabling privilege escalation through memory corruption.</li>
+<li><strong>True.</strong> SBoMs were the operational difference between a multi-day Log4Shell triage and a multi-week one.</li>
+<li><strong>False.</strong> The description fits <strong>Secure Boot</strong>, not Measured Boot. Measured Boot does not block components — it <em>records</em> a hash of each boot component into a TPM PCR so that a remote verifier can later attest to what actually executed during startup.</li>
+<li><strong>False.</strong> The description fits <strong>SAST</strong>. SCA tools inventory third-party and open-source dependencies in the dependency tree, match them against known-vulnerability databases, and identify license-compliance issues — they look at <em>what you depend on</em>, not at the source you wrote.</li>
+<li><strong>False.</strong> The description fits <strong>IAST</strong>. RASP runs in <em>production</em>, embedded inside the deployed application, and inspects function calls and data flows at runtime so it can block live attacks — it is not primarily a testing tool.</li>
+<li><strong>True.</strong> This is the headline operational benefit of SEDs implementing the TCG Opal standard.</li>
+<li><strong>True.</strong> Formal methods are practical only where the cost is justified by extremely high assurance requirements; the example domains listed are the standard ones.</li>
+<li><strong>True.</strong> All four are standard branch-protection capabilities on platforms like GitHub, GitLab, and Bitbucket.</li>
+<li><strong>False.</strong> The description fits <strong>General Availability (GA)</strong>, the <em>start</em> of the supported lifecycle. EOL is the <em>end</em> — the point at which the vendor stops issuing security patches and updates.</li>
+<li><strong>False.</strong> The description fits a <strong>cold boot attack</strong>. A DMA attack uses a DMA-capable peripheral (Thunderbolt, FireWire, certain PCIe devices) to read system memory directly while the system is running; the IOMMU is the standard mitigation.</li>
+<li><strong>True.</strong> Sealing PCR-bound keys is exactly what BitLocker uses to refuse to unlock the disk if the boot chain has been tampered with.</li>
+<li><strong>True.</strong> vTPMs extend TPM-dependent protections into virtualized environments without requiring physical hardware changes per VM.</li>
+<li><strong>True.</strong> Secure Boot's effectiveness depends on key provenance and on keeping the revocation list (<code>dbx</code>) up to date as bypasses are discovered.</li>
+<li><strong>False.</strong> The description fits the <strong>IOMMU (Input/Output Memory Management Unit)</strong>. A TPM stores keys, accumulates PCR measurements, and supports attestation — it does not gate peripheral DMA.</li>
+<li><strong>True.</strong> TEMPEST is the standard name for the emissions-security program and the associated shielding standards.</li>
+<li><strong>False.</strong> The description fits a <strong>canary deployment</strong>. Regression testing verifies that new code changes do not break previously working functionality, and is a <em>testing</em> practice rather than a release strategy.</li>
+</ol>
         </main>
     </div>
 </body>

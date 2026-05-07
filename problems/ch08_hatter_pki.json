@@ -1,0 +1,150 @@
+{
+  "id": "ch08-hatter-pki-crypto",
+  "chapter": 8,
+  "title": "The Mad Hatter Rebuilds Teatime Tech's PKI",
+  "context_md": "After the 3:17 a.m. outage caused by a quietly expired intermediate CA, the Mad Hatter — Lead Cryptographer at *Teatime Tech* — has been given a clean slate to redesign the company's cryptographic posture from the ground up.\n\nHis remit covers four fronts. First, a proper PKI hierarchy with monitored renewals, automated issuance for the customer-facing tier, and revocation that actually works under load. Second, end-to-end data protection across rest, transit, and use, including a sane key-management story for several petabytes of customer data sitting in an object store. Third, modernization of the company's authentication: passwords are out, hardware-backed keys are in, and service-to-service traffic inside the platform must mutually authenticate. Fourth — and most strategically — the Hatter has been asked by the board to begin a multi-year migration toward post-quantum cryptography for any data that must remain confidential beyond 2035.\n\nA respected national news outlet recently ran a profile on the DigiNotar collapse from 2011, and the Hatter's CEO has read it twice. The CEO would prefer not to be the next case study.",
+  "prompt_md": "Complete the Mad Hatter's cryptographic redesign by selecting the correct option for each blank.",
+  "body_md": "The Hatter starts by rebuilding the PKI as a proper hierarchy. The signing key for the top of the trust chain is moved into an HSM in a physically secured vault and brought online only for ceremonies; this is the **{{root_posture}}** root CA. Day-to-day issuance flows through an intermediate CA, so that compromise of an intermediate can be contained without invalidating the entire trust hierarchy.\n\nFor public-facing TLS, customer-managed certificates will be issued and rotated automatically using the **{{acme}}** protocol. Each certificate's valid hostnames are listed in the **{{san}}** extension, since modern browsers ignore the legacy Common Name field entirely. To detect any rogue or accidental issuance against Teatime Tech domains by *any* CA in the world, the Hatter enables monitoring of public **{{ct}}** logs.\n\nFor revocation, rather than relying on each client to fetch a CRL or call the CA on every connection, Teatime Tech servers will fetch a fresh signed status response from the CA periodically and attach it to the TLS handshake. This optimization is **{{stapling}}**, and it improves both privacy and latency.\n\nFor the petabytes of customer data in object storage, the Hatter implements **{{envelope}}** encryption: a per-object Data Encryption Key (DEK) encrypts the object itself, and a Key Encryption Key (KEK) held in the HSM wraps the DEK. The bulk symmetric algorithm is AES-256 in **{{aead}}** mode, which provides confidentiality and integrity in a single primitive — eliminating an entire class of padding-oracle bugs.\n\nWhen a customer terminates their contract, instead of attempting to overwrite media in a multi-tenant store, Teatime Tech will simply destroy the customer's KEK. This is **{{crypto_erase}}** — the only practical sanitization technique in shared cloud storage.\n\nFor authentication, employees are migrating from passwords to hardware authenticators implementing the **{{fido}}** standard, where the device holds a private key and the server stores only the public key — so a credential database breach yields nothing replayable. Service-to-service traffic inside the platform uses **{{mtls}}**, with each workload identified by a short-lived certificate from an internal CA.\n\nThe board's quantum mandate drives the final piece. The Hatter knows that an adversary can record encrypted traffic today and decrypt it years later once a quantum computer arrives — the **{{harvest}}** threat model. To address this for long-confidentiality data, he deploys a TLS configuration that combines classical X25519 with the NIST-standardized post-quantum key encapsulation algorithm **{{pqc_kem}}** in a **{{hybrid}}** key exchange, so the session is protected against both today's adversaries and a future quantum one. The TLS version selected is 1.3, in part because **{{pfs}}** is mandatory in 1.3 — every session uses ephemeral key shares so that compromise of a long-term key cannot retroactively decrypt past traffic.",
+  "blanks": {
+    "root_posture": {
+      "answer": "offline",
+      "distractors": [
+        "always-online",
+        "shared-tenant",
+        "self-service",
+        "publicly reachable"
+      ],
+      "explanation": "Root CAs are kept offline in physical vaults and brought online only for the rare ceremony of signing a new intermediate. Compromise of a root destroys the entire hierarchy."
+    },
+    "acme": {
+      "answer": "ACME",
+      "distractors": [
+        "SCEP-on-Telnet",
+        "FTP",
+        "SNMPv1",
+        "Kerberos AS-REQ"
+      ],
+      "explanation": "ACME (Automated Certificate Management Environment) is the Let's Encrypt-pioneered standard for automated certificate issuance and renewal, now widely supported."
+    },
+    "san": {
+      "answer": "Subject Alternative Name (SAN)",
+      "distractors": [
+        "Common Name (CN)",
+        "Issuer DN",
+        "Organizational Unit (OU)",
+        "Serial Number"
+      ],
+      "explanation": "Modern browsers ignore the CN field entirely and require all valid hostnames to appear in the SAN extension."
+    },
+    "ct": {
+      "answer": "Certificate Transparency",
+      "distractors": [
+        "DNS zone transfer",
+        "BGP looking-glass",
+        "RIPE WHOIS",
+        "TLS session ticket"
+      ],
+      "explanation": "Certificate Transparency logs are public, append-only records of issued certificates that allow domain owners to detect unauthorized issuance after the fact — a direct response to the DigiNotar incident."
+    },
+    "stapling": {
+      "answer": "OCSP stapling",
+      "distractors": [
+        "CRL flooding",
+        "HSTS preload",
+        "DNSSEC anchoring",
+        "TLS False Start"
+      ],
+      "explanation": "OCSP stapling lets the server fetch a fresh OCSP response and attach it to the handshake, avoiding the privacy and latency cost of clients calling the CA directly."
+    },
+    "envelope": {
+      "answer": "envelope",
+      "distractors": [
+        "rotational",
+        "homomorphic",
+        "obfuscated",
+        "tokenized"
+      ],
+      "explanation": "Envelope encryption uses a two-tier key model: a per-object DEK encrypts the data, and a KEK in the HSM/KMS wraps the DEK. Rotation only requires re-wrapping DEKs, not re-encrypting data."
+    },
+    "aead": {
+      "answer": "GCM (AEAD)",
+      "distractors": [
+        "ECB",
+        "CBC without MAC",
+        "OFB",
+        "RC4"
+      ],
+      "explanation": "AES-GCM is an AEAD mode providing confidentiality and integrity in one primitive. ECB and unauthenticated CBC are exactly the modes that produced years of padding-oracle and malleability bugs."
+    },
+    "crypto_erase": {
+      "answer": "cryptographic erasure",
+      "distractors": [
+        "degaussing",
+        "physical shredding",
+        "single-pass overwrite",
+        "data masking"
+      ],
+      "explanation": "In shared cloud storage the customer cannot physically destroy media; destroying the encryption key renders the ciphertext permanently unrecoverable, which is cryptographic erasure."
+    },
+    "fido": {
+      "answer": "FIDO2 / WebAuthn",
+      "distractors": [
+        "TOTP via SMS",
+        "Basic auth over HTTPS",
+        "NTLMv1",
+        "static API keys"
+      ],
+      "explanation": "FIDO2 / WebAuthn authenticators store a device-bound private key and prove possession by signing a challenge. The server holds only the public key, so a database breach exposes nothing replayable."
+    },
+    "mtls": {
+      "answer": "mutual TLS (mTLS)",
+      "distractors": [
+        "anonymous TLS",
+        "plaintext HTTP",
+        "shared-secret HMAC over UDP",
+        "WEP"
+      ],
+      "explanation": "mTLS authenticates both sides of a connection by certificate. With a service-mesh-issued short-lived workload identity, it is the standard for east-west authentication in modern platforms."
+    },
+    "harvest": {
+      "answer": "harvest-now-decrypt-later",
+      "distractors": [
+        "rubber-hose cryptanalysis",
+        "side-channel timing",
+        "downgrade attack",
+        "replay attack"
+      ],
+      "explanation": "Harvest-now-decrypt-later is the strategy of recording encrypted traffic today to decrypt it once a cryptographically relevant quantum computer exists. It is the operational reason to start PQC migration now."
+    },
+    "pqc_kem": {
+      "answer": "ML-KEM (Kyber)",
+      "distractors": [
+        "RSA-1024",
+        "MD5",
+        "DES",
+        "RC4"
+      ],
+      "explanation": "ML-KEM (formerly CRYSTALS-Kyber) is NIST's standardized post-quantum key encapsulation mechanism, deployed in hybrid TLS by Chrome, Cloudflare, and others."
+    },
+    "hybrid": {
+      "answer": "hybrid",
+      "distractors": [
+        "pure classical",
+        "pure post-quantum",
+        "plaintext fallback",
+        "downgraded"
+      ],
+      "explanation": "Hybrid key exchange combines a classical algorithm (X25519) with a PQC algorithm (ML-KEM) so the session is protected against both today's adversaries and a future quantum one — without staking everything on the new algorithm before it has been deeply analyzed."
+    },
+    "pfs": {
+      "answer": "forward secrecy",
+      "distractors": [
+        "non-repudiation",
+        "static RSA key exchange",
+        "session resumption with shared keys",
+        "key escrow"
+      ],
+      "explanation": "TLS 1.3 mandates forward secrecy by removing non-PFS RSA key exchange and requiring ephemeral (EC)DHE key shares for every session."
+    }
+  }
+}

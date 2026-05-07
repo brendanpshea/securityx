@@ -446,6 +446,53 @@ Your organization has just adopted a new SaaS marketing analytics platform. The 
 <li><strong>Direct Connect / ExpressRoute / Cloud Interconnect:</strong> Private dedicated connectivity options between customer networks and cloud providers.</li>
 <li><strong>FedRAMP:</strong> U.S. government authorization framework for cloud services used by federal agencies, based on NIST SP 800-53.</li>
 </ul>
+<h3>Review Questions</h3>
+<p><strong>True / False</strong></p>
+<ol>
+<li>A <em>proxy-based</em> CASB integrates with a SaaS provider's management API to inspect data already stored in the service, audit configurations retroactively, and apply DLP policies to existing content after the fact.</li>
+<li>An IPsec site-to-site VPN provides a dedicated physical or logical circuit between the customer's network and the cloud provider's edge, contracted bandwidth, predictable latency, and no traversal of the public internet.</li>
+<li>In a Platform as a Service deployment, the customer is responsible for patching the guest operating system and runtime libraries on which their application code executes, in addition to maintaining the application code itself.</li>
+<li>Policy-as-code tools such as Checkov, tfsec, and Open Policy Agent run inside production cloud workloads at runtime, inspecting requests as they arrive and blocking exploits in real time before the application code processes them.</li>
+<li>Across all cloud service models — IaaS, PaaS, and SaaS — the customer is always responsible for data classification, identity management of their users, and configuration of the service itself.</li>
+<li>An over-permissioned function execution role is the dominant serverless misconfiguration pattern, and the primary defense is to apply least privilege to the function's IAM identity and automate that enforcement in the deployment pipeline.</li>
+<li>Data remanence refers to the failure mode in which a cloud storage resource has been misconfigured to allow public read access from unauthenticated users on the open internet, typically due to a permissive bucket or container policy.</li>
+<li>AWS introduced IMDSv2 to mitigate SSRF-based abuse of the EC2 instance metadata service by requiring a session-based authentication step before instance role credentials can be retrieved.</li>
+<li>A Cloud-Native Application Protection Platform (CNAPP) is a tool category whose sole function is the continuous assessment of cloud configuration against established security baselines and the detection of configuration drift over time.</li>
+<li>Cryptographic erasure is the dominant technique for addressing data remanence in the cloud, because the customer cannot physically destroy the underlying provider-shared storage media.</li>
+<li>Kubernetes Network Policies define which pods may communicate with which other pods within a cluster, and without them the cluster network is essentially flat by default — letting a single compromised container move laterally with ease.</li>
+<li>An API gateway centralizes authentication, authorization, rate limiting, request validation, and observability so that backend services can focus on business logic rather than reimplementing the same security controls per service.</li>
+<li><em>Cloud-managed keys</em> are a key-management pattern in which the customer generates encryption key material outside the cloud provider, imports it into the provider's KMS, and retains independent control over its rotation and revocation.</li>
+<li>OIDC federation between CI/CD platforms (such as GitHub Actions or GitLab CI) and cloud identity providers issues short-lived, audience-scoped tokens at run time, replacing long-lived static cloud access keys in pipelines.</li>
+<li>Pinning a container image by mutable tag — for example, <code>python:latest</code> — produces a stable, immutable artifact that pulls the same bytes for every build, which is why it is the recommended approach for production deployments.</li>
+<li>Kubernetes Pod Security Standards enforce constraints such as preventing containers from running as root, prohibiting privileged containers, dropping unnecessary Linux capabilities, and requiring read-only root filesystems where possible.</li>
+<li>Cloud-native DDoS protection services such as AWS Shield, Azure DDoS Protection, and Cloudflare operate at the network and application layer to absorb volumetric attacks before they reach the API gateway or origin services.</li>
+<li>In a Software as a Service (SaaS) deployment, the customer is responsible for patching the underlying application code as well as for configuring and patching the host operating system that the SaaS application runs on.</li>
+<li>FedRAMP authorization standardizes a cloud-service security assessment based on NIST SP 800-53 and operates at three impact levels — Low, Moderate, and High — that align with the sensitivity of federal data being handled.</li>
+<li>Preventative cloud controls are those that detect issues <em>after</em> they have occurred — for example, AWS CloudTrail logging, Amazon GuardDuty anomaly alerts, and CSPM configuration-drift detection — so that responders can react to events that have already taken place.</li>
+</ol>
+<h4>Answer Key</h4>
+<ol>
+<li><strong>False.</strong> The description fits an <strong>API-based CASB</strong>. A proxy-based CASB sits inline between the user and the cloud service in real time and can block prohibited actions before they happen, rather than auditing data already stored.</li>
+<li><strong>False.</strong> The description fits <strong>dedicated private connectivity</strong> services such as AWS Direct Connect, Azure ExpressRoute, or Google Cloud Interconnect. An IPsec site-to-site VPN runs over the public internet, sharing its variable performance.</li>
+<li><strong>False.</strong> The description fits <strong>IaaS</strong>. In PaaS, the <em>provider</em> patches the OS and runtime; the customer is responsible for application code, application configuration, data, and identity.</li>
+<li><strong>False.</strong> The description fits <strong>RASP</strong> (Runtime Application Self-Protection). Policy-as-code tools like Checkov, tfsec, and OPA scan IaC configuration files at build / pull-request time and reject misconfigurations <em>before</em> infrastructure is deployed.</li>
+<li><strong>True.</strong> This is the unchanging top row of the shared responsibility matrix.</li>
+<li><strong>True.</strong> This is the central serverless security lesson and the focus of the Dorothy Gale case study.</li>
+<li><strong>False.</strong> The description fits <strong>data exposure</strong>. Data <em>remanence</em> is residual data that persists on shared storage after a "delete," which is mitigated through cryptographic erasure.</li>
+<li><strong>True.</strong> IMDSv2's session-based protocol substantially raises the bar for SSRF-to-credential-theft attacks of the kind seen in the Capital One breach.</li>
+<li><strong>False.</strong> The description fits <strong>CSPM</strong> (Cloud Security Posture Management). CNAPP is a broader, unified platform that combines CSPM, CWPP (Cloud Workload Protection Platform), and IaC scanning into a single product.</li>
+<li><strong>True.</strong> Without physical control of the medium, destroying the key is the only practical way to render encrypted bytes unrecoverable at scale.</li>
+<li><strong>True.</strong> The default flat-network behavior of Kubernetes is one of the reasons Network Policies are an essential hardening step.</li>
+<li><strong>True.</strong> Centralizing these concerns at the gateway is what allows microservices to be developed and operated without each one reinventing security plumbing.</li>
+<li><strong>False.</strong> The description fits <strong>Bring Your Own Key (BYOK)</strong>. Cloud-managed keys are generated, stored, rotated, and used by the <em>provider</em> on the customer's behalf with minimal customer operational involvement.</li>
+<li><strong>True.</strong> Short-lived federated credentials limit the blast radius of a leaked CI/CD identity to a specific repository and branch rather than full cloud-account access.</li>
+<li><strong>False.</strong> The description fits pinning by <strong>digest (sha256 hash)</strong>. Tags such as <code>latest</code> are <em>mutable</em> — the bytes they resolve to can change without notice, which is precisely why digests are recommended for production.</li>
+<li><strong>True.</strong> Pod Security Standards (the modern replacement for Pod Security Policies) codify these container-level hardening defaults.</li>
+<li><strong>True.</strong> Volumetric absorption at the cloud edge is the standard architectural pattern for surviving large DDoS events.</li>
+<li><strong>False.</strong> The description blends IaaS and on-prem responsibilities and applies them to SaaS. In a SaaS deployment the <em>provider</em> handles application code, runtime, and OS; the customer is responsible only for their data, their user accounts, and the SaaS configuration exposed to them.</li>
+<li><strong>True.</strong> FedRAMP's three impact levels are the standard way services are categorized for federal use.</li>
+<li><strong>False.</strong> The description fits <strong>detective controls</strong>. <em>Preventative</em> controls stop misconfigurations or incidents before they happen — for example, IAM deny policies, organization-level guardrails, and policy-as-code in IaC pipelines.</li>
+</ol>
         </main>
     </div>
 </body>
