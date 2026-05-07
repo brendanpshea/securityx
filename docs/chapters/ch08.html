@@ -54,6 +54,32 @@
 <li><strong>Authority Information Access (AIA)</strong> and <strong>CRL Distribution Points (CDP)</strong> — URLs where relying parties can find the issuer's certificate and revocation information, respectively.</li>
 </ul>
 <p>In an enterprise PKI, certificates are typically issued from <strong>templates</strong> that pre-define these extensions for a given role: "Domain Controller Authentication," "Smart Card Logon," "Web Server." Templates make issuance auditable and consistent.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>Reading a real TLS certificate</em></p>
+<p>The output of <code>openssl x509 -in cert.pem -noout -text</code> for a typical web server certificate includes (abbreviated):</p>
+<p><code>Subject: CN = api.example.com
+Issuer:  CN = Example Issuing CA, O = Example Inc.
+Validity:
+    Not Before: Apr  3 00:00:00 2026 GMT
+    Not After : Jul  2 23:59:59 2026 GMT      (90-day lifetime)
+X509v3 Subject Alternative Name:
+    DNS:api.example.com, DNS:api-internal.example.com
+X509v3 Basic Constraints: critical
+    CA:FALSE
+X509v3 Key Usage: critical
+    Digital Signature, Key Encipherment
+X509v3 Extended Key Usage:
+    TLS Web Server Authentication
+X509v3 CRL Distribution Points:
+    URI:http://crl.example-ca.com/issuing.crl
+Authority Information Access:
+    OCSP - URI:http://ocsp.example-ca.com
+    CA Issuers - URI:http://certs.example-ca.com/issuing.crt
+CT Precertificate SCTs:
+    [signed timestamps from two public CT logs]</code></p>
+<p>Notice five things at once: this certificate is <em>not</em> a CA (<code>CA:FALSE</code>), it is restricted to <em>server</em> authentication only (the EKU forbids using it to sign code or authenticate a client), it has a <em>short</em> lifetime (90 days), it carries <em>both</em> CRL and OCSP revocation pointers, and it has been <em>logged</em> in Certificate Transparency. Every one of those properties is a control — and any one of them missing should make a relying party suspicious.</p>
+</blockquote>
 <p>Revocation is the achilles heel of classical PKI. The original mechanism, <strong>Certificate Revocation Lists (CRLs)</strong>, is a signed list of revoked serial numbers that grows over time and must be downloaded by every relying party. The next-generation answer, the <strong>Online Certificate Status Protocol (OCSP)</strong>, lets a client query the CA in real time for the status of a single certificate — but doing so leaks browsing data to the CA and adds round-trip latency. <strong>OCSP stapling</strong> fixes both problems: the <em>server</em> periodically fetches a signed OCSP response from its CA and "staples" it to the TLS handshake, so the client gets fresh revocation information without contacting the CA at all.</p>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong>
@@ -207,9 +233,15 @@ Revocation is the part of PKI that breaks under stress. Browsers historically "s
 <li><strong>Mutual TLS (mTLS)</strong> authenticates both parties of a connection by certificate. Standard in service-mesh architectures and increasingly common for high-value APIs.</li>
 <li><strong>Code signing</strong> is authentication for software: the publisher signs each release with a private key (usually held in an HSM), and the operating system verifies the signature before allowing execution. Code signing is the foundation of secure update systems and modern application allowlisting.</li>
 </ul>
-<blockquote>
-<p><strong>[Case Study — Fictional]</strong>
-The Mad Hatter, lead cryptographer at Teatime Tech, takes a frantic call at 3:17 a.m. The company's flagship API has been refusing connections for forty-five minutes. Customers are escalating; the on-call engineer cannot find a smoking gun in the application logs. The Mad Hatter looks at the TLS chain and exhales — the <em>intermediate</em> CA the company had been using for nine years quietly expired at midnight. The leaf certificate is fine. The root in everyone's trust store is fine. The link in the middle is not, and TLS chain validation is failing on every modern client. The fix takes forty seconds: deploy a new chain that includes the <em>re-issued</em> intermediate. The post-mortem takes two weeks and produces a new policy: every certificate in the company's hierarchy is monitored by an automated expiration tracker, alerts fire 90, 60, 30, 14, and 3 days out, and intermediate-CA renewals are treated with the same rigor as production deployments.</p>
+<blockquote class="callout-case-study">
+<p><strong class="callout-title">Case Study</strong></p>
+<p><em>The Mad Hatter and the Three-Seventeen A.M. Outage</em></p>
+<p>The Mad Hatter, lead cryptographer at <em>Teatime Tech</em>, takes a frantic call at 3:17 a.m. The company's flagship payments API — the one Fortune 500 customers depend on for real-time settlement — has been refusing connections for forty-five minutes. Customer support phones are lit up. Two account executives have already been paged by their largest client, who is threatening to invoke the contractual SLA penalty clause.</p>
+<p>The on-call engineer has spent the first thirty minutes hunting through application logs, then the load balancer, then DNS. Nothing is wrong. The pods are healthy, the database is responsive, the certificates on the edge servers — checked twice — are within their validity windows. He escalates to the Hatter not because he expects cryptography to be the answer, but because he is out of ideas.</p>
+<p>The Hatter pulls up <code>openssl s_client -connect api.teatime.example:443 -showcerts</code> from his laptop and exhales the moment the output appears. The leaf certificate is fine. The root in every modern trust store is fine. The link in the middle — the <em>intermediate CA</em> that the company has been issuing from for nine years — quietly expired at midnight. It still works in the company's internal trust store (which was loaded once and never refreshed), which is why staging tests passed. It does not work for any modern client validating the chain end-to-end.</p>
+<p>The fix itself takes forty seconds: the public CA had already cross-signed a replacement intermediate two years earlier and published it. The Hatter pushes a new chain bundle to the load balancer, the engineer reloads the TLS configuration, and the API comes back online. The accountants and the lawyers spend the next two weeks haggling over how much of the SLA penalty was avoidable.</p>
+<p>The post-mortem produces three permanent policy changes. First, every certificate in the company's hierarchy — leaves, intermediates, internal CAs, code-signing certificates, and the offline root — is registered in an automated expiration tracker that emails <em>and</em> pages at 90, 60, 30, 14, 7, and 3 days out, with the on-call rotation owning the response. Second, intermediate-CA renewals are now treated as production deployments: change-controlled, dry-run in staging, and tested against a matrix of client trust stores before promotion. Third, the company adopts ACME-based automation for every public-facing leaf certificate so that the <em>human</em> attention budget can be spent on the few things that really require humans — root and intermediate ceremonies — rather than on routine renewals that will inevitably be forgotten in nine years' time.</p>
+<p>The lesson the Hatter writes into the runbook on his way out the door at 6 a.m.: <em>certificates in the middle of a chain are exactly as critical as certificates at the edge — and far more often forgotten.</em></p>
 </blockquote>
 <h3>Code Signing, Digital Signatures, and Software Provenance</h3>
 <p>A digital signature provides three properties simultaneously: <strong>authentication</strong> (the signer is who they claim), <strong>integrity</strong> (the data has not been modified), and <strong>non-repudiation</strong> (the signer cannot deny having signed). The mechanics are simple in outline: hash the data, encrypt the hash with the signer's private key, and let anyone verify by decrypting the signature with the public key and comparing hashes.</p>
@@ -239,11 +271,38 @@ The Mad Hatter, lead cryptographer at Teatime Tech, takes a frantic call at 3:17
 <li>A more carefully protected <strong>Key Encryption Key (KEK)</strong> — held in an HSM or KMS — encrypts the DEK.</li>
 </ol>
 <p>The encrypted DEK is stored alongside the ciphertext. To decrypt, the system asks the KMS to unwrap the DEK, then decrypts the data locally. Rotation of the KEK only requires re-wrapping each DEK, not re-encrypting all the data. This is the model used by every major cloud KMS.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>Encrypting a single object with envelope encryption</em></p>
+<p>When an application uploads a 5 GB customer data file to S3 with envelope encryption enabled, the steps are:</p>
+<ol>
+<li>The application calls <code>kms:GenerateDataKey</code> against a KMS-resident KEK named <code>arn:aws:kms:...:key/customer-data</code>. KMS returns <em>two</em> values: a 256-bit plaintext DEK (used immediately) and the same DEK wrapped under the KEK (an encrypted blob a few hundred bytes long).</li>
+<li>The application uses the plaintext DEK with AES-256-GCM to encrypt the 5 GB object locally. This is fast — AES-NI on a modern CPU runs at multiple GB/s.</li>
+<li>The application <strong>zeroes out the plaintext DEK in memory</strong> as soon as encryption finishes. The wrapped DEK is stored as object metadata next to the ciphertext.</li>
+<li>To decrypt later, the application sends the wrapped DEK back to KMS via <code>kms:Decrypt</code>. KMS unwraps it inside the HSM, returns the plaintext DEK, and the application decrypts the object — then zeroes the DEK again.</li>
+</ol>
+<p>Three properties fall out of this design: the long-lived KEK never leaves the HSM, KEK rotation requires only re-wrapping the small DEKs (not re-encrypting petabytes), and revoking the KEK cryptographically erases every object encrypted under it. This is exactly how AWS S3 SSE-KMS, Azure Storage CMK, and GCP CMEK all work under the hood.</p>
+</blockquote>
 <p><strong>Authenticated Encryption with Associated Data (AEAD)</strong> is the modern category of symmetric algorithms — AES-GCM, ChaCha20-Poly1305 — that provide both confidentiality <em>and</em> integrity in a single primitive. Older patterns of "encrypt then MAC" or "MAC then encrypt" gave rise to a long history of subtle vulnerabilities (padding oracles, EtM/MtE confusion); AEAD eliminates those classes of bug by design and should be the default for any new system.</p>
 <p><strong>Hardware acceleration</strong> matters at scale. AES-NI instructions on x86 CPUs make AES-GCM essentially free (often faster than memcpy on the same data). On ARM, the ARMv8 Cryptography Extension performs the same role. Choosing an algorithm without hardware acceleration on your target platform can cost an order of magnitude in throughput.</p>
 <h3>Key Stretching, Key Splitting, and Forward Secrecy</h3>
 <ul>
 <li><strong>Key stretching</strong> turns a low-entropy secret (a password) into a high-entropy key by deliberately slowing down the derivation. <strong>PBKDF2</strong>, <strong>bcrypt</strong>, <strong>scrypt</strong>, and <strong>Argon2</strong> all do this; <strong>Argon2id</strong> is the current OWASP recommendation. A well-tuned key-stretching function makes brute force prohibitively expensive — a billion-guess-per-second GPU still spends years on a strong password.</li>
+</ul>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>Tuning Argon2id for a login server</em></p>
+<p>The OWASP password-storage cheat sheet recommends, for a server that should verify a single login in roughly 0.5 seconds on commodity hardware, parameters along these lines:</p>
+<p><code>Algorithm: Argon2id
+Memory cost (m): 19 MiB    (large enough to defeat ASIC parallelism)
+Time cost (t):   2 iterations
+Parallelism (p): 1 lane
+Salt:            16 random bytes per password (stored alongside the hash)
+Output length:   32 bytes</code></p>
+<p>The same parameters that take 0.5 seconds on the login server take roughly 0.5 seconds on the <em>attacker's</em> GPU as well — because Argon2id's memory-hard design defeats the massive parallelism that turned earlier KDFs (MD5, SHA-1, raw SHA-256) into trivial password-cracking targets. A 12-character random password under these parameters takes longer than the age of the universe to brute force on any hardware that exists today.</p>
+<p>The opposite mistake — storing passwords as a fast hash like SHA-256 — has produced almost every major credential dump in the last decade. Speed is the enemy here, not the goal.</p>
+</blockquote>
+<ul>
 <li><strong>Key splitting</strong> (Shamir's Secret Sharing) divides a secret into <em>n</em> shares such that any <em>k</em> of them can reconstruct the secret but fewer than <em>k</em> reveal nothing. This is how HSM administrator quorums, root CA recovery procedures, and high-value cryptocurrency wallets are protected.</li>
 <li><strong>Forward secrecy</strong> (also called Perfect Forward Secrecy, PFS) means that compromise of a long-term key does not compromise past sessions. It is achieved by exchanging fresh ephemeral keys for each session — typically through ephemeral Diffie-Hellman ((EC)DHE). TLS 1.3 makes forward secrecy mandatory by removing the non-PFS RSA key-exchange option entirely.</li>
 </ul>
@@ -253,9 +312,20 @@ The Mad Hatter, lead cryptographer at Teatime Tech, takes a frantic call at 3:17
 <p><strong>Homomorphic encryption (HE)</strong> allows computation on ciphertext such that the decrypted result equals the result of the same computation on the plaintext. <strong>Partially homomorphic</strong> schemes support a single operation (RSA, for instance, is homomorphic with respect to multiplication). <strong>Fully homomorphic encryption (FHE)</strong> supports both addition and multiplication and therefore — in principle — arbitrary computation. FHE is an active area of standardization (Microsoft SEAL, Google FHE Transpiler, OpenFHE) but currently runs many orders of magnitude slower than plaintext computation, limiting its practical use to narrow workloads such as private machine-learning inference or encrypted database queries.</p>
 <p><strong>Secure multiparty computation (SMPC)</strong> lets multiple parties jointly compute a function over their private inputs without revealing those inputs to each other. SMPC is used in privacy-preserving analytics, cross-bank fraud detection, and threshold cryptography (where multiple parties cooperatively produce a signature without any one of them ever holding the full key).</p>
 <p><strong>Immutable databases and blockchain</strong> apply cryptography to a different problem — that of tamper-evident record keeping. Each new record is hashed together with the previous record's hash, creating a chain that cannot be altered without invalidating every subsequent entry. Public blockchains add distributed consensus to remove the need for a trusted writer; permissioned ledgers keep the trust model traditional but use the same chained-hash structure for audit integrity. Immutable database services (AWS QLDB, for example) apply the same idea inside a managed product.</p>
-<blockquote>
-<p><strong>[Case Study — Historical]</strong>
-In 2011, the Dutch certificate authority <strong>DigiNotar</strong> was compromised. Attackers — believed to be Iranian state-aligned — gained access to DigiNotar's issuing infrastructure and produced more than five hundred fraudulent certificates, including a wildcard for <code>*.google.com</code>. The bogus certificates were used to mount man-in-the-middle attacks against approximately 300,000 Iranian Gmail users. When Google and Mozilla investigated, they found logging gaps so severe that DigiNotar could not confidently say which certificates were fraudulent and which were legitimate. Within weeks, every major browser revoked trust in the entire DigiNotar root, including certificates that had been legitimately issued. DigiNotar declared bankruptcy. Two consequences shaped modern PKI: <strong>Certificate Transparency</strong> logs were created so unauthorized issuance can be detected publicly, and browsers became dramatically less tolerant of CA operational failures.</p>
+<blockquote class="callout-case-study">
+<p><strong class="callout-title">Case Study</strong></p>
+<p><em>DigiNotar (2011): How a Single CA Failure Reshaped the Trust Model</em></p>
+<p>In June 2011, attackers — later assessed by Fox-IT investigators to be aligned with Iranian state interests — gained access to the issuing infrastructure of the Dutch certificate authority <strong>DigiNotar</strong>. Over several weeks, they used that access to produce more than five hundred fraudulent certificates for high-value domains: <code>*.google.com</code>, <code>*.yahoo.com</code>, <code>*.skype.com</code>, addresses for the CIA and Mossad, and Tor hidden-service routers. Many of these certificates were technically valid: signed by a root that every major browser shipped in its trust store.</p>
+<p>The bogus <code>*.google.com</code> certificate was used in a real attack. Iranian Internet service providers — most likely with state cooperation — performed a man-in-the-middle interception of HTTPS traffic from approximately 300,000 users connecting to Gmail. Each user's browser saw a "valid" certificate, no warning, and a working session. The attackers had read access to email, contact lists, and the session cookies needed to impersonate those users on later visits.</p>
+<p>The attack was detected almost by accident. A single user in Iran, running a Chromium build that included Google's experimental certificate-pinning enforcement, saw a warning that the certificate did not match the pinned key. He posted to a Google support forum. Within hours, Google's security team had a sample of the rogue certificate. Within days, every major browser vendor had pushed an emergency update revoking trust in DigiNotar.</p>
+<p>The forensic investigation that followed was devastating. DigiNotar's logs were incomplete. The attackers had moved laterally from a public-facing web server into the CA's signing systems through a Windows network with weak segmentation, no multi-factor authentication on administrative accounts, and antivirus that was years out of date. Worst of all, DigiNotar could not produce a complete list of every certificate the attackers had issued. The auditors estimated 531 fraudulent certificates; the company itself could not confirm the number. When you cannot tell trustworthy issuance from fraudulent issuance, <em>all</em> of your issuance must be presumed compromised.</p>
+<p>The Dutch government — which used DigiNotar to sign certificates for its tax authority, judiciary, and emergency services — moved its entire infrastructure off DigiNotar in a forty-eight hour scramble. The browser vendors completed the global revocation. DigiNotar filed for bankruptcy on September 20, 2011, less than three months after the breach.</p>
+<p>Two structural consequences shaped modern PKI:</p>
+<ol>
+<li><strong>Certificate Transparency (CT)</strong> was developed and standardized as RFC 6962 (2013). CT requires that publicly trusted certificates be submitted to public, append-only logs. Domain owners can monitor those logs and detect unauthorized issuance against their domains within hours. Modern browsers refuse certificates that lack CT signatures.</li>
+<li><strong>CA agility and accountability</strong> became enforceable. The CA/Browser Forum tightened audit requirements, browsers became willing to distrust major CAs (Symantec in 2017, Camerfirma in 2021, Entrust in 2024) when their operations fell short, and certificate lifetimes have steadily shortened to limit the blast radius of any future compromise.</li>
+</ol>
+<p>DigiNotar is the case the entire modern web learned from. Every architectural choice in this chapter — short-lived certificates, transparency logs, automated issuance, hardware-protected roots, granular revocation — exists in part because of what happened in those few weeks of 2011.</p>
 </blockquote>
 <h3>Performance Trade-Offs</h3>
 <p>Cryptography is not free, and good architects budget for it. A handful of rules of thumb:</p>
