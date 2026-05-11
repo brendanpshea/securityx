@@ -1,0 +1,120 @@
+{
+  "id": "ch10-chopper-ot-segmentation",
+  "chapter": 10,
+  "title": "Nick Chopper Segments the Yellow Brick Plant Floor",
+  "context_md": "Nick Chopper, OT Engineer at *Yellow Brick Manufacturing*, has finally been given budget and executive backing to fix the plant's industrial cybersecurity posture. The site runs six aluminum extrusion lines, four of them anchored by 1998-era Allen-Bradley ControlLogix PLCs driving 800°C presses. Today, those lines sit on the same flat network as the corporate file servers, payroll, and a forgotten internet-exposed remote-access PC that a vendor used during the pandemic and never disconnected.\n\nThe CISO has been clear: production cannot stop, no PLC can be replaced this year, and safety regulators must sign off on any change that touches a control loop. Within those constraints, Nick must produce a defensible IT/OT segmentation plan, harden the legacy industrial PCs that cannot be patched, and bring the wireless infrastructure used by warehouse handhelds and building HVAC under proper control. He also needs a compensating-control playbook for the third-party vendors who insist on retaining remote-support access under their service contracts.",
+  "prompt_md": "Complete Nick's plan by selecting the correct option for each blank.",
+  "body_md": "Nick begins by mapping the existing environment without touching anything that could disturb production. Because actively probing a 1998 PLC has a real chance of crashing it, his asset-inventory tool uses **{{discovery}}** rather than active scanning, listening at SPAN ports for thirty days before any change is made.\n\nThe core of the plan is a layered architecture aligned to the **{{model}}**, with an industrial DMZ inserted between the corporate IT network and the OT environment. All north-south traffic between IT and OT must traverse this DMZ — no direct connections are permitted. Inside the OT zone, each assembly line becomes its own segment per the zone-and-conduit logic of the international standard **{{iec}}**.\n\nThe top priority of the design is not confidentiality but **{{priority}}**, because a mis-issued control command on the extrusion press has produced operator injuries in the plant's history and could do so again. This inverted priority order is what differentiates OT security architecture from IT.\n\nFor the Windows XP industrial PCs that cannot be upgraded without recertifying the entire line, Nick deploys **{{allowlist}}** so that only the small fixed set of approved engineering applications can execute. He also strips writeable USB capability except by formal exception — recognizing that USB has been the canonical vector for compromising air-gapped OT systems ever since **{{worm}}** in 2010.\n\nVendor remote support cannot be eliminated under existing service contracts, so Nick replaces the forgotten internet-facing PC with a properly engineered **{{jumphost}}** that enforces multi-factor authentication, time-boxes each session to the scheduled change window, and records full keystroke and screen video of every vendor connection for later audit.\n\nFor the warehouse handhelds and the building HVAC controllers that connect over wireless, Nick rolls out a segmented WLAN. The corporate-employee SSID uses **{{wifi_auth}}** for mutual certificate-based authentication with forward secrecy, while the building-systems SSID is mapped to its own **{{vlan}}** with egress-only firewall rules to the vendor cloud and client isolation enforced at the wireless controller.\n\nFinally, for the eight specific PLCs that the vendor will never patch again because the product line was retired in 2009, Nick documents the architectural protections as formal **{{controls}}** — network isolation, protocol-aware OT firewalls, passive monitoring, jump-host-only administrative access — and pairs each one with a tracked entry on the multi-year **{{roadmap}}** so that the executive committee has continuous visibility into how long this technical debt is expected to remain.",
+  "blanks": {
+    "discovery": {
+      "answer": "passive monitoring",
+      "distractors": [
+        "active vulnerability scanning",
+        "credentialed Nessus scans",
+        "Nmap SYN sweeps",
+        "ICMP ping sweeps"
+      ],
+      "explanation": "Active scanning has a long history of crashing legacy PLCs. OT-aware tools such as Claroty, Nozomi, and Dragos perform passive monitoring at SPAN ports — read-only observation that produces inventory and detection without injecting traffic."
+    },
+    "model": {
+      "answer": "Purdue Reference Model",
+      "distractors": [
+        "OSI Reference Model",
+        "Bell-LaPadula Model",
+        "Zero Trust Model",
+        "STRIDE Model"
+      ],
+      "explanation": "The Purdue Reference Model layers ICS architecture into Levels 0–5 with an industrial DMZ between Levels 3 (Operations) and 4 (Enterprise IT). All IT/OT crossing traffic must traverse the iDMZ — no direct connections."
+    },
+    "iec": {
+      "answer": "ISA/IEC 62443",
+      "distractors": [
+        "PCI DSS",
+        "ISO 27017",
+        "HIPAA Security Rule",
+        "GDPR Article 32"
+      ],
+      "explanation": "ISA/IEC 62443 is the international standard for industrial automation and control system security, organized around zones (groups of assets with shared requirements) and conduits (defined communication paths between zones)."
+    },
+    "priority": {
+      "answer": "safety",
+      "distractors": [
+        "confidentiality",
+        "non-repudiation",
+        "throughput",
+        "uptime KPI scoring"
+      ],
+      "explanation": "OT priorities are Safety → Availability → Integrity → Confidentiality, inverting the classic IT CIA triad. A wrong command on a control loop can injure or kill operators or release environmental hazards — safety supersedes everything else."
+    },
+    "allowlist": {
+      "answer": "application allowlisting",
+      "distractors": [
+        "weekly antivirus signature updates",
+        "monthly Patch Tuesday cycle",
+        "removing the local administrator account",
+        "rotating the BIOS password"
+      ],
+      "explanation": "When the OS cannot be patched, application allowlisting (WDAC, AppLocker) restricts execution to a known fixed set of binaries — exactly the model that fits a stable industrial PC running a small predefined application portfolio."
+    },
+    "worm": {
+      "answer": "Stuxnet",
+      "distractors": [
+        "WannaCry",
+        "Code Red",
+        "ILOVEYOU",
+        "Mirai"
+      ],
+      "explanation": "Stuxnet (2010) is the canonical USB-borne attack against air-gapped OT systems, originally targeting Iranian centrifuges. It remains the proof that 'air-gapped' is not the same as 'safe' — and that USB controls are essential even on disconnected networks."
+    },
+    "jumphost": {
+      "answer": "PAM-managed jump host (bastion)",
+      "distractors": [
+        "shared TeamViewer instance",
+        "open RDP listener on the firewall",
+        "publicly reachable web admin panel",
+        "anonymous FTP server"
+      ],
+      "explanation": "A jump host with MFA, time-boxed access, and full session recording is the standard compensating control when vendor remote support cannot be eliminated. The Oldsmar incident demonstrated what happens when this discipline is absent."
+    },
+    "wifi_auth": {
+      "answer": "WPA3-Enterprise with EAP-TLS",
+      "distractors": [
+        "WEP with a shared 40-bit key",
+        "Open network with captive portal",
+        "WPA2-Personal with one PSK for the whole company",
+        "WPS push-button pairing"
+      ],
+      "explanation": "WPA3-Enterprise with EAP-TLS provides mutual certificate-based authentication and forward secrecy of the session keys — the current best-practice baseline for corporate wireless."
+    },
+    "vlan": {
+      "answer": "VLAN with per-SSID ACLs",
+      "distractors": [
+        "the same flat VLAN as production",
+        "the corporate guest VLAN",
+        "a /16 shared with payroll",
+        "the management VLAN"
+      ],
+      "explanation": "Mapping each SSID to its own VLAN with policy enforced at the wireless controller is the standard segmentation pattern. Building-systems and IoT devices should never share a network segment with corporate users or production systems."
+    },
+    "controls": {
+      "answer": "compensating controls",
+      "distractors": [
+        "preventative patching",
+        "vendor warranty repairs",
+        "in-place firmware upgrades",
+        "regulatory exemptions"
+      ],
+      "explanation": "Compensating controls are protections placed *around* a system that cannot be made directly secure — reducing the exploitability or blast radius of an unfixable vulnerability."
+    },
+    "roadmap": {
+      "answer": "replacement roadmap",
+      "distractors": [
+        "vendor newsletter subscription",
+        "permanent risk acceptance memo",
+        "annual disaster-recovery drill",
+        "office lease renewal calendar"
+      ],
+      "explanation": "Compensating controls are evidence of debt, not a permanent destination. A funded, tracked replacement roadmap bounds how long the compensating controls must remain in place and is itself an essential governance control."
+    }
+  }
+}

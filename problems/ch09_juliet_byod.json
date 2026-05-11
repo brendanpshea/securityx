@@ -1,0 +1,140 @@
+{
+  "id": "ch09-juliet-byod-mdm",
+  "chapter": 9,
+  "title": "Juliet Capulet Rolls Out BYOD at Verona Health",
+  "context_md": "Juliet Capulet, Security Awareness Trainer at *Verona Health* (a 4,000-employee regional hospital network), is the operational lead on a long-delayed BYOD program. Clinicians want to use their personal phones for secure messaging, on-call notifications, and EHR access at bedside. The CFO wants to stop buying corporate phones for every nurse. The CISO wants to make sure the next breach report does not name Verona Health.\n\nThe pre-rollout state is unsettling. Several hundred clinicians have already self-enrolled their phones in the EHR vendor's mobile app using only their Active Directory passwords — no MFA, no posture check, no way to know which devices are jailbroken or running an unpatched OS. The corporate WLAN is one flat SSID with a single shared PSK that has not rotated in three years; guest, BYOD, and the building's IoT cameras all share the same Layer-2 segment. Email security is similarly behind: SPF is set to soft-fail and there are no DKIM signatures or DMARC policy at all. The corporate recursive resolver has no validation enabled, so a downstream poisoned response would be accepted without question. The CMDB has not been reconciled with reality in over a year, and a recent ransomware tabletop exercise revealed that nobody could produce an accurate list of EHR-adjacent endpoints.\n\nJuliet's six-month program must address all of this — endpoint posture for BYOD, wireless segmentation, email authentication, DNS integrity, change/asset discipline, and an honest plan for the legacy MRI workstation that runs Windows 7 and cannot be replaced for two years.",
+  "prompt_md": "Complete Juliet's BYOD and network-hardening plan by selecting the correct option for each blank.",
+  "body_md": "Juliet starts with policy. Legal drafts a BYOD acceptable-use agreement that grants Verona the right to remove only corporate data on demand — through a **{{wipe}}** that leaves personal photos, contacts, and apps untouched. Every enrolling user e-signs the agreement before enrollment proceeds.\n\nFor the technology layer, the chosen platform is Microsoft Intune integrated with Entra ID. Each personal device is enrolled into a sandboxed work environment that keeps corporate data separated from personal apps — an approach generally called **{{container}}** management. Sign-in to the EHR is gated by **{{condaccess}}** policies that require the device to be MDM-managed, encrypted, running a current OS, free of jailbreak/root, and reporting from the mobile EDR agent. A non-compliant device is blocked before authentication completes.\n\nJuliet replaces the EHR app's password-only login with hardware-backed **{{passwordless}}** authentication, using the user's device-bound private key to sign a server challenge so that a stolen credential database yields nothing replayable.\n\nOn the wireless side, Juliet decommissions the single flat SSID. The new design maps four SSIDs — Corp, BYOD, Guest, and IoT-Cameras — to **{{vlan}}** segments with distinct ACLs enforced at the wireless controller. Corp and BYOD use WPA3-Enterprise with EAP-TLS; Guest uses a captive portal with client isolation; the IoT-Cameras SSID is locked to egress-only firewall rules toward the vendor cloud. A wireless **{{wids}}** sensor continuously watches for rogue access points and evil-twin SSIDs in the clinical spaces.\n\nFor outbound email, Juliet publishes proper SPF, signs every message with **{{dkim}}** keys whose public halves are published in DNS, and brings the domain's DMARC policy from `p=none` to **{{dmarc}}** so that mailers receiving spoofed Verona Health messages will refuse delivery rather than just reporting the failure.\n\nOn DNS, the corporate resolver is reconfigured to validate **{{dnssec}}** signatures so that forged answers from a poisoned upstream are rejected, and the recursive resolver begins **{{sinkhole}}** for known malicious domains — redirecting blocked queries to a controlled address that also alerts the SIEM when an internal host attempts the lookup.\n\nThe ransomware tabletop's painful lesson — that nobody could enumerate EHR-adjacent endpoints — is addressed by reconciling the **{{cmdb}}** weekly against the cloud provider's inventory APIs, Active Directory, and the EDR console. Every change to production passes through a formal **{{cm}}** process with documented approval, scheduled window, and rollback plan, rather than the ad-hoc 'just push it' culture that had grown up over the years.\n\nFinally, the Windows 7 MRI workstation cannot be upgraded without breaking the medical-device vendor's FDA support certification and cannot be replaced for two years. Juliet treats it as a legacy enclave: isolated VLAN with default-deny ACLs, application allowlisting, no internet egress, jump-host-only administrative access, and continuous logging into the SIEM. The MITRE ATT&CK technique most likely to be attempted against its credential store from any compromised neighbor — extracting NTLM hashes and Kerberos tickets from LSASS memory — is **{{dump}}**, and the host firewall plus tamper-protected EDR posture is sized specifically to detect and block it.",
+  "blanks": {
+    "wipe": {
+      "answer": "selective wipe",
+      "distractors": [
+        "full-device factory reset",
+        "remote hardware destruction",
+        "BIOS password reset",
+        "TPM zeroization"
+      ],
+      "explanation": "Selective wipe removes only the corporate container contents on a BYOD device, leaving personal data intact. It is the technical capability that makes BYOD legally and operationally acceptable."
+    },
+    "container": {
+      "answer": "app containerization",
+      "distractors": [
+        "full-device management (COBO)",
+        "shared Wi-Fi access only",
+        "browser-only access from personal devices",
+        "no management at all"
+      ],
+      "explanation": "App containerization (iOS Managed Apps, Android Work Profile, Intune App Protection) sandboxes work data on a personal device — blocking copy/paste, screenshots, and data movement to personal apps."
+    },
+    "condaccess": {
+      "answer": "conditional access",
+      "distractors": [
+        "perimeter VPN",
+        "static ACL",
+        "DHCP reservation",
+        "split tunneling"
+      ],
+      "explanation": "Conditional access policies consume the MDM-issued device posture assertion (encryption, OS version, jailbreak status, EDR present) at sign-in to allow or deny authentication."
+    },
+    "passwordless": {
+      "answer": "FIDO2 / WebAuthn",
+      "distractors": [
+        "Basic auth over HTTPS",
+        "SMS-based TOTP",
+        "shared service-account password",
+        "challenge-response email link"
+      ],
+      "explanation": "FIDO2 / WebAuthn authenticators store a device-bound private key and sign a server challenge. A credential-database breach exposes only public keys — nothing replayable — which is the core phishing-resistance property."
+    },
+    "vlan": {
+      "answer": "per-SSID VLAN",
+      "distractors": [
+        "single shared VLAN",
+        "no VLAN at all",
+        "the corporate management VLAN",
+        "a shared /16 with payroll"
+      ],
+      "explanation": "Per-SSID VLAN segmentation maps each SSID to its own VLAN and ACL set, enforced at the wireless controller. Mixing BYOD, guests, and IoT cameras on one VLAN is exactly the flat-network mistake the WannaCry case study warned about."
+    },
+    "wids": {
+      "answer": "WIDS (Wireless IDS)",
+      "distractors": [
+        "open NetFlow collector",
+        "passive SNMP poll",
+        "Wi-Fi range extender",
+        "Bluetooth pairing kiosk"
+      ],
+      "explanation": "A Wireless IDS continuously monitors the RF environment for rogue APs, evil-twin SSIDs, deauthentication floods, and unauthorized clients in spaces where they should not exist."
+    },
+    "dkim": {
+      "answer": "DKIM",
+      "distractors": [
+        "SPF",
+        "DMARC",
+        "DNSSEC",
+        "S/MIME"
+      ],
+      "explanation": "DKIM (DomainKeys Identified Mail) places a cryptographic signature over selected headers and the message body, with the verifying public key published in DNS. DKIM authenticates the *message itself* and survives forwarding."
+    },
+    "dmarc": {
+      "answer": "p=reject",
+      "distractors": [
+        "p=none",
+        "p=monitor",
+        "p=audit-only",
+        "p=ignore"
+      ],
+      "explanation": "DMARC `p=reject` instructs receivers to refuse delivery of messages that fail aligned SPF or DKIM. `p=none` is monitoring-only; moving from `none` to `reject` (typically via `quarantine`) is the enforcement step."
+    },
+    "dnssec": {
+      "answer": "DNSSEC",
+      "distractors": [
+        "DoH",
+        "DoT",
+        "DNS round-robin",
+        "DNS recursion disabled"
+      ],
+      "explanation": "DNSSEC cryptographically signs DNS records so resolvers can reject forged answers. DoH and DoT *encrypt* the conversation between client and resolver but do not authenticate the data — they solve different problems."
+    },
+    "sinkhole": {
+      "answer": "DNS sinkholing",
+      "distractors": [
+        "zone transfer (AXFR)",
+        "DNS cache flushing",
+        "round-robin load balancing",
+        "anycast routing"
+      ],
+      "explanation": "DNS sinkholing returns a controlled response (or NXDOMAIN) for known-bad domains — blocking the lookup, alerting the SIEM, and identifying the internal host that attempted it."
+    },
+    "cmdb": {
+      "answer": "CMDB",
+      "distractors": [
+        "spreadsheet on a shared drive",
+        "the CISO's mental model",
+        "vendor-managed asset catalog",
+        "annual external audit report"
+      ],
+      "explanation": "The Configuration Management Database is the system of record for assets and relationships. Weekly automated reconciliation against AD, cloud APIs, and the EDR console is one of the highest-leverage operational investments any SOC can make."
+    },
+    "cm": {
+      "answer": "change management",
+      "distractors": [
+        "incident response",
+        "vulnerability scanning",
+        "data classification",
+        "tabletop exercise"
+      ],
+      "explanation": "Formal change management — request, impact assessment, CAB approval, scheduled window, post-implementation review — is the operational discipline that lets future investigators correlate incidents with the changes that caused them."
+    },
+    "dump": {
+      "answer": "credential dumping (LSASS)",
+      "distractors": [
+        "phishing-as-a-service",
+        "DNS amplification",
+        "SQL injection",
+        "TLS downgrade"
+      ],
+      "explanation": "Credential dumping (MITRE T1003) — Mimikatz and equivalents extracting NTLM hashes and Kerberos tickets from LSASS memory — is the canonical post-foothold technique on Windows. Credential Guard, LSASS Protected Process Light, EDR detections for LSASS reads, and removal of local admin are the layered defenses."
+    }
+  }
+}
