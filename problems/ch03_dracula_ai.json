@@ -47,7 +47,7 @@
       "explanation": "The canonical mitigation for excessive agency is requiring an explicit human approval before consequential actions — not technical changes to the model itself."
     },
     "disclosure_risk": {
-      "answer": "Sensitive information disclosure (to the model)",
+      "answer": "Sensitive information disclosure",
       "distractors": [
         "Model theft",
         "Insecure plug-in design",
@@ -57,7 +57,7 @@
       "explanation": "Users sending sensitive data into a third-party model is sensitive information disclosure — specifically, data flowing *to* the model and its operator."
     },
     "disclosure_control": {
-      "answer": "DLP (Data Loss Prevention)",
+      "answer": "DLP",
       "distractors": [
         "WAF",
         "EDR",
@@ -87,7 +87,7 @@
       "explanation": "Inversion exploits memorization that happens during training/fine-tuning, so the primary defense is data minimization and differential privacy at that stage."
     },
     "disclosure_obligation": {
-      "answer": "disclosure that the user is interacting with an AI",
+      "answer": "AI disclosure",
       "distractors": [
         "a CAPTCHA challenge",
         "a click-through EULA",

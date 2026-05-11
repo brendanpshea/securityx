@@ -7,7 +7,7 @@
   "body_md": "Prospero will replace the legacy hub-and-spoke VPN with a **{{edge_service}}** that delivers SD-WAN, SWG, CASB, ZTNA, and FWaaS from cloud points of presence close to the user. This avoids backhaul while maintaining policy enforcement.\n\nRather than trusting the network location of a request, every access decision will be made at a **{{pdp}}**, which evaluates identity, device posture, and context. The decision is then enforced at the **{{pep}}** in front of each application. The guiding principle is that authorization is **{{auth_model}}** — re-evaluated on every request, not granted once at login.\n\nTo limit blast radius, Prospero will divide the data center into per-workload segments using **{{segmentation}}** — far finer-grained than traditional VLAN segmentation. This way, a compromised endpoint can reach only the specific services it has been explicitly authorized for.\n\nAll customer data will be assigned a sensitivity **{{label}}** at creation, and **{{dlp_state}}** DLP rules will scan email and SaaS uploads for matching content as it leaves the environment. Files at rest in cloud storage will be inspected by **{{discovery}}** scans to find mislabeled or shadow copies.\n\nFinally, to demonstrate effectiveness to auditors, Prospero will publish a quarterly dashboard of **{{metric}}** — quantitative evidence that the controls reduce real risk, not just compliance checkboxes.",
   "blanks": {
     "edge_service": {
-      "answer": "SASE (Secure Access Service Edge)",
+      "answer": "SASE",
       "distractors": [
         "Site-to-site IPsec VPN",
         "MPLS backbone",
@@ -17,7 +17,7 @@
       "explanation": "SASE is the cloud-delivered convergence of SD-WAN with security services (SWG, CASB, ZTNA, FWaaS) — purpose-built for the deperimeterized, remote-first scenario described."
     },
     "pdp": {
-      "answer": "Policy Decision Point (PDP)",
+      "answer": "PDP",
       "distractors": [
         "Policy Enforcement Point (PEP)",
         "Trust Anchor",
@@ -27,7 +27,7 @@
       "explanation": "In Zero Trust architecture, the PDP evaluates context and produces an authorization decision; the PEP enforces that decision at the resource."
     },
     "pep": {
-      "answer": "Policy Enforcement Point (PEP)",
+      "answer": "PEP",
       "distractors": [
         "Policy Decision Point (PDP)",
         "Service Mesh Sidecar",

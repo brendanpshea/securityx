@@ -57,7 +57,7 @@
       "explanation": "Implementing a control (segmentation + jump host) to lower likelihood or impact is risk *mitigation*. Transfer would be buying cyber insurance; avoidance would be ending the Pemberley contract entirely."
     },
     "monitoring_tool": {
-      "answer": "GRC (Governance, Risk, and Compliance)",
+      "answer": "GRC",
       "distractors": [
         "SIEM",
         "EDR",

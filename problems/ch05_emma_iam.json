@@ -7,7 +7,7 @@
   "body_md": "Emma's first action is to disable Frank's account at the **{{authority}}**, which acts as the single source of truth for any application connected via federation. For applications that remain SAML- or OIDC-federated, this single change effectively kills new sessions because each app trusts assertions issued by that source.\n\nHowever, federated logout does not invalidate **{{cached_artifact}}** that may already be sitting in Frank's browser or device. To kill those, Emma triggers a global session/token revocation in the IdP and the SaaS apps that support it.\n\nFor the long-lived deployment-pipeline token, Emma must perform an immediate **{{secret_action}}** — and going forward, Highbury should adopt **{{secret_practice}}** so that no human-owned credential lives longer than the human's tenure.\n\nThe SSH keys cached on Frank's laptops are best handled by removing his public key from the **{{ssh_location}}** on every server he could reach. Long-term, Emma will route all SSH access through a **{{pam_tool}}**, which brokers session-by-session credentials and records keystrokes for high-privilege sessions.\n\nFor the local accounts on un-federated legacy apps, Emma must disable each one manually; this is a textbook failure of **{{lifecycle_gap}}**. To prevent recurrence, Emma will propose **{{provisioning_protocol}}**, the standard for automating provisioning and deprovisioning across SaaS.\n\nFinally, to give legal a defensible timeline of every revocation action, Emma exports the **{{audit_artifact}}** from the IdP, PAM, and source repo.",
   "blanks": {
     "authority": {
-      "answer": "Identity Provider (IdP)",
+      "answer": "IdP",
       "distractors": [
         "Service Provider (SP)",
         "Domain Controller's DNS",
@@ -17,7 +17,7 @@
       "explanation": "The IdP is the federated source of truth. Disabling the account there cuts off authentication for every SP that trusts it."
     },
     "cached_artifact": {
-      "answer": "active session tokens / cookies",
+      "answer": "session tokens",
       "distractors": [
         "DNS cache entries",
         "ARP table entries",
@@ -27,7 +27,7 @@
       "explanation": "Federation revokes the right to obtain *new* tokens but does not invalidate tokens already issued and cached client-side. Global sign-out / token revocation endpoints are needed to kill those."
     },
     "secret_action": {
-      "answer": "rotation (revoke and reissue)",
+      "answer": "rotation",
       "distractors": [
         "logging",
         "obfuscation",
@@ -57,7 +57,7 @@
       "explanation": "A user's accepted public keys live in ~/.ssh/authorized_keys on each server. known_hosts is the *client-side* list of trusted servers — different direction."
     },
     "pam_tool": {
-      "answer": "Privileged Access Management (PAM) solution",
+      "answer": "PAM",
       "distractors": [
         "MDM (Mobile Device Management)",
         "SIEM",
@@ -77,7 +77,7 @@
       "explanation": "Identity lifecycle = provisioning, modification, *deprovisioning*. Apps with un-cleaned local accounts after a termination are a deprovisioning failure."
     },
     "provisioning_protocol": {
-      "answer": "SCIM (System for Cross-domain Identity Management)",
+      "answer": "SCIM",
       "distractors": [
         "SAML",
         "OAuth 2.0",
