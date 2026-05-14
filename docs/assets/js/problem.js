@@ -9,6 +9,15 @@
   const resetBtn = document.getElementById('btn-reset');
   const readout = document.getElementById('score-readout');
 
+  // WCAG 4.1.3 — announce score changes and explanation reveals to screen
+  // readers without forcing focus away from the form.
+  if (readout) {
+    readout.setAttribute('role', 'status');
+    readout.setAttribute('aria-live', 'polite');
+    readout.setAttribute('aria-atomic', 'true');
+  }
+  if (submitBtn) submitBtn.textContent = 'Check answers';
+
   const shuffle = (arr) => {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -18,9 +27,11 @@
     return a;
   };
 
+  const totalBlanks = Object.keys(problem.blanks).length;
+
   // Build a <select> + (hidden) explanation slot for every blank span.
   const blankSpans = form.querySelectorAll('.cloze-blank');
-  blankSpans.forEach((span) => {
+  blankSpans.forEach((span, idx) => {
     const name = span.dataset.blank;
     const def = problem.blanks[name];
     if (!def) return;
@@ -29,6 +40,9 @@
     select.className = 'cloze-select';
     select.name = name;
     select.dataset.blank = name;
+    // Screen readers read the surrounding paragraph for context; the
+    // aria-label only needs to identify which blank this is.
+    select.setAttribute('aria-label', `Answer ${idx + 1} of ${totalBlanks}`);
 
     const placeholder = document.createElement('option');
     placeholder.value = '';
@@ -47,10 +61,9 @@
 
     select.addEventListener('change', () => {
       select.classList.remove('correct', 'incorrect');
+      select.removeAttribute('aria-invalid');
     });
   });
-
-  const totalBlanks = Object.keys(problem.blanks).length;
 
   // One panel below the form holds every explanation after Submit.
   let panel = document.getElementById('explanations-panel');
@@ -59,6 +72,7 @@
     panel.id = 'explanations-panel';
     panel.className = 'explanations-panel';
     panel.hidden = true;
+    panel.setAttribute('aria-labelledby', 'explanations-heading');
     form.insertAdjacentElement('afterend', panel);
   }
 
@@ -75,15 +89,18 @@
         unanswered++;
         select.classList.remove('correct');
         select.classList.add('incorrect');
+        select.setAttribute('aria-invalid', 'true');
         status = 'unanswered';
       } else if (select.value === def.answer) {
         correct++;
         select.classList.remove('incorrect');
         select.classList.add('correct');
+        select.removeAttribute('aria-invalid');
         status = 'correct';
       } else {
         select.classList.remove('correct');
         select.classList.add('incorrect');
+        select.setAttribute('aria-invalid', 'true');
         status = 'incorrect';
       }
 
@@ -96,7 +113,9 @@
       );
     });
 
-    panel.innerHTML = `<h3>Explanations</h3><ul class="explanations-list">${items.join('')}</ul>`;
+    panel.innerHTML =
+      `<h3 id="explanations-heading">Explanations</h3>` +
+      `<ul class="explanations-list">${items.join('')}</ul>`;
     panel.hidden = false;
 
     const allRight = correct === totalBlanks;
@@ -122,6 +141,7 @@
     form.querySelectorAll('select.cloze-select').forEach((s) => {
       s.value = '';
       s.classList.remove('correct', 'incorrect');
+      s.removeAttribute('aria-invalid');
     });
     if (panel) { panel.hidden = true; panel.innerHTML = ''; }
     readout.textContent = '';

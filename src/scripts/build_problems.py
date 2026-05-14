@@ -27,11 +27,12 @@ PAGE_TMPL = """<!DOCTYPE html>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
             <a href="./index.html" class="back-link">&larr; All Problems</a>
         </header>
-        <main>
+        <main id="main">
             <p class="problem-chapter">Chapter {chapter}</p>
             <h1>{title}</h1>
 
@@ -42,9 +43,9 @@ PAGE_TMPL = """<!DOCTYPE html>
             <form id="cloze-form" class="problem-body" data-problem-id="{pid}">
                 {body_html}
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>
@@ -67,13 +68,14 @@ INDEX_TMPL = """<!DOCTYPE html>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
             <a href="../index.html" class="back-link">&larr; Table of Contents</a>
         </header>
-        <main>
+        <main id="main">
             <h1>Practice Problems</h1>
-            <p>One scenario per chapter. Read the setup, fill in the blanks, then click <strong>Submit</strong>. You can retry until everything is green.</p>
+            <p>One scenario per chapter. Read the setup, fill in the blanks, then click <strong>Check answers</strong>. You can retry until everything is green.</p>
             <ul class="problem-list">
                 {items}
             </ul>

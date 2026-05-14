@@ -10,484 +10,1339 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
             <a href="../index.html" class="back-link">Table of Contents</a>
         </header>
-        <main>
-            <h1>Chapter 6: Secure Systems Lifecycle and Hardware Assurance</h1>
+        <main id="main">
+            <h1
+id="chapter-6-secure-systems-lifecycle-and-hardware-assurance">Chapter
+6: Secure Systems Lifecycle and Hardware Assurance</h1>
 <p><strong>Aligned SecurityX Objectives:</strong></p>
 <ul>
-<li><strong>2.2:</strong> Given a scenario, implement security in the early stages of the systems life cycle and throughout subsequent stages.</li>
-<li><strong>3.4:</strong> Given a scenario, implement hardware security technologies and techniques.</li>
+<li><strong>2.2:</strong> Given a scenario, implement security in the
+early stages of the systems life cycle and throughout subsequent
+stages.</li>
+<li><strong>3.4:</strong> Given a scenario, implement hardware security
+technologies and techniques.</li>
 </ul>
-<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch06-frankenstein-hardware.html">Victor Frankenstein Audits an IoT Insulin Pump</a></p>
+<p><strong>Cloze Problem Set:</strong> <a
+href="https://brendanpshea.github.io/securityx/problems/ch06-frankenstein-hardware.html">Victor
+Frankenstein Audits an IoT Insulin Pump</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
-<li><strong>Define</strong> functional and non-functional security requirements during the early stages of the systems life cycle.</li>
-<li><strong>Apply</strong> software assurance techniques, including SAST, DAST, IAST, RASP, vulnerability analysis, SCA, SBoMs, and formal methods.</li>
-<li><strong>Design</strong> CI/CD pipelines with coding standards, linting, branch protection, and comprehensive testing.</li>
-<li><strong>Evaluate</strong> supply chain risk management strategies for both software and hardware, including EOL planning.</li>
-<li><strong>Implement</strong> hardware assurance controls, including certification and validation processes and roots of trust (TPMs, HSMs, and vTPMs).</li>
-<li><strong>Assess</strong> secure boot, measured boot, virtual hardware controls, host-based encryption, and self-encrypting drives.</li>
-<li><strong>Design</strong> security coprocessor and secure enclave deployments with self-healing and tamper-detection capabilities.</li>
-<li><strong>Evaluate</strong> threat-actor TTPs targeting firmware, memory, buses, and electromagnetic interfaces, including shimming, USB attacks, EMI, and EMP.</li>
+<li><strong>Define</strong> functional and non-functional security
+requirements during the early stages of the systems life cycle.</li>
+<li><strong>Apply</strong> software assurance techniques, including
+SAST, DAST, IAST, RASP, vulnerability analysis, SCA, SBoMs, and formal
+methods.</li>
+<li><strong>Design</strong> CI/CD pipelines with coding standards,
+linting, branch protection, and comprehensive testing.</li>
+<li><strong>Evaluate</strong> supply chain risk management strategies
+for both software and hardware, including EOL planning.</li>
+<li><strong>Implement</strong> hardware assurance controls, including
+certification and validation processes and roots of trust (TPMs, HSMs,
+and vTPMs).</li>
+<li><strong>Assess</strong> secure boot, measured boot, virtual hardware
+controls, host-based encryption, and self-encrypting drives.</li>
+<li><strong>Design</strong> security coprocessor and secure enclave
+deployments with self-healing and tamper-detection capabilities.</li>
+<li><strong>Evaluate</strong> threat-actor TTPs targeting firmware,
+memory, buses, and electromagnetic interfaces, including shimming, USB
+attacks, EMI, and EMP.</li>
 </ul>
-<h2>Introduction</h2>
-<p>There is a useful thought experiment in software security: if you could go back and redesign your most critical application from the beginning, knowing what you know now about how attackers think, what would you do differently? Most experienced engineers give the same general answer. They would have spent more time on requirements. They would have added security reviews before code was written, not after it was shipped. They would have tracked every open-source package they pulled in. And they would never, ever have hardcoded that API key.</p>
-<p>This chapter is about turning that hindsight into foresight. Rather than bolting security on after the fact, the competent security architect weaves it into the fabric of how software and hardware are designed, built, tested, and delivered. That process — from the first conversation about what a system should do all the way through to the hardware it runs on — is called the <strong>systems lifecycle</strong>, and securing it end to end is one of the heaviest responsibilities on the SecurityX exam.</p>
-<p>We start at the beginning: defining what "secure" actually means before a single line of code is written. We then tour the modern toolbox for software assurance — SAST, DAST, IAST, RASP, SCA, and SBoMs — and look at how CI/CD pipelines can turn manual security reviews into automated safety nets. From there we move down the stack to hardware: the roots of trust that make a system's security guarantees verifiable, the secure and measured boot processes that protect the early startup sequence, and the hardware-level attacks — firmware tampering, shimming, USB exploits, and electromagnetic interference — that remind us how many attack surfaces exist below the operating system.</p>
+<h2 id="introduction">Introduction</h2>
+<p>There is a useful thought experiment in software security: if you
+could go back and redesign your most critical application from the
+beginning, knowing what you know now about how attackers think, what
+would you do differently? Most experienced engineers give the same
+general answer. They would have spent more time on requirements. They
+would have added security reviews before code was written, not after it
+was shipped. They would have tracked every open-source package they
+pulled in. And they would never, ever have hardcoded that API key.</p>
+<p>This chapter is about turning that hindsight into foresight. Rather
+than bolting security on after the fact, the competent security
+architect weaves it into the fabric of how software and hardware are
+designed, built, tested, and delivered. That process — from the first
+conversation about what a system should do all the way through to the
+hardware it runs on — is called the <strong>systems lifecycle</strong>,
+and securing it end to end is one of the heaviest responsibilities on
+the SecurityX exam.</p>
+<p>We start at the beginning: defining what “secure” actually means
+before a single line of code is written. We then tour the modern toolbox
+for software assurance — SAST, DAST, IAST, RASP, SCA, and SBoMs — and
+look at how CI/CD pipelines can turn manual security reviews into
+automated safety nets. From there we move down the stack to hardware:
+the roots of trust that make a system’s security guarantees verifiable,
+the secure and measured boot processes that protect the early startup
+sequence, and the hardware-level attacks — firmware tampering, shimming,
+USB exploits, and electromagnetic interference — that remind us how many
+attack surfaces exist below the operating system.</p>
 <hr />
-<h2>How Do We Bake Security into the Systems Lifecycle?</h2>
-<p>A secure product is not produced by applying a security scanner to the code on Friday before a Monday release. It is produced by asking security questions at every stage of development — and by having architecture, engineering, and testing processes that operationalize those questions into automatable checks. The framework for doing this systematically is called <strong>Secure SDLC</strong> or, more broadly, <strong>security in the systems lifecycle</strong>.</p>
-<h3>Defining Security Requirements: Functional vs. Non-Functional</h3>
-<p>Before developers write code, someone has to write down what the system needs to do. Those descriptions of behavior are called <strong>requirements</strong>, and they come in two flavors that matter enormously for security.</p>
-<p><strong>Functional requirements</strong> describe what the system <em>does</em>: "Users must be able to reset their passwords via email link." "The API must return customer order history in JSON format." "The payment form must accept Visa, Mastercard, and American Express." These are the requirements that product managers write and developers ship. They define visible behavior.</p>
-<p><strong>Non-functional requirements</strong> describe how the system <em>behaves across a quality dimension</em>: performance, reliability, scalability — and security. Examples include: "All passwords must be hashed using bcrypt with a cost factor of at least 12." "The API must implement rate limiting of 100 requests per minute per authenticated user." "Session tokens must expire after 30 minutes of inactivity." "The system must log all failed authentication attempts to the central SIEM."</p>
-<p>The trap organizations fall into is treating non-functional requirements as optional enhancements to revisit after the product ships. Security non-functional requirements are promises the system makes to its users and to the organization. When they are not written down before development starts, they tend not to exist in the finished product.</p>
+<h2 id="how-do-we-bake-security-into-the-systems-lifecycle">How Do We
+Bake Security into the Systems Lifecycle?</h2>
+<p>A secure product is not produced by applying a security scanner to
+the code on Friday before a Monday release. It is produced by asking
+security questions at every stage of development — and by having
+architecture, engineering, and testing processes that operationalize
+those questions into automatable checks. The framework for doing this
+systematically is called <strong>Secure SDLC</strong> or, more broadly,
+<strong>security in the systems lifecycle</strong>.</p>
+<h3
+id="defining-security-requirements-functional-vs.-non-functional">Defining
+Security Requirements: Functional vs. Non-Functional</h3>
+<p>Before developers write code, someone has to write down what the
+system needs to do. Those descriptions of behavior are called
+<strong>requirements</strong>, and they come in two flavors that matter
+enormously for security.</p>
+<p><strong>Functional requirements</strong> describe what the system
+<em>does</em>: “Users must be able to reset their passwords via email
+link.” “The API must return customer order history in JSON format.” “The
+payment form must accept Visa, Mastercard, and American Express.” These
+are the requirements that product managers write and developers ship.
+They define visible behavior.</p>
+<p><strong>Non-functional requirements</strong> describe how the system
+<em>behaves across a quality dimension</em>: performance, reliability,
+scalability — and security. Examples include: “All passwords must be
+hashed using bcrypt with a cost factor of at least 12.” “The API must
+implement rate limiting of 100 requests per minute per authenticated
+user.” “Session tokens must expire after 30 minutes of inactivity.” “The
+system must log all failed authentication attempts to the central
+SIEM.”</p>
+<p>The trap organizations fall into is treating non-functional
+requirements as optional enhancements to revisit after the product
+ships. Security non-functional requirements are promises the system
+makes to its users and to the organization. When they are not written
+down before development starts, they tend not to exist in the finished
+product.</p>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong>
-Non-functional security requirements should be documented with the same rigor as functional requirements — with testable acceptance criteria. "The system must be secure" is not a requirement. "All HTTP responses must include a <code>Strict-Transport-Security</code> header with <code>max-age</code> of at least 31536000" is a requirement that a pipeline can verify automatically.</p>
+<p><strong class="callout-title">Key Point</strong> Non-functional security requirements
+should be documented with the same rigor as functional requirements —
+with testable acceptance criteria. “The system must be secure” is not a
+requirement. “All HTTP responses must include a
+<code>Strict-Transport-Security</code> header with <code>max-age</code>
+of at least 31536000” is a requirement that a pipeline can verify
+automatically.</p>
 </blockquote>
-<p>A related tension that architects must navigate explicitly is the <strong>security versus usability trade-off</strong>. Many security controls impose friction: MFA slows down login; strict session timeouts force re-authentication during long tasks; overly aggressive input validation breaks legitimate workflows. The right balance depends on the sensitivity of the application and the realistic threat model. An internal wiki used by engineers has different requirements than an internet-facing payment portal. Architects should quantify this trade-off rather than letting developers resolve it informally in the direction of convenience.</p>
-<h3>Secure Coding Standards and Linting</h3>
-<p>Once requirements are defined, the next layer of defense is in how code is written. <strong>Coding standards</strong> are documented rules about how developers should write code in a given language and environment. They cover variable naming, error handling, input validation patterns, cryptographic algorithms, logging format, and dozens of other micro-decisions that, accumulated across a codebase, determine how likely it is to contain vulnerabilities.</p>
-<p><strong>Linting</strong> tools enforce standards automatically. A linter reads source code and flags violations — unused variables, missing input sanitization, hardcoded secrets, deprecated cryptographic functions — before the code ever runs. Modern linters can be configured with security-specific rules. ESLint with a security plugin will catch dangerous patterns in JavaScript. Bandit will flag common security issues in Python. Semgrep lets teams write their own custom pattern-matching rules for organization-specific anti-patterns.</p>
-<p>The value of linting is speed. A vulnerability caught by a linter at the moment the developer types it is vastly cheaper than the same vulnerability found in a penetration test or, worse, by an attacker. Linting shifts security feedback to the left — closer to the moment of creation.</p>
-<h3>Branch Protection and the Human Gate</h3>
-<p>Even teams with excellent individual coding habits need a mechanism to prevent mistakes from reaching production. <strong>Branch protection rules</strong> on version control platforms (GitHub, GitLab, Bitbucket) enforce policies at the repository level. Common protections include:</p>
+<p>A related tension that architects must navigate explicitly is the
+<strong>security versus usability trade-off</strong>. Many security
+controls impose friction: MFA slows down login; strict session timeouts
+force re-authentication during long tasks; overly aggressive input
+validation breaks legitimate workflows. The right balance depends on the
+sensitivity of the application and the realistic threat model. An
+internal wiki used by engineers has different requirements than an
+internet-facing payment portal. Architects should quantify this
+trade-off rather than letting developers resolve it informally in the
+direction of convenience.</p>
+<h3 id="secure-coding-standards-and-linting">Secure Coding Standards and
+Linting</h3>
+<p>Once requirements are defined, the next layer of defense is in how
+code is written. <strong>Coding standards</strong> are documented rules
+about how developers should write code in a given language and
+environment. They cover variable naming, error handling, input
+validation patterns, cryptographic algorithms, logging format, and
+dozens of other micro-decisions that, accumulated across a codebase,
+determine how likely it is to contain vulnerabilities.</p>
+<p><strong>Linting</strong> tools enforce standards automatically. A
+linter reads source code and flags violations — unused variables,
+missing input sanitization, hardcoded secrets, deprecated cryptographic
+functions — before the code ever runs. Modern linters can be configured
+with security-specific rules. ESLint with a security plugin will catch
+dangerous patterns in JavaScript. Bandit will flag common security
+issues in Python. Semgrep lets teams write their own custom
+pattern-matching rules for organization-specific anti-patterns.</p>
+<p>The value of linting is speed. A vulnerability caught by a linter at
+the moment the developer types it is vastly cheaper than the same
+vulnerability found in a penetration test or, worse, by an attacker.
+Linting shifts security feedback to the left — closer to the moment of
+creation.</p>
+<h3 id="branch-protection-and-the-human-gate">Branch Protection and the
+Human Gate</h3>
+<p>Even teams with excellent individual coding habits need a mechanism
+to prevent mistakes from reaching production. <strong>Branch protection
+rules</strong> on version control platforms (GitHub, GitLab, Bitbucket)
+enforce policies at the repository level. Common protections
+include:</p>
 <ul>
-<li><strong>Require pull requests (PRs) before merging.</strong> No one can push directly to the <code>main</code> or <code>production</code> branch, even administrators.</li>
-<li><strong>Require a minimum number of reviewers.</strong> Code must be reviewed by at least one other developer before merge.</li>
-<li><strong>Require status checks to pass.</strong> The CI pipeline — including build, lint, and test steps — must succeed before a PR can be merged.</li>
-<li><strong>Require signed commits.</strong> Commits must be cryptographically signed with a developer's GPG or SSH key, preventing spoofed commit authorship.</li>
+<li><strong>Require pull requests (PRs) before merging.</strong> No one
+can push directly to the <code>main</code> or <code>production</code>
+branch, even administrators.</li>
+<li><strong>Require a minimum number of reviewers.</strong> Code must be
+reviewed by at least one other developer before merge.</li>
+<li><strong>Require status checks to pass.</strong> The CI pipeline —
+including build, lint, and test steps — must succeed before a PR can be
+merged.</li>
+<li><strong>Require signed commits.</strong> Commits must be
+cryptographically signed with a developer’s GPG or SSH key, preventing
+spoofed commit authorship.</li>
 </ul>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong>
-Branch protection rules are enforceable at the platform level, but platform administrators can usually bypass them. At a minimum, bypass events should be logged and reviewed. In highly sensitive repositories, bypasses should require approval from a separate reviewer.</p>
+<p><strong class="callout-title">Warning</strong> Branch protection rules are enforceable at
+the platform level, but platform administrators can usually bypass them.
+At a minimum, bypass events should be logged and reviewed. In highly
+sensitive repositories, bypasses should require approval from a separate
+reviewer.</p>
 </blockquote>
-<h3>The CI/CD Pipeline as a Security Checkpoint</h3>
-<p><strong>Continuous Integration / Continuous Deployment (CI/CD)</strong> is the practice of automatically building, testing, and deploying software every time code is merged into a shared branch. From a security perspective, the CI/CD pipeline is the most powerful systematic security enforcement tool an organization has. Every commit runs the same gauntlet of checks, every time. No step gets skipped because someone was busy.</p>
-<p><img alt="A secure CI/CD pipeline embeds security checks at every stage — lint and commit signing on commit, SCA and SBoM generation at build time, SAST and DAST at test time — with findings feeding a continuous improvement backlog." src="../assets/images/ch06_secure_cicd_pipeline.png" />
-<em>Figure 6.1: A secure CI/CD pipeline embeds security checks at every stage — lint and commit signing on commit, SCA and SBoM generation at build time, SAST and DAST at test time — with findings feeding a continuous improvement backlog.</em></p>
+<h3 id="the-cicd-pipeline-as-a-security-checkpoint">The CI/CD Pipeline
+as a Security Checkpoint</h3>
+<p><strong>Continuous Integration / Continuous Deployment
+(CI/CD)</strong> is the practice of automatically building, testing, and
+deploying software every time code is merged into a shared branch. From
+a security perspective, the CI/CD pipeline is the most powerful
+systematic security enforcement tool an organization has. Every commit
+runs the same gauntlet of checks, every time. No step gets skipped
+because someone was busy.</p>
+<p><img src="../assets/images/ch06_secure_cicd_pipeline.png"
+alt="A secure CI/CD pipeline embeds security checks at every stage — lint and commit signing on commit, SCA and SBoM generation at build time, SAST and DAST at test time — with findings feeding a continuous improvement backlog." />
+<em>Figure 6.1: A secure CI/CD pipeline embeds security checks at every
+stage — lint and commit signing on commit, SCA and SBoM generation at
+build time, SAST and DAST at test time — with findings feeding a
+continuous improvement backlog.</em></p>
 <p>The pipeline has five conceptual stages for our purposes:</p>
-<ol>
-<li><strong>Plan</strong> — Security and usability requirements are captured before work begins.</li>
-<li><strong>Code</strong> — Linting, code standards enforcement, and branch protection run on every commit.</li>
-<li><strong>Build</strong> — Dependency resolution; software composition analysis (SCA) and SBoM generation happen here.</li>
-<li><strong>Test</strong> — SAST, DAST, IAST, RASP integration; unit, integration, and regression tests run.</li>
-<li><strong>Deploy</strong> — Release gates enforce a risk sign-off; canary deployments and rollback capability reduce blast radius.</li>
+<ol type="1">
+<li><strong>Plan</strong> — Security and usability requirements are
+captured before work begins.</li>
+<li><strong>Code</strong> — Linting, code standards enforcement, and
+branch protection run on every commit.</li>
+<li><strong>Build</strong> — Dependency resolution; software composition
+analysis (SCA) and SBoM generation happen here.</li>
+<li><strong>Test</strong> — SAST, DAST, IAST, RASP integration; unit,
+integration, and regression tests run.</li>
+<li><strong>Deploy</strong> — Release gates enforce a risk sign-off;
+canary deployments and rollback capability reduce blast radius.</li>
 </ol>
-<p>At each stage, failed checks halt the pipeline and feed findings back to developers with actionable context. The goal is not a pipeline that blocks every deploy — it is a pipeline where developers receive useful feedback fast enough that they build secure habits.</p>
-<p><strong>Canary deployments</strong> are worth calling out specifically. Rather than deploying a new version to all users at once, a canary release sends the update to a small subset — five percent of users, say — and monitors for anomalies before rolling it out further. This is not purely a security control, but when paired with security monitoring, it limits the blast radius of a vulnerability that slipped through testing.</p>
-<p><strong>Regression testing</strong> verifies that a code change does not break existing functionality, including existing security controls. A regression test suite should include tests for previously discovered vulnerabilities: if a SQL injection flaw was fixed in version 2.3, there should be an automated test that verifies SQL injection at that input is still blocked in every subsequent version.</p>
+<p>At each stage, failed checks halt the pipeline and feed findings back
+to developers with actionable context. The goal is not a pipeline that
+blocks every deploy — it is a pipeline where developers receive useful
+feedback fast enough that they build secure habits.</p>
+<p><strong>Canary deployments</strong> are worth calling out
+specifically. Rather than deploying a new version to all users at once,
+a canary release sends the update to a small subset — five percent of
+users, say — and monitors for anomalies before rolling it out further.
+This is not purely a security control, but when paired with security
+monitoring, it limits the blast radius of a vulnerability that slipped
+through testing.</p>
+<p><strong>Regression testing</strong> verifies that a code change does
+not break existing functionality, including existing security controls.
+A regression test suite should include tests for previously discovered
+vulnerabilities: if a SQL injection flaw was fixed in version 2.3, there
+should be an automated test that verifies SQL injection at that input is
+still blocked in every subsequent version.</p>
 <blockquote class="callout-thought">
-<p><strong class="callout-title">Thought Question</strong>
-Your pipeline runs SAST on every commit and DAST against a staging environment on every merge to <code>main</code>. A developer argues that DAST is slow and should be scheduled weekly instead. What do you gain and what do you lose by accepting that trade-off? What compensating controls would you want in place if you agreed?</p>
+<p><strong class="callout-title">Thought Question</strong> Your pipeline runs SAST on every
+commit and DAST against a staging environment on every merge to
+<code>main</code>. A developer argues that DAST is slow and should be
+scheduled weekly instead. What do you gain and what do you lose by
+accepting that trade-off? What compensating controls would you want in
+place if you agreed?</p>
 </blockquote>
 <hr />
-<h2>What Tools Are Available for Software Assurance?</h2>
-<p>Software assurance is the discipline of verifying that code does what it is supposed to do and does not do what it is not supposed to do — with specific emphasis on security properties. The toolbox is large, and different tools measure different things at different points in the lifecycle.</p>
-<h3>SAST: Finding Problems Without Running the Code</h3>
-<p><strong>Static Application Security Testing (SAST)</strong> analyzes source code, bytecode, or binary without executing it. The analyzer looks for known vulnerability patterns — command injection, SQL injection, use of insecure cryptographic functions, improper error handling — by examining the code's structure and logic.</p>
-<p>SAST is fast (it can scan large codebases in minutes), integrates cleanly into CI pipelines, and can be run before any test environment is needed. Its weakness is <strong>false positives</strong>: patterns that look like vulnerabilities but are not, because the tool cannot fully reason about the runtime context. A SAST tool might flag a string formatted into a query as a SQL injection risk even if the code is calling a parameterized query library under the hood. Developers who see too many false positives start ignoring the tool, which is arguably worse than not having it.</p>
-<p>Common SAST tools include Checkmarx, Veracode, SonarQube, Semgrep, CodeQL (used in GitHub Advanced Security), and language-specific tools like Bandit for Python and SpotBugs for Java.</p>
+<h2 id="what-tools-are-available-for-software-assurance">What Tools Are
+Available for Software Assurance?</h2>
+<p>Software assurance is the discipline of verifying that code does what
+it is supposed to do and does not do what it is not supposed to do —
+with specific emphasis on security properties. The toolbox is large, and
+different tools measure different things at different points in the
+lifecycle.</p>
+<h3 id="sast-finding-problems-without-running-the-code">SAST: Finding
+Problems Without Running the Code</h3>
+<p><strong>Static Application Security Testing (SAST)</strong> analyzes
+source code, bytecode, or binary without executing it. The analyzer
+looks for known vulnerability patterns — command injection, SQL
+injection, use of insecure cryptographic functions, improper error
+handling — by examining the code’s structure and logic.</p>
+<p>SAST is fast (it can scan large codebases in minutes), integrates
+cleanly into CI pipelines, and can be run before any test environment is
+needed. Its weakness is <strong>false positives</strong>: patterns that
+look like vulnerabilities but are not, because the tool cannot fully
+reason about the runtime context. A SAST tool might flag a string
+formatted into a query as a SQL injection risk even if the code is
+calling a parameterized query library under the hood. Developers who see
+too many false positives start ignoring the tool, which is arguably
+worse than not having it.</p>
+<p>Common SAST tools include Checkmarx, Veracode, SonarQube, Semgrep,
+CodeQL (used in GitHub Advanced Security), and language-specific tools
+like Bandit for Python and SpotBugs for Java.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>What a SAST finding looks like in practice</em></p>
-<p>Running Bandit against a Python microservice returns the following:</p>
-<p><code>Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'admin1234'
+<p>Running Bandit against a Python microservice returns the
+following:</p>
+<pre><code>Issue: [B105:hardcoded_password_string] Possible hardcoded password: &#39;admin1234&#39;
 Severity: Medium   Confidence: Medium
-Location: app/config.py, line 14</code></p>
-<p>The offending line is <code>DB_PASSWORD = "admin1234"</code>. The fix is to read the value from the environment at runtime instead:</p>
-<p><code>python
-DB_PASSWORD = os.environ.get("DB_PASSWORD")</code></p>
-<p>A secrets manager injects the real value at deploy time — it never touches source code. The key lesson: SAST caught this before the commit was merged. The same credential baked into a container image pushed to a public registry would typically be scraped and used within minutes.</p>
+Location: app/config.py, line 14</code></pre>
+<p>The offending line is <code>DB_PASSWORD = "admin1234"</code>. The fix
+is to read the value from the environment at runtime instead:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>DB_PASSWORD <span class="op">=</span> os.environ.get(<span class="st">&quot;DB_PASSWORD&quot;</span>)</span></code></pre></div>
+<p>A secrets manager injects the real value at deploy time — it never
+touches source code. The key lesson: SAST caught this before the commit
+was merged. The same credential baked into a container image pushed to a
+public registry would typically be scraped and used within minutes.</p>
 </blockquote>
-<h3>DAST: Finding Problems By Running the Code</h3>
-<p><strong>Dynamic Application Security Testing (DAST)</strong> tests a running application by simulating attacks against it — submitting malicious inputs, probing for injection vulnerabilities, checking for misconfigurations in HTTP headers, testing authentication and authorization logic. DAST tools do not have access to source code; they see the application the way an attacker would.</p>
-<p>DAST finds vulnerabilities that SAST cannot, particularly those that arise from the interaction between components at runtime: misconfigurations in the web server, authentication bypasses that are only apparent when the whole system is assembled, session management flaws that exist in the protocol flow rather than in code logic. The trade-off is that DAST requires a live environment, is slower than SAST, and can miss code paths that are not exercised by its attacks.</p>
-<p>The most widely used open-source DAST tool is <strong>OWASP ZAP (Zed Attack Proxy)</strong>. Commercial alternatives include Burp Suite Enterprise, Rapid7 InsightAppSec, and Invicti (formerly Netsparker).</p>
-<h3>IAST: Instrumentation from the Inside</h3>
-<p><strong>Interactive Application Security Testing (IAST)</strong> is an approach that instruments the application itself — typically by embedding an agent into the running application during testing. The IAST agent observes the application's internal behavior as it is exercised by functional tests, integration tests, or manual QA. It can see which code paths were executed and flag vulnerabilities with full context: the specific function, the tainted data flow, and the actual code line.</p>
-<p>IAST avoids the false-positive problem of SAST (it has runtime context) and avoids the coverage problem of DAST (it see code paths that DAST probes may not reach). The trade-off is that IAST requires a compatible runtime environment, introduces performance overhead, and may add licensing cost. IAST is particularly valuable in organizations where SAST is drowning teams in false positives and DAST misses complex multi-step vulnerabilities.</p>
-<h3>RASP: Security that Runs in Production</h3>
-<p><strong>Runtime Application Self-Protection (RASP)</strong> embeds a security agent inside the application itself — not just during testing, but in production. The RASP agent inspects function calls, data flows, and requests at runtime and can block attacks as they happen. If a piece of user input is about to be sent to a SQL query in a way the agent identifies as an injection attack, RASP can terminate the request before any harm is done, log the event, and alert the security team.</p>
-<p>RASP is powerful because it operates close to the vulnerable code and catches exploits that bypass perimeter defenses. However, it adds latency, introduces a new software component that must be maintained and trusted, and can produce false positives that break legitimate application behavior. RASP is best understood as a defense-in-depth layer added after SAST and DAST have reduced the vulnerability count, not as a substitute for fixing the underlying code.</p>
+<h3 id="dast-finding-problems-by-running-the-code">DAST: Finding
+Problems By Running the Code</h3>
+<p><strong>Dynamic Application Security Testing (DAST)</strong> tests a
+running application by simulating attacks against it — submitting
+malicious inputs, probing for injection vulnerabilities, checking for
+misconfigurations in HTTP headers, testing authentication and
+authorization logic. DAST tools do not have access to source code; they
+see the application the way an attacker would.</p>
+<p>DAST finds vulnerabilities that SAST cannot, particularly those that
+arise from the interaction between components at runtime:
+misconfigurations in the web server, authentication bypasses that are
+only apparent when the whole system is assembled, session management
+flaws that exist in the protocol flow rather than in code logic. The
+trade-off is that DAST requires a live environment, is slower than SAST,
+and can miss code paths that are not exercised by its attacks.</p>
+<p>The most widely used open-source DAST tool is <strong>OWASP ZAP (Zed
+Attack Proxy)</strong>. Commercial alternatives include Burp Suite
+Enterprise, Rapid7 InsightAppSec, and Invicti (formerly Netsparker).</p>
+<h3 id="iast-instrumentation-from-the-inside">IAST: Instrumentation from
+the Inside</h3>
+<p><strong>Interactive Application Security Testing (IAST)</strong> is
+an approach that instruments the application itself — typically by
+embedding an agent into the running application during testing. The IAST
+agent observes the application’s internal behavior as it is exercised by
+functional tests, integration tests, or manual QA. It can see which code
+paths were executed and flag vulnerabilities with full context: the
+specific function, the tainted data flow, and the actual code line.</p>
+<p>IAST avoids the false-positive problem of SAST (it has runtime
+context) and avoids the coverage problem of DAST (it see code paths that
+DAST probes may not reach). The trade-off is that IAST requires a
+compatible runtime environment, introduces performance overhead, and may
+add licensing cost. IAST is particularly valuable in organizations where
+SAST is drowning teams in false positives and DAST misses complex
+multi-step vulnerabilities.</p>
+<h3 id="rasp-security-that-runs-in-production">RASP: Security that Runs
+in Production</h3>
+<p><strong>Runtime Application Self-Protection (RASP)</strong> embeds a
+security agent inside the application itself — not just during testing,
+but in production. The RASP agent inspects function calls, data flows,
+and requests at runtime and can block attacks as they happen. If a piece
+of user input is about to be sent to a SQL query in a way the agent
+identifies as an injection attack, RASP can terminate the request before
+any harm is done, log the event, and alert the security team.</p>
+<p>RASP is powerful because it operates close to the vulnerable code and
+catches exploits that bypass perimeter defenses. However, it adds
+latency, introduces a new software component that must be maintained and
+trusted, and can produce false positives that break legitimate
+application behavior. RASP is best understood as a defense-in-depth
+layer added after SAST and DAST have reduced the vulnerability count,
+not as a substitute for fixing the underlying code.</p>
 <table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
 <thead>
 <tr>
-<th style="text-align: left;">Tool Type</th>
-<th style="text-align: left;">When It Runs</th>
-<th style="text-align: left;">Sees Source Code?</th>
-<th style="text-align: left;">Main Strength</th>
-<th style="text-align: left;">Main Weakness</th>
+<th scope="col" style="text-align: left;">Tool Type</th>
+<th scope="col" style="text-align: left;">When It Runs</th>
+<th scope="col" style="text-align: left;">Sees Source Code?</th>
+<th scope="col" style="text-align: left;">Main Strength</th>
+<th scope="col" style="text-align: left;">Main Weakness</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>SAST</strong></td>
+<th scope="row" style="text-align: left;"><strong>SAST</strong></th>
 <td style="text-align: left;">Pre-commit / CI</td>
 <td style="text-align: left;">Yes</td>
 <td style="text-align: left;">Fast, catches patterns early</td>
 <td style="text-align: left;">False positives, no runtime context</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>DAST</strong></td>
+<th scope="row" style="text-align: left;"><strong>DAST</strong></th>
 <td style="text-align: left;">Against live app</td>
 <td style="text-align: left;">No</td>
 <td style="text-align: left;">Finds runtime/integration flaws</td>
 <td style="text-align: left;">Slower, needs live environment</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>IAST</strong></td>
+<th scope="row" style="text-align: left;"><strong>IAST</strong></th>
 <td style="text-align: left;">During testing</td>
 <td style="text-align: left;">Agent observes</td>
 <td style="text-align: left;">Low false positives, full context</td>
-<td style="text-align: left;">Runtime overhead, coverage depends on tests</td>
+<td style="text-align: left;">Runtime overhead, coverage depends on
+tests</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>RASP</strong></td>
+<th scope="row" style="text-align: left;"><strong>RASP</strong></th>
 <td style="text-align: left;">Production runtime</td>
 <td style="text-align: left;">No (runtime)</td>
 <td style="text-align: left;">Blocks live attacks</td>
-<td style="text-align: left;">Latency, maintenance, false-positive risk</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>Table 6.1: When to Use SAST, DAST, IAST, and RASP — each tool fits a different moment in the lifecycle.</em></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">Latency, maintenance, false-positive
+risk</td>
 </tr>
 </tbody>
 </table>
-<h3>Vulnerability Analysis and Formal Methods</h3>
-<p><strong>Vulnerability analysis</strong> is the broader discipline of identifying, classifying, and prioritizing known vulnerabilities in software components — whether discovered by the tools above, reported by vendors, or found in public databases like the National Vulnerability Database (NVD) and CVE list. Effective vulnerability analysis pairs automated scanning with human judgment: not every critical-severity CVE is exploitable in your specific deployment context, and triage matters as much as discovery.</p>
-<p><strong>Formal methods</strong> are mathematical techniques for specifying and verifying software behavior. A formal specification defines, precisely and unambiguously, what a system is supposed to do. A formal verification process then proves — using mathematical reasoning — that the implementation satisfies the specification. Formal methods are not practical for general enterprise applications, but they have been used to verify security-critical software such as cryptographic libraries, operating system kernels, hypervisors, and avionics control systems. The TLS 1.3 protocol was designed with formal security proofs. The seL4 microkernel includes a machine-checked proof of functional correctness. For the exam, understand that formal methods exist, what they offer, and why they are used primarily in high-assurance contexts.</p>
-<h3>Software Composition Analysis and Software Bills of Materials</h3>
-<p>Modern applications are predominantly composed of open-source dependencies. A typical enterprise web application may contain hundreds of third-party packages, each of which may in turn depend on dozens of others. Those packages were written by developers you will never meet, maintained on a volunteer basis, and audited by nobody. When a vulnerability is discovered in one of them, the consequences can be severe.</p>
-<p><strong>Software Composition Analysis (SCA)</strong> tools inventory the open-source and third-party components in an application's dependency tree, check them against known vulnerability databases, identify license compliance issues, and flag dependencies that have reached end-of-life. SCA runs at build time in the CI pipeline and produces a continuous view of the application's dependency risk. Common SCA tools include Snyk, FOSSA, Black Duck, and the GitHub Dependabot feature.</p>
-<p>A <strong>Software Bill of Materials (SBoM)</strong> is a formal, machine-readable inventory of every component in a software product — every package, version, license, and origin. SBoMs are to software what ingredient labels are to food: a transparent record of what went into the product, enabling consumers to assess their exposure when a new vulnerability is disclosed. The U.S. Executive Order on Cybersecurity (2021) mandated SBoM production for software sold to the federal government, and the practice is spreading rapidly as a supply chain security requirement.</p>
+<p><em>Table 6.1: When to Use SAST, DAST, IAST, and RASP — each tool
+fits a different moment in the lifecycle.</em></p>
+<h3 id="vulnerability-analysis-and-formal-methods">Vulnerability
+Analysis and Formal Methods</h3>
+<p><strong>Vulnerability analysis</strong> is the broader discipline of
+identifying, classifying, and prioritizing known vulnerabilities in
+software components — whether discovered by the tools above, reported by
+vendors, or found in public databases like the National Vulnerability
+Database (NVD) and CVE list. Effective vulnerability analysis pairs
+automated scanning with human judgment: not every critical-severity CVE
+is exploitable in your specific deployment context, and triage matters
+as much as discovery.</p>
+<p><strong>Formal methods</strong> are mathematical techniques for
+specifying and verifying software behavior. A formal specification
+defines, precisely and unambiguously, what a system is supposed to do. A
+formal verification process then proves — using mathematical reasoning —
+that the implementation satisfies the specification. Formal methods are
+not practical for general enterprise applications, but they have been
+used to verify security-critical software such as cryptographic
+libraries, operating system kernels, hypervisors, and avionics control
+systems. The TLS 1.3 protocol was designed with formal security proofs.
+The seL4 microkernel includes a machine-checked proof of functional
+correctness. For the exam, understand that formal methods exist, what
+they offer, and why they are used primarily in high-assurance
+contexts.</p>
+<h3
+id="software-composition-analysis-and-software-bills-of-materials">Software
+Composition Analysis and Software Bills of Materials</h3>
+<p>Modern applications are predominantly composed of open-source
+dependencies. A typical enterprise web application may contain hundreds
+of third-party packages, each of which may in turn depend on dozens of
+others. Those packages were written by developers you will never meet,
+maintained on a volunteer basis, and audited by nobody. When a
+vulnerability is discovered in one of them, the consequences can be
+severe.</p>
+<p><strong>Software Composition Analysis (SCA)</strong> tools inventory
+the open-source and third-party components in an application’s
+dependency tree, check them against known vulnerability databases,
+identify license compliance issues, and flag dependencies that have
+reached end-of-life. SCA runs at build time in the CI pipeline and
+produces a continuous view of the application’s dependency risk. Common
+SCA tools include Snyk, FOSSA, Black Duck, and the GitHub Dependabot
+feature.</p>
+<p>A <strong>Software Bill of Materials (SBoM)</strong> is a formal,
+machine-readable inventory of every component in a software product —
+every package, version, license, and origin. SBoMs are to software what
+ingredient labels are to food: a transparent record of what went into
+the product, enabling consumers to assess their exposure when a new
+vulnerability is disclosed. The U.S. Executive Order on Cybersecurity
+(2021) mandated SBoM production for software sold to the federal
+government, and the practice is spreading rapidly as a supply chain
+security requirement.</p>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong>
-An SBoM is not just a compliance artifact — it is an operational security tool. When Log4Shell was disclosed in December 2021, organizations with current SBoMs were able to identify affected systems in hours. Organizations without them spent weeks manually auditing codebases, or did not find all their exposures at all.</p>
+<p><strong class="callout-title">Key Point</strong> An SBoM is not just a compliance
+artifact — it is an operational security tool. When Log4Shell was
+disclosed in December 2021, organizations with current SBoMs were able
+to identify affected systems in hours. Organizations without them spent
+weeks manually auditing codebases, or did not find all their exposures
+at all.</p>
 </blockquote>
 <blockquote class="callout-case-study">
-<p><strong class="callout-title">Case Study</strong>
-<strong>Log4Shell and the Importance of SBoMs</strong></p>
-<p>On December 9, 2021, a researcher published details of a critical zero-day vulnerability in <strong>Log4j</strong>, a widely used Java logging library maintained by the Apache Software Foundation. The vulnerability — CVE-2021-44228, quickly nicknamed <strong>Log4Shell</strong> — allowed an attacker to achieve remote code execution on any server running a vulnerable version of Log4j, simply by causing the server to log a crafted string. Practically every enterprise Java application used Log4j. So did an enormous number of commercial products, embedded systems, game servers, cloud services, and industrial control systems.</p>
-<p>The severity was assigned a CVSS score of 10.0 — the maximum. Security teams worldwide faced an immediate and urgent question: <em>do we have Log4j in our systems?</em></p>
-<p>For organizations with mature SBoMs and SCA tooling, the answer came quickly. A query against the SBoM inventory returned a list of systems running affected versions. Teams could prioritize based on internet exposure and criticality, patch or mitigate in order of risk, and confirm their coverage within days.</p>
-<p>For organizations without that visibility, the next several weeks were a manual scramble. Teams searched through package management files, container images, JAR files embedded inside JAR files, and vendor support portals. Many did not finish the audit before attackers began mass exploitation. Some organizations discovered months later — through incident response — that they had missed a vulnerable instance that an attacker had already compromised.</p>
-<p>The incident made the case for SBoMs in a way that years of advocacy had not. It demonstrated concretely that supply chain visibility is not a theoretical benefit: it is the difference between a two-day incident and a three-month crisis. The U.S. government's subsequent mandates for SBoMs in federal software procurement were a direct policy response to Log4Shell.</p>
+<p><strong class="callout-title">Case Study</strong> <strong>Log4Shell and the Importance of
+SBoMs</strong></p>
+<p>On December 9, 2021, a researcher published details of a critical
+zero-day vulnerability in <strong>Log4j</strong>, a widely used Java
+logging library maintained by the Apache Software Foundation. The
+vulnerability — CVE-2021-44228, quickly nicknamed
+<strong>Log4Shell</strong> — allowed an attacker to achieve remote code
+execution on any server running a vulnerable version of Log4j, simply by
+causing the server to log a crafted string. Practically every enterprise
+Java application used Log4j. So did an enormous number of commercial
+products, embedded systems, game servers, cloud services, and industrial
+control systems.</p>
+<p>The severity was assigned a CVSS score of 10.0 — the maximum.
+Security teams worldwide faced an immediate and urgent question: <em>do
+we have Log4j in our systems?</em></p>
+<p>For organizations with mature SBoMs and SCA tooling, the answer came
+quickly. A query against the SBoM inventory returned a list of systems
+running affected versions. Teams could prioritize based on internet
+exposure and criticality, patch or mitigate in order of risk, and
+confirm their coverage within days.</p>
+<p>For organizations without that visibility, the next several weeks
+were a manual scramble. Teams searched through package management files,
+container images, JAR files embedded inside JAR files, and vendor
+support portals. Many did not finish the audit before attackers began
+mass exploitation. Some organizations discovered months later — through
+incident response — that they had missed a vulnerable instance that an
+attacker had already compromised.</p>
+<p>The incident made the case for SBoMs in a way that years of advocacy
+had not. It demonstrated concretely that supply chain visibility is not
+a theoretical benefit: it is the difference between a two-day incident
+and a three-month crisis. The U.S. government’s subsequent mandates for
+SBoMs in federal software procurement were a direct policy response to
+Log4Shell.</p>
 </blockquote>
 <hr />
-<h2>How Do We Manage the Supply Chain and Plan for End-of-Life?</h2>
-<p>A modern organization does not build most of its software from scratch. It buys commercial products, uses open-source libraries, runs cloud services, and purchases hardware from a global supply chain. The security of its environment is therefore only partly determined by its own engineering practices — it also depends on the security practices of every vendor and manufacturer it relies upon.</p>
-<h3>Software Supply Chain Risk Management</h3>
-<p><strong>Software supply chain risk management</strong> covers the risks that arise from software components originating outside the organization: open-source packages, commercial off-the-shelf (COTS) software, SDKs and APIs, and software developed by contractors. The SolarWinds attack (discussed in Chapter 5) was a supply chain attack: attackers compromised SolarWinds' build environment and inserted malicious code into a software update that thousands of customers then applied automatically, trusting that updates from a vendor they had vetted were legitimate.</p>
+<h2 id="how-do-we-manage-the-supply-chain-and-plan-for-end-of-life">How
+Do We Manage the Supply Chain and Plan for End-of-Life?</h2>
+<p>A modern organization does not build most of its software from
+scratch. It buys commercial products, uses open-source libraries, runs
+cloud services, and purchases hardware from a global supply chain. The
+security of its environment is therefore only partly determined by its
+own engineering practices — it also depends on the security practices of
+every vendor and manufacturer it relies upon.</p>
+<h3 id="software-supply-chain-risk-management">Software Supply Chain
+Risk Management</h3>
+<p><strong>Software supply chain risk management</strong> covers the
+risks that arise from software components originating outside the
+organization: open-source packages, commercial off-the-shelf (COTS)
+software, SDKs and APIs, and software developed by contractors. The
+SolarWinds attack (discussed in Chapter 5) was a supply chain attack:
+attackers compromised SolarWinds’ build environment and inserted
+malicious code into a software update that thousands of customers then
+applied automatically, trusting that updates from a vendor they had
+vetted were legitimate.</p>
 <p>Key practices for software supply chain security include:</p>
 <ul>
-<li><strong>Dependency pinning:</strong> Rather than always pulling the latest version of a package, pin to a specific known-good version and update deliberately.</li>
-<li><strong>Signed artifacts:</strong> Require that software packages and container images be cryptographically signed by their publishers. Do not install unsigned packages in production.</li>
-<li><strong>Provenance tracking:</strong> Record where code came from, who built it, and on which infrastructure — ideally using standards like SLSA (Supply-chain Levels for Software Artifacts).</li>
-<li><strong>Vendor security assessments:</strong> Evaluate the security practices of commercial software vendors as part of procurement. Does the vendor maintain a vulnerability disclosure program? Do they provide SBoMs? How quickly do they patch critical vulnerabilities?</li>
+<li><strong>Dependency pinning:</strong> Rather than always pulling the
+latest version of a package, pin to a specific known-good version and
+update deliberately.</li>
+<li><strong>Signed artifacts:</strong> Require that software packages
+and container images be cryptographically signed by their publishers. Do
+not install unsigned packages in production.</li>
+<li><strong>Provenance tracking:</strong> Record where code came from,
+who built it, and on which infrastructure — ideally using standards like
+SLSA (Supply-chain Levels for Software Artifacts).</li>
+<li><strong>Vendor security assessments:</strong> Evaluate the security
+practices of commercial software vendors as part of procurement. Does
+the vendor maintain a vulnerability disclosure program? Do they provide
+SBoMs? How quickly do they patch critical vulnerabilities?</li>
 </ul>
-<h3>Hardware Supply Chain Risk Management</h3>
-<p>Hardware is also a supply chain risk. Motherboards, network cards, storage controllers, and processors are designed by one company, manufactured by another, assembled by a third, and distributed through a fourth. At each step, there is a theoretical opportunity for a malicious actor to introduce alterations — counterfeit components, modified firmware, unauthorized hardware implants.</p>
+<h3 id="hardware-supply-chain-risk-management">Hardware Supply Chain
+Risk Management</h3>
+<p>Hardware is also a supply chain risk. Motherboards, network cards,
+storage controllers, and processors are designed by one company,
+manufactured by another, assembled by a third, and distributed through a
+fourth. At each step, there is a theoretical opportunity for a malicious
+actor to introduce alterations — counterfeit components, modified
+firmware, unauthorized hardware implants.</p>
 <p><strong>Hardware supply chain assurance</strong> includes:</p>
 <ul>
-<li><strong>Purchasing from authorized channels</strong> and verifying hardware against vendor hashes or physical security seals.</li>
-<li><strong>Firmware verification</strong> at deployment: comparing firmware versions against vendor-supplied golden hashes, and implementing secure boot to prevent unauthorized firmware payloads.</li>
-<li><strong>Tamper-evident packaging</strong> and physical inspection logs.</li>
-<li><strong>Anti-counterfeiting standards</strong>, such as the U.S. Department of Defense's Trusted Foundry program for semiconductor sourcing.</li>
+<li><strong>Purchasing from authorized channels</strong> and verifying
+hardware against vendor hashes or physical security seals.</li>
+<li><strong>Firmware verification</strong> at deployment: comparing
+firmware versions against vendor-supplied golden hashes, and
+implementing secure boot to prevent unauthorized firmware payloads.</li>
+<li><strong>Tamper-evident packaging</strong> and physical inspection
+logs.</li>
+<li><strong>Anti-counterfeiting standards</strong>, such as the U.S.
+Department of Defense’s Trusted Foundry program for semiconductor
+sourcing.</li>
 </ul>
-<p>The threat is not hypothetical. Numerous documented cases involve counterfeit network equipment installed in government and enterprise environments, and public research has demonstrated practical firmware implants at the hardware level.</p>
-<h3>End-of-Life (EOL) Planning</h3>
-<p>Every piece of technology has an <strong>end-of-life (EOL)</strong> date — the point at which its vendor stops providing security updates. After EOL, vulnerabilities discovered in the product will not receive patches. Running EOL software is therefore an acceptance of accumulating, unmitigable risk.</p>
-<p>EOL planning starts at procurement, not at the EOL date. During procurement, architects should document:</p>
+<p>The threat is not hypothetical. Numerous documented cases involve
+counterfeit network equipment installed in government and enterprise
+environments, and public research has demonstrated practical firmware
+implants at the hardware level.</p>
+<h3 id="end-of-life-eol-planning">End-of-Life (EOL) Planning</h3>
+<p>Every piece of technology has an <strong>end-of-life (EOL)</strong>
+date — the point at which its vendor stops providing security updates.
+After EOL, vulnerabilities discovered in the product will not receive
+patches. Running EOL software is therefore an acceptance of
+accumulating, unmitigable risk.</p>
+<p>EOL planning starts at procurement, not at the EOL date. During
+procurement, architects should document:</p>
 <ul>
 <li>When the product reaches EOL.</li>
 <li>What the upgrade or replacement path is.</li>
-<li>What compensating controls will be applied if EOL is reached before replacement.</li>
+<li>What compensating controls will be applied if EOL is reached before
+replacement.</li>
 </ul>
-<p>EOL challenges are most acute for embedded systems, industrial control systems, and hardware with long deployment lifecycles — a server BIOS receiving patches until 2026, but the hardware it runs on is expected to stay in production until 2032. When EOL cannot be avoided, compensating controls typically include network segmentation (isolating EOL systems from general-purpose networks), enhanced monitoring (watching for exploitation indicators), and restricted connectivity (minimizing inbound paths).</p>
+<p>EOL challenges are most acute for embedded systems, industrial
+control systems, and hardware with long deployment lifecycles — a server
+BIOS receiving patches until 2026, but the hardware it runs on is
+expected to stay in production until 2032. When EOL cannot be avoided,
+compensating controls typically include network segmentation (isolating
+EOL systems from general-purpose networks), enhanced monitoring
+(watching for exploitation indicators), and restricted connectivity
+(minimizing inbound paths).</p>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong>
-Running a web-facing application on an EOL operating system because "the upgrade was too complicated" is a risk acceptance decision with measurable probability and potentially catastrophic impact. Organizations that make this choice should do so explicitly, quantify the risk, document it with senior executive sign-off, and revisit it at regular intervals — not let it quietly persist indefinitely.</p>
+<p><strong class="callout-title">Warning</strong> Running a web-facing application on an EOL
+operating system because “the upgrade was too complicated” is a risk
+acceptance decision with measurable probability and potentially
+catastrophic impact. Organizations that make this choice should do so
+explicitly, quantify the risk, document it with senior executive
+sign-off, and revisit it at regular intervals — not let it quietly
+persist indefinitely.</p>
 </blockquote>
 <hr />
-<h2>How Do We Establish Hardware Roots of Trust?</h2>
-<p>We have been discussing software-level assurance. Now we move down the stack to the hardware and firmware that software runs on. If an attacker can compromise the hardware or firmware before the operating system loads, all the application-level security controls in the world are built on a compromised foundation. <strong>Hardware roots of trust</strong> are the mechanisms that give a system a trustworthy, verifiable starting point — a foundation that cannot be tampered with without detection.</p>
-<h3>Certification and Validation Processes</h3>
-<p>Hardware security is partly enforced before a device ever ships, through <strong>certification and validation programs</strong> that verify that a hardware product meets defined security requirements. For the U.S. federal market, <strong>FIPS 140-3</strong> defines requirements for cryptographic modules. Products that pass FIPS 140-3 testing are placed on a validated module list and may be used in federal systems requiring certified cryptography. Similar programs exist internationally.</p>
-<p>The <strong>Common Criteria</strong> framework (ISO 15408) provides a broader evaluation process for IT security products, enabling buyers to assess products against standardized Protection Profiles or custom Security Targets with independently audited results.</p>
-<p>For the exam, understand these programs exist, what problem they solve (verifiable third-party assurance of hardware security properties), and their limitation (certification is point-in-time, not continuous — post-sale firmware updates may change the security posture certified at evaluation).</p>
-<h3>TPMs, HSMs, and vTPMs</h3>
-<p>Three hardware components appear repeatedly in discussions of roots of trust:</p>
-<p>A <strong>Trusted Platform Module (TPM)</strong> is a dedicated security chip specified by the Trusted Computing Group (TCG), found on most modern enterprise laptops, desktops, and servers. The TPM provides:</p>
+<h2 id="how-do-we-establish-hardware-roots-of-trust">How Do We Establish
+Hardware Roots of Trust?</h2>
+<p>We have been discussing software-level assurance. Now we move down
+the stack to the hardware and firmware that software runs on. If an
+attacker can compromise the hardware or firmware before the operating
+system loads, all the application-level security controls in the world
+are built on a compromised foundation. <strong>Hardware roots of
+trust</strong> are the mechanisms that give a system a trustworthy,
+verifiable starting point — a foundation that cannot be tampered with
+without detection.</p>
+<h3 id="certification-and-validation-processes">Certification and
+Validation Processes</h3>
+<p>Hardware security is partly enforced before a device ever ships,
+through <strong>certification and validation programs</strong> that
+verify that a hardware product meets defined security requirements. For
+the U.S. federal market, <strong>FIPS 140-3</strong> defines
+requirements for cryptographic modules. Products that pass FIPS 140-3
+testing are placed on a validated module list and may be used in federal
+systems requiring certified cryptography. Similar programs exist
+internationally.</p>
+<p>The <strong>Common Criteria</strong> framework (ISO 15408) provides a
+broader evaluation process for IT security products, enabling buyers to
+assess products against standardized Protection Profiles or custom
+Security Targets with independently audited results.</p>
+<p>For the exam, understand these programs exist, what problem they
+solve (verifiable third-party assurance of hardware security
+properties), and their limitation (certification is point-in-time, not
+continuous — post-sale firmware updates may change the security posture
+certified at evaluation).</p>
+<h3 id="tpms-hsms-and-vtpms">TPMs, HSMs, and vTPMs</h3>
+<p>Three hardware components appear repeatedly in discussions of roots
+of trust:</p>
+<p>A <strong>Trusted Platform Module (TPM)</strong> is a dedicated
+security chip specified by the Trusted Computing Group (TCG), found on
+most modern enterprise laptops, desktops, and servers. The TPM
+provides:</p>
 <ul>
-<li><strong>Hardware-protected key storage:</strong> Private keys generated inside the TPM cannot be extracted by software, even by the operating system or a kernel-level rootkit.</li>
-<li><strong>Platform Configuration Registers (PCRs):</strong> Registers that accumulate cryptographic measurements of system components during boot. Each measurement is a hash of a firmware or software component, extended into a chain.</li>
-<li><strong>Attestation:</strong> The TPM can produce a signed report (a "quote") of its PCR values, allowing a remote verifier to confirm that the platform booted through the expected sequence of components.</li>
-<li><strong>Sealing and unsealing data:</strong> Encryption keys can be "sealed" to specific PCR values, meaning the data can only be decrypted if the system is in a specific, measured state. BitLocker uses this to unlock the disk only when the TPM confirms the boot chain is intact.</li>
+<li><strong>Hardware-protected key storage:</strong> Private keys
+generated inside the TPM cannot be extracted by software, even by the
+operating system or a kernel-level rootkit.</li>
+<li><strong>Platform Configuration Registers (PCRs):</strong> Registers
+that accumulate cryptographic measurements of system components during
+boot. Each measurement is a hash of a firmware or software component,
+extended into a chain.</li>
+<li><strong>Attestation:</strong> The TPM can produce a signed report (a
+“quote”) of its PCR values, allowing a remote verifier to confirm that
+the platform booted through the expected sequence of components.</li>
+<li><strong>Sealing and unsealing data:</strong> Encryption keys can be
+“sealed” to specific PCR values, meaning the data can only be decrypted
+if the system is in a specific, measured state. BitLocker uses this to
+unlock the disk only when the TPM confirms the boot chain is
+intact.</li>
 </ul>
-<p>A <strong>Hardware Security Module (HSM)</strong> is a more capable, physically hardened device designed for high-throughput cryptographic operations in enterprise or cloud environments. HSMs store master keys, perform signing and encryption operations, and physically resist tampering — attempting to open the device physically triggers key zeroization. HSMs are used to protect PKI root CAs, payment processing keys, code-signing keys, and cloud key management service backends.</p>
+<p>A <strong>Hardware Security Module (HSM)</strong> is a more capable,
+physically hardened device designed for high-throughput cryptographic
+operations in enterprise or cloud environments. HSMs store master keys,
+perform signing and encryption operations, and physically resist
+tampering — attempting to open the device physically triggers key
+zeroization. HSMs are used to protect PKI root CAs, payment processing
+keys, code-signing keys, and cloud key management service backends.</p>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong>
-The critical architectural distinction between a TPM and an HSM is scale and purpose. TPMs are embedded per-device for integrity measurement and local key protection. HSMs are shared infrastructure devices for high-value, high-throughput cryptographic operations and the protection of master secrets.</p>
+<p><strong class="callout-title">Key Point</strong> The critical architectural distinction
+between a TPM and an HSM is scale and purpose. TPMs are embedded
+per-device for integrity measurement and local key protection. HSMs are
+shared infrastructure devices for high-value, high-throughput
+cryptographic operations and the protection of master secrets.</p>
 </blockquote>
-<p>A <strong>Virtual Trusted Platform Module (vTPM)</strong> extends the TPM concept into virtualized environments. When a virtual machine needs Secure Boot, disk encryption keying, or attestation, the hypervisor provides a vTPM that functions as the guest's TPM. The vTPM's secrets are ultimately protected by the hypervisor and, ideally, by the physical TPM of the host. This means VM images can include TPM-dependent protections without requiring physical hardware changes.</p>
+<p>A <strong>Virtual Trusted Platform Module (vTPM)</strong> extends the
+TPM concept into virtualized environments. When a virtual machine needs
+Secure Boot, disk encryption keying, or attestation, the hypervisor
+provides a vTPM that functions as the guest’s TPM. The vTPM’s secrets
+are ultimately protected by the hypervisor and, ideally, by the physical
+TPM of the host. This means VM images can include TPM-dependent
+protections without requiring physical hardware changes.</p>
 <table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
 <thead>
 <tr>
-<th style="text-align: left;">Component</th>
-<th style="text-align: left;">Physical?</th>
-<th style="text-align: left;">Primary Use</th>
-<th style="text-align: left;">Trust Anchor</th>
+<th scope="col" style="text-align: left;">Component</th>
+<th scope="col" style="text-align: left;">Physical?</th>
+<th scope="col" style="text-align: left;">Primary Use</th>
+<th scope="col" style="text-align: left;">Trust Anchor</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;"><strong>TPM</strong></td>
+<th scope="row" style="text-align: left;"><strong>TPM</strong></th>
 <td style="text-align: left;">Yes (chip on motherboard)</td>
-<td style="text-align: left;">Per-device integrity measurement, key storage</td>
+<td style="text-align: left;">Per-device integrity measurement, key
+storage</td>
 <td style="text-align: left;">Immutable keys burned at manufacture</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>HSM</strong></td>
-<td style="text-align: left;">Yes (dedicated appliance or PCIe card)</td>
-<td style="text-align: left;">Enterprise crypto operations, master key protection</td>
+<th scope="row" style="text-align: left;"><strong>HSM</strong></th>
+<td style="text-align: left;">Yes (dedicated appliance or PCIe
+card)</td>
+<td style="text-align: left;">Enterprise crypto operations, master key
+protection</td>
 <td style="text-align: left;">Tamper-evident hardware</td>
 </tr>
 <tr>
-<td style="text-align: left;"><strong>vTPM</strong></td>
+<th scope="row" style="text-align: left;"><strong>vTPM</strong></th>
 <td style="text-align: left;">No (hypervisor software)</td>
 <td style="text-align: left;">TPM functionality for VMs</td>
 <td style="text-align: left;">Hypervisor + physical TPM on host</td>
 </tr>
-<tr>
-<td style="text-align: left;"><em>Table 6.2: Comparing Hardware Roots of Trust.</em></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-</tr>
 </tbody>
 </table>
+<p><em>Table 6.2: Comparing Hardware Roots of Trust.</em></p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>BitLocker sealed to TPM PCR values</em></p>
-<p>A corporate laptop's BitLocker configuration seals the disk encryption key to PCR values 0, 2, 4, 7, and 11 — registers that measure UEFI firmware, the boot loader, boot configuration, Secure Boot state, and the early Windows boot manager respectively. At each startup the TPM re-measures those components and extends their hashes into the PCRs.</p>
-<p>If everything is unchanged — the same firmware, the same Secure Boot keys, the same boot configuration — the PCRs match the sealed policy. The TPM releases the Volume Master Key and the drive unlocks transparently. The user sees nothing unusual.</p>
-<p>If an attacker removes the drive and puts it in a different machine, or tampers with the bootloader between reboots, the measured PCR values will not match what the key was sealed to. The TPM refuses to release the key. The drive contents remain encrypted and unreadable, even with the physical disk in hand.</p>
-<p>This is "sealing to platform state" in concrete terms: the decryption key is not just protected by a password — it is tied to cryptographic evidence that the system is in a specific, expected configuration.</p>
+<p>A corporate laptop’s BitLocker configuration seals the disk
+encryption key to PCR values 0, 2, 4, 7, and 11 — registers that measure
+UEFI firmware, the boot loader, boot configuration, Secure Boot state,
+and the early Windows boot manager respectively. At each startup the TPM
+re-measures those components and extends their hashes into the PCRs.</p>
+<p>If everything is unchanged — the same firmware, the same Secure Boot
+keys, the same boot configuration — the PCRs match the sealed policy.
+The TPM releases the Volume Master Key and the drive unlocks
+transparently. The user sees nothing unusual.</p>
+<p>If an attacker removes the drive and puts it in a different machine,
+or tampers with the bootloader between reboots, the measured PCR values
+will not match what the key was sealed to. The TPM refuses to release
+the key. The drive contents remain encrypted and unreadable, even with
+the physical disk in hand.</p>
+<p>This is “sealing to platform state” in concrete terms: the decryption
+key is not just protected by a password — it is tied to cryptographic
+evidence that the system is in a specific, expected configuration.</p>
 </blockquote>
-<h3>Virtual Hardware and Host-Based Encryption</h3>
-<p><strong>Virtual hardware</strong> security is the practice of enforcing security properties at the hypervisor layer that individual VMs cannot override. Hypervisors such as VMware ESXi and Microsoft Hyper-V provide VMs with virtualized representations of hardware — virtual NICs, virtual disks, virtual CPUs — but critically, the hypervisor controls what those virtual devices can do.</p>
+<h3 id="virtual-hardware-and-host-based-encryption">Virtual Hardware and
+Host-Based Encryption</h3>
+<p><strong>Virtual hardware</strong> security is the practice of
+enforcing security properties at the hypervisor layer that individual
+VMs cannot override. Hypervisors such as VMware ESXi and Microsoft
+Hyper-V provide VMs with virtualized representations of hardware —
+virtual NICs, virtual disks, virtual CPUs — but critically, the
+hypervisor controls what those virtual devices can do.</p>
 <p>Security-relevant virtual hardware controls include:</p>
 <ul>
-<li><strong>VM isolation:</strong> Memory pages allocated to one VM are not accessible to other VMs, enforced by the hypervisor's memory management, not by the guest OS.</li>
-<li><strong>Secure VM networking:</strong> Virtual switches can enforce MAC address pinning, VLAN tagging, and promiscuous mode restrictions between VMs.</li>
-<li><strong>Encrypted VM storage:</strong> Hypervisors can encrypt virtual disk volumes using keys managed by an external HSM, so access to the storage backing file does not expose the VM's data.</li>
+<li><strong>VM isolation:</strong> Memory pages allocated to one VM are
+not accessible to other VMs, enforced by the hypervisor’s memory
+management, not by the guest OS.</li>
+<li><strong>Secure VM networking:</strong> Virtual switches can enforce
+MAC address pinning, VLAN tagging, and promiscuous mode restrictions
+between VMs.</li>
+<li><strong>Encrypted VM storage:</strong> Hypervisors can encrypt
+virtual disk volumes using keys managed by an external HSM, so access to
+the storage backing file does not expose the VM’s data.</li>
 </ul>
-<p><strong>Host-based encryption</strong> refers to encryption enforced at the host OS or hypervisor layer for all data written to storage. Microsoft BitLocker and Linux dm-crypt are common implementations. The key advantage is that encryption is applied before data reaches the physical disk, regardless of the storage medium used.</p>
-<p><strong>Self-Encrypting Drives (SEDs)</strong> implement encryption in the drive's firmware and controller electronics. The drive itself handles all encryption and decryption without CPU overhead. SEDs implement the <strong>TCG Opal</strong> standard, and management is done through software that unlocks the drive during boot using a pre-boot authentication step. The primary security benefit of SEDs is <strong>cryptographic erasure</strong>: instead of overwriting all data to retire a drive securely, an administrator can simply delete the internal encryption key — making all stored data permanently and instantly unreadable in milliseconds.</p>
+<p><strong>Host-based encryption</strong> refers to encryption enforced
+at the host OS or hypervisor layer for all data written to storage.
+Microsoft BitLocker and Linux dm-crypt are common implementations. The
+key advantage is that encryption is applied before data reaches the
+physical disk, regardless of the storage medium used.</p>
+<p><strong>Self-Encrypting Drives (SEDs)</strong> implement encryption
+in the drive’s firmware and controller electronics. The drive itself
+handles all encryption and decryption without CPU overhead. SEDs
+implement the <strong>TCG Opal</strong> standard, and management is done
+through software that unlocks the drive during boot using a pre-boot
+authentication step. The primary security benefit of SEDs is
+<strong>cryptographic erasure</strong>: instead of overwriting all data
+to retire a drive securely, an administrator can simply delete the
+internal encryption key — making all stored data permanently and
+instantly unreadable in milliseconds.</p>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong>
-SEDs rely entirely on the drive's own firmware for their security guarantees. A drive with buggy firmware may not actually encrypt data at all, or may use weak keys. Published research has documented multiple SED implementations where the drive reported encryption was active, but data was recoverable without the password. Organizations relying on SEDs for classified or regulated data should also seek independent verification of the SED's security claims.</p>
+<p><strong class="callout-title">Warning</strong> SEDs rely entirely on the drive’s own
+firmware for their security guarantees. A drive with buggy firmware may
+not actually encrypt data at all, or may use weak keys. Published
+research has documented multiple SED implementations where the drive
+reported encryption was active, but data was recoverable without the
+password. Organizations relying on SEDs for classified or regulated data
+should also seek independent verification of the SED’s security
+claims.</p>
 </blockquote>
-<h3>Security Coprocessors and Secure Enclaves</h3>
-<p>Modern CPUs include dedicated security features beyond the standard TPM:</p>
-<p><strong>CPU security extensions</strong> such as Intel Software Guard Extensions (Intel SGX) and AMD Secure Encrypted Virtualization (AMD SEV) allow code to execute in a <strong>secure enclave</strong> — an isolated region of memory that the CPU itself protects. Even the operating system, hypervisor, and other applications cannot read or tamper with memory inside an enclave. The code and data within the enclave are encrypted in memory and only decrypted by the CPU's hardware memory encryption engine as they are used.</p>
-<p>Secure enclaves are used for workloads that require strong confidentiality guarantees even from the platform operator — for example, processing cryptographic keys in a cloud environment where you do not fully trust the cloud provider's administrative access, or executing sensitive AI model inference without exposing model weights to the host server.</p>
+<h3 id="security-coprocessors-and-secure-enclaves">Security Coprocessors
+and Secure Enclaves</h3>
+<p>Modern CPUs include dedicated security features beyond the standard
+TPM:</p>
+<p><strong>CPU security extensions</strong> such as Intel Software Guard
+Extensions (Intel SGX) and AMD Secure Encrypted Virtualization (AMD SEV)
+allow code to execute in a <strong>secure enclave</strong> — an isolated
+region of memory that the CPU itself protects. Even the operating
+system, hypervisor, and other applications cannot read or tamper with
+memory inside an enclave. The code and data within the enclave are
+encrypted in memory and only decrypted by the CPU’s hardware memory
+encryption engine as they are used.</p>
+<p>Secure enclaves are used for workloads that require strong
+confidentiality guarantees even from the platform operator — for
+example, processing cryptographic keys in a cloud environment where you
+do not fully trust the cloud provider’s administrative access, or
+executing sensitive AI model inference without exposing model weights to
+the host server.</p>
 <blockquote class="callout-example">
-<p><strong class="callout-title">Example</strong>
-<strong>Victor Frankenstein and the IoT Key Injection Problem at Geneva Labs</strong></p>
-<p>Victor Frankenstein was three weeks into his new role as Bio-Tech Security Engineer at Geneva Labs when the firmware audit landed on his desk. Geneva manufactured implantable biosensors for clinical trials — small devices with wireless telemetry that transmitted patient vital signs to hospital monitoring systems. Each device needed a unique cryptographic identity so that its data could be trusted and the device could receive authenticated firmware updates. The problem Victor inherited was that the current manufacturing process stored these identity keys in a standard microcontroller's flash memory, in cleartext, generated by a script running on a shared manufacturing laptop.</p>
-<p>To a non-engineer, this might sound like a minor technical debt. To Victor, looking at recent research on medical device attacks, it was a catastrophic exposure. Anyone who could read the flash — a vendor technician, a compromised laptop on the manufacturing network, or a patient who disassembled a returned device — could extract the key and either impersonate the device or forge trusted firmware updates.</p>
-<p>Victor's fix had three components. First, Geneva's new manufacturing process sends each device through a secure key injection station that communicates with the corporate HSM. The HSM generates a unique keypair per device, stores the private key internally, and programs only a certified attestation chain into the device. The device's private key is generated on a <strong>secure element</strong> embedded in the biosensor SoC itself — it never leaves the chip. Second, firmware updates must be signed by a key stored exclusively in the HSM; unsigned updates are rejected by the bootloader. Third, the manufacturing laptop was retired and replaced by a dedicated provisioning appliance with physical tamper detection.</p>
-<p>The lesson Victor framed in his post-implementation report was simple: if you generate a secret outside the device and then inject it, you have already exposed it. Secrets should be generated where they will live — inside the hardware that protects them.</p>
+<p><strong class="callout-title">Example</strong> <strong>Victor Frankenstein and the IoT
+Key Injection Problem at Geneva Labs</strong></p>
+<p>Victor Frankenstein was three weeks into his new role as Bio-Tech
+Security Engineer at Geneva Labs when the firmware audit landed on his
+desk. Geneva manufactured implantable biosensors for clinical trials —
+small devices with wireless telemetry that transmitted patient vital
+signs to hospital monitoring systems. Each device needed a unique
+cryptographic identity so that its data could be trusted and the device
+could receive authenticated firmware updates. The problem Victor
+inherited was that the current manufacturing process stored these
+identity keys in a standard microcontroller’s flash memory, in
+cleartext, generated by a script running on a shared manufacturing
+laptop.</p>
+<p>To a non-engineer, this might sound like a minor technical debt. To
+Victor, looking at recent research on medical device attacks, it was a
+catastrophic exposure. Anyone who could read the flash — a vendor
+technician, a compromised laptop on the manufacturing network, or a
+patient who disassembled a returned device — could extract the key and
+either impersonate the device or forge trusted firmware updates.</p>
+<p>Victor’s fix had three components. First, Geneva’s new manufacturing
+process sends each device through a secure key injection station that
+communicates with the corporate HSM. The HSM generates a unique keypair
+per device, stores the private key internally, and programs only a
+certified attestation chain into the device. The device’s private key is
+generated on a <strong>secure element</strong> embedded in the biosensor
+SoC itself — it never leaves the chip. Second, firmware updates must be
+signed by a key stored exclusively in the HSM; unsigned updates are
+rejected by the bootloader. Third, the manufacturing laptop was retired
+and replaced by a dedicated provisioning appliance with physical tamper
+detection.</p>
+<p>The lesson Victor framed in his post-implementation report was
+simple: if you generate a secret outside the device and then inject it,
+you have already exposed it. Secrets should be generated where they will
+live — inside the hardware that protects them.</p>
 </blockquote>
 <hr />
-<h2>How Do We Secure the Boot Process and Defend Against Hardware Attacks?</h2>
-<p>The boot sequence is the earliest and most trusted moment in a system's lifecycle. Malware that can install itself at the firmware or bootloader level runs before the operating system, before endpoint protection, before logging, and before any of the security controls we might be counting on. This section covers how modern hardware defends the boot sequence and how attackers try to subvert it.</p>
-<h3>Secure Boot</h3>
-<p><strong>Secure Boot</strong> is a UEFI firmware feature that ensures that the system will only execute boot software signed with a key in an approved database. When Secure Boot is enabled:</p>
-<ol>
-<li>The UEFI firmware holds a database of authorized signing certificates (the "db") and revoked certificates and hashes (the "dbx").</li>
-<li>Before handing off to the bootloader, the firmware verifies the bootloader's signature against the db.</li>
-<li>The bootloader then verifies the kernel's signature before executing it.</li>
+<h2
+id="how-do-we-secure-the-boot-process-and-defend-against-hardware-attacks">How
+Do We Secure the Boot Process and Defend Against Hardware Attacks?</h2>
+<p>The boot sequence is the earliest and most trusted moment in a
+system’s lifecycle. Malware that can install itself at the firmware or
+bootloader level runs before the operating system, before endpoint
+protection, before logging, and before any of the security controls we
+might be counting on. This section covers how modern hardware defends
+the boot sequence and how attackers try to subvert it.</p>
+<h3 id="secure-boot">Secure Boot</h3>
+<p><strong>Secure Boot</strong> is a UEFI firmware feature that ensures
+that the system will only execute boot software signed with a key in an
+approved database. When Secure Boot is enabled:</p>
+<ol type="1">
+<li>The UEFI firmware holds a database of authorized signing
+certificates (the “db”) and revoked certificates and hashes (the
+“dbx”).</li>
+<li>Before handing off to the bootloader, the firmware verifies the
+bootloader’s signature against the db.</li>
+<li>The bootloader then verifies the kernel’s signature before executing
+it.</li>
 <li>The kernel verifies its drivers and modules.</li>
 </ol>
-<p>At each stage, a verification failure halts the boot and displays a warning, rather than loading an unverified component. An attacker who replaces the bootloader with a malicious version — a <strong>bootkit</strong> — will see the unsigned bootloader rejected by the firmware. An attacker who tries to add a malicious driver will see unsigned module loading blocked (assuming the OS is configured to require it).</p>
+<p>At each stage, a verification failure halts the boot and displays a
+warning, rather than loading an unverified component. An attacker who
+replaces the bootloader with a malicious version — a
+<strong>bootkit</strong> — will see the unsigned bootloader rejected by
+the firmware. An attacker who tries to add a malicious driver will see
+unsigned module loading blocked (assuming the OS is configured to
+require it).</p>
 <p>Secure Boot is most effective when:</p>
 <ul>
-<li>The firmware's <strong>Platform Key (PK)</strong> and <strong>Key Exchange Keys (KEKs)</strong> are enrolled from the hardware vendor and not replaceable without physical access.</li>
-<li>The <code>dbx</code> is kept up to date with revoked components, particularly revoked bootloaders discovered to have vulnerabilities (the Secure Boot bypass landscape is actively managed through dbx updates).</li>
+<li>The firmware’s <strong>Platform Key (PK)</strong> and <strong>Key
+Exchange Keys (KEKs)</strong> are enrolled from the hardware vendor and
+not replaceable without physical access.</li>
+<li>The <code>dbx</code> is kept up to date with revoked components,
+particularly revoked bootloaders discovered to have vulnerabilities (the
+Secure Boot bypass landscape is actively managed through dbx
+updates).</li>
 </ul>
-<p><img alt="The full boot integrity chain — Secure Boot validates signatures at each stage; Measured Boot records hashes into the TPM; Remote Attestation allows a verifier to confirm the boot chain without physical access." src="../assets/images/ch06_secure_measured_boot.png" />
-<em>Figure 6.2: The full boot integrity chain — Secure Boot validates signatures at each stage; Measured Boot records hashes into the TPM; Remote Attestation allows a verifier to confirm the boot chain without physical access.</em></p>
-<h3>Measured Boot</h3>
-<p><strong>Measured Boot</strong> complements Secure Boot but serves a different purpose. Where Secure Boot <em>blocks</em> unauthorized components, Measured Boot <em>records</em> everything that ran during startup. At each stage of the boot:</p>
-<ol>
-<li>The UEFI firmware computes a cryptographic hash of the component it is about to execute.</li>
-<li>That hash is <strong>extended</strong> into a TPM Platform Configuration Register (PCR) — meaning the new PCR value is the hash of (old PCR value + new measurement). This creates an irreversible, cumulative record.</li>
-<li>By the time the OS is running, the PCR values represent a tamper-evident log of everything that ran from power-on.</li>
+<p><img src="../assets/images/ch06_secure_measured_boot.png"
+alt="The full boot integrity chain — Secure Boot validates signatures at each stage; Measured Boot records hashes into the TPM; Remote Attestation allows a verifier to confirm the boot chain without physical access." />
+<em>Figure 6.2: The full boot integrity chain — Secure Boot validates
+signatures at each stage; Measured Boot records hashes into the TPM;
+Remote Attestation allows a verifier to confirm the boot chain without
+physical access.</em></p>
+<h3 id="measured-boot">Measured Boot</h3>
+<p><strong>Measured Boot</strong> complements Secure Boot but serves a
+different purpose. Where Secure Boot <em>blocks</em> unauthorized
+components, Measured Boot <em>records</em> everything that ran during
+startup. At each stage of the boot:</p>
+<ol type="1">
+<li>The UEFI firmware computes a cryptographic hash of the component it
+is about to execute.</li>
+<li>That hash is <strong>extended</strong> into a TPM Platform
+Configuration Register (PCR) — meaning the new PCR value is the hash of
+(old PCR value + new measurement). This creates an irreversible,
+cumulative record.</li>
+<li>By the time the OS is running, the PCR values represent a
+tamper-evident log of everything that ran from power-on.</li>
 </ol>
-<p>A remote verifier can request the TPM to produce a signed quote of its PCR values and compare those against known-good measurements. If a component was replaced or tampered with, the PCR chain will not match. This process — <strong>remote attestation</strong> — is the basis for cloud services that verify VM trustworthiness before granting access to sensitive data.</p>
-<p>Measured Boot does not prevent an attack by itself. It provides <em>evidence</em> about what happened during boot, enabling detection and response. Combined with attestation-gated access controls — "this workload may not access the signing key if its PCR values indicate the kernel has been modified" — it becomes preventive.</p>
-<h3>Firmware Attacks: BIOS/UEFI Tampering</h3>
-<p>The firmware layer — <strong>BIOS</strong> (Basic Input/Output System) in older systems, <strong>UEFI</strong> (Unified Extensible Firmware Interface) in modern ones — initializes hardware before any operating system loads. Firmware-level malware is extremely difficult to detect and persist through OS reinstalls and even drive replacements. State-sponsored attacker groups have demonstrated UEFI implants that remain active across multiple OS reinstallations.</p>
+<p>A remote verifier can request the TPM to produce a signed quote of
+its PCR values and compare those against known-good measurements. If a
+component was replaced or tampered with, the PCR chain will not match.
+This process — <strong>remote attestation</strong> — is the basis for
+cloud services that verify VM trustworthiness before granting access to
+sensitive data.</p>
+<p>Measured Boot does not prevent an attack by itself. It provides
+<em>evidence</em> about what happened during boot, enabling detection
+and response. Combined with attestation-gated access controls — “this
+workload may not access the signing key if its PCR values indicate the
+kernel has been modified” — it becomes preventive.</p>
+<h3 id="firmware-attacks-biosuefi-tampering">Firmware Attacks: BIOS/UEFI
+Tampering</h3>
+<p>The firmware layer — <strong>BIOS</strong> (Basic Input/Output
+System) in older systems, <strong>UEFI</strong> (Unified Extensible
+Firmware Interface) in modern ones — initializes hardware before any
+operating system loads. Firmware-level malware is extremely difficult to
+detect and persist through OS reinstalls and even drive replacements.
+State-sponsored attacker groups have demonstrated UEFI implants that
+remain active across multiple OS reinstallations.</p>
 <p>Defense strategies include:</p>
 <ul>
-<li><strong>Secure Boot enforcement</strong> to block unsigned firmware payloads.</li>
-<li><strong>Firmware signing and secure update processes</strong> enforced by the vendor — UEFI updates should only be applied from signed capsule files delivered through verified channels.</li>
-<li><strong>Physical access controls</strong> — firmware update capabilities are often protected by physical presence requirements or administrative passwords, both of which only work if physical access is controlled.</li>
-<li><strong>Platform firmware protection mechanisms</strong> like Intel Boot Guard, which locks the initial boot firmware to an immutable hash stored in fuses at manufacture time, preventing any firmware modification from being executed on that platform.</li>
+<li><strong>Secure Boot enforcement</strong> to block unsigned firmware
+payloads.</li>
+<li><strong>Firmware signing and secure update processes</strong>
+enforced by the vendor — UEFI updates should only be applied from signed
+capsule files delivered through verified channels.</li>
+<li><strong>Physical access controls</strong> — firmware update
+capabilities are often protected by physical presence requirements or
+administrative passwords, both of which only work if physical access is
+controlled.</li>
+<li><strong>Platform firmware protection mechanisms</strong> like Intel
+Boot Guard, which locks the initial boot firmware to an immutable hash
+stored in fuses at manufacture time, preventing any firmware
+modification from being executed on that platform.</li>
 </ul>
-<h3>Shimming, USB-Based Attacks, and Evil Maid</h3>
-<p><strong>Shimming</strong> in the hardware context refers to interposing a thin layer between hardware components to intercept and manipulate communications. Hardware shims — physical devices placed between a keyboard and a laptop, for example, or inline on a SATA cable — can log keystrokes, intercept disk writes, or inject commands. In the bootloader context, vendor-signed shims (such as the UEFI shim used by many Linux distributions) are a legitimate architectural component; <em>malicious</em> shims are unauthorized intermediate software or hardware inserted to bypass trust chains.</p>
-<p><strong>USB-based attacks</strong> exploit the broad functionality and default trust that operating systems extend to USB devices. Relevant attack forms include:</p>
+<h3 id="shimming-usb-based-attacks-and-evil-maid">Shimming, USB-Based
+Attacks, and Evil Maid</h3>
+<p><strong>Shimming</strong> in the hardware context refers to
+interposing a thin layer between hardware components to intercept and
+manipulate communications. Hardware shims — physical devices placed
+between a keyboard and a laptop, for example, or inline on a SATA cable
+— can log keystrokes, intercept disk writes, or inject commands. In the
+bootloader context, vendor-signed shims (such as the UEFI shim used by
+many Linux distributions) are a legitimate architectural component;
+<em>malicious</em> shims are unauthorized intermediate software or
+hardware inserted to bypass trust chains.</p>
+<p><strong>USB-based attacks</strong> exploit the broad functionality
+and default trust that operating systems extend to USB devices. Relevant
+attack forms include:</p>
 <ul>
-<li><strong>Rubber Ducky / HID attacks:</strong> A USB device that presents itself as a keyboard and silently types a malicious payload — potentially installing malware, exfiltrating data, or adding a backdoor — faster than a human can see.</li>
-<li><strong>BadUSB:</strong> Malicious firmware loaded into a USB device's microcontroller that allows the device to impersonate any USB class — keyboard, network adapter, audio device — depending on what gives the attacker the most useful access vector.</li>
-<li><strong>USB power attacks:</strong> Malicious charging cables and stations that exploit USB data lines during charging to attack the connected device. The "juice jacking" threat is real, though historically more theoretical in enterprises than in public charging contexts.</li>
+<li><strong>Rubber Ducky / HID attacks:</strong> A USB device that
+presents itself as a keyboard and silently types a malicious payload —
+potentially installing malware, exfiltrating data, or adding a backdoor
+— faster than a human can see.</li>
+<li><strong>BadUSB:</strong> Malicious firmware loaded into a USB
+device’s microcontroller that allows the device to impersonate any USB
+class — keyboard, network adapter, audio device — depending on what
+gives the attacker the most useful access vector.</li>
+<li><strong>USB power attacks:</strong> Malicious charging cables and
+stations that exploit USB data lines during charging to attack the
+connected device. The “juice jacking” threat is real, though
+historically more theoretical in enterprises than in public charging
+contexts.</li>
 </ul>
 <p>Controls for USB attacks include:</p>
 <ul>
 <li>Disabling unused USB ports in firmware or OS policy.</li>
-<li>Implementing <strong>USB device whitelisting</strong> through endpoint management tools (only pre-approved device identifiers may be recognized by the OS).</li>
-<li>Using <strong>USB data blockers</strong> or <strong>charge-only cables</strong> for charging from untrusted sources.</li>
+<li>Implementing <strong>USB device whitelisting</strong> through
+endpoint management tools (only pre-approved device identifiers may be
+recognized by the OS).</li>
+<li>Using <strong>USB data blockers</strong> or <strong>charge-only
+cables</strong> for charging from untrusted sources.</li>
 <li>Physical port locks for high-security workstations.</li>
 </ul>
-<p>The <strong>evil maid attack</strong> is a scenario worth knowing by name: an attacker with brief physical access to an unattended, powered-off device — perhaps in a hotel room — boots from a USB device they control, manipulates the system (installing a bootkit, reading the disk, or implanting hardware), and leaves before the owner returns. Measured Boot and Secure Boot are specifically designed to detect and prevent the software component of evil maid attacks; physical tamper evidence (chassis intrusion detection switches, seals) addresses the hardware component.</p>
-<h3>Memory Exploitation Techniques</h3>
-<p>Attackers who cannot modify firmware or the boot chain may target <strong>memory</strong> directly once the system is running. Relevant techniques include:</p>
+<p>The <strong>evil maid attack</strong> is a scenario worth knowing by
+name: an attacker with brief physical access to an unattended,
+powered-off device — perhaps in a hotel room — boots from a USB device
+they control, manipulates the system (installing a bootkit, reading the
+disk, or implanting hardware), and leaves before the owner returns.
+Measured Boot and Secure Boot are specifically designed to detect and
+prevent the software component of evil maid attacks; physical tamper
+evidence (chassis intrusion detection switches, seals) addresses the
+hardware component.</p>
+<h3 id="memory-exploitation-techniques">Memory Exploitation
+Techniques</h3>
+<p>Attackers who cannot modify firmware or the boot chain may target
+<strong>memory</strong> directly once the system is running. Relevant
+techniques include:</p>
 <ul>
-<li>
-<p><strong>DMA attacks:</strong> Direct Memory Access (DMA) allows certain peripheral devices (Thunderbolt, FireWire, some PCIe devices) to read and write system memory without CPU involvement. An attacker with physical access and a DMA-capable device can read encryption keys and credentials directly from RAM. <strong>IOMMU</strong> (Input/Output Memory Management Unit) controls counter this by restricting which physical memory regions each DMA-capable device may access.</p>
-</li>
-<li>
-<p><strong>Cold boot attacks:</strong> DRAM retains data for seconds to minutes after power is removed, especially when cooled. An attacker can physically remove RAM from a running or recently powered-off machine, cool the chips (extending retention time), and dump their contents to find encryption keys or credentials. Full-disk encryption keys held only in RAM are vulnerable. TPM-based key sealing mitigates this because the decryption key is never fully resident in accessible RAM.</p>
-</li>
-<li>
-<p><strong>Rowhammer:</strong> A hardware vulnerability in certain DRAM implementations where repeatedly accessing specific memory rows can cause bit flips in adjacent rows — enabling an attacker to corrupt memory they do not have permission to access. This has been used to escalate from user to kernel privilege.</p>
-</li>
+<li><p><strong>DMA attacks:</strong> Direct Memory Access (DMA) allows
+certain peripheral devices (Thunderbolt, FireWire, some PCIe devices) to
+read and write system memory without CPU involvement. An attacker with
+physical access and a DMA-capable device can read encryption keys and
+credentials directly from RAM. <strong>IOMMU</strong> (Input/Output
+Memory Management Unit) controls counter this by restricting which
+physical memory regions each DMA-capable device may access.</p></li>
+<li><p><strong>Cold boot attacks:</strong> DRAM retains data for seconds
+to minutes after power is removed, especially when cooled. An attacker
+can physically remove RAM from a running or recently powered-off
+machine, cool the chips (extending retention time), and dump their
+contents to find encryption keys or credentials. Full-disk encryption
+keys held only in RAM are vulnerable. TPM-based key sealing mitigates
+this because the decryption key is never fully resident in accessible
+RAM.</p></li>
+<li><p><strong>Rowhammer:</strong> A hardware vulnerability in certain
+DRAM implementations where repeatedly accessing specific memory rows can
+cause bit flips in adjacent rows — enabling an attacker to corrupt
+memory they do not have permission to access. This has been used to
+escalate from user to kernel privilege.</p></li>
 </ul>
-<h3>Electromagnetic Interface Attacks: EMI and EMP</h3>
-<p>Physical attacks do not require touching a device. <strong>Electromagnetic Interference (EMI)</strong> and <strong>Electromagnetic Pulse (EMP)</strong> represent threat vectors that operate at a distance.</p>
-<p><strong>EMI</strong> is the unintentional (or intentional) emission of electromagnetic energy that disrupts electronic devices. Targeted EMI attacks (sometimes called IEMI — Intentional Electromagnetic Interference) can cause bit flips in memory, reset microcontrollers, or corrupt data in transit on buses. In high-security installations, <strong>Faraday cages</strong>, <strong>TEMPEST-certified equipment</strong>, and electromagnetic shielding mitigate EMI threats.</p>
-<p><strong>EMP</strong> is a burst of electromagnetic energy intense enough to damage or destroy electronic circuits. A nuclear detonation at high altitude produces an EMP affecting a wide geographic area. Localized EMP devices (non-nuclear, sometimes called "EMP guns") can destroy consumer electronics at close range. While large-scale EMP events are primarily a continuity-of-operations concern rather than an information security attack, the threat informs the hardening of national infrastructure and critical systems. Military and government systems use EMP-hardened hardware and Faraday shielding as part of their protection.</p>
-<p><strong>TEMPEST</strong> is a government program (and a set of standards, also known as NSA Suite B emissions security standards) that addresses the risk of information leakage through unintentional electromagnetic emissions from computing equipment — screens, keyboards, processors, and cables all emit radio-frequency signals that can, with the right equipment, be intercepted and decoded at a distance. TEMPEST-certified equipment is shielded to reduce these emissions below detectable levels.</p>
+<h3 id="electromagnetic-interface-attacks-emi-and-emp">Electromagnetic
+Interface Attacks: EMI and EMP</h3>
+<p>Physical attacks do not require touching a device.
+<strong>Electromagnetic Interference (EMI)</strong> and
+<strong>Electromagnetic Pulse (EMP)</strong> represent threat vectors
+that operate at a distance.</p>
+<p><strong>EMI</strong> is the unintentional (or intentional) emission
+of electromagnetic energy that disrupts electronic devices. Targeted EMI
+attacks (sometimes called IEMI — Intentional Electromagnetic
+Interference) can cause bit flips in memory, reset microcontrollers, or
+corrupt data in transit on buses. In high-security installations,
+<strong>Faraday cages</strong>, <strong>TEMPEST-certified
+equipment</strong>, and electromagnetic shielding mitigate EMI
+threats.</p>
+<p><strong>EMP</strong> is a burst of electromagnetic energy intense
+enough to damage or destroy electronic circuits. A nuclear detonation at
+high altitude produces an EMP affecting a wide geographic area.
+Localized EMP devices (non-nuclear, sometimes called “EMP guns”) can
+destroy consumer electronics at close range. While large-scale EMP
+events are primarily a continuity-of-operations concern rather than an
+information security attack, the threat informs the hardening of
+national infrastructure and critical systems. Military and government
+systems use EMP-hardened hardware and Faraday shielding as part of their
+protection.</p>
+<p><strong>TEMPEST</strong> is a government program (and a set of
+standards, also known as NSA Suite B emissions security standards) that
+addresses the risk of information leakage through unintentional
+electromagnetic emissions from computing equipment — screens, keyboards,
+processors, and cables all emit radio-frequency signals that can, with
+the right equipment, be intercepted and decoded at a distance.
+TEMPEST-certified equipment is shielded to reduce these emissions below
+detectable levels.</p>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong>
-For the exam, understand what EMI, EMP, and TEMPEST represent and the types of controls used to address them. You will not be expected to design a Faraday cage, but you should recognize that electromagnetic phenomena represent a real hardware-level attack surface, particularly for facilities housing classified or highly sensitive systems.</p>
+<p><strong class="callout-title">Key Point</strong> For the exam, understand what EMI, EMP,
+and TEMPEST represent and the types of controls used to address them.
+You will not be expected to design a Faraday cage, but you should
+recognize that electromagnetic phenomena represent a real hardware-level
+attack surface, particularly for facilities housing classified or highly
+sensitive systems.</p>
 </blockquote>
-<h3>Tamper Detection, Self-Healing Hardware, and Countermeasures</h3>
-<p>The final layer of hardware assurance is what happens <em>when</em> an attack occurs.</p>
-<p><strong>Tamper detection</strong> refers to physical and logical mechanisms that alert the system when an unauthorized access attempt is underway. Examples include:</p>
+<h3
+id="tamper-detection-self-healing-hardware-and-countermeasures">Tamper
+Detection, Self-Healing Hardware, and Countermeasures</h3>
+<p>The final layer of hardware assurance is what happens <em>when</em>
+an attack occurs.</p>
+<p><strong>Tamper detection</strong> refers to physical and logical
+mechanisms that alert the system when an unauthorized access attempt is
+underway. Examples include:</p>
 <ul>
-<li><strong>Chassis intrusion detection switches:</strong> A sensor on the computer case that logs a flag in the BIOS event log (and optionally sends an alert) when the case is opened.</li>
-<li><strong>Tamper-evident seals and labels:</strong> Physical labels or epoxy on screws and connectors that are visibly damaged if removed.</li>
-<li><strong>Cryptographic attestation chains:</strong> The TPM's measured boot provides a logical tamper signal: if the PCR values are wrong at boot, something in the boot path changed.</li>
-<li><strong>HSM zeroization:</strong> A hardware security module physically monitors for tamper attempts — temperature extremes, voltage anomalies, physical penetration — and destroys its stored keys automatically.</li>
+<li><strong>Chassis intrusion detection switches:</strong> A sensor on
+the computer case that logs a flag in the BIOS event log (and optionally
+sends an alert) when the case is opened.</li>
+<li><strong>Tamper-evident seals and labels:</strong> Physical labels or
+epoxy on screws and connectors that are visibly damaged if removed.</li>
+<li><strong>Cryptographic attestation chains:</strong> The TPM’s
+measured boot provides a logical tamper signal: if the PCR values are
+wrong at boot, something in the boot path changed.</li>
+<li><strong>HSM zeroization:</strong> A hardware security module
+physically monitors for tamper attempts — temperature extremes, voltage
+anomalies, physical penetration — and destroys its stored keys
+automatically.</li>
 </ul>
-<p><strong>Self-healing hardware</strong> is a design pattern where the hardware itself can detect corruption and recover. Intel's <strong>Boot Guard</strong> with Authenticated Code Module execution provides verified firmware recovery. Modern server BMCs (Baseboard Management Controllers) can restore BIOS firmware from a protected golden copy if corruption is detected. Some enterprise-grade routers implement a dual-firmware architecture where a verified backup image is maintained independently of the primary image, allowing automatic rollback on failure.</p>
+<p><strong>Self-healing hardware</strong> is a design pattern where the
+hardware itself can detect corruption and recover. Intel’s <strong>Boot
+Guard</strong> with Authenticated Code Module execution provides
+verified firmware recovery. Modern server BMCs (Baseboard Management
+Controllers) can restore BIOS firmware from a protected golden copy if
+corruption is detected. Some enterprise-grade routers implement a
+dual-firmware architecture where a verified backup image is maintained
+independently of the primary image, allowing automatic rollback on
+failure.</p>
 <blockquote class="callout-thought">
-<p><strong class="callout-title">Thought Question</strong>
-A laptop recovered from an attacker is delivered to your forensics team. The BIOS event log shows a chassis intrusion event at 2:47 AM, followed by a Secure Boot failure for the bootloader at 2:48 AM. What do these two log entries together suggest about what the attacker attempted? What would you expect the system's state to be if the Secure Boot enforcement was properly configured?</p>
+<p><strong class="callout-title">Thought Question</strong> A laptop recovered from an
+attacker is delivered to your forensics team. The BIOS event log shows a
+chassis intrusion event at 2:47 AM, followed by a Secure Boot failure
+for the bootloader at 2:48 AM. What do these two log entries together
+suggest about what the attacker attempted? What would you expect the
+system’s state to be if the Secure Boot enforcement was properly
+configured?</p>
 </blockquote>
 <hr />
-<h2>Chapter Review and Conclusion</h2>
-<p>This chapter followed the security-minded architect through the full systems lifecycle — from the earliest conversation about requirements all the way down to hardware that resists electromagnetic attack. The throughline is a consistent philosophy: do not wait until the end to add security. Embed it at every stage, automate what you can, and ensure that the hardware the software runs on provides a trustworthy foundation.</p>
-<p>We opened with requirements: the distinction between functional requirements (what the system does) and non-functional requirements (how secure, how available, how reliable it must be). Security non-functional requirements need testable acceptance criteria so that pipelines can verify them automatically. The security-usability trade-off must be considered explicitly, not resolved ad hoc.</p>
-<p>We explored the software assurance toolbox. SAST finds vulnerability patterns in code without executing it. DAST attacks a live application the way an attacker would. IAST instruments the running application during testing for high-fidelity, low-false-positive analysis. RASP embeds security enforcement in the production runtime. SCA inventories open-source dependencies and matches them against known-vulnerable-version databases. SBoMs make that inventory formal and machine-readable — a capability that proved its value during Log4Shell when organizations with SBoMs could respond in hours while others spent weeks.</p>
-<p>We covered supply chain risk management: the reality that most of what we build uses components we did not write, manufactured on hardware we did not design, shipped through a chain we cannot fully audit. Dependency pinning, artifact signing, vendor security assessments, and hardware procurement practices all reduce this risk. EOL planning ensures that risk accumulation from unsupported software is a managed decision rather than a surprise.</p>
-<p>We then descended to hardware. TPMs provide per-device integrity measurement and sealed key storage. HSMs protect organization-level cryptographic secrets at scale. vTPMs extend these protections into virtualized environments. Secure enclaves let sensitive workloads execute with confidentiality guarantees even against privileged system software.</p>
-<p>We traced the boot chain from power-on through Secure Boot (which blocks unauthorized components) and Measured Boot (which records everything into TPM PCRs for later attestation). We examined the attacks below the OS: BIOS/UEFI firmware implants, hardware shimming, USB-based HID and BadUSB attacks, DMA-based memory attacks, cold boot attacks that extract keys from cooled RAM, electromagnetic interference, and EMP. Each has defenses — but only against adversaries less determined than the controls you deploy.</p>
-<p>Finally, we looked at detection and self-healing: tamper detection switches, HSM zeroization, Secure Boot with remote attestation, and dual-image firmware recovery architectures that give the system a way to verify itself and restore a trusted state when something goes wrong.</p>
-<h3>Key Terms Review</h3>
+<h2 id="chapter-review-and-conclusion">Chapter Review and
+Conclusion</h2>
+<p>This chapter followed the security-minded architect through the full
+systems lifecycle — from the earliest conversation about requirements
+all the way down to hardware that resists electromagnetic attack. The
+throughline is a consistent philosophy: do not wait until the end to add
+security. Embed it at every stage, automate what you can, and ensure
+that the hardware the software runs on provides a trustworthy
+foundation.</p>
+<p>We opened with requirements: the distinction between functional
+requirements (what the system does) and non-functional requirements (how
+secure, how available, how reliable it must be). Security non-functional
+requirements need testable acceptance criteria so that pipelines can
+verify them automatically. The security-usability trade-off must be
+considered explicitly, not resolved ad hoc.</p>
+<p>We explored the software assurance toolbox. SAST finds vulnerability
+patterns in code without executing it. DAST attacks a live application
+the way an attacker would. IAST instruments the running application
+during testing for high-fidelity, low-false-positive analysis. RASP
+embeds security enforcement in the production runtime. SCA inventories
+open-source dependencies and matches them against
+known-vulnerable-version databases. SBoMs make that inventory formal and
+machine-readable — a capability that proved its value during Log4Shell
+when organizations with SBoMs could respond in hours while others spent
+weeks.</p>
+<p>We covered supply chain risk management: the reality that most of
+what we build uses components we did not write, manufactured on hardware
+we did not design, shipped through a chain we cannot fully audit.
+Dependency pinning, artifact signing, vendor security assessments, and
+hardware procurement practices all reduce this risk. EOL planning
+ensures that risk accumulation from unsupported software is a managed
+decision rather than a surprise.</p>
+<p>We then descended to hardware. TPMs provide per-device integrity
+measurement and sealed key storage. HSMs protect organization-level
+cryptographic secrets at scale. vTPMs extend these protections into
+virtualized environments. Secure enclaves let sensitive workloads
+execute with confidentiality guarantees even against privileged system
+software.</p>
+<p>We traced the boot chain from power-on through Secure Boot (which
+blocks unauthorized components) and Measured Boot (which records
+everything into TPM PCRs for later attestation). We examined the attacks
+below the OS: BIOS/UEFI firmware implants, hardware shimming, USB-based
+HID and BadUSB attacks, DMA-based memory attacks, cold boot attacks that
+extract keys from cooled RAM, electromagnetic interference, and EMP.
+Each has defenses — but only against adversaries less determined than
+the controls you deploy.</p>
+<p>Finally, we looked at detection and self-healing: tamper detection
+switches, HSM zeroization, Secure Boot with remote attestation, and
+dual-image firmware recovery architectures that give the system a way to
+verify itself and restore a trusted state when something goes wrong.</p>
+<h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
-<li><strong>Functional Requirements:</strong> Descriptions of what a system does — its features and behaviors.</li>
-<li><strong>Non-Functional Requirements:</strong> Descriptions of quality attributes: security, performance, reliability.</li>
-<li><strong>SAST (Static Application Security Testing):</strong> Analysis of source code for vulnerability patterns without execution.</li>
-<li><strong>DAST (Dynamic Application Security Testing):</strong> Testing a running application by simulating attacks.</li>
-<li><strong>IAST (Interactive Application Security Testing):</strong> Agent-based testing that observes applications during execution.</li>
-<li><strong>RASP (Runtime Application Self-Protection):</strong> Security agents embedded in production applications to detect and block attacks in real time.</li>
-<li><strong>SCA (Software Composition Analysis):</strong> Automated inventory and vulnerability assessment of open-source dependencies.</li>
-<li><strong>SBoM (Software Bill of Materials):</strong> A machine-readable inventory of every component in a software product.</li>
-<li><strong>CI/CD (Continuous Integration / Continuous Deployment):</strong> Automated pipelines that build, test, and deploy software on every code change.</li>
-<li><strong>Branch Protection:</strong> Repository policies that enforce rules (reviews, status checks, signed commits) before merges.</li>
-<li><strong>Canary Deployment:</strong> A release strategy that delivers changes to a small subset of users before a full rollout.</li>
-<li><strong>Regression Testing:</strong> Testing to confirm that new code changes do not break previously verified functionality.</li>
-<li><strong>Formal Methods:</strong> Mathematical specification and verification techniques for proving software correctness.</li>
-<li><strong>Supply Chain Risk:</strong> Security risk arising from software or hardware components originating outside the organization.</li>
-<li><strong>EOL (End-of-Life):</strong> The date after which a vendor ceases to provide security updates for a product.</li>
-<li><strong>TPM (Trusted Platform Module):</strong> A dedicated security chip providing hardware-protected key storage, PCR measurements, and attestation.</li>
-<li><strong>HSM (Hardware Security Module):</strong> A tamper-resistant appliance for enterprise cryptographic operations and master key protection.</li>
-<li><strong>vTPM (Virtual Trusted Platform Module):</strong> A hypervisor-provided software implementation of a TPM for virtual machines.</li>
-<li><strong>Secure Enclave:</strong> A CPU-protected memory region that is isolated even from the operating system and hypervisor.</li>
-<li><strong>SED (Self-Encrypting Drive):</strong> A storage device that implements encryption in its own firmware and controller.</li>
-<li><strong>Secure Boot:</strong> A UEFI feature that verifies the cryptographic signature of each boot component before executing it.</li>
-<li><strong>Measured Boot:</strong> A process that records cryptographic hashes of each boot component into TPM PCRs for remote attestation.</li>
-<li><strong>Remote Attestation:</strong> A process by which a TPM quote of PCR values is verified by a remote party to confirm platform integrity.</li>
-<li><strong>IOMMU (Input/Output Memory Management Unit):</strong> Hardware that restricts which memory regions DMA-capable devices may access, preventing DMA attacks.</li>
-<li><strong>Shimming:</strong> Interposing a hardware or software layer between components to intercept or manipulate communications.</li>
-<li><strong>BadUSB:</strong> A firmware attack on USB devices allowing them to impersonate other USB device classes.</li>
-<li><strong>EMI (Electromagnetic Interference):</strong> Unintentional or intentional electromagnetic emissions that disrupt electronic devices.</li>
-<li><strong>EMP (Electromagnetic Pulse):</strong> An intense burst of electromagnetic energy capable of damaging or destroying electronics.</li>
-<li><strong>TEMPEST:</strong> Government standards for shielding equipment against information leakage via unintentional electromagnetic emissions.</li>
-<li><strong>Tamper Detection:</strong> Physical and logical mechanisms that detect unauthorized access to hardware.</li>
-<li><strong>Self-Healing Hardware:</strong> Architectures that detect firmware or configuration corruption and automatically restore a verified trusted state.</li>
+<li><strong>Functional Requirements:</strong> Descriptions of what a
+system does — its features and behaviors.</li>
+<li><strong>Non-Functional Requirements:</strong> Descriptions of
+quality attributes: security, performance, reliability.</li>
+<li><strong>SAST (Static Application Security Testing):</strong>
+Analysis of source code for vulnerability patterns without
+execution.</li>
+<li><strong>DAST (Dynamic Application Security Testing):</strong>
+Testing a running application by simulating attacks.</li>
+<li><strong>IAST (Interactive Application Security Testing):</strong>
+Agent-based testing that observes applications during execution.</li>
+<li><strong>RASP (Runtime Application Self-Protection):</strong>
+Security agents embedded in production applications to detect and block
+attacks in real time.</li>
+<li><strong>SCA (Software Composition Analysis):</strong> Automated
+inventory and vulnerability assessment of open-source dependencies.</li>
+<li><strong>SBoM (Software Bill of Materials):</strong> A
+machine-readable inventory of every component in a software
+product.</li>
+<li><strong>CI/CD (Continuous Integration / Continuous
+Deployment):</strong> Automated pipelines that build, test, and deploy
+software on every code change.</li>
+<li><strong>Branch Protection:</strong> Repository policies that enforce
+rules (reviews, status checks, signed commits) before merges.</li>
+<li><strong>Canary Deployment:</strong> A release strategy that delivers
+changes to a small subset of users before a full rollout.</li>
+<li><strong>Regression Testing:</strong> Testing to confirm that new
+code changes do not break previously verified functionality.</li>
+<li><strong>Formal Methods:</strong> Mathematical specification and
+verification techniques for proving software correctness.</li>
+<li><strong>Supply Chain Risk:</strong> Security risk arising from
+software or hardware components originating outside the
+organization.</li>
+<li><strong>EOL (End-of-Life):</strong> The date after which a vendor
+ceases to provide security updates for a product.</li>
+<li><strong>TPM (Trusted Platform Module):</strong> A dedicated security
+chip providing hardware-protected key storage, PCR measurements, and
+attestation.</li>
+<li><strong>HSM (Hardware Security Module):</strong> A tamper-resistant
+appliance for enterprise cryptographic operations and master key
+protection.</li>
+<li><strong>vTPM (Virtual Trusted Platform Module):</strong> A
+hypervisor-provided software implementation of a TPM for virtual
+machines.</li>
+<li><strong>Secure Enclave:</strong> A CPU-protected memory region that
+is isolated even from the operating system and hypervisor.</li>
+<li><strong>SED (Self-Encrypting Drive):</strong> A storage device that
+implements encryption in its own firmware and controller.</li>
+<li><strong>Secure Boot:</strong> A UEFI feature that verifies the
+cryptographic signature of each boot component before executing it.</li>
+<li><strong>Measured Boot:</strong> A process that records cryptographic
+hashes of each boot component into TPM PCRs for remote attestation.</li>
+<li><strong>Remote Attestation:</strong> A process by which a TPM quote
+of PCR values is verified by a remote party to confirm platform
+integrity.</li>
+<li><strong>IOMMU (Input/Output Memory Management Unit):</strong>
+Hardware that restricts which memory regions DMA-capable devices may
+access, preventing DMA attacks.</li>
+<li><strong>Shimming:</strong> Interposing a hardware or software layer
+between components to intercept or manipulate communications.</li>
+<li><strong>BadUSB:</strong> A firmware attack on USB devices allowing
+them to impersonate other USB device classes.</li>
+<li><strong>EMI (Electromagnetic Interference):</strong> Unintentional
+or intentional electromagnetic emissions that disrupt electronic
+devices.</li>
+<li><strong>EMP (Electromagnetic Pulse):</strong> An intense burst of
+electromagnetic energy capable of damaging or destroying
+electronics.</li>
+<li><strong>TEMPEST:</strong> Government standards for shielding
+equipment against information leakage via unintentional electromagnetic
+emissions.</li>
+<li><strong>Tamper Detection:</strong> Physical and logical mechanisms
+that detect unauthorized access to hardware.</li>
+<li><strong>Self-Healing Hardware:</strong> Architectures that detect
+firmware or configuration corruption and automatically restore a
+verified trusted state.</li>
 </ul>
-<h3>Review Questions</h3>
+<h3 id="review-questions">Review Questions</h3>
 <p><strong>True / False</strong></p>
-<ol>
-<li>Non-functional security requirements should be documented with testable acceptance criteria so that automated pipelines can verify them, rather than as vague aspirational statements like "the system must be secure."</li>
-<li>Interactive Application Security Testing (IAST) detects vulnerabilities by sending malicious inputs against a running application from the outside without any access to source code or runtime instrumentation, in the same way an external attacker would.</li>
-<li>SAST analyzes source code, bytecode, or binaries without executing them, which is what allows it to run early and quickly in a CI pipeline before any test environment exists.</li>
-<li>A Hardware Security Module (HSM) is a chip soldered to the motherboard of an individual workstation or server whose primary purpose is to record cryptographic measurements of each boot component into Platform Configuration Registers for later remote attestation.</li>
-<li>Rowhammer is an attack in which a USB device's microcontroller firmware is reprogrammed so that the device impersonates a keyboard and injects an attacker-supplied keystroke payload faster than a user can intervene.</li>
-<li>A Software Bill of Materials (SBoM) is a machine-readable inventory of every component in a software product, and organizations that maintained current SBoMs were able to identify their Log4Shell exposure in hours rather than weeks.</li>
-<li>Measured Boot is a UEFI feature that <em>blocks</em> unsigned or untrusted boot components from executing by checking each component's signature against a database of authorized signing certificates before passing control to it.</li>
-<li>Software Composition Analysis (SCA) is a category of tools that examines the source code an organization writes for vulnerability patterns such as SQL injection, command injection, or use of deprecated cryptographic functions.</li>
-<li>Runtime Application Self-Protection (RASP) is an instrumentation approach used during testing in which an embedded agent observes the application as functional tests are executed and reports vulnerabilities with full data-flow context.</li>
-<li>A Self-Encrypting Drive supports cryptographic erasure, allowing an administrator to render all stored data permanently unreadable in milliseconds simply by destroying the drive's internal encryption key.</li>
-<li>Formal methods are mathematical specification and verification techniques used primarily in high-assurance contexts such as cryptographic libraries, operating system kernels, hypervisors, and avionics control software.</li>
-<li>Typical branch protection rules in modern version-control platforms include requiring pull requests before merging, requiring a minimum number of reviewers, requiring CI status checks to pass, and requiring cryptographically signed commits.</li>
-<li>End-of-Life (EOL) refers to the date at which a vendor publishes the first stable release of a product and begins offering paid support contracts to new customers.</li>
-<li>A DMA attack is performed by physically removing DRAM modules from a recently powered-off machine, cooling the chips to extend data retention, and reading their residual contents to recover encryption keys and credentials.</li>
-<li>TPM sealing allows encryption keys to be bound to specific PCR values, so that the keys are only released by the TPM when the system has booted through the expected sequence of measured components.</li>
-<li>A vTPM provides TPM functionality to a virtual machine via the hypervisor, allowing the guest OS to use BitLocker, Secure Boot, and remote attestation without dedicated physical hardware in the VM itself.</li>
-<li>Secure Boot is most effective when the firmware's Platform Key and Key Exchange Keys are enrolled from the hardware vendor and not replaceable without physical access, and when the <code>dbx</code> revocation list is kept current.</li>
-<li>A Trusted Platform Module is a hardware feature whose primary role is to restrict which physical memory regions DMA-capable peripherals such as Thunderbolt and FireWire devices are permitted to access, mitigating direct memory access attacks.</li>
-<li>TEMPEST refers to U.S. government standards addressing the risk of information leakage through unintentional electromagnetic emissions from computing equipment such as monitors, keyboards, processors, and cables.</li>
-<li>Regression testing is a release strategy in which a new application version is deployed to a small subset of users — typically around five percent — and monitored for anomalies before being rolled out more broadly.</li>
+<ol type="1">
+<li>Non-functional security requirements should be documented with
+testable acceptance criteria so that automated pipelines can verify
+them, rather than as vague aspirational statements like “the system must
+be secure.”</li>
+<li>Interactive Application Security Testing (IAST) detects
+vulnerabilities by sending malicious inputs against a running
+application from the outside without any access to source code or
+runtime instrumentation, in the same way an external attacker
+would.</li>
+<li>SAST analyzes source code, bytecode, or binaries without executing
+them, which is what allows it to run early and quickly in a CI pipeline
+before any test environment exists.</li>
+<li>A Hardware Security Module (HSM) is a chip soldered to the
+motherboard of an individual workstation or server whose primary purpose
+is to record cryptographic measurements of each boot component into
+Platform Configuration Registers for later remote attestation.</li>
+<li>Rowhammer is an attack in which a USB device’s microcontroller
+firmware is reprogrammed so that the device impersonates a keyboard and
+injects an attacker-supplied keystroke payload faster than a user can
+intervene.</li>
+<li>A Software Bill of Materials (SBoM) is a machine-readable inventory
+of every component in a software product, and organizations that
+maintained current SBoMs were able to identify their Log4Shell exposure
+in hours rather than weeks.</li>
+<li>Measured Boot is a UEFI feature that <em>blocks</em> unsigned or
+untrusted boot components from executing by checking each component’s
+signature against a database of authorized signing certificates before
+passing control to it.</li>
+<li>Software Composition Analysis (SCA) is a category of tools that
+examines the source code an organization writes for vulnerability
+patterns such as SQL injection, command injection, or use of deprecated
+cryptographic functions.</li>
+<li>Runtime Application Self-Protection (RASP) is an instrumentation
+approach used during testing in which an embedded agent observes the
+application as functional tests are executed and reports vulnerabilities
+with full data-flow context.</li>
+<li>A Self-Encrypting Drive supports cryptographic erasure, allowing an
+administrator to render all stored data permanently unreadable in
+milliseconds simply by destroying the drive’s internal encryption
+key.</li>
+<li>Formal methods are mathematical specification and verification
+techniques used primarily in high-assurance contexts such as
+cryptographic libraries, operating system kernels, hypervisors, and
+avionics control software.</li>
+<li>Typical branch protection rules in modern version-control platforms
+include requiring pull requests before merging, requiring a minimum
+number of reviewers, requiring CI status checks to pass, and requiring
+cryptographically signed commits.</li>
+<li>End-of-Life (EOL) refers to the date at which a vendor publishes the
+first stable release of a product and begins offering paid support
+contracts to new customers.</li>
+<li>A DMA attack is performed by physically removing DRAM modules from a
+recently powered-off machine, cooling the chips to extend data
+retention, and reading their residual contents to recover encryption
+keys and credentials.</li>
+<li>TPM sealing allows encryption keys to be bound to specific PCR
+values, so that the keys are only released by the TPM when the system
+has booted through the expected sequence of measured components.</li>
+<li>A vTPM provides TPM functionality to a virtual machine via the
+hypervisor, allowing the guest OS to use BitLocker, Secure Boot, and
+remote attestation without dedicated physical hardware in the VM
+itself.</li>
+<li>Secure Boot is most effective when the firmware’s Platform Key and
+Key Exchange Keys are enrolled from the hardware vendor and not
+replaceable without physical access, and when the <code>dbx</code>
+revocation list is kept current.</li>
+<li>A Trusted Platform Module is a hardware feature whose primary role
+is to restrict which physical memory regions DMA-capable peripherals
+such as Thunderbolt and FireWire devices are permitted to access,
+mitigating direct memory access attacks.</li>
+<li>TEMPEST refers to U.S. government standards addressing the risk of
+information leakage through unintentional electromagnetic emissions from
+computing equipment such as monitors, keyboards, processors, and
+cables.</li>
+<li>Regression testing is a release strategy in which a new application
+version is deployed to a small subset of users — typically around five
+percent — and monitored for anomalies before being rolled out more
+broadly.</li>
 </ol>
-<h4>Answer Key</h4>
-<ol>
-<li><strong>True.</strong> "The system must be secure" is not a requirement; testable, automatable acceptance criteria are.</li>
-<li><strong>False.</strong> The description fits <strong>DAST</strong>, not IAST. IAST uses an instrumentation agent embedded <em>inside</em> the running application during testing, which is what gives it full runtime context and lower false positives than the black-box approach described.</li>
-<li><strong>True.</strong> SAST is a static, pre-execution analysis — its speed and CI-friendliness are direct consequences of not needing a running system.</li>
-<li><strong>False.</strong> The description fits a <strong>TPM</strong>, not an HSM. TPMs are per-device chips that record boot measurements into PCRs and support attestation. An HSM is a tamper-resistant appliance for high-throughput enterprise cryptographic operations and master-key protection.</li>
-<li><strong>False.</strong> The description fits <strong>BadUSB / Rubber Ducky-style HID attacks</strong>. Rowhammer is a DRAM hardware vulnerability in which repeatedly accessing specific memory rows induces bit flips in adjacent rows, enabling privilege escalation through memory corruption.</li>
-<li><strong>True.</strong> SBoMs were the operational difference between a multi-day Log4Shell triage and a multi-week one.</li>
-<li><strong>False.</strong> The description fits <strong>Secure Boot</strong>, not Measured Boot. Measured Boot does not block components — it <em>records</em> a hash of each boot component into a TPM PCR so that a remote verifier can later attest to what actually executed during startup.</li>
-<li><strong>False.</strong> The description fits <strong>SAST</strong>. SCA tools inventory third-party and open-source dependencies in the dependency tree, match them against known-vulnerability databases, and identify license-compliance issues — they look at <em>what you depend on</em>, not at the source you wrote.</li>
-<li><strong>False.</strong> The description fits <strong>IAST</strong>. RASP runs in <em>production</em>, embedded inside the deployed application, and inspects function calls and data flows at runtime so it can block live attacks — it is not primarily a testing tool.</li>
-<li><strong>True.</strong> This is the headline operational benefit of SEDs implementing the TCG Opal standard.</li>
-<li><strong>True.</strong> Formal methods are practical only where the cost is justified by extremely high assurance requirements; the example domains listed are the standard ones.</li>
-<li><strong>True.</strong> All four are standard branch-protection capabilities on platforms like GitHub, GitLab, and Bitbucket.</li>
-<li><strong>False.</strong> The description fits <strong>General Availability (GA)</strong>, the <em>start</em> of the supported lifecycle. EOL is the <em>end</em> — the point at which the vendor stops issuing security patches and updates.</li>
-<li><strong>False.</strong> The description fits a <strong>cold boot attack</strong>. A DMA attack uses a DMA-capable peripheral (Thunderbolt, FireWire, certain PCIe devices) to read system memory directly while the system is running; the IOMMU is the standard mitigation.</li>
-<li><strong>True.</strong> Sealing PCR-bound keys is exactly what BitLocker uses to refuse to unlock the disk if the boot chain has been tampered with.</li>
-<li><strong>True.</strong> vTPMs extend TPM-dependent protections into virtualized environments without requiring physical hardware changes per VM.</li>
-<li><strong>True.</strong> Secure Boot's effectiveness depends on key provenance and on keeping the revocation list (<code>dbx</code>) up to date as bypasses are discovered.</li>
-<li><strong>False.</strong> The description fits the <strong>IOMMU (Input/Output Memory Management Unit)</strong>. A TPM stores keys, accumulates PCR measurements, and supports attestation — it does not gate peripheral DMA.</li>
-<li><strong>True.</strong> TEMPEST is the standard name for the emissions-security program and the associated shielding standards.</li>
-<li><strong>False.</strong> The description fits a <strong>canary deployment</strong>. Regression testing verifies that new code changes do not break previously working functionality, and is a <em>testing</em> practice rather than a release strategy.</li>
+<h4 id="answer-key">Answer Key</h4>
+<ol type="1">
+<li><strong>True.</strong> “The system must be secure” is not a
+requirement; testable, automatable acceptance criteria are.</li>
+<li><strong>False.</strong> The description fits <strong>DAST</strong>,
+not IAST. IAST uses an instrumentation agent embedded <em>inside</em>
+the running application during testing, which is what gives it full
+runtime context and lower false positives than the black-box approach
+described.</li>
+<li><strong>True.</strong> SAST is a static, pre-execution analysis —
+its speed and CI-friendliness are direct consequences of not needing a
+running system.</li>
+<li><strong>False.</strong> The description fits a <strong>TPM</strong>,
+not an HSM. TPMs are per-device chips that record boot measurements into
+PCRs and support attestation. An HSM is a tamper-resistant appliance for
+high-throughput enterprise cryptographic operations and master-key
+protection.</li>
+<li><strong>False.</strong> The description fits <strong>BadUSB / Rubber
+Ducky-style HID attacks</strong>. Rowhammer is a DRAM hardware
+vulnerability in which repeatedly accessing specific memory rows induces
+bit flips in adjacent rows, enabling privilege escalation through memory
+corruption.</li>
+<li><strong>True.</strong> SBoMs were the operational difference between
+a multi-day Log4Shell triage and a multi-week one.</li>
+<li><strong>False.</strong> The description fits <strong>Secure
+Boot</strong>, not Measured Boot. Measured Boot does not block
+components — it <em>records</em> a hash of each boot component into a
+TPM PCR so that a remote verifier can later attest to what actually
+executed during startup.</li>
+<li><strong>False.</strong> The description fits <strong>SAST</strong>.
+SCA tools inventory third-party and open-source dependencies in the
+dependency tree, match them against known-vulnerability databases, and
+identify license-compliance issues — they look at <em>what you depend
+on</em>, not at the source you wrote.</li>
+<li><strong>False.</strong> The description fits <strong>IAST</strong>.
+RASP runs in <em>production</em>, embedded inside the deployed
+application, and inspects function calls and data flows at runtime so it
+can block live attacks — it is not primarily a testing tool.</li>
+<li><strong>True.</strong> This is the headline operational benefit of
+SEDs implementing the TCG Opal standard.</li>
+<li><strong>True.</strong> Formal methods are practical only where the
+cost is justified by extremely high assurance requirements; the example
+domains listed are the standard ones.</li>
+<li><strong>True.</strong> All four are standard branch-protection
+capabilities on platforms like GitHub, GitLab, and Bitbucket.</li>
+<li><strong>False.</strong> The description fits <strong>General
+Availability (GA)</strong>, the <em>start</em> of the supported
+lifecycle. EOL is the <em>end</em> — the point at which the vendor stops
+issuing security patches and updates.</li>
+<li><strong>False.</strong> The description fits a <strong>cold boot
+attack</strong>. A DMA attack uses a DMA-capable peripheral
+(Thunderbolt, FireWire, certain PCIe devices) to read system memory
+directly while the system is running; the IOMMU is the standard
+mitigation.</li>
+<li><strong>True.</strong> Sealing PCR-bound keys is exactly what
+BitLocker uses to refuse to unlock the disk if the boot chain has been
+tampered with.</li>
+<li><strong>True.</strong> vTPMs extend TPM-dependent protections into
+virtualized environments without requiring physical hardware changes per
+VM.</li>
+<li><strong>True.</strong> Secure Boot’s effectiveness depends on key
+provenance and on keeping the revocation list (<code>dbx</code>) up to
+date as bypasses are discovered.</li>
+<li><strong>False.</strong> The description fits the <strong>IOMMU
+(Input/Output Memory Management Unit)</strong>. A TPM stores keys,
+accumulates PCR measurements, and supports attestation — it does not
+gate peripheral DMA.</li>
+<li><strong>True.</strong> TEMPEST is the standard name for the
+emissions-security program and the associated shielding standards.</li>
+<li><strong>False.</strong> The description fits a <strong>canary
+deployment</strong>. Regression testing verifies that new code changes
+do not break previously working functionality, and is a <em>testing</em>
+practice rather than a release strategy.</li>
 </ol>
+
         </main>
     </div>
 </body>

@@ -1,12 +1,14 @@
 import os
 import re
-import markdown
+import shutil
+import subprocess
 from pathlib import Path
 
 # Setup directories
 ROOT_DIR = Path(__file__).parent.parent.parent
 SRC_DIR = ROOT_DIR / "src" / "chapters"
 DOCS_DIR = ROOT_DIR / "docs" / "chapters"
+BIBLIOGRAPHY_FILE = ROOT_DIR / "refs.bib"
 
 # Ensure output directory exists
 DOCS_DIR.mkdir(parents=True, exist_ok=True)
@@ -23,11 +25,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
             <a href="../index.html" class="back-link">Table of Contents</a>
         </header>
-        <main>
+        <main id="main">
             {content}
         </main>
     </div>
@@ -91,6 +94,26 @@ def relax_list_formatting(text):
         
     return '\n'.join(new_lines)
 
+_THEAD_RE = re.compile(r"<thead\b[^>]*>(.*?)</thead>", re.IGNORECASE | re.DOTALL)
+_TH_RE = re.compile(r"<th\b([^>]*)>", re.IGNORECASE)
+
+
+def add_table_header_scopes(html_content):
+    """Add scope='col' to every <th> inside a <thead> so screen readers
+    re-announce the column header as the user navigates down a column
+    (WCAG 1.3.1). Idempotent."""
+    def patch_th(match):
+        attrs = match.group(1)
+        if re.search(r"\bscope\s*=", attrs, re.IGNORECASE):
+            return match.group(0)
+        return f'<th scope="col"{attrs}>'
+
+    def patch_thead(match):
+        return f"<thead>{_TH_RE.sub(patch_th, match.group(1))}</thead>"
+
+    return _THEAD_RE.sub(patch_thead, html_content)
+
+
 def separate_adjacent_callouts(text):
     """
     Inserts a blank line before a new markdown callout blockquote tag when it
@@ -110,17 +133,53 @@ def separate_adjacent_callouts(text):
 
     return '\n'.join(new_lines)
 
+def compile_markdown_to_html(text):
+    """
+    Render Markdown to HTML with Pandoc citeproc so citations and the
+    bibliography are resolved at build time with no client-side JavaScript.
+    """
+    pandoc_path = shutil.which('pandoc')
+    if pandoc_path is None:
+        raise RuntimeError(
+            'Pandoc is required to build chapter HTML because citations are rendered '
+            'statically at build time. Install Pandoc and ensure it is on PATH.'
+        )
+
+    if not BIBLIOGRAPHY_FILE.exists():
+        raise RuntimeError(f'Missing bibliography file: {BIBLIOGRAPHY_FILE}')
+
+    result = subprocess.run(
+        [
+            pandoc_path,
+            '--from=markdown+smart+citations+pipe_tables+fenced_code_blocks',
+            '--to=html5',
+            '--citeproc',
+            f'--bibliography={BIBLIOGRAPHY_FILE}',
+            '-M',
+            'link-citations=true',
+            '-M',
+            'reference-section-title=References',
+        ],
+        input=text,
+        text=True,
+        encoding='utf-8',
+        capture_output=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or 'Pandoc failed without stderr output.')
+
+    return result.stdout
+
 def build():
     print(f"Building chapters from {SRC_DIR} to {DOCS_DIR}...")
-    
-    # Optional: support for tables and fenced code blocks
-    md = markdown.Markdown(extensions=['tables', 'fenced_code'])
     
     if not SRC_DIR.exists():
         print("No source chapters found. Exiting.")
         return
 
-    for md_file in SRC_DIR.glob('*.md'):
+    for md_file in sorted(SRC_DIR.glob('*.md')):
         with open(md_file, 'r', encoding='utf-8') as f:
             text = f.read()
             
@@ -134,11 +193,12 @@ def build():
         text = relax_list_formatting(text)
         text = separate_adjacent_callouts(text)
             
-        # Convert to HTML
-        raw_html = md.convert(text)
+        # Convert to HTML with static citation support.
+        raw_html = compile_markdown_to_html(text)
         
         # Inject our premium callout classes
         processed_html = inject_callout_classes(raw_html)
+        processed_html = add_table_header_scopes(processed_html)
         
         # Wrap in template
         final_html = HTML_TEMPLATE.format(title=title, content=processed_html)

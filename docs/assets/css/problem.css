@@ -30,7 +30,9 @@ select.cloze-select {
   display: inline-block;
   background-color: var(--surface-color);
   color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Bumped from 0.2 → 0.45 alpha so the field perimeter meets WCAG 1.4.11
+     (3:1 non-text contrast) against the surface color. */
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 4px;
   padding: 0.2rem 0.4rem;
   font-family: var(--font-sans);
@@ -41,7 +43,9 @@ select.cloze-select {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-select.cloze-select:focus {
+/* Mouse focus keeps the cyan glow; keyboard focus uses the global
+   :focus-visible yellow ring from style.css for stronger contrast. */
+select.cloze-select:focus:not(:focus-visible) {
   outline: none;
   border-color: var(--accent-cyan);
   box-shadow: 0 0 0 2px var(--accent-cyan-glow);

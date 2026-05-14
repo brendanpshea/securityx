@@ -10,11 +10,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
             <a href="index.html" class="back-link">Table of Contents</a>
         </header>
-        <main>
+        <main id="main">
             <h1>Accessibility Statement</h1>
             <p><em>CompTIA SecurityX (CAS-005) Textbook</em></p>
             <p>We want this textbook to work for everyone preparing for the SecurityX exam, including learners who use screen readers, keyboard navigation, screen magnifiers, or other assistive technology. This page summarizes the accessibility features in place, the standard we aim for, the known gaps we are still working on, and how to report problems.</p>
@@ -24,10 +25,15 @@
 
             <h2>What Is in Place</h2>
             <ul>
-                <li><strong>Semantic structure.</strong> Each chapter uses a single <code>&lt;h1&gt;</code>, properly nested <code>&lt;h2&gt;</code>/<code>&lt;h3&gt;</code> headings, and ordered/unordered lists, so screen readers and reader-mode tools can navigate the document outline.</li>
+                <li><strong>Semantic structure.</strong> Each chapter uses a single <code>&lt;h1&gt;</code>, properly nested <code>&lt;h2&gt;</code>/<code>&lt;h3&gt;</code> headings, ordered/unordered lists, and a single <code>&lt;main id="main"&gt;</code> landmark, so screen readers and reader-mode tools can navigate the document outline.</li>
+                <li><strong>Skip link.</strong> Every page begins with a "Skip to content" link that becomes visible on first Tab. Keyboard users can jump past the header on every page.</li>
+                <li><strong>Visible focus indicator.</strong> A high-contrast yellow focus ring (~12:1 against the page background) appears on every keyboard-focused link, button, and form control. Browser default outlines are not suppressed.</li>
+                <li><strong>Table column headers.</strong> Every <code>&lt;th&gt;</code> in a table header row carries <code>scope="col"</code>, so screen readers in table-navigation mode re-announce the column name as the user arrows down a column.</li>
                 <li><strong>Descriptive alt text.</strong> Every figure in chapters 1&ndash;12 has an alt attribute that describes what the diagram shows &mdash; not just its title &mdash; so the educational content is available to screen-reader users. Figures with on-page captions (<em>Figure X.Y: &hellip;</em>) duplicate the caption text into the alt attribute on purpose.</li>
                 <li><strong>Text-first content.</strong> All concepts, case studies, key points, and warnings are presented as text. Figures reinforce the prose but no exam-relevant content is image-only.</li>
-                <li><strong>Keyboard navigation.</strong> Every link, including the practice-problem inputs, is reachable and operable from the keyboard. There are no custom interactive controls that bypass the browser&rsquo;s focus model.</li>
+                <li><strong>Keyboard navigation.</strong> Every link, button, and form control is reachable and operable from the keyboard. There are no custom interactive controls that bypass the browser&rsquo;s focus model.</li>
+                <li><strong>Practice-problem feedback.</strong> When you check answers on a cloze exercise, the score is announced through an <code>aria-live</code> status region, incorrect answers are marked with <code>aria-invalid="true"</code>, and each blank carries an <code>aria-label</code> identifying its position ("Answer 3 of 7"). Color is paired with text labels in the explanation panel so the green &#x2713; / red &#x2717; is not the only signal.</li>
+                <li><strong>Reduced motion.</strong> The site honors <code>prefers-reduced-motion</code>. Hover transforms, transitions, and animations collapse to near-zero duration for users who request that preference.</li>
                 <li><strong>Color is not the only signal.</strong> Callout boxes (Case Study, Warning, Key Point, Thought Question, Example) all carry a visible text label in addition to their color treatment.</li>
                 <li><strong>Resizable text.</strong> The stylesheet uses relative units, so browser zoom and OS-level text-size settings scale the content without breaking layout up to 200%.</li>
                 <li><strong>Language declared.</strong> Every page declares <code>lang="en"</code> so assistive tech selects the correct pronunciation.</li>
@@ -36,9 +42,8 @@
             <h2>Known Limitations</h2>
             <ul>
                 <li><strong>Generated diagrams.</strong> Figures are rendered as PNG. The alt text conveys the concept, but the underlying matplotlib source (in <code>src/scripts/generate_figures_chXX.py</code>) is not yet exposed as SVG with <code>&lt;title&gt;</code>/<code>&lt;desc&gt;</code> elements. SVG with structured descriptions is on the roadmap.</li>
-                <li><strong>Color contrast in dark theme.</strong> The site uses a dark-mode-first palette. Most text/background pairs meet AA, but a small number of accent colors used inside callout titles approach the 4.5:1 floor. If you encounter a specific combination that is hard to read, please report it &mdash; it is faster for us to fix a real example than to re-audit the whole palette.</li>
-                <li><strong>Practice-problem feedback.</strong> The cloze-style problems give visual cues (green/red borders) when an answer is checked. A screen-reader-friendly status announcement (via <code>aria-live</code>) is planned but not yet implemented.</li>
-                <li><strong>No transcripts for figures.</strong> A small number of complex figures (e.g., the Cyber Kill Chain, the AI/ML pipeline) would benefit from a long-description <code>&lt;details&gt;</code> block in addition to the alt text. This will roll out as the figures are migrated to SVG.</li>
+                <li><strong>Color contrast in dark theme.</strong> The site uses a dark-mode-first palette. Body text, accent links, and primary buttons all pass AA against their backgrounds, but the palette has not been independently re-measured against WCAG 2.1 since the last theme adjustment. If you encounter a specific combination that is hard to read, please report it.</li>
+                <li><strong>No transcripts for figures.</strong> A small number of complex figures (e.g., the Cyber Kill Chain, the AI/ML pipeline) would benefit from a long-description <code>&lt;details&gt;</code> block in addition to the alt text. This is on the roadmap.</li>
             </ul>
 
             <h2>Reporting an Issue</h2>

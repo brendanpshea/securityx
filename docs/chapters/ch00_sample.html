@@ -10,54 +10,80 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
             <a href="../index.html" class="back-link">Table of Contents</a>
         </header>
-        <main>
-            <h1>Chapter 0: The Architecture of Wonder</h1>
+        <main id="main">
+            <h1 id="chapter-0-the-architecture-of-wonder">Chapter 0: The
+Architecture of Wonder</h1>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
-<li><strong>Identify</strong> the core components of a secure cloud infrastructure.</li>
+<li><strong>Identify</strong> the core components of a secure cloud
+infrastructure.</li>
 <li><strong>Explain</strong> the mechanics of an SSRF attack.</li>
 </ul>
-<h2>Introduction</h2>
-<p>Security is not just about building walls; it's about understanding how the pieces fit together. In this sample chapter, we will explore the formatting and aesthetic elements that make up our premium textbook experience.</p>
+<h2 id="introduction">Introduction</h2>
+<p>Security is not just about building walls; it’s about understanding
+how the pieces fit together. In this sample chapter, we will explore the
+formatting and aesthetic elements that make up our premium textbook
+experience.</p>
 <hr />
-<h2>What Does a Modern Architecture Look Like?</h2>
-<p>A modern architecture relies heavily on dynamic scaling and identity management. By leveraging APIs, microservices can communicate seamlessly.</p>
+<h2 id="what-does-a-modern-architecture-look-like">What Does a Modern
+Architecture Look Like?</h2>
+<p>A modern architecture relies heavily on dynamic scaling and identity
+management. By leveraging APIs, microservices can communicate
+seamlessly.</p>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong> 
-An API Gateway acts as the single point of entry for all clients, handling routing, composition, and translation.</p>
+<p><strong class="callout-title">Key Point</strong> An API Gateway acts as the single point
+of entry for all clients, handling routing, composition, and
+translation.</p>
 </blockquote>
-<h3>The Role of IAM</h3>
-<p>Identity and Access Management (IAM) is the cornerstone of cloud security. If you lose control of your identities, you lose control of your data.</p>
+<h3 id="the-role-of-iam">The Role of IAM</h3>
+<p>Identity and Access Management (IAM) is the cornerstone of cloud
+security. If you lose control of your identities, you lose control of
+your data.</p>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong> 
-Never hardcode AWS Access Keys into your source code. If committed to a public repository, attackers will scrape and exploit them within seconds.</p>
+<p><strong class="callout-title">Warning</strong> Never hardcode AWS Access Keys into your
+source code. If committed to a public repository, attackers will scrape
+and exploit them within seconds.</p>
 </blockquote>
 <hr />
-<h2>How Do Attackers Exploit Architecture?</h2>
-<p>Consider a scenario where a Web Application Firewall (WAF) is misconfigured to blindly trust internal traffic.</p>
+<h2 id="how-do-attackers-exploit-architecture">How Do Attackers Exploit
+Architecture?</h2>
+<p>Consider a scenario where a Web Application Firewall (WAF) is
+misconfigured to blindly trust internal traffic.</p>
 <blockquote class="callout-case-study">
-<p><strong class="callout-title">Case Study</strong> 
-<strong>The Capital One AWS Breach</strong>
-In 2019, an attacker exploited a misconfigured open-source WAF to perform a Server-Side Request Forgery (SSRF) attack. The WAF, acting with high-privilege IAM roles, queried the AWS metadata service and returned temporary credentials to the attacker. This resulted in the theft of data belonging to over 100 million customers. </p>
+<p><strong class="callout-title">Case Study</strong> <strong>The Capital One AWS
+Breach</strong> In 2019, an attacker exploited a misconfigured
+open-source WAF to perform a Server-Side Request Forgery (SSRF) attack.
+The WAF, acting with high-privilege IAM roles, queried the AWS metadata
+service and returned temporary credentials to the attacker. This
+resulted in the theft of data belonging to over 100 million
+customers.</p>
 </blockquote>
 <!-- -->
-
 <blockquote class="callout-thought">
-<p><strong class="callout-title">Thought Question</strong>
-How would implementing Zero Trust principles have mitigated the impact of the SSRF vulnerability in the Capital One breach?</p>
+<p><strong class="callout-title">Thought Question</strong> How would implementing Zero Trust
+principles have mitigated the impact of the SSRF vulnerability in the
+Capital One breach?</p>
 </blockquote>
 <hr />
-<h2>Chapter Review and Conclusion</h2>
-<p>Understanding the interconnected nature of cloud resources is essential. A single misconfiguration can lead to catastrophic data loss.</p>
-<h3>Key Terms Review</h3>
+<h2 id="chapter-review-and-conclusion">Chapter Review and
+Conclusion</h2>
+<p>Understanding the interconnected nature of cloud resources is
+essential. A single misconfiguration can lead to catastrophic data
+loss.</p>
+<h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
-<li><strong>SSRF</strong>: Server-Side Request Forgery, an attack where an application is coerced into making unauthorized requests on behalf of the attacker.</li>
-<li><strong>IAM</strong>: Identity and Access Management, the framework of policies and technologies ensuring proper resource access.</li>
+<li><strong>SSRF</strong>: Server-Side Request Forgery, an attack where
+an application is coerced into making unauthorized requests on behalf of
+the attacker.</li>
+<li><strong>IAM</strong>: Identity and Access Management, the framework
+of policies and technologies ensuring proper resource access.</li>
 </ul>
+
         </main>
     </div>
 </body>

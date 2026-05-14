@@ -10,433 +10,973 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
             <a href="../index.html" class="back-link">Table of Contents</a>
         </header>
-        <main>
-            <h1>Chapter 10: Securing Specialized, OT, and Legacy Systems</h1>
+        <main id="main">
+            <h1 id="chapter-10-securing-specialized-ot-and-legacy-systems">Chapter
+10: Securing Specialized, OT, and Legacy Systems</h1>
 <p><strong>Aligned SecurityX Objectives:</strong></p>
 <ul>
-<li><strong>1.3:</strong> Explain how compliance affects information security strategies.</li>
-<li><strong>3.5:</strong> Given a set of requirements, secure specialized and legacy systems against threats.</li>
+<li><strong>1.3:</strong> Explain how compliance affects information
+security strategies.</li>
+<li><strong>3.5:</strong> Given a set of requirements, secure
+specialized and legacy systems against threats.</li>
 </ul>
-<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch10-chopper-ot-segmentation.html">Nick Chopper Segments the Yellow Brick Plant Floor</a></p>
+<p><strong>Cloze Problem Set:</strong> <a
+href="https://brendanpshea.github.io/securityx/problems/ch10-chopper-ot-segmentation.html">Nick
+Chopper Segments the Yellow Brick Plant Floor</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
-<li><strong>Analyze</strong> the security requirements of Operational Technology (OT), including SCADA, ICS, and HVAC systems.</li>
-<li><strong>Design</strong> security controls for Internet of Things (IoT), System-on-Chip (SoC), and embedded systems.</li>
-<li><strong>Implement</strong> security measures for wireless and radio frequency (RF) technologies.</li>
-<li><strong>Formulate</strong> segmentation, monitoring, and hardening strategies for highly constrained environments.</li>
-<li><strong>Evaluate</strong> industry-specific challenges in securing specialized systems (Utilities, Healthcare, Manufacturing).</li>
-<li><strong>Design</strong> compensating controls for obsolete, unsupported, and legacy systems.</li>
-<li><strong>Assess</strong> the environmental, regulatory, and safety implications of securing OT and legacy infrastructure.</li>
+<li><strong>Analyze</strong> the security requirements of Operational
+Technology (OT), including SCADA, ICS, and HVAC systems.</li>
+<li><strong>Design</strong> security controls for Internet of Things
+(IoT), System-on-Chip (SoC), and embedded systems.</li>
+<li><strong>Implement</strong> security measures for wireless and radio
+frequency (RF) technologies.</li>
+<li><strong>Formulate</strong> segmentation, monitoring, and hardening
+strategies for highly constrained environments.</li>
+<li><strong>Evaluate</strong> industry-specific challenges in securing
+specialized systems (Utilities, Healthcare, Manufacturing).</li>
+<li><strong>Design</strong> compensating controls for obsolete,
+unsupported, and legacy systems.</li>
+<li><strong>Assess</strong> the environmental, regulatory, and safety
+implications of securing OT and legacy infrastructure.</li>
 </ul>
-<h2>Introduction</h2>
-<p>The systems in this chapter were not designed for the threat model of the modern internet. A programmable logic controller running on the floor of a manufacturing plant may have been commissioned in 1998 and is still doing exactly the job it was bought to do. A water utility's SCADA system was assumed to be air-gapped — until somebody added a remote-access tool during the pandemic and forgot to remove it. An insulin pump's firmware was certified by a regulator on the implicit assumption that it would not be on a public network. A wireless security camera installed by a building-services contractor still runs the firmware it shipped with five years ago.</p>
-<p>Each of these systems carries constraints that ordinary IT controls cannot easily accommodate. Some cannot be patched without recertification. Some run on processors with no room for an EDR agent. Some control physical processes where a wrong instruction kills people. Some communicate over RF or proprietary fieldbuses that traditional network defenses cannot inspect.</p>
-<p>This chapter is about the security architecture that <em>can</em> protect these systems: layered segmentation that puts strong boundaries between IT and OT; hardening and monitoring tuned to constrained devices; industry-specific frameworks (NERC CIP, HIPAA, IEC 62443) that codify the expectations; and the discipline of <strong>compensating controls</strong> — protections you add around a system precisely because the system itself cannot be made directly secure.</p>
+<h2 id="introduction">Introduction</h2>
+<p>The systems in this chapter were not designed for the threat model of
+the modern internet. A programmable logic controller running on the
+floor of a manufacturing plant may have been commissioned in 1998 and is
+still doing exactly the job it was bought to do. A water utility’s SCADA
+system was assumed to be air-gapped — until somebody added a
+remote-access tool during the pandemic and forgot to remove it. An
+insulin pump’s firmware was certified by a regulator on the implicit
+assumption that it would not be on a public network. A wireless security
+camera installed by a building-services contractor still runs the
+firmware it shipped with five years ago.</p>
+<p>Each of these systems carries constraints that ordinary IT controls
+cannot easily accommodate. Some cannot be patched without
+recertification. Some run on processors with no room for an EDR agent.
+Some control physical processes where a wrong instruction kills people.
+Some communicate over RF or proprietary fieldbuses that traditional
+network defenses cannot inspect.</p>
+<p>This chapter is about the security architecture that <em>can</em>
+protect these systems: layered segmentation that puts strong boundaries
+between IT and OT; hardening and monitoring tuned to constrained
+devices; industry-specific frameworks (NERC CIP, HIPAA, IEC 62443) that
+codify the expectations; and the discipline of <strong>compensating
+controls</strong> — protections you add around a system precisely
+because the system itself cannot be made directly secure.</p>
 <hr />
-<h2>How is OT Different from IT?</h2>
-<p><strong>Operational Technology (OT)</strong> is the hardware and software that monitors and controls physical processes — turbines, valves, conveyors, traffic lights, building HVAC, hospital infusion pumps, refinery cracking towers. Its priorities, constraints, and threat model are systematically different from those of corporate IT, and applying IT thinking unmodified to OT is a recipe for both bad security and bad operational outcomes.</p>
-<h3>SCADA, ICS, and HVAC Systems</h3>
+<h2 id="how-is-ot-different-from-it">How is OT Different from IT?</h2>
+<p><strong>Operational Technology (OT)</strong> is the hardware and
+software that monitors and controls physical processes — turbines,
+valves, conveyors, traffic lights, building HVAC, hospital infusion
+pumps, refinery cracking towers. Its priorities, constraints, and threat
+model are systematically different from those of corporate IT, and
+applying IT thinking unmodified to OT is a recipe for both bad security
+and bad operational outcomes.</p>
+<h3 id="scada-ics-and-hvac-systems">SCADA, ICS, and HVAC Systems</h3>
 <p>A few terms get used loosely; pinning them down matters.</p>
 <ul>
-<li><strong>Industrial Control System (ICS)</strong> is the umbrella category for any system that monitors or controls physical processes.</li>
-<li><strong>SCADA (Supervisory Control and Data Acquisition)</strong> is a specific style of ICS architecture in which a central server collects telemetry from geographically distributed remote sites — typical of utilities, pipelines, and water treatment.</li>
-<li><strong>DCS (Distributed Control System)</strong> is an ICS architecture in which control is distributed across many processors within a single facility — typical of refineries, chemical plants, and power generation.</li>
-<li><strong>PLC (Programmable Logic Controller)</strong> is the workhorse small computer that reads sensor inputs, runs a control program, and drives outputs — usually to actuators. Allen-Bradley, Siemens, Schneider, and Mitsubishi dominate the market.</li>
-<li><strong>RTU (Remote Terminal Unit)</strong> is similar to a PLC but optimized for remote / field deployment, often with cellular or radio connectivity.</li>
-<li><strong>HMI (Human-Machine Interface)</strong> is the operator's window into the process — graphical screens, alarms, manual control.</li>
-<li><strong>Historian</strong> is the time-series database that records every measured tag for compliance, troubleshooting, and analytics.</li>
-<li><strong>HVAC, Building Management Systems (BMS), and physical access control systems</strong> are OT in everything but name. They run on the same constrained processors, speak the same kinds of fieldbus protocols, and are connected to the same corporate networks — but are typically owned by Facilities, not IT.</li>
+<li><strong>Industrial Control System (ICS)</strong> is the umbrella
+category for any system that monitors or controls physical
+processes.</li>
+<li><strong>SCADA (Supervisory Control and Data Acquisition)</strong> is
+a specific style of ICS architecture in which a central server collects
+telemetry from geographically distributed remote sites — typical of
+utilities, pipelines, and water treatment.</li>
+<li><strong>DCS (Distributed Control System)</strong> is an ICS
+architecture in which control is distributed across many processors
+within a single facility — typical of refineries, chemical plants, and
+power generation.</li>
+<li><strong>PLC (Programmable Logic Controller)</strong> is the
+workhorse small computer that reads sensor inputs, runs a control
+program, and drives outputs — usually to actuators. Allen-Bradley,
+Siemens, Schneider, and Mitsubishi dominate the market.</li>
+<li><strong>RTU (Remote Terminal Unit)</strong> is similar to a PLC but
+optimized for remote / field deployment, often with cellular or radio
+connectivity.</li>
+<li><strong>HMI (Human-Machine Interface)</strong> is the operator’s
+window into the process — graphical screens, alarms, manual
+control.</li>
+<li><strong>Historian</strong> is the time-series database that records
+every measured tag for compliance, troubleshooting, and analytics.</li>
+<li><strong>HVAC, Building Management Systems (BMS), and physical access
+control systems</strong> are OT in everything but name. They run on the
+same constrained processors, speak the same kinds of fieldbus protocols,
+and are connected to the same corporate networks — but are typically
+owned by Facilities, not IT.</li>
 </ul>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>Following a sensor reading from Level 0 to the historian</em></p>
-<p>At a natural gas compression station, a pressure transducer on a pipe junction sits at <strong>Level 0</strong>. Every two seconds, the transducer's analog signal is read by a <strong>PLC</strong> at <strong>Level 1</strong>. The PLC runs its control logic locally: if pressure exceeds the setpoint, close the control valve; if below, open it.</p>
-<p>The PLC also reports measured values to a <strong>SCADA server at Level 2</strong>, which aggregates readings from all PLCs in the facility, runs supervisory logic, and drives the operator's <strong>HMI</strong> screen. The operator watches a live process graphic; alarms appear when values stray outside bounds.</p>
-<p>The SCADA server forwards a summary to the <strong>Level 3 historian</strong>, which records every tag at one-second resolution for compliance reporting and troubleshooting. An OT firewall sits between Level 3 and the <strong>corporate IT network at Levels 4/5</strong>. The historian can push data <em>outbound</em> to a reporting server on the IT side — but the IT network cannot initiate connections <em>inbound</em> into the OT environment.</p>
-<p>The security architect's job is to ensure that boundary holds: telemetry aggregates up the Purdue levels, control stays local, and anything compromised on the IT side cannot reach the PLCs at Level 1.</p>
+<p>At a natural gas compression station, a pressure transducer on a pipe
+junction sits at <strong>Level 0</strong>. Every two seconds, the
+transducer’s analog signal is read by a <strong>PLC</strong> at
+<strong>Level 1</strong>. The PLC runs its control logic locally: if
+pressure exceeds the setpoint, close the control valve; if below, open
+it.</p>
+<p>The PLC also reports measured values to a <strong>SCADA server at
+Level 2</strong>, which aggregates readings from all PLCs in the
+facility, runs supervisory logic, and drives the operator’s
+<strong>HMI</strong> screen. The operator watches a live process
+graphic; alarms appear when values stray outside bounds.</p>
+<p>The SCADA server forwards a summary to the <strong>Level 3
+historian</strong>, which records every tag at one-second resolution for
+compliance reporting and troubleshooting. An OT firewall sits between
+Level 3 and the <strong>corporate IT network at Levels 4/5</strong>. The
+historian can push data <em>outbound</em> to a reporting server on the
+IT side — but the IT network cannot initiate connections
+<em>inbound</em> into the OT environment.</p>
+<p>The security architect’s job is to ensure that boundary holds:
+telemetry aggregates up the Purdue levels, control stays local, and
+anything compromised on the IT side cannot reach the PLCs at Level
+1.</p>
 </blockquote>
-<h3>Safety and Environmental Constraints</h3>
-<p>The single most important fact about OT is that the priorities are inverted. In IT, the canonical CIA triad is <strong>Confidentiality → Integrity → Availability</strong>. In OT it is closer to <strong>Safety → Availability → Integrity → Confidentiality</strong>, with safety as a gating concern that supersedes everything else. A false-positive IT block on an email is annoying. A false-positive OT block on a control message can kill someone or trigger an environmental release.</p>
+<h3 id="safety-and-environmental-constraints">Safety and Environmental
+Constraints</h3>
+<p>The single most important fact about OT is that the priorities are
+inverted. In IT, the canonical CIA triad is <strong>Confidentiality →
+Integrity → Availability</strong>. In OT it is closer to <strong>Safety
+→ Availability → Integrity → Confidentiality</strong>, with safety as a
+gating concern that supersedes everything else. A false-positive IT
+block on an email is annoying. A false-positive OT block on a control
+message can kill someone or trigger an environmental release.</p>
 <p>This inversion has practical consequences:</p>
 <ul>
-<li><strong>Patching is rare and scheduled.</strong> Production lines and turbines run for months between maintenance windows. A patch that requires a reboot may have to wait six months.</li>
-<li><strong>Active scanning is dangerous.</strong> A network scanner sending unexpected packets to a 25-year-old PLC has a credible chance of crashing it. Discovery in OT relies on <strong>passive monitoring</strong> (Claroty, Nozomi Networks, Dragos) that listens to the wire without injecting traffic.</li>
-<li><strong>Authentication is often weak by design.</strong> Many fieldbus protocols (Modbus, DNP3, EtherNet/IP, S7) were specified before authentication was considered necessary. Anyone on the OT network who can reach a PLC can usually issue commands to it.</li>
-<li><strong>Lifetimes are measured in decades.</strong> A 1998 PLC running today is normal. Replacing it requires regulatory recertification, downtime, and a capital project.</li>
-<li><strong>Compliance and safety regulators outrank the CISO.</strong> A change to a safety-related control system may require sign-off from process safety engineers, regulatory bodies, and external auditors — not just IT security.</li>
+<li><strong>Patching is rare and scheduled.</strong> Production lines
+and turbines run for months between maintenance windows. A patch that
+requires a reboot may have to wait six months.</li>
+<li><strong>Active scanning is dangerous.</strong> A network scanner
+sending unexpected packets to a 25-year-old PLC has a credible chance of
+crashing it. Discovery in OT relies on <strong>passive
+monitoring</strong> (Claroty, Nozomi Networks, Dragos) that listens to
+the wire without injecting traffic.</li>
+<li><strong>Authentication is often weak by design.</strong> Many
+fieldbus protocols (Modbus, DNP3, EtherNet/IP, S7) were specified before
+authentication was considered necessary. Anyone on the OT network who
+can reach a PLC can usually issue commands to it.</li>
+<li><strong>Lifetimes are measured in decades.</strong> A 1998 PLC
+running today is normal. Replacing it requires regulatory
+recertification, downtime, and a capital project.</li>
+<li><strong>Compliance and safety regulators outrank the CISO.</strong>
+A change to a safety-related control system may require sign-off from
+process safety engineers, regulatory bodies, and external auditors — not
+just IT security.</li>
 </ul>
 <table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
 <thead>
 <tr>
-<th style="text-align: left;">Property</th>
-<th style="text-align: left;">Traditional IT</th>
-<th style="text-align: left;">Operational Technology (OT)</th>
-<th style="text-align: left;">IoT</th>
+<th scope="col" style="text-align: left;">Property</th>
+<th scope="col" style="text-align: left;">Traditional IT</th>
+<th scope="col" style="text-align: left;">Operational Technology (OT)</th>
+<th scope="col" style="text-align: left;">IoT</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Top priority</td>
+<th scope="row" style="text-align: left;">Top priority</th>
 <td style="text-align: left;">Confidentiality</td>
 <td style="text-align: left;">Safety, then availability</td>
 <td style="text-align: left;">Cost / time-to-market</td>
 </tr>
 <tr>
-<td style="text-align: left;">Asset lifetime</td>
+<th scope="row" style="text-align: left;">Asset lifetime</th>
 <td style="text-align: left;">3–5 years</td>
 <td style="text-align: left;">15–30 years</td>
 <td style="text-align: left;">2–10 years (often unsupported sooner)</td>
 </tr>
 <tr>
-<td style="text-align: left;">Patch cadence</td>
+<th scope="row" style="text-align: left;">Patch cadence</th>
 <td style="text-align: left;">Monthly / on demand</td>
 <td style="text-align: left;">Annual maintenance window</td>
 <td style="text-align: left;">Vendor-dependent, often never</td>
 </tr>
 <tr>
-<td style="text-align: left;">Active scanning</td>
+<th scope="row" style="text-align: left;">Active scanning</th>
 <td style="text-align: left;">Standard</td>
 <td style="text-align: left;">Risky — passive monitoring preferred</td>
 <td style="text-align: left;">Often crashes the device</td>
 </tr>
 <tr>
-<td style="text-align: left;">Authentication on protocol</td>
+<th scope="row" style="text-align: left;">Authentication on protocol</th>
 <td style="text-align: left;">Standard (TLS, Kerberos)</td>
 <td style="text-align: left;">Frequently absent (Modbus, DNP3)</td>
 <td style="text-align: left;">Frequently absent or weak</td>
 </tr>
 <tr>
-<td style="text-align: left;">Encryption</td>
+<th scope="row" style="text-align: left;">Encryption</th>
 <td style="text-align: left;">Default</td>
 <td style="text-align: left;">Often unsupported by legacy PLCs</td>
 <td style="text-align: left;">Often unsupported</td>
 </tr>
 <tr>
-<td style="text-align: left;">EDR / agents</td>
+<th scope="row" style="text-align: left;">EDR / agents</th>
 <td style="text-align: left;">Yes</td>
 <td style="text-align: left;">Rarely supported</td>
 <td style="text-align: left;">Almost never supported</td>
 </tr>
 <tr>
-<td style="text-align: left;">Connectivity</td>
+<th scope="row" style="text-align: left;">Connectivity</th>
 <td style="text-align: left;">Internet by default</td>
 <td style="text-align: left;">Air-gapped or DMZ-isolated</td>
 <td style="text-align: left;">Ubiquitous, often direct cloud</td>
 </tr>
 <tr>
-<td style="text-align: left;">Failure consequence</td>
+<th scope="row" style="text-align: left;">Failure consequence</th>
 <td style="text-align: left;">Data loss / outage</td>
-<td style="text-align: left;">Equipment damage, environmental release, injury</td>
+<td style="text-align: left;">Equipment damage, environmental release,
+injury</td>
 <td style="text-align: left;">Privacy violation, botnet enrollment</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>Table 10.1: IT, OT, and IoT operate under fundamentally different constraints. Security architecture has to respect those differences — IT controls applied unmodified to OT typically either break the process or fail to reduce risk.</em></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
 </tr>
 </tbody>
 </table>
+<p><em>Table 10.1: IT, OT, and IoT operate under fundamentally different
+constraints. Security architecture has to respect those differences — IT
+controls applied unmodified to OT typically either break the process or
+fail to reduce risk.</em></p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong></p>
 <p><em>Nick Chopper Air-Gaps the Yellow Brick Assembly Lines</em></p>
-<p>Nick Chopper, OT Engineer at <em>Yellow Brick Manufacturing</em>, walks the plant floor with the new CISO on her first day. Yellow Brick produces aluminum extrusions on six assembly lines, four of which date to a 1998 expansion. Each line is anchored by Allen-Bradley ControlLogix PLCs, Rockwell HMIs running on Windows XP industrial PCs, and a dozen smart sensors and drives connected over EtherNet/IP. There are no firewalls between these systems and the corporate IT network. There is, however, a single internet-facing remote-access PC that a vendor used to log in for support during the pandemic and that nobody has touched since.</p>
-<p>The CISO asks the obvious question: what is the worst case if someone ransomwares the plant floor tonight? Nick's answer: the lines stop, but more importantly, a wrong command to the extrusion press could send 800-degree-Celsius aluminum into the operator stations. Two operators have been seriously injured by lesser process upsets in the plant's history; the safety case is not theoretical.</p>
-<p>Nick's program over the next twelve months produces a textbook IT/OT segmentation, executed without disturbing production:</p>
-<ol>
-<li><strong>Network discovery via passive monitoring.</strong> Before changing anything, Nick deploys passive sensors at the existing core switch SPAN ports. After thirty days he has an asset inventory the plant has never had before — every PLC, every drive, every legacy serial-to-Ethernet bridge, every accidentally connected HVAC controller, and the previously forgotten remote-access PC.</li>
-<li><strong>Industrial DMZ.</strong> A dedicated firewall pair is installed between the corporate network and OT, with a small DMZ hosting a patch-distribution server, a jump host (PAM-managed, MFA-required, session-recorded), and a one-way historian replica. <strong>No direct connections</strong> between corporate and OT are permitted; everything that needs to cross goes through the DMZ.</li>
-<li><strong>Zone and conduit segmentation per IEC 62443.</strong> Each assembly line becomes its own OT zone with its own VLAN. Conduits between zones are explicitly enumerated. The forgotten internet-facing PC is removed entirely — vendor remote support now goes through the jump host on a scheduled, approved basis.</li>
-<li><strong>Endpoint hardening of the engineering workstations.</strong> The Windows XP industrial PCs cannot be upgraded without recertifying the line. Nick instead air-gaps them from the internet, deploys application allowlisting, removes USB write capability except by exception, and wraps them in network ACLs that allow only the protocols their controllers actually need.</li>
-<li><strong>Detection.</strong> The passive monitoring stays in production, feeding a SIEM with OT-specific rules — unexpected firmware writes, off-hours engineering connections, Modbus / EtherNet/IP traffic between lines that have no business talking to each other.</li>
+<p>Nick Chopper, OT Engineer at <em>Yellow Brick Manufacturing</em>,
+walks the plant floor with the new CISO on her first day. Yellow Brick
+produces aluminum extrusions on six assembly lines, four of which date
+to a 1998 expansion. Each line is anchored by Allen-Bradley ControlLogix
+PLCs, Rockwell HMIs running on Windows XP industrial PCs, and a dozen
+smart sensors and drives connected over EtherNet/IP. There are no
+firewalls between these systems and the corporate IT network. There is,
+however, a single internet-facing remote-access PC that a vendor used to
+log in for support during the pandemic and that nobody has touched
+since.</p>
+<p>The CISO asks the obvious question: what is the worst case if someone
+ransomwares the plant floor tonight? Nick’s answer: the lines stop, but
+more importantly, a wrong command to the extrusion press could send
+800-degree-Celsius aluminum into the operator stations. Two operators
+have been seriously injured by lesser process upsets in the plant’s
+history; the safety case is not theoretical.</p>
+<p>Nick’s program over the next twelve months produces a textbook IT/OT
+segmentation, executed without disturbing production:</p>
+<ol type="1">
+<li><strong>Network discovery via passive monitoring.</strong> Before
+changing anything, Nick deploys passive sensors at the existing core
+switch SPAN ports. After thirty days he has an asset inventory the plant
+has never had before — every PLC, every drive, every legacy
+serial-to-Ethernet bridge, every accidentally connected HVAC controller,
+and the previously forgotten remote-access PC.</li>
+<li><strong>Industrial DMZ.</strong> A dedicated firewall pair is
+installed between the corporate network and OT, with a small DMZ hosting
+a patch-distribution server, a jump host (PAM-managed, MFA-required,
+session-recorded), and a one-way historian replica. <strong>No direct
+connections</strong> between corporate and OT are permitted; everything
+that needs to cross goes through the DMZ.</li>
+<li><strong>Zone and conduit segmentation per IEC 62443.</strong> Each
+assembly line becomes its own OT zone with its own VLAN. Conduits
+between zones are explicitly enumerated. The forgotten internet-facing
+PC is removed entirely — vendor remote support now goes through the jump
+host on a scheduled, approved basis.</li>
+<li><strong>Endpoint hardening of the engineering workstations.</strong>
+The Windows XP industrial PCs cannot be upgraded without recertifying
+the line. Nick instead air-gaps them from the internet, deploys
+application allowlisting, removes USB write capability except by
+exception, and wraps them in network ACLs that allow only the protocols
+their controllers actually need.</li>
+<li><strong>Detection.</strong> The passive monitoring stays in
+production, feeding a SIEM with OT-specific rules — unexpected firmware
+writes, off-hours engineering connections, Modbus / EtherNet/IP traffic
+between lines that have no business talking to each other.</li>
 </ol>
-<p>Twelve months later, Yellow Brick has not had a production-impact incident, has passed its first formal IEC 62443 audit, and has a network diagram its insurance carrier is finally willing to accept. Nick reports two unexpected wins: the asset inventory turned up six PLCs nobody knew were on the network, and the jump host's session recording paid for itself the first time a vendor's remote technician made a configuration mistake — the recording let the team understand and reverse the change without an outage.</p>
+<p>Twelve months later, Yellow Brick has not had a production-impact
+incident, has passed its first formal IEC 62443 audit, and has a network
+diagram its insurance carrier is finally willing to accept. Nick reports
+two unexpected wins: the asset inventory turned up six PLCs nobody knew
+were on the network, and the jump host’s session recording paid for
+itself the first time a vendor’s remote technician made a configuration
+mistake — the recording let the team understand and reverse the change
+without an outage.</p>
 </blockquote>
 <hr />
-<h2>How Do We Secure IoT and Embedded Systems?</h2>
-<p>The <strong>Internet of Things (IoT)</strong> is the broad category of low-power, network-connected devices designed for specific purposes: smart thermostats, security cameras, industrial sensors, medical monitors, connected vehicles, building access readers, point-of-sale terminals. They share constraints — small CPUs, little memory, limited power, often no display — that rule out many ordinary security controls and create a distinctive threat model.</p>
-<h3>System-on-Chip (SoC) and RF Technologies</h3>
-<p>Most IoT devices are built around a <strong>System-on-Chip (SoC)</strong> — an integrated circuit combining CPU, memory, peripheral interfaces, radios, and often a small security coprocessor onto a single die. Common families include the Nordic nRF series, Espressif ESP32, NXP i.MX, and Qualcomm IoT chipsets. The security primitives the SoC ships with — secure boot, hardware key storage, true random number generators, optional secure enclaves — define the floor of what is achievable on the finished device. A device built on an SoC without secure boot cannot be retrofitted to have secure boot.</p>
-<p><strong>RF (Radio Frequency) technologies</strong> are the layer below the IP network for most IoT. The major families:</p>
+<h2 id="how-do-we-secure-iot-and-embedded-systems">How Do We Secure IoT
+and Embedded Systems?</h2>
+<p>The <strong>Internet of Things (IoT)</strong> is the broad category
+of low-power, network-connected devices designed for specific purposes:
+smart thermostats, security cameras, industrial sensors, medical
+monitors, connected vehicles, building access readers, point-of-sale
+terminals. They share constraints — small CPUs, little memory, limited
+power, often no display — that rule out many ordinary security controls
+and create a distinctive threat model.</p>
+<h3 id="system-on-chip-soc-and-rf-technologies">System-on-Chip (SoC) and
+RF Technologies</h3>
+<p>Most IoT devices are built around a <strong>System-on-Chip
+(SoC)</strong> — an integrated circuit combining CPU, memory, peripheral
+interfaces, radios, and often a small security coprocessor onto a single
+die. Common families include the Nordic nRF series, Espressif ESP32, NXP
+i.MX, and Qualcomm IoT chipsets. The security primitives the SoC ships
+with — secure boot, hardware key storage, true random number generators,
+optional secure enclaves — define the floor of what is achievable on the
+finished device. A device built on an SoC without secure boot cannot be
+retrofitted to have secure boot.</p>
+<p><strong>RF (Radio Frequency) technologies</strong> are the layer
+below the IP network for most IoT. The major families:</p>
 <ul>
-<li><strong>Wi-Fi</strong> — Standard 2.4/5/6 GHz IP networking, but power-hungry by IoT standards.</li>
-<li><strong>Bluetooth / BLE</strong> — Short-range, paired connections (headsets, wearables, keyless locks).</li>
-<li><strong>Zigbee and Z-Wave</strong> — Mesh networks for home and building automation.</li>
-<li><strong>LoRaWAN</strong> — Long-range, low-bandwidth, license-free spectrum for sensors that send tiny payloads occasionally.</li>
-<li><strong>NB-IoT and LTE-M</strong> — Cellular variants designed for low-power IoT.</li>
-<li><strong>5G with network slicing</strong> — Allows operators to provision isolated "slices" of the network with specific latency and security guarantees for industrial applications.</li>
+<li><strong>Wi-Fi</strong> — Standard 2.4/5/6 GHz IP networking, but
+power-hungry by IoT standards.</li>
+<li><strong>Bluetooth / BLE</strong> — Short-range, paired connections
+(headsets, wearables, keyless locks).</li>
+<li><strong>Zigbee and Z-Wave</strong> — Mesh networks for home and
+building automation.</li>
+<li><strong>LoRaWAN</strong> — Long-range, low-bandwidth, license-free
+spectrum for sensors that send tiny payloads occasionally.</li>
+<li><strong>NB-IoT and LTE-M</strong> — Cellular variants designed for
+low-power IoT.</li>
+<li><strong>5G with network slicing</strong> — Allows operators to
+provision isolated “slices” of the network with specific latency and
+security guarantees for industrial applications.</li>
 </ul>
-<p>Each technology has its own pairing model, encryption defaults, and historical vulnerabilities. The architect's job is rarely to redesign the protocol; it is to know which protocol a device speaks and what controls are available <em>at</em> that protocol layer.</p>
-<h3>Wireless Security Considerations</h3>
-<p>The corporate wireless network is its own domain of failure. The basic threats — rogue access points, evil-twin attacks, deauthentication floods, weak pre-shared keys, and clients that auto-associate with familiar SSID names regardless of what is broadcasting them — have been well understood for two decades. The current best-practice answer is layered:</p>
+<p>Each technology has its own pairing model, encryption defaults, and
+historical vulnerabilities. The architect’s job is rarely to redesign
+the protocol; it is to know which protocol a device speaks and what
+controls are available <em>at</em> that protocol layer.</p>
+<h3 id="wireless-security-considerations">Wireless Security
+Considerations</h3>
+<p>The corporate wireless network is its own domain of failure. The
+basic threats — rogue access points, evil-twin attacks, deauthentication
+floods, weak pre-shared keys, and clients that auto-associate with
+familiar SSID names regardless of what is broadcasting them — have been
+well understood for two decades. The current best-practice answer is
+layered:</p>
 <ul>
-<li><strong>WPA3-Enterprise with EAP-TLS.</strong> Mutual certificate-based authentication between client and RADIUS server. WPA3 provides forward secrecy and resistance to offline dictionary attacks against the handshake.</li>
-<li><strong>Per-SSID VLANs and ACLs.</strong> Each SSID maps to its own VLAN with a firewall policy appropriate to its trust level. The controller — not the access point — is the policy enforcement point.</li>
-<li><strong>802.1X with NAC.</strong> Endpoints prove device posture (encryption enabled, EDR present, OS version current) before being placed on the trusted VLAN; non-compliant devices land on a remediation network.</li>
-<li><strong>Wireless IDS (WIDS).</strong> Continuous monitoring for rogue APs, evil twins, deauth attacks, and unauthorized clients in spaces where they should not be.</li>
-<li><strong>Client isolation on guest SSIDs.</strong> Prevents one guest from attacking another.</li>
-<li><strong>PSK rotation for IoT SSIDs.</strong> When per-device certificates aren't possible, individual pre-shared keys per device (sometimes called iPSK) at least limit the blast radius of one compromise.</li>
+<li><strong>WPA3-Enterprise with EAP-TLS.</strong> Mutual
+certificate-based authentication between client and RADIUS server. WPA3
+provides forward secrecy and resistance to offline dictionary attacks
+against the handshake.</li>
+<li><strong>Per-SSID VLANs and ACLs.</strong> Each SSID maps to its own
+VLAN with a firewall policy appropriate to its trust level. The
+controller — not the access point — is the policy enforcement
+point.</li>
+<li><strong>802.1X with NAC.</strong> Endpoints prove device posture
+(encryption enabled, EDR present, OS version current) before being
+placed on the trusted VLAN; non-compliant devices land on a remediation
+network.</li>
+<li><strong>Wireless IDS (WIDS).</strong> Continuous monitoring for
+rogue APs, evil twins, deauth attacks, and unauthorized clients in
+spaces where they should not be.</li>
+<li><strong>Client isolation on guest SSIDs.</strong> Prevents one guest
+from attacking another.</li>
+<li><strong>PSK rotation for IoT SSIDs.</strong> When per-device
+certificates aren’t possible, individual pre-shared keys per device
+(sometimes called iPSK) at least limit the blast radius of one
+compromise.</li>
 </ul>
-<p><img alt="A segmented wireless deployment maps each SSID to its own VLAN and policy. Corp-Trusted gets EAP-TLS with full internal access; Corp-BYOD gets EAP-TLS with MDM enforcement and a restricted app set; Guest gets internet only; an IoT/smart-building SSID gets per-device PSKs, client isolation, and egress only to the vendor cloud." src="../assets/images/ch10_wireless_segmentation.png" />
-<em>Figure 10.1: A segmented wireless deployment maps each SSID to its own VLAN and policy. Corp-Trusted gets EAP-TLS with full internal access; Corp-BYOD gets EAP-TLS with MDM enforcement and a restricted app set; Guest gets internet only; an IoT/smart-building SSID gets per-device PSKs, client isolation, and egress only to the vendor cloud.</em></p>
-<p><img alt="The Purdue Reference Model organizes ICS architecture into seven levels, with an industrial DMZ as the mandatory boundary between IT (Levels 4–5) and OT (Levels 0–3). All north-south traffic between IT and OT must traverse the DMZ; east-west traffic within OT is further partitioned into zones and conduits per ISA/IEC 62443." src="../assets/images/ch10_purdue_model.png" />
-<em>Figure 10.2: The Purdue Reference Model organizes ICS architecture into seven levels, with an industrial DMZ as the mandatory boundary between IT (Levels 4–5) and OT (Levels 0–3). All north-south traffic between IT and OT must traverse the DMZ; east-west traffic within OT is further partitioned into zones and conduits per ISA/IEC 62443.</em></p>
+<p><img src="../assets/images/ch10_wireless_segmentation.png"
+alt="A segmented wireless deployment maps each SSID to its own VLAN and policy. Corp-Trusted gets EAP-TLS with full internal access; Corp-BYOD gets EAP-TLS with MDM enforcement and a restricted app set; Guest gets internet only; an IoT/smart-building SSID gets per-device PSKs, client isolation, and egress only to the vendor cloud." />
+<em>Figure 10.1: A segmented wireless deployment maps each SSID to its
+own VLAN and policy. Corp-Trusted gets EAP-TLS with full internal
+access; Corp-BYOD gets EAP-TLS with MDM enforcement and a restricted app
+set; Guest gets internet only; an IoT/smart-building SSID gets
+per-device PSKs, client isolation, and egress only to the vendor
+cloud.</em></p>
+<p><img src="../assets/images/ch10_purdue_model.png"
+alt="The Purdue Reference Model organizes ICS architecture into seven levels, with an industrial DMZ as the mandatory boundary between IT (Levels 4–5) and OT (Levels 0–3). All north-south traffic between IT and OT must traverse the DMZ; east-west traffic within OT is further partitioned into zones and conduits per ISA/IEC 62443." />
+<em>Figure 10.2: The Purdue Reference Model organizes ICS architecture
+into seven levels, with an industrial DMZ as the mandatory boundary
+between IT (Levels 4–5) and OT (Levels 0–3). All north-south traffic
+between IT and OT must traverse the DMZ; east-west traffic within OT is
+further partitioned into zones and conduits per ISA/IEC 62443.</em></p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>Why an unsegmented IoT camera is a foothold</em></p>
-<p>A common — and badly broken — corporate wireless setup gives security cameras, smart TVs, projectors, and conference-room hardware their own SSID with a shared PSK, but no VLAN isolation. The result: any one of those devices, on any floor, can talk to any other device on the corporate LAN at the IP layer.</p>
-<p>When researchers compromised an IP-camera firmware vulnerability in a real engagement, they found:</p>
-<ol>
-<li>The camera could ARP the corporate gateway and reach internal Active Directory.</li>
-<li>With unauthenticated SMB connections from the camera's network position, they were able to enumerate domain users.</li>
-<li>A weak service account they discovered allowed pivot to a backup server and from there to file shares containing payroll data.</li>
+<p>A common — and badly broken — corporate wireless setup gives security
+cameras, smart TVs, projectors, and conference-room hardware their own
+SSID with a shared PSK, but no VLAN isolation. The result: any one of
+those devices, on any floor, can talk to any other device on the
+corporate LAN at the IP layer.</p>
+<p>When researchers compromised an IP-camera firmware vulnerability in a
+real engagement, they found:</p>
+<ol type="1">
+<li>The camera could ARP the corporate gateway and reach internal Active
+Directory.</li>
+<li>With unauthenticated SMB connections from the camera’s network
+position, they were able to enumerate domain users.</li>
+<li>A weak service account they discovered allowed pivot to a backup
+server and from there to file shares containing payroll data.</li>
 </ol>
-<p>The fix was <em>not</em> to find a better camera. It was network architecture: a dedicated VLAN with egress-only firewall rules to the camera vendor's cloud, no internal lateral connectivity, and a network sensor watching for unexpected protocols leaving the camera VLAN. The camera's firmware vulnerability remained — but its blast radius was reduced from "everything on the corporate LAN" to "the camera itself."</p>
+<p>The fix was <em>not</em> to find a better camera. It was network
+architecture: a dedicated VLAN with egress-only firewall rules to the
+camera vendor’s cloud, no internal lateral connectivity, and a network
+sensor watching for unexpected protocols leaving the camera VLAN. The
+camera’s firmware vulnerability remained — but its blast radius was
+reduced from “everything on the corporate LAN” to “the camera
+itself.”</p>
 </blockquote>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong>
-Vendor-pushed "set up an SSID for our cameras / printers / sensors with this PSK" instructions almost always assume the device will be on a flat network. Following those instructions without inserting a VLAN and ACL is how building-systems vendors regularly become the entry point of a corporate breach.</p>
+<p><strong class="callout-title">Warning</strong> Vendor-pushed “set up an SSID for our
+cameras / printers / sensors with this PSK” instructions almost always
+assume the device will be on a flat network. Following those
+instructions without inserting a VLAN and ACL is how building-systems
+vendors regularly become the entry point of a corporate breach.</p>
 </blockquote>
 <hr />
-<h2>What Are the Industry-Specific Infrastructure Challenges?</h2>
-<p>Each regulated industry has produced its own framework of expectations, audit standards, and (often) legal liabilities for the systems above. The architect operating in any of them needs the working vocabulary even if the day-to-day work happens at a different layer.</p>
-<h3>Utilities, Healthcare, and Defense</h3>
-<p><strong>Utilities — NERC CIP.</strong> The North American Electric Reliability Corporation Critical Infrastructure Protection standards (CIP-002 through CIP-014) are mandatory for entities that own or operate the <strong>Bulk Electric System (BES)</strong>. They prescribe asset categorization (BES Cyber Assets, classified High / Medium / Low impact), electronic security perimeters around control systems, physical security, personnel screening, incident response plans, vulnerability management, and supply chain risk management. NERC CIP compliance is enforced by financial penalties: violations of high-impact requirements can carry per-day fines that the FERC has assessed in the millions of dollars.</p>
-<p><strong>Healthcare — HIPAA, HITECH, and FDA premarket cybersecurity guidance.</strong> The HIPAA Security Rule (45 CFR §164.302–318) requires technical, administrative, and physical safeguards for protected health information. The HITECH Act added breach notification requirements and stiffened penalties. The FDA's premarket cybersecurity guidance — formalized further in the 2022 Consolidated Appropriations Act, which gave FDA explicit cybersecurity authority over medical devices — requires manufacturers to build secure-by-design devices, provide an SBOM, support firmware updates throughout the device's reasonable lifetime, and document a vulnerability-management plan. Hospital security teams now routinely demand that vulnerability and SBOM information from device vendors as part of procurement.</p>
-<p><strong>Defense — CMMC, NIST SP 800-171, and ITAR.</strong> Department of Defense contractors handling <strong>Controlled Unclassified Information (CUI)</strong> must meet <strong>Cybersecurity Maturity Model Certification (CMMC) 2.0</strong> Level 2 — which is essentially the 110 controls of NIST SP 800-171, plus third-party assessment for higher-risk contracts. Higher-classification environments add <strong>NIST SP 800-53</strong> controls layered on top, with classified information governed by <strong>ICD 503</strong> and other community standards. Export-controlled defense items also fall under <strong>ITAR</strong> and <strong>EAR</strong>, which apply controls to who can access designs and data, not just where they are stored.</p>
-<p><strong>Other industries with comparable regimes:</strong> financial services (PCI DSS at the payment-card level, NYDFS Part 500 in New York), maritime and aviation (TSA security directives following recent pipeline and rail incidents), water and wastewater (EPA's evolving cybersecurity guidance, increasingly mandatory after Oldsmar and other incidents).</p>
+<h2 id="what-are-the-industry-specific-infrastructure-challenges">What
+Are the Industry-Specific Infrastructure Challenges?</h2>
+<p>Each regulated industry has produced its own framework of
+expectations, audit standards, and (often) legal liabilities for the
+systems above. The architect operating in any of them needs the working
+vocabulary even if the day-to-day work happens at a different layer.</p>
+<h3 id="utilities-healthcare-and-defense">Utilities, Healthcare, and
+Defense</h3>
+<p><strong>Utilities — NERC CIP.</strong> The North American Electric
+Reliability Corporation Critical Infrastructure Protection standards
+(CIP-002 through CIP-014) are mandatory for entities that own or operate
+the <strong>Bulk Electric System (BES)</strong>. They prescribe asset
+categorization (BES Cyber Assets, classified High / Medium / Low
+impact), electronic security perimeters around control systems, physical
+security, personnel screening, incident response plans, vulnerability
+management, and supply chain risk management. NERC CIP compliance is
+enforced by financial penalties: violations of high-impact requirements
+can carry per-day fines that the FERC has assessed in the millions of
+dollars.</p>
+<p><strong>Healthcare — HIPAA, HITECH, and FDA premarket cybersecurity
+guidance.</strong> The HIPAA Security Rule (45 CFR §164.302–318)
+requires technical, administrative, and physical safeguards for
+protected health information. The HITECH Act added breach notification
+requirements and stiffened penalties. The FDA’s premarket cybersecurity
+guidance — formalized further in the 2022 Consolidated Appropriations
+Act, which gave FDA explicit cybersecurity authority over medical
+devices — requires manufacturers to build secure-by-design devices,
+provide an SBOM, support firmware updates throughout the device’s
+reasonable lifetime, and document a vulnerability-management plan.
+Hospital security teams now routinely demand that vulnerability and SBOM
+information from device vendors as part of procurement.</p>
+<p><strong>Defense — CMMC, NIST SP 800-171, and ITAR.</strong>
+Department of Defense contractors handling <strong>Controlled
+Unclassified Information (CUI)</strong> must meet <strong>Cybersecurity
+Maturity Model Certification (CMMC) 2.0</strong> Level 2 — which is
+essentially the 110 controls of NIST SP 800-171, plus third-party
+assessment for higher-risk contracts. Higher-classification environments
+add <strong>NIST SP 800-53</strong> controls layered on top, with
+classified information governed by <strong>ICD 503</strong> and other
+community standards. Export-controlled defense items also fall under
+<strong>ITAR</strong> and <strong>EAR</strong>, which apply controls to
+who can access designs and data, not just where they are stored.</p>
+<p><strong>Other industries with comparable regimes:</strong> financial
+services (PCI DSS at the payment-card level, NYDFS Part 500 in New
+York), maritime and aviation (TSA security directives following recent
+pipeline and rail incidents), water and wastewater (EPA’s evolving
+cybersecurity guidance, increasingly mandatory after Oldsmar and other
+incidents).</p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong></p>
 <p><em>Oldsmar, Florida (2021): The Water Treatment Plant Hack</em></p>
-<p>On the morning of February 5, 2021, an operator at the water treatment facility serving Oldsmar, Florida — a town of about 15,000 north of Tampa — saw his mouse cursor move on its own across his SCADA console. Someone else was driving the system. He watched, puzzled, as the cursor opened the controls for <strong>sodium hydroxide</strong> (lye) — used in trace amounts to adjust pH — and changed the setpoint from 100 parts per million to <strong>11,100 parts per million</strong>, more than a hundredfold increase that would have been a credible threat to public health if the change had been allowed to stand.</p>
-<p>The operator immediately reversed the change. The SCADA system never propagated the new setpoint to the dosing equipment, and the plant's pH alarms would have caught any real chemical change before water reached customers. No one was harmed, no contaminated water was distributed, and the chemical-safety controls behaved as designed.</p>
-<p>The investigation that followed produced a damning operational picture:</p>
+<p>On the morning of February 5, 2021, an operator at the water
+treatment facility serving Oldsmar, Florida — a town of about 15,000
+north of Tampa — saw his mouse cursor move on its own across his SCADA
+console. Someone else was driving the system. He watched, puzzled, as
+the cursor opened the controls for <strong>sodium hydroxide</strong>
+(lye) — used in trace amounts to adjust pH — and changed the setpoint
+from 100 parts per million to <strong>11,100 parts per million</strong>,
+more than a hundredfold increase that would have been a credible threat
+to public health if the change had been allowed to stand.</p>
+<p>The operator immediately reversed the change. The SCADA system never
+propagated the new setpoint to the dosing equipment, and the plant’s pH
+alarms would have caught any real chemical change before water reached
+customers. No one was harmed, no contaminated water was distributed, and
+the chemical-safety controls behaved as designed.</p>
+<p>The investigation that followed produced a damning operational
+picture:</p>
 <ul>
-<li>The plant's HMI was running <strong>Windows 7</strong>, which had been out of mainstream support for over a year.</li>
-<li>Every operator workstation shared a <em>single</em> TeamViewer instance with a <em>single</em> shared password — an unauthenticated remote-access path the FBI later assessed had been in place for at least three months.</li>
-<li>There was no MFA on the remote-access tool, no privileged-access workstation discipline, and no jump host between the corporate network and the SCADA environment.</li>
-<li>The plant had a small IT contractor and no dedicated security staff. The CISA / FBI joint advisory issued afterward noted weaknesses that were typical of small water utilities across the country.</li>
+<li>The plant’s HMI was running <strong>Windows 7</strong>, which had
+been out of mainstream support for over a year.</li>
+<li>Every operator workstation shared a <em>single</em> TeamViewer
+instance with a <em>single</em> shared password — an unauthenticated
+remote-access path the FBI later assessed had been in place for at least
+three months.</li>
+<li>There was no MFA on the remote-access tool, no privileged-access
+workstation discipline, and no jump host between the corporate network
+and the SCADA environment.</li>
+<li>The plant had a small IT contractor and no dedicated security staff.
+The CISA / FBI joint advisory issued afterward noted weaknesses that
+were typical of small water utilities across the country.</li>
 </ul>
-<p>The attacker — never definitively identified, despite years of investigation — almost certainly entered through the shared TeamViewer credentials and never needed any kind of zero-day exploit. The defining feature of the incident is how <em>unsophisticated</em> it was; the only reason it was not a public-health emergency was the operator who happened to be looking at the screen.</p>
-<p>Two structural changes followed in the months and years after Oldsmar:</p>
-<ol>
-<li><strong>EPA cybersecurity expectations for water utilities</strong> were significantly tightened, with periodic enforcement debates over whether they should be mandatory or advisory. The 2023 Sackett v. EPA ruling and subsequent state-level rules continue to evolve.</li>
-<li><strong>CISA and the FBI</strong> issued joint advisories on remote-access hygiene that pointed directly at the patterns Oldsmar exhibited: shared accounts, no MFA, missing logging, unrestricted internet exposure of operator workstations.</li>
+<p>The attacker — never definitively identified, despite years of
+investigation — almost certainly entered through the shared TeamViewer
+credentials and never needed any kind of zero-day exploit. The defining
+feature of the incident is how <em>unsophisticated</em> it was; the only
+reason it was not a public-health emergency was the operator who
+happened to be looking at the screen.</p>
+<p>Two structural changes followed in the months and years after
+Oldsmar:</p>
+<ol type="1">
+<li><strong>EPA cybersecurity expectations for water utilities</strong>
+were significantly tightened, with periodic enforcement debates over
+whether they should be mandatory or advisory. The 2023 Sackett v. EPA
+ruling and subsequent state-level rules continue to evolve.</li>
+<li><strong>CISA and the FBI</strong> issued joint advisories on
+remote-access hygiene that pointed directly at the patterns Oldsmar
+exhibited: shared accounts, no MFA, missing logging, unrestricted
+internet exposure of operator workstations.</li>
 </ol>
-<p>The Oldsmar incident is now the textbook case study for why every OT environment needs jump hosts, MFA, segmentation, and the assumption that an operator-visible SCADA console is a target. Plants that rebuilt remote access on those principles in the years that followed cite Oldsmar by name in their justifications.</p>
+<p>The Oldsmar incident is now the textbook case study for why every OT
+environment needs jump hosts, MFA, segmentation, and the assumption that
+an operator-visible SCADA console is a target. Plants that rebuilt
+remote access on those principles in the years that followed cite
+Oldsmar by name in their justifications.</p>
 </blockquote>
 <hr />
-<h2>How Do We Protect What We Cannot Patch?</h2>
-<p>Not every system can be made directly secure. A 22-year-old PLC, an FDA-recertified infusion pump, an industrial control system whose vendor went out of business in 2009, an MRI machine running Windows 7 that the manufacturer will not allow to be patched without voiding the warranty — these systems are realities that security architects inherit. The discipline of protecting them is <strong>compensating controls</strong>: protections placed <em>around</em> a system that cannot be fixed <em>in place</em>.</p>
-<h3>Compensating Controls for Obsolete Systems</h3>
-<p>A compensating control reduces the <em>exploitability</em> or <em>blast radius</em> of a vulnerability without changing the vulnerable component itself. The five families that matter:</p>
-<ol>
-<li><strong>Network isolation.</strong> Place the legacy system in its own VLAN with strict ACLs. Only permit the specific protocols, source IPs, and destination IPs required for the system's actual function. Default-deny everything else.</li>
-<li><strong>Protocol mediation / proxying.</strong> Where a legacy system speaks an old or insecure protocol, place a modern proxy in front of it that does the work of authenticating, encrypting, and rate-limiting traffic on its behalf. Examples: a TLS-terminating reverse proxy in front of an HTTP-only legacy app; an OPC-UA gateway translating modern, authenticated requests into the legacy protocol the device actually understands.</li>
-<li><strong>Strict change control and physical security.</strong> A system that cannot be patched must at least be tightly controlled — physical access restricted, console access through a jump host, every change ticketed.</li>
-<li><strong>Monitoring and anomaly detection.</strong> A legacy system whose normal behavior is well-understood is a <em>good</em> monitoring target — deviations stand out clearly. Passive sensors and SIEM rules tuned to its specific traffic patterns turn the legacy system's predictability into a defensive advantage.</li>
-<li><strong>Replacement planning.</strong> Compensating controls are a holding action, not a destination. A documented multi-year replacement roadmap — funded, tracked, and reviewed at the right level of management — is itself a control, because it bounds how long the compensating controls have to work.</li>
+<h2 id="how-do-we-protect-what-we-cannot-patch">How Do We Protect What
+We Cannot Patch?</h2>
+<p>Not every system can be made directly secure. A 22-year-old PLC, an
+FDA-recertified infusion pump, an industrial control system whose vendor
+went out of business in 2009, an MRI machine running Windows 7 that the
+manufacturer will not allow to be patched without voiding the warranty —
+these systems are realities that security architects inherit. The
+discipline of protecting them is <strong>compensating controls</strong>:
+protections placed <em>around</em> a system that cannot be fixed <em>in
+place</em>.</p>
+<h3 id="compensating-controls-for-obsolete-systems">Compensating
+Controls for Obsolete Systems</h3>
+<p>A compensating control reduces the <em>exploitability</em> or
+<em>blast radius</em> of a vulnerability without changing the vulnerable
+component itself. The five families that matter:</p>
+<ol type="1">
+<li><strong>Network isolation.</strong> Place the legacy system in its
+own VLAN with strict ACLs. Only permit the specific protocols, source
+IPs, and destination IPs required for the system’s actual function.
+Default-deny everything else.</li>
+<li><strong>Protocol mediation / proxying.</strong> Where a legacy
+system speaks an old or insecure protocol, place a modern proxy in front
+of it that does the work of authenticating, encrypting, and
+rate-limiting traffic on its behalf. Examples: a TLS-terminating reverse
+proxy in front of an HTTP-only legacy app; an OPC-UA gateway translating
+modern, authenticated requests into the legacy protocol the device
+actually understands.</li>
+<li><strong>Strict change control and physical security.</strong> A
+system that cannot be patched must at least be tightly controlled —
+physical access restricted, console access through a jump host, every
+change ticketed.</li>
+<li><strong>Monitoring and anomaly detection.</strong> A legacy system
+whose normal behavior is well-understood is a <em>good</em> monitoring
+target — deviations stand out clearly. Passive sensors and SIEM rules
+tuned to its specific traffic patterns turn the legacy system’s
+predictability into a defensive advantage.</li>
+<li><strong>Replacement planning.</strong> Compensating controls are a
+holding action, not a destination. A documented multi-year replacement
+roadmap — funded, tracked, and reviewed at the right level of management
+— is itself a control, because it bounds how long the compensating
+controls have to work.</li>
 </ol>
-<h3>Segmentation and Hardening of Legacy Assets</h3>
+<h3 id="segmentation-and-hardening-of-legacy-assets">Segmentation and
+Hardening of Legacy Assets</h3>
 <p>Practical hardening steps that apply to most legacy systems:</p>
 <ul>
-<li><strong>Disable unused services and ports.</strong> A 2003-era Windows server with IIS, SMB v1, RDP, Telnet, and an FTP listener can usually have all but one of those turned off. Turn them off.</li>
-<li><strong>Strip remote-access tools to one approved path.</strong> TeamViewer, AnyDesk, LogMeIn, and a dozen others tend to accumulate. Pick one that supports MFA and centralized logging; remove the rest.</li>
-<li><strong>Replace shared credentials with named accounts.</strong> Even a legacy system can be made to consume centralized credentials through a jump host or PAM solution.</li>
-<li><strong>Add a host firewall.</strong> A 2003 Windows host can run Windows Firewall. A 1998 PLC cannot, but its upstream switch can apply the equivalent ACL.</li>
-<li><strong>Apply USB controls.</strong> Legacy systems are routinely compromised through USB drives — the original Stuxnet vector. Removing or restricting USB access is one of the cheapest and highest-leverage controls on isolated systems.</li>
-<li><strong>Capture and retain logs.</strong> Whatever logging the legacy system produces, send it to a SIEM. Logs are often the only evidence available after an incident.</li>
+<li><strong>Disable unused services and ports.</strong> A 2003-era
+Windows server with IIS, SMB v1, RDP, Telnet, and an FTP listener can
+usually have all but one of those turned off. Turn them off.</li>
+<li><strong>Strip remote-access tools to one approved path.</strong>
+TeamViewer, AnyDesk, LogMeIn, and a dozen others tend to accumulate.
+Pick one that supports MFA and centralized logging; remove the
+rest.</li>
+<li><strong>Replace shared credentials with named accounts.</strong>
+Even a legacy system can be made to consume centralized credentials
+through a jump host or PAM solution.</li>
+<li><strong>Add a host firewall.</strong> A 2003 Windows host can run
+Windows Firewall. A 1998 PLC cannot, but its upstream switch can apply
+the equivalent ACL.</li>
+<li><strong>Apply USB controls.</strong> Legacy systems are routinely
+compromised through USB drives — the original Stuxnet vector. Removing
+or restricting USB access is one of the cheapest and highest-leverage
+controls on isolated systems.</li>
+<li><strong>Capture and retain logs.</strong> Whatever logging the
+legacy system produces, send it to a SIEM. Logs are often the only
+evidence available after an incident.</li>
 </ul>
 <table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
 <thead>
 <tr>
-<th style="text-align: left;">Legacy Vulnerability</th>
-<th style="text-align: left;">Why It Cannot Be Fixed Directly</th>
-<th style="text-align: left;">Compensating Controls</th>
+<th scope="col" style="text-align: left;">Legacy Vulnerability</th>
+<th scope="col" style="text-align: left;">Why It Cannot Be Fixed Directly</th>
+<th scope="col" style="text-align: left;">Compensating Controls</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Unsupported OS (Windows XP/7/Server 2008)</td>
-<td style="text-align: left;">Vendor recertification cost; software lock-in</td>
-<td style="text-align: left;">Network isolation, allowlisting, host firewall, no internet egress</td>
+<th scope="row" style="text-align: left;">Unsupported OS (Windows XP/7/Server
+2008)</th>
+<td style="text-align: left;">Vendor recertification cost; software
+lock-in</td>
+<td style="text-align: left;">Network isolation, allowlisting, host
+firewall, no internet egress</td>
 </tr>
 <tr>
-<td style="text-align: left;">Plaintext fieldbus protocol (Modbus, DNP3)</td>
-<td style="text-align: left;">Protocol cannot be modified without replacing controller</td>
-<td style="text-align: left;">OT firewall with deep packet inspection, zone segmentation, passive monitoring</td>
+<th scope="row" style="text-align: left;">Plaintext fieldbus protocol (Modbus,
+DNP3)</th>
+<td style="text-align: left;">Protocol cannot be modified without
+replacing controller</td>
+<td style="text-align: left;">OT firewall with deep packet inspection,
+zone segmentation, passive monitoring</td>
 </tr>
 <tr>
-<td style="text-align: left;">Hardcoded / shared credentials</td>
-<td style="text-align: left;">Embedded in firmware; no password change supported</td>
-<td style="text-align: left;">Jump host, network isolation, monitoring for abnormal source IPs</td>
+<th scope="row" style="text-align: left;">Hardcoded / shared credentials</th>
+<td style="text-align: left;">Embedded in firmware; no password change
+supported</td>
+<td style="text-align: left;">Jump host, network isolation, monitoring
+for abnormal source IPs</td>
 </tr>
 <tr>
-<td style="text-align: left;">No encryption support</td>
+<th scope="row" style="text-align: left;">No encryption support</th>
 <td style="text-align: left;">Hardware lacks crypto acceleration</td>
-<td style="text-align: left;">TLS-terminating proxy, IPsec at the gateway</td>
+<td style="text-align: left;">TLS-terminating proxy, IPsec at the
+gateway</td>
 </tr>
 <tr>
-<td style="text-align: left;">Cannot run EDR</td>
-<td style="text-align: left;">Insufficient resources or unsupported OS</td>
-<td style="text-align: left;">Network monitoring, host-based logging where possible, protocol-aware NIDS</td>
+<th scope="row" style="text-align: left;">Cannot run EDR</th>
+<td style="text-align: left;">Insufficient resources or unsupported
+OS</td>
+<td style="text-align: left;">Network monitoring, host-based logging
+where possible, protocol-aware NIDS</td>
 </tr>
 <tr>
-<td style="text-align: left;">Vendor remote access required</td>
+<th scope="row" style="text-align: left;">Vendor remote access required</th>
 <td style="text-align: left;">Service contract demands it</td>
-<td style="text-align: left;">PAM-managed jump host, MFA, time-boxed access, full session recording</td>
+<td style="text-align: left;">PAM-managed jump host, MFA, time-boxed
+access, full session recording</td>
 </tr>
 <tr>
-<td style="text-align: left;">End-of-life hardware (no firmware updates)</td>
-<td style="text-align: left;">Vendor out of business or product retired</td>
-<td style="text-align: left;">Documented replacement roadmap, isolation, USB and physical control</td>
-</tr>
-<tr>
-<td style="text-align: left;"><em>Table 10.2: Common legacy vulnerabilities and the compensating controls that meaningfully reduce their risk. The pattern is the same regardless of the specific technology: surround what you cannot fix with controls you do control.</em></td>
-<td style="text-align: left;"></td>
-<td style="text-align: left;"></td>
+<th scope="row" style="text-align: left;">End-of-life hardware (no firmware
+updates)</th>
+<td style="text-align: left;">Vendor out of business or product
+retired</td>
+<td style="text-align: left;">Documented replacement roadmap, isolation,
+USB and physical control</td>
 </tr>
 </tbody>
 </table>
+<p><em>Table 10.2: Common legacy vulnerabilities and the compensating
+controls that meaningfully reduce their risk. The pattern is the same
+regardless of the specific technology: surround what you cannot fix with
+controls you do control.</em></p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
-<p><em>Compensating controls around an unpatched 1998 Allen-Bradley PLC</em></p>
-<p>A ControlLogix PLC on Line 3 at <em>Yellow Brick Manufacturing</em> can no longer receive firmware updates — Rockwell Automation's support lifecycle for that hardware generation ended in 2018. Replacement requires a capital project and a six-week production shutdown that the business has deferred for two budget cycles.</p>
-<p>Nick Chopper documents the compensating control stack and assigns an owner to each layer:</p>
+<p><em>Compensating controls around an unpatched 1998 Allen-Bradley
+PLC</em></p>
+<p>A ControlLogix PLC on Line 3 at <em>Yellow Brick Manufacturing</em>
+can no longer receive firmware updates — Rockwell Automation’s support
+lifecycle for that hardware generation ended in 2018. Replacement
+requires a capital project and a six-week production shutdown that the
+business has deferred for two budget cycles.</p>
+<p>Nick Chopper documents the compensating control stack and assigns an
+owner to each layer:</p>
 <table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
 <thead>
 <tr>
-<th style="text-align: left;">Control</th>
-<th style="text-align: left;">Implementation</th>
-<th style="text-align: left;">Owner</th>
+<th scope="col" style="text-align: left;">Control</th>
+<th scope="col" style="text-align: left;">Implementation</th>
+<th scope="col" style="text-align: left;">Owner</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: left;">Network isolation</td>
-<td style="text-align: left;">Dedicated VLAN; ACL permitting only EtherNet/IP on TCP 44818 from three approved HMI IPs</td>
+<th scope="row" style="text-align: left;">Network isolation</th>
+<td style="text-align: left;">Dedicated VLAN; ACL permitting only
+EtherNet/IP on TCP 44818 from three approved HMI IPs</td>
 <td style="text-align: left;">OT Network Team</td>
 </tr>
 <tr>
-<td style="text-align: left;">No internet egress</td>
-<td style="text-align: left;">No default route out of OT VLAN; confirmed quarterly in firewall policy review</td>
+<th scope="row" style="text-align: left;">No internet egress</th>
+<td style="text-align: left;">No default route out of OT VLAN; confirmed
+quarterly in firewall policy review</td>
 <td style="text-align: left;">OT Network Team</td>
 </tr>
 <tr>
-<td style="text-align: left;">Application allowlisting on HMI</td>
-<td style="text-align: left;">Only the Rockwell FactoryTalk View binary whitelisted; USB writes disabled</td>
+<th scope="row" style="text-align: left;">Application allowlisting on HMI</th>
+<td style="text-align: left;">Only the Rockwell FactoryTalk View binary
+whitelisted; USB writes disabled</td>
 <td style="text-align: left;">OT Support</td>
 </tr>
 <tr>
-<td style="text-align: left;">Passive monitoring</td>
-<td style="text-align: left;">Network sensor watching every EtherNet/IP packet; alerts on unexpected source IPs or out-of-range command codes</td>
+<th scope="row" style="text-align: left;">Passive monitoring</th>
+<td style="text-align: left;">Network sensor watching every EtherNet/IP
+packet; alerts on unexpected source IPs or out-of-range command
+codes</td>
 <td style="text-align: left;">SOC</td>
 </tr>
 <tr>
-<td style="text-align: left;">Physical access</td>
-<td style="text-align: left;">Locked enclosure; sign-in log; no console access without two-person approval</td>
+<th scope="row" style="text-align: left;">Physical access</th>
+<td style="text-align: left;">Locked enclosure; sign-in log; no console
+access without two-person approval</td>
 <td style="text-align: left;">Plant Security</td>
 </tr>
 <tr>
-<td style="text-align: left;">Replacement roadmap</td>
-<td style="text-align: left;">Capital project approved for FY 2027 and tracked to a named project owner</td>
+<th scope="row" style="text-align: left;">Replacement roadmap</th>
+<td style="text-align: left;">Capital project approved for FY 2027 and
+tracked to a named project owner</td>
 <td style="text-align: left;">Engineering Manager</td>
 </tr>
 </tbody>
 </table>
-<p>None of these controls fixes the PLC's underlying vulnerability. Together, they reduce exploitation likelihood to near-zero and make any deviation immediately visible — buying time for the funded replacement to arrive.</p>
+<p>None of these controls fixes the PLC’s underlying vulnerability.
+Together, they reduce exploitation likelihood to near-zero and make any
+deviation immediately visible — buying time for the funded replacement
+to arrive.</p>
 </blockquote>
 <blockquote class="callout-thought">
-<p><strong class="callout-title">Thought Question</strong>
-An OT system in your environment will not receive another firmware update from its vendor and cannot be replaced for at least four years due to a capital budgeting cycle. What is the minimum set of compensating controls that lets you sleep at night, and at what point do those controls themselves become more expensive than accelerating the replacement?</p>
+<p><strong class="callout-title">Thought Question</strong> An OT system in your environment
+will not receive another firmware update from its vendor and cannot be
+replaced for at least four years due to a capital budgeting cycle. What
+is the minimum set of compensating controls that lets you sleep at
+night, and at what point do those controls themselves become more
+expensive than accelerating the replacement?</p>
 </blockquote>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong>
-Compensating controls are real controls, but they are also <em>evidence of debt</em>. Track them. Every compensating control should have an owner, a justification, a documented review cadence, and — ideally — a planned end date that coincides with the replacement of the system it surrounds.</p>
+<p><strong class="callout-title">Key Point</strong> Compensating controls are real controls,
+but they are also <em>evidence of debt</em>. Track them. Every
+compensating control should have an owner, a justification, a documented
+review cadence, and — ideally — a planned end date that coincides with
+the replacement of the system it surrounds.</p>
 </blockquote>
 <hr />
-<h2>Chapter Review and Conclusion</h2>
-<p>OT, IoT, and legacy systems do not get to be secured the way an ordinary IT estate is secured, and pretending otherwise produces both bad outcomes and broken processes. The discipline that works is built on three pillars: <strong>honest priorities</strong> (safety and availability genuinely come first in OT, and architectures must reflect that); <strong>layered segmentation</strong> (the Purdue Model, IEC 62443 zones and conduits, per-SSID wireless VLANs, network-isolated legacy enclaves); and <strong>compensating controls</strong> that surround what cannot be fixed in place, with a tracked plan for eventual replacement. The case studies in this chapter — Yellow Brick Manufacturing, Oldsmar — represent both ends of the spectrum: the disciplined, multi-year program that quietly works, and the unfortunate utility whose remote-access hygiene became national news. The textbook of this chapter is, more than most, written by case studies the world has lived through and learned from.</p>
-<h3>Key Terms Review</h3>
+<h2 id="chapter-review-and-conclusion">Chapter Review and
+Conclusion</h2>
+<p>OT, IoT, and legacy systems do not get to be secured the way an
+ordinary IT estate is secured, and pretending otherwise produces both
+bad outcomes and broken processes. The discipline that works is built on
+three pillars: <strong>honest priorities</strong> (safety and
+availability genuinely come first in OT, and architectures must reflect
+that); <strong>layered segmentation</strong> (the Purdue Model, IEC
+62443 zones and conduits, per-SSID wireless VLANs, network-isolated
+legacy enclaves); and <strong>compensating controls</strong> that
+surround what cannot be fixed in place, with a tracked plan for eventual
+replacement. The case studies in this chapter — Yellow Brick
+Manufacturing, Oldsmar — represent both ends of the spectrum: the
+disciplined, multi-year program that quietly works, and the unfortunate
+utility whose remote-access hygiene became national news. The textbook
+of this chapter is, more than most, written by case studies the world
+has lived through and learned from.</p>
+<h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
-<li><strong>Operational Technology (OT):</strong> Hardware and software that monitors and controls physical processes — turbines, valves, conveyors, infusion pumps, building systems.</li>
-<li><strong>ICS / SCADA / DCS:</strong> Industrial Control System (umbrella), Supervisory Control and Data Acquisition (geographically distributed), Distributed Control System (within-facility distributed control).</li>
-<li><strong>PLC / RTU / HMI / Historian:</strong> Programmable Logic Controller / Remote Terminal Unit / Human-Machine Interface / time-series database for OT data.</li>
-<li><strong>Purdue Reference Model:</strong> Layered ICS architecture (Levels 0–5 plus iDMZ) defining how IT and OT zones connect.</li>
-<li><strong>ISA / IEC 62443:</strong> International standard for industrial automation security; defines zones, conduits, and security levels.</li>
-<li><strong>Industrial DMZ (iDMZ):</strong> Mandatory boundary network between IT and OT containing patch servers, jump hosts, and replicated historians.</li>
-<li><strong>Modbus / DNP3 / EtherNet/IP / S7 / OPC UA:</strong> Common industrial protocols. Most legacy variants lack authentication; OPC UA is the modern, authenticated successor.</li>
-<li><strong>Passive Monitoring (OT):</strong> Read-only network observation that produces inventory and detection without sending packets to fragile devices.</li>
-<li><strong>Internet of Things (IoT):</strong> Broad category of low-power, network-connected devices designed for specific, often non-IT purposes.</li>
-<li><strong>System-on-Chip (SoC):</strong> Integrated CPU, memory, peripherals, and radios on a single die — defines the security floor of the device built on it.</li>
-<li><strong>RF Technologies:</strong> Wi-Fi, BLE, Zigbee, Z-Wave, LoRaWAN, NB-IoT, LTE-M, 5G — the wireless layer beneath IoT IP networking.</li>
-<li><strong>WPA3-Enterprise / EAP-TLS:</strong> Mutual certificate-based wireless authentication with forward secrecy.</li>
-<li><strong>802.1X / NAC:</strong> Standards-based device authentication and posture checking for wired and wireless networks.</li>
-<li><strong>Per-SSID VLAN:</strong> Wireless segmentation pattern in which each SSID maps to its own VLAN and ACL.</li>
-<li><strong>WIDS (Wireless IDS):</strong> Continuous monitoring for rogue APs, evil twins, deauthentication attacks.</li>
-<li><strong>NERC CIP:</strong> Mandatory cybersecurity standards for the North American Bulk Electric System.</li>
-<li><strong>HIPAA / HITECH:</strong> U.S. healthcare privacy and breach-notification regulations.</li>
-<li><strong>FDA Premarket Cybersecurity Guidance:</strong> Security-by-design, SBOM, and update-support requirements for medical devices.</li>
-<li><strong>CMMC / NIST SP 800-171:</strong> Cybersecurity maturity certification for U.S. defense contractors handling CUI.</li>
-<li><strong>ITAR / EAR:</strong> U.S. export-control regimes affecting access to defense and dual-use technology data.</li>
-<li><strong>Compensating Control:</strong> A protection placed around a system that cannot be made directly secure, reducing exploitability or blast radius.</li>
-<li><strong>Network Isolation:</strong> Placing legacy or specialized systems in dedicated VLANs with strict default-deny ACLs.</li>
-<li><strong>Protocol Mediation / Gateway:</strong> A modern proxy that fronts a legacy system to add authentication, encryption, or rate limiting.</li>
-<li><strong>Jump Host / Bastion:</strong> PAM-managed, MFA-required, session-recorded host through which administrative access flows.</li>
-<li><strong>USB Controls:</strong> Hardware or software restrictions on removable media, addressing the original Stuxnet-style vector.</li>
-<li><strong>End-of-Life (EOL) Hardware:</strong> Devices for which the vendor no longer issues firmware updates; usually requires isolation plus a documented replacement roadmap.</li>
+<li><strong>Operational Technology (OT):</strong> Hardware and software
+that monitors and controls physical processes — turbines, valves,
+conveyors, infusion pumps, building systems.</li>
+<li><strong>ICS / SCADA / DCS:</strong> Industrial Control System
+(umbrella), Supervisory Control and Data Acquisition (geographically
+distributed), Distributed Control System (within-facility distributed
+control).</li>
+<li><strong>PLC / RTU / HMI / Historian:</strong> Programmable Logic
+Controller / Remote Terminal Unit / Human-Machine Interface /
+time-series database for OT data.</li>
+<li><strong>Purdue Reference Model:</strong> Layered ICS architecture
+(Levels 0–5 plus iDMZ) defining how IT and OT zones connect.</li>
+<li><strong>ISA / IEC 62443:</strong> International standard for
+industrial automation security; defines zones, conduits, and security
+levels.</li>
+<li><strong>Industrial DMZ (iDMZ):</strong> Mandatory boundary network
+between IT and OT containing patch servers, jump hosts, and replicated
+historians.</li>
+<li><strong>Modbus / DNP3 / EtherNet/IP / S7 / OPC UA:</strong> Common
+industrial protocols. Most legacy variants lack authentication; OPC UA
+is the modern, authenticated successor.</li>
+<li><strong>Passive Monitoring (OT):</strong> Read-only network
+observation that produces inventory and detection without sending
+packets to fragile devices.</li>
+<li><strong>Internet of Things (IoT):</strong> Broad category of
+low-power, network-connected devices designed for specific, often non-IT
+purposes.</li>
+<li><strong>System-on-Chip (SoC):</strong> Integrated CPU, memory,
+peripherals, and radios on a single die — defines the security floor of
+the device built on it.</li>
+<li><strong>RF Technologies:</strong> Wi-Fi, BLE, Zigbee, Z-Wave,
+LoRaWAN, NB-IoT, LTE-M, 5G — the wireless layer beneath IoT IP
+networking.</li>
+<li><strong>WPA3-Enterprise / EAP-TLS:</strong> Mutual certificate-based
+wireless authentication with forward secrecy.</li>
+<li><strong>802.1X / NAC:</strong> Standards-based device authentication
+and posture checking for wired and wireless networks.</li>
+<li><strong>Per-SSID VLAN:</strong> Wireless segmentation pattern in
+which each SSID maps to its own VLAN and ACL.</li>
+<li><strong>WIDS (Wireless IDS):</strong> Continuous monitoring for
+rogue APs, evil twins, deauthentication attacks.</li>
+<li><strong>NERC CIP:</strong> Mandatory cybersecurity standards for the
+North American Bulk Electric System.</li>
+<li><strong>HIPAA / HITECH:</strong> U.S. healthcare privacy and
+breach-notification regulations.</li>
+<li><strong>FDA Premarket Cybersecurity Guidance:</strong>
+Security-by-design, SBOM, and update-support requirements for medical
+devices.</li>
+<li><strong>CMMC / NIST SP 800-171:</strong> Cybersecurity maturity
+certification for U.S. defense contractors handling CUI.</li>
+<li><strong>ITAR / EAR:</strong> U.S. export-control regimes affecting
+access to defense and dual-use technology data.</li>
+<li><strong>Compensating Control:</strong> A protection placed around a
+system that cannot be made directly secure, reducing exploitability or
+blast radius.</li>
+<li><strong>Network Isolation:</strong> Placing legacy or specialized
+systems in dedicated VLANs with strict default-deny ACLs.</li>
+<li><strong>Protocol Mediation / Gateway:</strong> A modern proxy that
+fronts a legacy system to add authentication, encryption, or rate
+limiting.</li>
+<li><strong>Jump Host / Bastion:</strong> PAM-managed, MFA-required,
+session-recorded host through which administrative access flows.</li>
+<li><strong>USB Controls:</strong> Hardware or software restrictions on
+removable media, addressing the original Stuxnet-style vector.</li>
+<li><strong>End-of-Life (EOL) Hardware:</strong> Devices for which the
+vendor no longer issues firmware updates; usually requires isolation
+plus a documented replacement roadmap.</li>
 </ul>
-<h3>Review Questions</h3>
+<h3 id="review-questions">Review Questions</h3>
 <p><strong>True / False</strong></p>
-<ol>
-<li>In Operational Technology environments, the priority order is generally Safety → Availability → Integrity → Confidentiality, which inverts the classic IT CIA triad and meaningfully changes architectural choices.</li>
-<li>Active vulnerability scanning of OT networks using standard IT scanners is a recommended baseline practice because modern scanners are non-disruptive to PLCs and field devices.</li>
-<li>The Purdue Reference Model places an industrial DMZ between Levels 3 and 4, requiring all north-south traffic between IT and OT to traverse the DMZ rather than connecting directly.</li>
-<li>Modbus, DNP3, and EtherNet/IP in their original forms do not provide cryptographic authentication of commands, which is one reason network segmentation and protocol-aware firewalls are essential in OT.</li>
-<li>An air-gapped OT network is permanently safe because it has no IP connectivity to the corporate network or internet, and therefore needs no further compensating controls or monitoring.</li>
-<li>The Oldsmar, Florida water treatment incident in 2021 was made possible primarily by an unauthorized internet-exposed remote-access tool with shared credentials and no multi-factor authentication.</li>
-<li>WPA3-Enterprise with EAP-TLS provides mutual certificate-based authentication between the wireless client and the RADIUS server, plus forward secrecy of the wireless session keys.</li>
-<li>Per-SSID VLAN segmentation places different SSIDs (Corp-Trusted, BYOD, Guest, IoT) into separate VLANs each with its own firewall policy enforced at the wireless controller, not the access point.</li>
-<li>Compensating controls are intended to be permanent replacements for direct remediation; once a compensating control is in place, the underlying system no longer requires a documented replacement plan.</li>
-<li>NERC CIP standards apply only to the cyber assets of corporate IT environments at electric utilities and explicitly exempt the substations, generation control systems, and other OT assets that compose the Bulk Electric System.</li>
-<li>The FDA's premarket cybersecurity guidance, reinforced by the 2022 Consolidated Appropriations Act, requires medical-device manufacturers to provide an SBOM and to support firmware updates throughout the device's reasonable lifetime.</li>
-<li>Passive monitoring tools (Claroty, Nozomi Networks, Dragos) listen to OT traffic via SPAN ports without injecting packets, which is why they are preferred over active scanners on fragile control networks.</li>
-<li>A PLC that does not support authentication or encryption is a vulnerability that can be effectively compensated for by network isolation, protocol-aware firewalls, and passive monitoring — even though the PLC itself cannot be hardened.</li>
-<li>CMMC 2.0 Level 2 certification is essentially the 110 NIST SP 800-171 controls plus third-party assessment for contracts handling Controlled Unclassified Information.</li>
-<li>A USB-based attack vector against an air-gapped OT system is implausible in practice because a system without network connectivity cannot be reached by attackers.</li>
-<li>A jump host that enforces MFA, records sessions, and time-boxes vendor access is an appropriate compensating control for an environment where vendor remote-support contracts cannot be eliminated.</li>
-<li>Setting a guest wireless SSID with client isolation enabled prevents one guest device from directly attacking another guest device on the same SSID at Layer 2.</li>
-<li>The 1998-era industrial PCs running Windows XP at Yellow Brick Manufacturing in the case study were fully patched to Microsoft's latest XP service pack, which provides modern protection against current malware families.</li>
-<li>A documented replacement roadmap with funding and management oversight is itself a security control, because it bounds how long compensating controls must remain in place around legacy systems.</li>
-<li>ISA/IEC 62443 organizes OT security around the concepts of zones (groups of assets with shared security requirements) and conduits (defined communication paths between zones), aligning with the Purdue Model's segmentation logic.</li>
+<ol type="1">
+<li>In Operational Technology environments, the priority order is
+generally Safety → Availability → Integrity → Confidentiality, which
+inverts the classic IT CIA triad and meaningfully changes architectural
+choices.</li>
+<li>Active vulnerability scanning of OT networks using standard IT
+scanners is a recommended baseline practice because modern scanners are
+non-disruptive to PLCs and field devices.</li>
+<li>The Purdue Reference Model places an industrial DMZ between Levels 3
+and 4, requiring all north-south traffic between IT and OT to traverse
+the DMZ rather than connecting directly.</li>
+<li>Modbus, DNP3, and EtherNet/IP in their original forms do not provide
+cryptographic authentication of commands, which is one reason network
+segmentation and protocol-aware firewalls are essential in OT.</li>
+<li>An air-gapped OT network is permanently safe because it has no IP
+connectivity to the corporate network or internet, and therefore needs
+no further compensating controls or monitoring.</li>
+<li>The Oldsmar, Florida water treatment incident in 2021 was made
+possible primarily by an unauthorized internet-exposed remote-access
+tool with shared credentials and no multi-factor authentication.</li>
+<li>WPA3-Enterprise with EAP-TLS provides mutual certificate-based
+authentication between the wireless client and the RADIUS server, plus
+forward secrecy of the wireless session keys.</li>
+<li>Per-SSID VLAN segmentation places different SSIDs (Corp-Trusted,
+BYOD, Guest, IoT) into separate VLANs each with its own firewall policy
+enforced at the wireless controller, not the access point.</li>
+<li>Compensating controls are intended to be permanent replacements for
+direct remediation; once a compensating control is in place, the
+underlying system no longer requires a documented replacement plan.</li>
+<li>NERC CIP standards apply only to the cyber assets of corporate IT
+environments at electric utilities and explicitly exempt the
+substations, generation control systems, and other OT assets that
+compose the Bulk Electric System.</li>
+<li>The FDA’s premarket cybersecurity guidance, reinforced by the 2022
+Consolidated Appropriations Act, requires medical-device manufacturers
+to provide an SBOM and to support firmware updates throughout the
+device’s reasonable lifetime.</li>
+<li>Passive monitoring tools (Claroty, Nozomi Networks, Dragos) listen
+to OT traffic via SPAN ports without injecting packets, which is why
+they are preferred over active scanners on fragile control
+networks.</li>
+<li>A PLC that does not support authentication or encryption is a
+vulnerability that can be effectively compensated for by network
+isolation, protocol-aware firewalls, and passive monitoring — even
+though the PLC itself cannot be hardened.</li>
+<li>CMMC 2.0 Level 2 certification is essentially the 110 NIST SP
+800-171 controls plus third-party assessment for contracts handling
+Controlled Unclassified Information.</li>
+<li>A USB-based attack vector against an air-gapped OT system is
+implausible in practice because a system without network connectivity
+cannot be reached by attackers.</li>
+<li>A jump host that enforces MFA, records sessions, and time-boxes
+vendor access is an appropriate compensating control for an environment
+where vendor remote-support contracts cannot be eliminated.</li>
+<li>Setting a guest wireless SSID with client isolation enabled prevents
+one guest device from directly attacking another guest device on the
+same SSID at Layer 2.</li>
+<li>The 1998-era industrial PCs running Windows XP at Yellow Brick
+Manufacturing in the case study were fully patched to Microsoft’s latest
+XP service pack, which provides modern protection against current
+malware families.</li>
+<li>A documented replacement roadmap with funding and management
+oversight is itself a security control, because it bounds how long
+compensating controls must remain in place around legacy systems.</li>
+<li>ISA/IEC 62443 organizes OT security around the concepts of zones
+(groups of assets with shared security requirements) and conduits
+(defined communication paths between zones), aligning with the Purdue
+Model’s segmentation logic.</li>
 </ol>
-<h4>Answer Key</h4>
-<ol>
-<li><strong>True.</strong> Safety is non-negotiable in OT; the entire architectural style — patching cadence, scanning posture, change-control rigor — flows from this inversion.</li>
-<li><strong>False.</strong> Active scanning of legacy PLCs has a long history of crashing them. Passive monitoring is the OT-appropriate default.</li>
-<li><strong>True.</strong> The iDMZ is a mandatory boundary; no direct IT-to-OT connections are permitted in a properly implemented Purdue architecture.</li>
-<li><strong>True.</strong> Most legacy industrial protocols predate the assumption that authentication mattered. Compensating with segmentation and protocol-aware firewalls is the modern answer.</li>
-<li><strong>False.</strong> Air-gapped systems still need monitoring, USB controls, physical security, and replacement planning. Stuxnet, the canonical air-gap-defeating malware, demonstrated this in 2010.</li>
-<li><strong>True.</strong> Shared TeamViewer credentials with no MFA were the entry point. The chemical safety controls — not the cyber controls — prevented harm.</li>
-<li><strong>True.</strong> Mutual certificate auth plus forward secrecy is exactly what WPA3-Enterprise with EAP-TLS provides.</li>
-<li><strong>True.</strong> The controller is the policy enforcement point; mapping each SSID to its own VLAN and policy is standard practice in any segmented wireless deployment.</li>
-<li><strong>False.</strong> Compensating controls are evidence of debt. Every compensating control should have a tracked replacement plan; treating them as permanent is how legacy debt becomes legacy crisis.</li>
-<li><strong>False.</strong> NERC CIP applies specifically to BES Cyber Assets — including the OT assets at substations, generation, and control centers. Corporate IT systems may also fall in scope where they affect the BES.</li>
-<li><strong>True.</strong> The 2022 law gave FDA explicit authority and codified SBOM and firmware-support expectations for premarket cybersecurity submissions.</li>
-<li><strong>True.</strong> Passive listening is the basic principle that makes OT-aware monitoring tools usable on networks where active scanning is dangerous.</li>
-<li><strong>True.</strong> This is the central premise of compensating controls: protect what you cannot directly fix.</li>
-<li><strong>True.</strong> Level 2 maps to the 110 NIST SP 800-171 controls; third-party assessment is required for contracts at the higher CMMC tiers within Level 2.</li>
-<li><strong>False.</strong> USB is the canonical vector against air-gapped systems — Stuxnet being the famous case. USB controls, write-blocking, and physical security are essential even on disconnected networks.</li>
-<li><strong>True.</strong> This is the standard pattern when vendor remote support cannot be eliminated; it converts an open remote-access path into a controlled, audited, time-boxed one.</li>
-<li><strong>True.</strong> Client isolation at the controller level prevents intra-SSID Layer-2 communication, which is the basic protection on guest networks.</li>
-<li><strong>False.</strong> Windows XP has been out of support since 2014; "fully patched" XP is still wide open to many post-2014 vulnerabilities. The case-study compensating controls — air-gap, allowlisting, ACLs, USB restriction — reflect this reality.</li>
-<li><strong>True.</strong> A funded, tracked replacement plan bounds the duration of compensating-control debt and is itself an essential governance control.</li>
-<li><strong>True.</strong> Zones and conduits are the IEC 62443 vocabulary for the same segmentation logic the Purdue Model expresses graphically; the two frameworks complement each other in practice.</li>
+<h4 id="answer-key">Answer Key</h4>
+<ol type="1">
+<li><strong>True.</strong> Safety is non-negotiable in OT; the entire
+architectural style — patching cadence, scanning posture, change-control
+rigor — flows from this inversion.</li>
+<li><strong>False.</strong> Active scanning of legacy PLCs has a long
+history of crashing them. Passive monitoring is the OT-appropriate
+default.</li>
+<li><strong>True.</strong> The iDMZ is a mandatory boundary; no direct
+IT-to-OT connections are permitted in a properly implemented Purdue
+architecture.</li>
+<li><strong>True.</strong> Most legacy industrial protocols predate the
+assumption that authentication mattered. Compensating with segmentation
+and protocol-aware firewalls is the modern answer.</li>
+<li><strong>False.</strong> Air-gapped systems still need monitoring,
+USB controls, physical security, and replacement planning. Stuxnet, the
+canonical air-gap-defeating malware, demonstrated this in 2010.</li>
+<li><strong>True.</strong> Shared TeamViewer credentials with no MFA
+were the entry point. The chemical safety controls — not the cyber
+controls — prevented harm.</li>
+<li><strong>True.</strong> Mutual certificate auth plus forward secrecy
+is exactly what WPA3-Enterprise with EAP-TLS provides.</li>
+<li><strong>True.</strong> The controller is the policy enforcement
+point; mapping each SSID to its own VLAN and policy is standard practice
+in any segmented wireless deployment.</li>
+<li><strong>False.</strong> Compensating controls are evidence of debt.
+Every compensating control should have a tracked replacement plan;
+treating them as permanent is how legacy debt becomes legacy
+crisis.</li>
+<li><strong>False.</strong> NERC CIP applies specifically to BES Cyber
+Assets — including the OT assets at substations, generation, and control
+centers. Corporate IT systems may also fall in scope where they affect
+the BES.</li>
+<li><strong>True.</strong> The 2022 law gave FDA explicit authority and
+codified SBOM and firmware-support expectations for premarket
+cybersecurity submissions.</li>
+<li><strong>True.</strong> Passive listening is the basic principle that
+makes OT-aware monitoring tools usable on networks where active scanning
+is dangerous.</li>
+<li><strong>True.</strong> This is the central premise of compensating
+controls: protect what you cannot directly fix.</li>
+<li><strong>True.</strong> Level 2 maps to the 110 NIST SP 800-171
+controls; third-party assessment is required for contracts at the higher
+CMMC tiers within Level 2.</li>
+<li><strong>False.</strong> USB is the canonical vector against
+air-gapped systems — Stuxnet being the famous case. USB controls,
+write-blocking, and physical security are essential even on disconnected
+networks.</li>
+<li><strong>True.</strong> This is the standard pattern when vendor
+remote support cannot be eliminated; it converts an open remote-access
+path into a controlled, audited, time-boxed one.</li>
+<li><strong>True.</strong> Client isolation at the controller level
+prevents intra-SSID Layer-2 communication, which is the basic protection
+on guest networks.</li>
+<li><strong>False.</strong> Windows XP has been out of support since
+2014; “fully patched” XP is still wide open to many post-2014
+vulnerabilities. The case-study compensating controls — air-gap,
+allowlisting, ACLs, USB restriction — reflect this reality.</li>
+<li><strong>True.</strong> A funded, tracked replacement plan bounds the
+duration of compensating-control debt and is itself an essential
+governance control.</li>
+<li><strong>True.</strong> Zones and conduits are the IEC 62443
+vocabulary for the same segmentation logic the Purdue Model expresses
+graphically; the two frameworks complement each other in practice.</li>
 </ol>
+
         </main>
     </div>
 </body>

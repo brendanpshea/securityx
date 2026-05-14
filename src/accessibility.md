@@ -10,10 +10,15 @@ The site targets **WCAG 2.1 Level AA**. It has not been independently audited; t
 
 ## What Is in Place
 
-- **Semantic structure.** Each chapter uses a single `<h1>`, properly nested `<h2>`/`<h3>` headings, and ordered/unordered lists, so screen readers and reader-mode tools can navigate the document outline.
+- **Semantic structure.** Each chapter uses a single `<h1>`, properly nested `<h2>`/`<h3>` headings, ordered/unordered lists, and a single `<main id="main">` landmark, so screen readers and reader-mode tools can navigate the document outline.
+- **Skip link.** Every page begins with a "Skip to content" link that becomes visible on first Tab. Keyboard users can jump past the header on every page.
+- **Visible focus indicator.** A high-contrast yellow focus ring (~12:1 against the page background) appears on every keyboard-focused link, button, and form control. Browser default outlines are not suppressed.
+- **Table column headers.** Every `<th>` in a table header row carries `scope="col"`, so screen readers in table-navigation mode re-announce the column name as the user arrows down a column.
 - **Descriptive alt text.** Every figure in chapters 1–12 has an alt attribute that describes what the diagram shows — not just its title — so the educational content is available to screen-reader users. Figures with on-page captions (`*Figure X.Y: ...*`) duplicate the caption text into the alt attribute on purpose.
 - **Text-first content.** All concepts, case studies, key points, and warnings are presented as text. Figures reinforce the prose but no exam-relevant content is image-only.
-- **Keyboard navigation.** Every link, including the practice-problem inputs, is reachable and operable from the keyboard. There are no custom interactive controls that bypass the browser's focus model.
+- **Keyboard navigation.** Every link, button, and form control is reachable and operable from the keyboard. There are no custom interactive controls that bypass the browser's focus model.
+- **Practice-problem feedback.** When you check answers on a cloze exercise, the score is announced through an `aria-live` status region, incorrect answers are marked with `aria-invalid="true"`, and each blank carries an `aria-label` identifying its position ("Answer 3 of 7"). Color is paired with text labels in the explanation panel so the green ✓ / red ✗ is not the only signal.
+- **Reduced motion.** The site honors `prefers-reduced-motion`. Hover transforms, transitions, and animations collapse to near-zero duration for users who request that preference.
 - **Color is not the only signal.** Callout boxes (Case Study, Warning, Key Point, Thought Question, Example) all carry a visible text label in addition to their color treatment.
 - **Resizable text.** The stylesheet uses relative units, so browser zoom and OS-level text-size settings scale the content without breaking layout up to 200%.
 - **Language declared.** Every page declares `lang="en"` so assistive tech selects the correct pronunciation.
@@ -21,9 +26,8 @@ The site targets **WCAG 2.1 Level AA**. It has not been independently audited; t
 ## Known Limitations
 
 - **Generated diagrams.** Figures are rendered as PNG. The alt text conveys the concept, but the underlying matplotlib source (in `src/scripts/generate_figures_chXX.py`) is not yet exposed as SVG with `<title>`/`<desc>` elements. SVG with structured descriptions is on the roadmap.
-- **Color contrast in dark theme.** The site uses a dark-mode-first palette. Most text/background pairs meet AA, but a small number of accent colors used inside callout titles approach the 4.5:1 floor. If you encounter a specific combination that is hard to read, please report it — it is faster for us to fix a real example than to re-audit the whole palette.
-- **Practice-problem feedback.** The cloze-style problems give visual cues (green/red borders) when an answer is checked. A screen-reader-friendly status announcement (via `aria-live`) is planned but not yet implemented.
-- **No transcripts for figures.** A small number of complex figures (e.g., the Cyber Kill Chain, the AI/ML pipeline) would benefit from a long-description `<details>` block in addition to the alt text. This will roll out as the figures are migrated to SVG.
+- **Color contrast in dark theme.** The site uses a dark-mode-first palette. Body text, accent links, and primary buttons all pass AA against their backgrounds, but the palette has not been independently re-measured against WCAG 2.1 since the last theme adjustment. If you encounter a specific combination that is hard to read, please report it.
+- **No transcripts for figures.** A small number of complex figures (e.g., the Cyber Kill Chain, the AI/ML pipeline) would benefit from a long-description `<details>` block in addition to the alt text. This is on the roadmap.
 
 ## Reporting an Issue
 
