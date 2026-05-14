@@ -7,7 +7,7 @@
   "body_md": "To remove the firmware-signing key from the build server, Victor will move all signing operations into an **{{key_hardware}}** — a dedicated, tamper-resistant device whose private keys never leave the boundary in plaintext. For per-device measurements and remote attestation of the pump itself, each unit will ship with a **{{platform_module}}** that stores boot-stage hashes in tamper-evident registers.\n\nThe boot process must verify the cryptographic signature on each stage before executing it; this is **{{boot_a}}**. To additionally record what was actually loaded — so a remote server can later confirm the device booted clean firmware — Victor will enable **{{boot_b}}**, which extends measurements into the platform module's PCRs.\n\nIn the CI/CD pipeline, Victor will add **{{sca_tool}}** to flag vulnerable open-source components, and the pipeline will publish a **{{inventory}}** alongside each release so hospitals can match component versions against future CVEs without reverse-engineering the firmware.\n\nTo catch insecure code patterns before the binary is even built, Victor will run **{{static_test}}** against the source tree. To find runtime issues such as authentication bypasses on the BLE interface, the QA team will run **{{dynamic_test}}** against built firmware in a hardware-in-the-loop rig.\n\nFor the day the pump model is retired, Victor will publish a documented **{{eol_plan}}** so hospitals know exactly when security updates will stop and can budget for replacement. Finally, to defend against a malicious device wedged between a USB port and a legitimate peripheral, Victor will warn clinicians in the operations manual about **{{usb_attack}}** and require port covers on the charging dock.",
   "blanks": {
     "key_hardware": {
-      "answer": "HSM (Hardware Security Module)",
+      "answer": "HSM",
       "distractors": [
         "TPM (Trusted Platform Module)",
         "USB flash drive",
@@ -17,7 +17,7 @@
       "explanation": "HSMs are network-attached or PCIe tamper-resistant key vaults purpose-built for high-volume signing operations such as a CI/CD pipeline. TPMs are bound to a single host platform — wrong scale for a build server."
     },
     "platform_module": {
-      "answer": "TPM (Trusted Platform Module)",
+      "answer": "TPM",
       "distractors": [
         "HSM (Hardware Security Module)",
         "EEPROM",
@@ -47,7 +47,7 @@
       "explanation": "Measured Boot records hashes of each loaded component into TPM PCRs, enabling later remote attestation. Secure Boot enforces; Measured Boot evidences."
     },
     "sca_tool": {
-      "answer": "Software Composition Analysis (SCA)",
+      "answer": "SCA",
       "distractors": [
         "SAST",
         "DAST",
@@ -57,7 +57,7 @@
       "explanation": "SCA inventories open-source dependencies and matches them against vulnerability databases — exactly the Log4Shell-era control gap."
     },
     "inventory": {
-      "answer": "SBOM (Software Bill of Materials)",
+      "answer": "SBOM",
       "distractors": [
         "CVE list",
         "CMDB extract",
@@ -67,7 +67,7 @@
       "explanation": "An SBOM is the machine-readable component inventory (formats: SPDX, CycloneDX) that downstream operators ingest to track exposure."
     },
     "static_test": {
-      "answer": "SAST (Static Application Security Testing)",
+      "answer": "SAST",
       "distractors": [
         "DAST",
         "RASP",
@@ -77,7 +77,7 @@
       "explanation": "SAST analyzes source or bytecode without executing it — ideal for catching insecure patterns early in the pipeline."
     },
     "dynamic_test": {
-      "answer": "DAST (Dynamic Application Security Testing)",
+      "answer": "DAST",
       "distractors": [
         "SAST",
         "SCA",
@@ -87,7 +87,7 @@
       "explanation": "DAST exercises the running system from the outside — the right tool for finding runtime auth/authorization flaws on the BLE attack surface."
     },
     "eol_plan": {
-      "answer": "end-of-life (EOL) / supportability schedule",
+      "answer": "EOL schedule",
       "distractors": [
         "marketing roadmap",
         "feature backlog",

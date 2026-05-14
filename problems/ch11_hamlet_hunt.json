@@ -87,7 +87,7 @@
       "explanation": "Honey tokens are decoy secrets placed in legitimate-looking locations whose use generates a high-confidence alert — signal-to-noise approaches one because no legitimate user has any reason to use them."
     },
     "tip": {
-      "answer": "Threat Intelligence Platform (TIP)",
+      "answer": "TIP",
       "distractors": [
         "WAF appliance",
         "vulnerability scanner",
@@ -117,7 +117,7 @@
       "explanation": "TAXII (Trusted Automated eXchange of Indicator Information) is the HTTPS REST transport protocol that carries STIX bundles between TIPs, ISACs, and vendors. STIX is the data; TAXII is the pipe."
     },
     "mttd": {
-      "answer": "Mean Time to Detect (MTTD)",
+      "answer": "MTTD",
       "distractors": [
         "Events Per Second (EPS)",
         "Total Storage Consumed",

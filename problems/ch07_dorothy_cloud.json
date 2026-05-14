@@ -17,7 +17,7 @@
       "explanation": "The Shared Responsibility Model defines the dividing line between cloud-provider duties and customer duties. The exact line shifts between IaaS, PaaS, and SaaS."
     },
     "image_control": {
-      "answer": "image vulnerability scan / admission controller",
+      "answer": "admission controller",
       "distractors": [
         "TLS handshake",
         "BGP route filter",
@@ -67,7 +67,7 @@
       "explanation": "Rate limiting (and quotas) at the API gateway is the standard control against abuse, scraping, brute force, and runaway billing."
     },
     "casb": {
-      "answer": "CASB (Cloud Access Security Broker)",
+      "answer": "CASB",
       "distractors": [
         "WAF (Web Application Firewall)",
         "EDR (Endpoint Detection and Response)",
@@ -87,7 +87,7 @@
       "explanation": "Customer-managed keys (or bring-your-own-key) let the customer revoke decryption capability unilaterally — required when a customer contract demands cryptographic separation from the cloud provider."
     },
     "detection_control": {
-      "answer": "Cloud Security Posture Management (CSPM)",
+      "answer": "CSPM",
       "distractors": [
         "Annual penetration test",
         "Manual IAM review every 12 months",

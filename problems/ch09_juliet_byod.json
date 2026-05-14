@@ -57,7 +57,7 @@
       "explanation": "Per-SSID VLAN segmentation maps each SSID to its own VLAN and ACL set, enforced at the wireless controller. Mixing BYOD, guests, and IoT cameras on one VLAN is exactly the flat-network mistake the WannaCry case study warned about."
     },
     "wids": {
-      "answer": "WIDS (Wireless IDS)",
+      "answer": "WIDS",
       "distractors": [
         "open NetFlow collector",
         "passive SNMP poll",

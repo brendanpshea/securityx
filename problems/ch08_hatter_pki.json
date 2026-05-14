@@ -27,7 +27,7 @@
       "explanation": "ACME (Automated Certificate Management Environment) is the Let's Encrypt-pioneered standard for automated certificate issuance and renewal, now widely supported."
     },
     "san": {
-      "answer": "Subject Alternative Name (SAN)",
+      "answer": "SAN",
       "distractors": [
         "Common Name (CN)",
         "Issuer DN",
@@ -67,7 +67,7 @@
       "explanation": "Envelope encryption uses a two-tier key model: a per-object DEK encrypts the data, and a KEK in the HSM/KMS wraps the DEK. Rotation only requires re-wrapping DEKs, not re-encrypting data."
     },
     "aead": {
-      "answer": "GCM (AEAD)",
+      "answer": "GCM",
       "distractors": [
         "ECB",
         "CBC without MAC",
@@ -97,7 +97,7 @@
       "explanation": "FIDO2 / WebAuthn authenticators store a device-bound private key and prove possession by signing a challenge. The server holds only the public key, so a database breach exposes nothing replayable."
     },
     "mtls": {
-      "answer": "mutual TLS (mTLS)",
+      "answer": "mTLS",
       "distractors": [
         "anonymous TLS",
         "plaintext HTTP",
@@ -117,7 +117,7 @@
       "explanation": "Harvest-now-decrypt-later is the strategy of recording encrypted traffic today to decrypt it once a cryptographically relevant quantum computer exists. It is the operational reason to start PQC migration now."
     },
     "pqc_kem": {
-      "answer": "ML-KEM (Kyber)",
+      "answer": "ML-KEM",
       "distractors": [
         "RSA-1024",
         "MD5",
