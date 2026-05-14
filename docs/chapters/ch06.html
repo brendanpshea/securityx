@@ -16,6 +16,12 @@
         </header>
         <main>
             <h1>Chapter 6: Secure Systems Lifecycle and Hardware Assurance</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>2.2:</strong> Given a scenario, implement security in the early stages of the systems life cycle and throughout subsequent stages.</li>
+<li><strong>3.4:</strong> Given a scenario, implement hardware security technologies and techniques.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch06-frankenstein-hardware.html">Victor Frankenstein Audits an IoT Insulin Pump</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Define</strong> functional and non-functional security requirements during the early stages of the systems life cycle.</li>
@@ -62,7 +68,7 @@ Branch protection rules are enforceable at the platform level, but platform admi
 </blockquote>
 <h3>The CI/CD Pipeline as a Security Checkpoint</h3>
 <p><strong>Continuous Integration / Continuous Deployment (CI/CD)</strong> is the practice of automatically building, testing, and deploying software every time code is merged into a shared branch. From a security perspective, the CI/CD pipeline is the most powerful systematic security enforcement tool an organization has. Every commit runs the same gauntlet of checks, every time. No step gets skipped because someone was busy.</p>
-<p><img alt="Integrating Security into the CI/CD Pipeline" src="../assets/images/ch06_secure_cicd_pipeline.png" />
+<p><img alt="A secure CI/CD pipeline embeds security checks at every stage — lint and commit signing on commit, SCA and SBoM generation at build time, SAST and DAST at test time — with findings feeding a continuous improvement backlog." src="../assets/images/ch06_secure_cicd_pipeline.png" />
 <em>Figure 6.1: A secure CI/CD pipeline embeds security checks at every stage — lint and commit signing on commit, SCA and SBoM generation at build time, SAST and DAST at test time — with findings feeding a continuous improvement backlog.</em></p>
 <p>The pipeline has five conceptual stages for our purposes:</p>
 <ol>
@@ -86,6 +92,18 @@ Your pipeline runs SAST on every commit and DAST against a staging environment o
 <p><strong>Static Application Security Testing (SAST)</strong> analyzes source code, bytecode, or binary without executing it. The analyzer looks for known vulnerability patterns — command injection, SQL injection, use of insecure cryptographic functions, improper error handling — by examining the code's structure and logic.</p>
 <p>SAST is fast (it can scan large codebases in minutes), integrates cleanly into CI pipelines, and can be run before any test environment is needed. Its weakness is <strong>false positives</strong>: patterns that look like vulnerabilities but are not, because the tool cannot fully reason about the runtime context. A SAST tool might flag a string formatted into a query as a SQL injection risk even if the code is calling a parameterized query library under the hood. Developers who see too many false positives start ignoring the tool, which is arguably worse than not having it.</p>
 <p>Common SAST tools include Checkmarx, Veracode, SonarQube, Semgrep, CodeQL (used in GitHub Advanced Security), and language-specific tools like Bandit for Python and SpotBugs for Java.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>What a SAST finding looks like in practice</em></p>
+<p>Running Bandit against a Python microservice returns the following:</p>
+<p><code>Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'admin1234'
+Severity: Medium   Confidence: Medium
+Location: app/config.py, line 14</code></p>
+<p>The offending line is <code>DB_PASSWORD = "admin1234"</code>. The fix is to read the value from the environment at runtime instead:</p>
+<p><code>python
+DB_PASSWORD = os.environ.get("DB_PASSWORD")</code></p>
+<p>A secrets manager injects the real value at deploy time — it never touches source code. The key lesson: SAST caught this before the commit was merged. The same credential baked into a container image pushed to a public registry would typically be scraped and used within minutes.</p>
+</blockquote>
 <h3>DAST: Finding Problems By Running the Code</h3>
 <p><strong>Dynamic Application Security Testing (DAST)</strong> tests a running application by simulating attacks against it — submitting malicious inputs, probing for injection vulnerabilities, checking for misconfigurations in HTTP headers, testing authentication and authorization logic. DAST tools do not have access to source code; they see the application the way an attacker would.</p>
 <p>DAST finds vulnerabilities that SAST cannot, particularly those that arise from the interaction between components at runtime: misconfigurations in the web server, authentication bypasses that are only apparent when the whole system is assembled, session management flaws that exist in the protocol flow rather than in code logic. The trade-off is that DAST requires a live environment, is slower than SAST, and can miss code paths that are not exercised by its attacks.</p>
@@ -257,6 +275,14 @@ The critical architectural distinction between a TPM and an HSM is scale and pur
 </tr>
 </tbody>
 </table>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>BitLocker sealed to TPM PCR values</em></p>
+<p>A corporate laptop's BitLocker configuration seals the disk encryption key to PCR values 0, 2, 4, 7, and 11 — registers that measure UEFI firmware, the boot loader, boot configuration, Secure Boot state, and the early Windows boot manager respectively. At each startup the TPM re-measures those components and extends their hashes into the PCRs.</p>
+<p>If everything is unchanged — the same firmware, the same Secure Boot keys, the same boot configuration — the PCRs match the sealed policy. The TPM releases the Volume Master Key and the drive unlocks transparently. The user sees nothing unusual.</p>
+<p>If an attacker removes the drive and puts it in a different machine, or tampers with the bootloader between reboots, the measured PCR values will not match what the key was sealed to. The TPM refuses to release the key. The drive contents remain encrypted and unreadable, even with the physical disk in hand.</p>
+<p>This is "sealing to platform state" in concrete terms: the decryption key is not just protected by a password — it is tied to cryptographic evidence that the system is in a specific, expected configuration.</p>
+</blockquote>
 <h3>Virtual Hardware and Host-Based Encryption</h3>
 <p><strong>Virtual hardware</strong> security is the practice of enforcing security properties at the hypervisor layer that individual VMs cannot override. Hypervisors such as VMware ESXi and Microsoft Hyper-V provide VMs with virtualized representations of hardware — virtual NICs, virtual disks, virtual CPUs — but critically, the hypervisor controls what those virtual devices can do.</p>
 <p>Security-relevant virtual hardware controls include:</p>
@@ -300,7 +326,7 @@ SEDs rely entirely on the drive's own firmware for their security guarantees. A 
 <li>The firmware's <strong>Platform Key (PK)</strong> and <strong>Key Exchange Keys (KEKs)</strong> are enrolled from the hardware vendor and not replaceable without physical access.</li>
 <li>The <code>dbx</code> is kept up to date with revoked components, particularly revoked bootloaders discovered to have vulnerabilities (the Secure Boot bypass landscape is actively managed through dbx updates).</li>
 </ul>
-<p><img alt="Secure Boot and Measured Boot Process" src="../assets/images/ch06_secure_measured_boot.png" />
+<p><img alt="The full boot integrity chain — Secure Boot validates signatures at each stage; Measured Boot records hashes into the TPM; Remote Attestation allows a verifier to confirm the boot chain without physical access." src="../assets/images/ch06_secure_measured_boot.png" />
 <em>Figure 6.2: The full boot integrity chain — Secure Boot validates signatures at each stage; Measured Boot records hashes into the TPM; Remote Attestation allows a verifier to confirm the boot chain without physical access.</em></p>
 <h3>Measured Boot</h3>
 <p><strong>Measured Boot</strong> complements Secure Boot but serves a different purpose. Where Secure Boot <em>blocks</em> unauthorized components, Measured Boot <em>records</em> everything that ran during startup. At each stage of the boot:</p>

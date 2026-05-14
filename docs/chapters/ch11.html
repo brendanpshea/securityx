@@ -16,6 +16,12 @@
         </header>
         <main>
             <h1>Chapter 11: Security Operations, Monitoring, and Threat Hunting</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>4.1:</strong> Given a scenario, analyze data to enable monitoring and response activities.</li>
+<li><strong>4.3:</strong> Given a scenario, apply threat-hunting and threat intelligence concepts.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch11-hamlet-threat-hunting.html">Hamlet Builds a Threat-Hunting Program at Denmark Cyber Defense</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Analyze</strong> data from SIEM solutions to identify trends, prioritize alerts, and reduce audit logs.</li>
@@ -43,8 +49,32 @@
 <li><strong>Correlation and detection.</strong> Rules — written in vendor-specific languages or the cross-platform <strong>Sigma</strong> standard — combine multiple events into higher-level alerts. UEBA models flag statistical anomalies the rules would never have anticipated.</li>
 <li><strong>Alerting, dashboards, and response.</strong> Alerts route to analysts; dashboards summarize trends; SOAR playbooks (Chapter 12) automate response on the most common patterns.</li>
 </ol>
-<p><img alt="The SIEM Data Pipeline" src="../assets/images/ch11_siem_pipeline.png" />
+<p><img alt="The SIEM pipeline flows from heterogeneous sources through collectors and forwarders into a normalization-and-enrichment stage, then into indexed storage, correlation and detection, and finally to alerts, dashboards, and SOAR workflows. Schema discipline at the normalize stage is what makes everything downstream queryable across data sources." src="../assets/images/ch11_siem_pipeline.png" />
 <em>Figure 11.1: The SIEM pipeline flows from heterogeneous sources through collectors and forwarders into a normalization-and-enrichment stage, then into indexed storage, correlation and detection, and finally to alerts, dashboards, and SOAR workflows. Schema discipline at the normalize stage is what makes everything downstream queryable across data sources.</em></p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>A Sigma rule detecting suspicious scheduled task creation</em></p>
+<p>Sigma is a vendor-neutral detection language that compiles into a given SIEM's query syntax. A rule that fires when a Windows scheduled task is created by a machine or service account — but not by a known-legitimate system process — looks like this:</p>
+<p>```yaml
+title: Suspicious Scheduled Task Creation
+status: test
+logsource:
+    product: windows
+    service: security
+detection:
+    selection:
+        EventID: 4698                   # "A scheduled task was created"
+        SubjectUserName|endswith: '$'   # machine/service account
+    filter_legitimate:
+        ParentCommandLine|contains:</p>
+<pre><code>        - 'svchost.exe'
+        - 'taskeng.exe'
+condition: selection and not filter_legitimate
+</code></pre>
+<p>```</p>
+<p>Event ID 4698 fires whenever a task is registered. The <code>SubjectUserName</code> filter narrows to machine or service accounts (which end in <code>$</code>); the exception list suppresses the legitimate system schedulers. A new scheduled task registered by an unexpected account — a pattern common in persistence after initial access — triggers the alert.</p>
+<p>Run <code>sigmac -t splunk</code> on this rule and it becomes Splunk SPL. Run it with <code>-t sentinel</code> and it becomes KQL for Microsoft Sentinel. One rule, any SIEM — and it lives in Git with a commit history and ATT&amp;CK annotation (T1053.005) so coverage maps stay accurate.</p>
+</blockquote>
 <h3>Prioritizing Alerts and Reducing Noise</h3>
 <p>Most SOCs do not fail because they detect too little — they fail because they detect too much. An analyst who receives 400 alerts a day cannot triage them with care; some will be ignored, and the ignored ones will eventually include real attacks. Five disciplines reduce this:</p>
 <ul>
@@ -183,7 +213,7 @@ Coverage gaps and noise are two sides of the same problem. You cannot tell an an
 <li><strong>High-interaction honeypots</strong> are real systems with real operating systems and applications, instrumented to capture every action. They produce richer intelligence about attacker tradecraft, at the cost of more careful containment to prevent them from being used as a pivot.</li>
 <li><strong>Honey tokens / honey credentials.</strong> Decoy secrets placed in real systems — a "honey" AWS access key in a developer's home directory, a fake admin password in a vault entry, a canary file on a fileshare. <em>Any</em> use of these tokens generates a high-confidence alert. CanaryTokens.org and similar services have made honey tokens extremely cheap to deploy.</li>
 </ul>
-<p><img alt="Honeypot and Honeynet Architecture" src="../assets/images/ch11_honeynet.png" />
+<p><img alt="A honeynet is an isolated VLAN containing decoy systems and tokens, with every interaction logged and alerted. Because no legitimate users have any reason to touch these systems, the signal-to-noise ratio approaches one — every alert is worth investigating." src="../assets/images/ch11_honeynet.png" />
 <em>Figure 11.2: A honeynet is an isolated VLAN containing decoy systems and tokens, with every interaction logged and alerted. Because no legitimate users have any reason to touch these systems, the signal-to-noise ratio approaches one — every alert is worth investigating.</em></p>
 <h3>Hypothesis-Based Searches</h3>
 <p>A useful hunt is built on a specific, testable hypothesis. Examples:</p>
@@ -282,6 +312,33 @@ Coverage gaps and noise are two sides of the same problem. You cannot tell an an
 <ul>
 <li><strong>Sigma.</strong> A vendor-neutral SIEM rule format. A Sigma rule describes a detection in YAML, and converter tooling translates it into the underlying query language of whatever SIEM the consumer uses (Splunk SPL, KQL, ES|QL, etc.). The SigmaHQ repository ships thousands of community-contributed rules covering most MITRE ATT&amp;CK techniques.</li>
 <li><strong>YARA.</strong> A pattern-matching language for files — used to identify malware families by byte sequences, strings, and structural patterns in executables. YARA rules drive malware sandboxes, EDR scanners, and threat-intelligence platforms.</li>
+</ul>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>Anatomy of a YARA rule</em></p>
+<p>YARA rules have three sections: <code>meta</code> (freeform annotation), <code>strings</code> (what to look for), and <code>condition</code> (when to fire). Here is a simplified rule flagging executables that impersonate security tools with fake-alert strings:</p>
+<p>```yara
+rule FakeAV_ScarewarePrompt
+{
+    meta:
+        author      = "Denmark Cyber Defense"
+        description = "Detects rogue AV using scare-language lures"
+        date        = "2026-03-01"</p>
+<pre><code>strings:
+    $s1 = "Your PC is infected with" ascii nocase
+    $s2 = "Call Microsoft Support" ascii nocase
+    $hex = { 50 61 79 4E 6F 77 }   // "PayNow" in hex
+
+condition:
+    uint16(0) == 0x5A4D   // MZ header — Windows PE file
+    and 2 of ($s*)
+    and $hex
+</code></pre>
+<p>}
+```</p>
+<p><code>uint16(0) == 0x5A4D</code> ensures the rule only fires on Windows executables. <code>2 of ($s*)</code> requires at least two of the ASCII strings to be present. The hex pattern adds a third, harder-to-rename anchor. A sandbox scanning a suspicious download, or Hamlet's threat-hunting session scanning the developer workstation fleet, would flag any file matching all three conditions for analyst review — regardless of the filename or file extension an attacker chose.</p>
+</blockquote>
+<ul>
 <li><strong>Snort / Suricata rules.</strong> Network IDS signature languages, widely used and widely shared via Emerging Threats and Talos rule sets.</li>
 </ul>
 <p>A well-run detection-engineering program treats these rule libraries the way a software team treats open-source dependencies: pulled in, version-controlled, tested for false-positive impact in staging, and selectively enabled in production.</p>

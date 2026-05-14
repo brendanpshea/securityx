@@ -16,6 +16,14 @@
         </header>
         <main>
             <h1>Chapter 9: Network, Endpoint, and Infrastructure Engineering</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>1.1:</strong> Given a set of organizational security requirements, implement the appropriate governance components.</li>
+<li><strong>3.1:</strong> Given a scenario, troubleshoot common issues with identity and access management (IAM) components in an enterprise environment.</li>
+<li><strong>3.2:</strong> Given a scenario, analyze requirements to enhance the security of endpoints and servers.</li>
+<li><strong>3.3:</strong> Given a scenario, troubleshoot complex network infrastructure security issues.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch09-juliet-byod-mdm.html">Juliet Capulet Rolls Out BYOD at Verona Health</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Analyze</strong> requirements to enhance the security of endpoints using EDR, anti-malware, and host-based firewalls.</li>
@@ -46,6 +54,18 @@
 <li><strong>Post-implementation review.</strong> Did it work? Did anything else break? The result is recorded against the original change ticket so that future investigators can correlate "the system started failing on Tuesday" with "ah, we deployed change CR-2317 on Tuesday."</li>
 </ol>
 <p><strong>Configuration management</strong> is the data side of the same problem: each system has a <em>desired state</em> (declared in a tool like Ansible, Puppet, Chef, Salt, or a Terraform / IaC pipeline) and an <em>actual state</em> (what is really on the machine). Drift between them is the fertile ground in which most security failures grow.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>A firewall rule change through the full workflow</em></p>
+<p>Juliet Capulet's team at <em>Verona Health</em> submits change request CR-4417: "Open TCP 6443 inbound from the DevOps VLAN to the Kubernetes API server to enable automated CI/CD deployments."</p>
+<ol>
+<li><strong>Request and impact assessment.</strong> The ticket documents the source/destination pair, the business justification, the rollback plan (delete the rule), and a note that the Kubernetes API server is in PCI and HIPAA scope.</li>
+<li><strong>CAB review.</strong> An analyst flags that the DevOps VLAN is shared with a contractor subnet. The rule is narrowed to three specific CI/CD runner IPs before approval.</li>
+<li><strong>Implementation window.</strong> The rule is applied at 2 a.m. Sunday. A verification test — a successful <code>curl</code> from an approved runner IP and a confirmed <strong>rejection</strong> from a non-approved IP — is logged in the ticket.</li>
+<li><strong>Post-implementation review.</strong> The ticket is closed with the exact rule as implemented, the verifier's name, and an action item to audit contractor IP assignments in the DevOps VLAN.</li>
+</ol>
+<p>Six months later, when an auditor asks "why does port 6443 have an inbound allow rule?", the answer is one click away — not an educated guess based on who remembers the sprint.</p>
+</blockquote>
 <h3>Asset Management Lifecycle, Inventory, and CMDB</h3>
 <p>The <strong>Configuration Management Database (CMDB)</strong> is the system of record for every asset and every relationship between assets. A good CMDB answers questions like: which servers run this application? Which VLAN are they in? Which patch group? Who is the business owner? Which compliance scope (PCI, HIPAA, SOX) does each asset fall under? When does the support contract expire?</p>
 <p>The <strong>asset management lifecycle</strong> runs from procurement through disposal:</p>
@@ -69,7 +89,7 @@ Shadow IT — assets the security team does not know about — is the usual sour
 <h3>EDR, HIPS/HIDS, Anti-Malware, and Host Firewalls</h3>
 <p><strong>Traditional antivirus (AV)</strong> matches files against a database of known-bad hashes and signatures. It catches known malware quickly and produces few false positives, but it is essentially blind to anything new — a freshly compiled implant, a living-off-the-land attack using only built-in OS tools, a fileless payload that lives only in memory.</p>
 <p><strong>Endpoint Detection and Response (EDR)</strong> is a different paradigm. A lightweight agent on every endpoint streams continuous telemetry — process creations, network connections, file operations, registry edits, syscall patterns — to a cloud analytics backend. The backend applies behavioral models, machine learning, and threat-intelligence overlays to detect <em>suspicious sequences</em>, not just bad files. CrowdStrike Falcon, Microsoft Defender for Endpoint, SentinelOne, and Palo Alto Cortex XDR are the dominant commercial offerings.</p>
-<p><img alt="EDR vs. Traditional Antivirus" src="../assets/images/ch09_edr_vs_av.png" />
+<p><img alt="Traditional AV asks &quot;have I seen this file before?&quot; — a question with a yes/no answer based on a static signature database. EDR asks &quot;is this behavior consistent with an attack?&quot; — a question that draws on continuous telemetry, cloud-side analytics, and the ability to respond automatically by isolating the host or terminating a process tree." src="../assets/images/ch09_edr_vs_av.png" />
 <em>Figure 9.1: Traditional AV asks "have I seen this file before?" — a question with a yes/no answer based on a static signature database. EDR asks "is this behavior consistent with an attack?" — a question that draws on continuous telemetry, cloud-side analytics, and the ability to respond automatically by isolating the host or terminating a process tree.</em></p>
 <p>Host-based defenses fall along a spectrum:</p>
 <ul>
@@ -242,7 +262,7 @@ Shadow IT — assets the security team does not know about — is the usual sour
 <li><strong>DKIM (DomainKeys Identified Mail).</strong> The sending server computes a cryptographic signature over selected headers and the body, then publishes its public key in DNS. Receivers verify the signature. DKIM authenticates the <em>message itself</em> and survives forwarding.</li>
 <li><strong>DMARC (Domain-based Message Authentication, Reporting, and Conformance).</strong> A DNS-published policy that tells receivers what to do when SPF <em>or</em> DKIM fails <em>and</em> the result is not "aligned" with the visible <code>From:</code> domain. Policies are <code>none</code> (monitor only), <code>quarantine</code> (junk folder), and <code>reject</code> (refuse delivery). DMARC also produces aggregate reports back to the domain owner so misconfigurations are visible.</li>
 </ul>
-<p><img alt="How SPF, DKIM, and DMARC Prevent Email Spoofing" src="../assets/images/ch09_email_auth.png" />
+<p><img alt="SPF, DKIM, and DMARC are layered defenses against email spoofing. SPF authenticates the sending IP, DKIM authenticates the message contents, and DMARC ties both back to the visible From: domain — telling the receiving server which policy to apply on failure." src="../assets/images/ch09_email_auth.png" />
 <em>Figure 9.2: SPF, DKIM, and DMARC are layered defenses against email spoofing. SPF authenticates the sending IP, DKIM authenticates the message contents, and DMARC ties both back to the visible <code>From:</code> domain — telling the receiving server which policy to apply on failure.</em></p>
 <p><strong>S/MIME</strong> — covered in Chapter 8 — is a different layer entirely: it provides end-to-end signing and encryption between specific senders and recipients using X.509 certificates. SPF/DKIM/DMARC protect the <em>channel</em>; S/MIME protects the <em>content</em>.</p>
 <table>
@@ -296,6 +316,16 @@ Shadow IT — assets the security team does not know about — is the usual sour
 </tr>
 </tbody>
 </table>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>What SPF, DKIM, and DMARC look like in DNS — and what happens when a spoofed message arrives</em></p>
+<p>Three DNS records protect <code>verona-health.org</code>:</p>
+<p><code>verona-health.org         TXT  "v=spf1 include:_spf.google.com ip4:203.0.113.20 -all"
+google._domainkey.v-h.org TXT  "v=DKIM1; k=rsa; p=MIIBIjANBgkq..."
+_dmarc.verona-health.org  TXT  "v=DMARC1; p=reject; rua=mailto:dmarc@verona-health.org"</code></p>
+<p>The SPF record authorizes Google's mail servers and one specific IP (<code>203.0.113.20</code>) to send for the domain; anything else is a hard fail (<code>-all</code>). The DKIM record publishes the public key used to verify the cryptographic signature attached to every outbound message. The DMARC record instructs receiving servers to <strong>reject</strong> any message where neither SPF nor DKIM aligns with the visible <code>From:</code> domain — and to send aggregate failure reports back to the security team.</p>
+<p>When a phishing campaign attempts to send "From: cfo@verona-health.org" from a rented VPS in Eastern Europe, the receiving mail server checks the VPS IP against SPF (not listed), checks the DKIM signature (absent or invalid), finds neither aligns, and rejects the message outright before it reaches the inbox. The CFO's name never shows up in any employee's mailbox from that source. The DMARC aggregate report logged the attempt and surfaced it in the security team's weekly review.</p>
+</blockquote>
 <h3>DoS/DDoS and Resource Exhaustion</h3>
 <p>A <strong>Denial of Service (DoS)</strong> attack consumes a resource (bandwidth, connections, CPU, memory) until legitimate users cannot use the service. <strong>Distributed DoS (DDoS)</strong> does so from many sources simultaneously, defeating simple IP blocking. Categories:</p>
 <ul>

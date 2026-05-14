@@ -16,6 +16,12 @@
         </header>
         <main>
             <h1>Chapter 5: Identity and Access Management Architecture and Engineering</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>2.4:</strong> Given a scenario, apply security concepts to the design of access, authentication, and authorization systems.</li>
+<li><strong>3.1:</strong> Given a scenario, troubleshoot common issues with identity and access management (IAM) components in an enterprise environment.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch05-emma-iam-offboarding.html">Emma Woodhouse Handles a Hostile Offboarding</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Design</strong> robust provisioning and deprovisioning workflows.</li>
@@ -80,7 +86,7 @@ If your organization rotates user passwords every 90 days but cannot tell you wh
 <li><strong>OAuth 2.0 / OpenID Connect (OIDC)</strong> — JSON / JWT-based, dominant in modern web and mobile applications. OAuth handles authorization (delegated access); OIDC layers authentication on top.</li>
 </ul>
 <p>The architectural payoff of federation is enormous. Deprovisioning becomes a single act at the IdP rather than a scavenger hunt across dozens of apps. MFA policy is enforced once and applies everywhere. Conditional access — discussed later in this chapter — becomes possible because every application sees the same enriched identity context.</p>
-<p><img alt="Federated Identity and SSO Workflow (SAML/OIDC)" src="../assets/images/ch05_sso_workflow.png" />
+<p><img alt="A federated SSO exchange. The user authenticates once at the Identity Provider, which issues a signed assertion or token that the Service Provider validates without ever seeing the user&#x27;s password." src="../assets/images/ch05_sso_workflow.png" />
 <em>Figure 5.1: A federated SSO exchange. The user authenticates once at the Identity Provider, which issues a signed assertion or token that the Service Provider validates without ever seeing the user's password.</em></p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong>
@@ -190,7 +196,7 @@ A contractor needs access to one application, from one specific laptop, only dur
 <li><strong>FAR and FRR trade-offs.</strong> The <strong>False Accept Rate (FAR)</strong> is how often the system wrongly accepts an imposter; the <strong>False Reject Rate (FRR)</strong> is how often it wrongly rejects a legitimate user. Lowering one usually raises the other. The threshold must be tuned to the sensitivity of the resource.</li>
 <li><strong>You cannot reissue a fingerprint.</strong> If a biometric template is leaked, the user's biometric is compromised forever. This is why biometrics are best used as one factor among several, never as a sole secret.</li>
 </ul>
-<p><img alt="Biometric Authentication Process Flow" src="../assets/images/ch05_biometric_flow.png" />
+<p><img alt="The biometric authentication pipeline — capture, feature extraction, template comparison, threshold scoring, and the final accept/reject decision." src="../assets/images/ch05_biometric_flow.png" />
 <em>Figure 5.2: The biometric authentication pipeline — capture, feature extraction, template comparison, threshold scoring, and the final accept/reject decision.</em></p>
 <p><strong>Identity proofing</strong> is the process of confirming, at enrollment, that the human behind a credential is who they claim to be. NIST's digital identity guidelines define increasing levels of proofing — from self-asserted, through remote document verification, up to in-person verification with government-issued ID. Architects choose the proofing level based on the sensitivity of what the identity will eventually be allowed to do.</p>
 <h3>Physical and Logical Access Control</h3>

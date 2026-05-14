@@ -16,6 +16,13 @@
         </header>
         <main>
             <h1>Chapter 12: Vulnerability Management, Automation, and Incident Response</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>4.2:</strong> Given a scenario, analyze vulnerabilities and attacks, and recommend solutions to reduce the attack surface.</li>
+<li><strong>3.6:</strong> Given a scenario, use automation to secure the enterprise.</li>
+<li><strong>4.4:</strong> Given a scenario, analyze data and artifacts in support of incident response activities.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch12-alice-ir-automation.html">Alice Liddell Automates Incident Response at Wonderland Logistics</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Analyze</strong> common vulnerabilities and implement appropriate mitigations.</li>
@@ -244,7 +251,7 @@ This pattern — SIEM alert → enrichment → EDR action — is the core loop o
 <h3>SOAR Playbooks and Runbooks</h3>
 <p><strong>Security Orchestration, Automation, and Response (SOAR)</strong> platforms (Splunk SOAR, Palo Alto XSOAR, IBM Security QRadar SOAR, Microsoft Sentinel Playbooks) provide a workflow engine that chains security tool APIs together in response to SIEM alerts. A <strong>playbook</strong> is the automated policy logic — "when a phishing alert fires, do X, then Y, then Z." A <strong>runbook</strong> is the documented manual procedure that an analyst follows when the automation is not sufficient or when a human decision point is reached.</p>
 <p>The value of a SOAR is compression of the <strong>mean time to respond (MTTR)</strong>. Manual triage of a phishing alert — opening the email gateway console, extracting headers, checking VirusTotal, querying Active Directory for the recipient, quarantining the message, documenting the ticket — takes 20–45 minutes per alert. An automated SOAR playbook does the same workflow in under 30 seconds, at any hour, without fatigue.</p>
-<p><img alt="Automated SOAR Phishing Response Workflow" src="../assets/images/ch12_soar_phishing.png" />
+<p><img alt="A SOAR phishing response playbook. When the email gateway fires a suspicious-message alert, the playbook automatically extracts indicators, checks them against threat intelligence, scores the confidence level, auto-quarantines the message, blocks identified URLs and IPs at the firewall and DNS sinkhole, notifies the reporting user, creates the SIEM incident record, and — if any endpoint made a click or download — isolates it via EDR. Human analyst escalation happens only when the confidence score is below threshold or when the situation requires judgment the playbook cannot provide." src="../assets/images/ch12_soar_phishing.png" />
 <em>Figure 12.1: A SOAR phishing response playbook. When the email gateway fires a suspicious-message alert, the playbook automatically extracts indicators, checks them against threat intelligence, scores the confidence level, auto-quarantines the message, blocks identified URLs and IPs at the firewall and DNS sinkhole, notifies the reporting user, creates the SIEM incident record, and — if any endpoint made a click or download — isolates it via EDR. Human analyst escalation happens only when the confidence score is below threshold or when the situation requires judgment the playbook cannot provide.</em></p>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong>
@@ -282,7 +289,7 @@ A vulnerability scan result is a snapshot, not a continuous truth. An asset that
 <hr />
 <h2>How Do We Respond to an Active Security Incident?</h2>
 <p><strong>Incident response (IR)</strong> is the organized process of detecting, containing, eradicating, and recovering from security incidents while preserving evidence and learning from the experience. The authoritative U.S. government standard is <strong>NIST Special Publication 800-61r2</strong>, which defines a four-phase lifecycle that most organizations use as a baseline.</p>
-<p><img alt="The NIST Incident Response Lifecycle" src="../assets/images/ch12_nist_ir_lifecycle.png" />
+<p><img alt="The NIST SP 800-61r2 Incident Response Lifecycle cycles through four phases: Preparation (before incidents occur), Detection and Analysis (identifying and scoping the incident), Containment/Eradication/Recovery (stopping the damage and restoring operations), and Post-Incident Activity (learning from the event). The cycle is deliberately continuous — lessons learned feed directly back into preparation for the next incident." src="../assets/images/ch12_nist_ir_lifecycle.png" />
 <em>Figure 12.2: The NIST SP 800-61r2 Incident Response Lifecycle cycles through four phases: Preparation (before incidents occur), Detection and Analysis (identifying and scoping the incident), Containment/Eradication/Recovery (stopping the damage and restoring operations), and Post-Incident Activity (learning from the event). The cycle is deliberately continuous — lessons learned feed directly back into preparation for the next incident.</em></p>
 <h3>Phase 1: Preparation</h3>
 <p><strong>Preparation</strong> happens before any incident. An IR program that begins at the moment of detection is already too late. Key preparation activities include:</p>

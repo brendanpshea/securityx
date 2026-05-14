@@ -16,6 +16,12 @@
         </header>
         <main>
             <h1>Chapter 10: Securing Specialized, OT, and Legacy Systems</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>1.3:</strong> Explain how compliance affects information security strategies.</li>
+<li><strong>3.5:</strong> Given a set of requirements, secure specialized and legacy systems against threats.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch10-chopper-ot-segmentation.html">Nick Chopper Segments the Yellow Brick Plant Floor</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Analyze</strong> the security requirements of Operational Technology (OT), including SCADA, ICS, and HVAC systems.</li>
@@ -45,6 +51,14 @@
 <li><strong>Historian</strong> is the time-series database that records every measured tag for compliance, troubleshooting, and analytics.</li>
 <li><strong>HVAC, Building Management Systems (BMS), and physical access control systems</strong> are OT in everything but name. They run on the same constrained processors, speak the same kinds of fieldbus protocols, and are connected to the same corporate networks — but are typically owned by Facilities, not IT.</li>
 </ul>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>Following a sensor reading from Level 0 to the historian</em></p>
+<p>At a natural gas compression station, a pressure transducer on a pipe junction sits at <strong>Level 0</strong>. Every two seconds, the transducer's analog signal is read by a <strong>PLC</strong> at <strong>Level 1</strong>. The PLC runs its control logic locally: if pressure exceeds the setpoint, close the control valve; if below, open it.</p>
+<p>The PLC also reports measured values to a <strong>SCADA server at Level 2</strong>, which aggregates readings from all PLCs in the facility, runs supervisory logic, and drives the operator's <strong>HMI</strong> screen. The operator watches a live process graphic; alarms appear when values stray outside bounds.</p>
+<p>The SCADA server forwards a summary to the <strong>Level 3 historian</strong>, which records every tag at one-second resolution for compliance reporting and troubleshooting. An OT firewall sits between Level 3 and the <strong>corporate IT network at Levels 4/5</strong>. The historian can push data <em>outbound</em> to a reporting server on the IT side — but the IT network cannot initiate connections <em>inbound</em> into the OT environment.</p>
+<p>The security architect's job is to ensure that boundary holds: telemetry aggregates up the Purdue levels, control stays local, and anything compromised on the IT side cannot reach the PLCs at Level 1.</p>
+</blockquote>
 <h3>Safety and Environmental Constraints</h3>
 <p>The single most important fact about OT is that the priorities are inverted. In IT, the canonical CIA triad is <strong>Confidentiality → Integrity → Availability</strong>. In OT it is closer to <strong>Safety → Availability → Integrity → Confidentiality</strong>, with safety as a gating concern that supersedes everything else. A false-positive IT block on an email is annoying. A false-positive OT block on a control message can kill someone or trigger an environmental release.</p>
 <p>This inversion has practical consequences:</p>
@@ -167,9 +181,9 @@
 <li><strong>Client isolation on guest SSIDs.</strong> Prevents one guest from attacking another.</li>
 <li><strong>PSK rotation for IoT SSIDs.</strong> When per-device certificates aren't possible, individual pre-shared keys per device (sometimes called iPSK) at least limit the blast radius of one compromise.</li>
 </ul>
-<p><img alt="Segmenting a Corporate Wireless Network" src="../assets/images/ch10_wireless_segmentation.png" />
+<p><img alt="A segmented wireless deployment maps each SSID to its own VLAN and policy. Corp-Trusted gets EAP-TLS with full internal access; Corp-BYOD gets EAP-TLS with MDM enforcement and a restricted app set; Guest gets internet only; an IoT/smart-building SSID gets per-device PSKs, client isolation, and egress only to the vendor cloud." src="../assets/images/ch10_wireless_segmentation.png" />
 <em>Figure 10.1: A segmented wireless deployment maps each SSID to its own VLAN and policy. Corp-Trusted gets EAP-TLS with full internal access; Corp-BYOD gets EAP-TLS with MDM enforcement and a restricted app set; Guest gets internet only; an IoT/smart-building SSID gets per-device PSKs, client isolation, and egress only to the vendor cloud.</em></p>
-<p><img alt="Purdue Model" src="../assets/images/ch10_purdue_model.png" />
+<p><img alt="The Purdue Reference Model organizes ICS architecture into seven levels, with an industrial DMZ as the mandatory boundary between IT (Levels 4–5) and OT (Levels 0–3). All north-south traffic between IT and OT must traverse the DMZ; east-west traffic within OT is further partitioned into zones and conduits per ISA/IEC 62443." src="../assets/images/ch10_purdue_model.png" />
 <em>Figure 10.2: The Purdue Reference Model organizes ICS architecture into seven levels, with an industrial DMZ as the mandatory boundary between IT (Levels 4–5) and OT (Levels 0–3). All north-south traffic between IT and OT must traverse the DMZ; east-west traffic within OT is further partitioned into zones and conduits per ISA/IEC 62443.</em></p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
@@ -288,6 +302,54 @@ Vendor-pushed "set up an SSID for our cameras / printers / sensors with this PSK
 </tr>
 </tbody>
 </table>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>Compensating controls around an unpatched 1998 Allen-Bradley PLC</em></p>
+<p>A ControlLogix PLC on Line 3 at <em>Yellow Brick Manufacturing</em> can no longer receive firmware updates — Rockwell Automation's support lifecycle for that hardware generation ended in 2018. Replacement requires a capital project and a six-week production shutdown that the business has deferred for two budget cycles.</p>
+<p>Nick Chopper documents the compensating control stack and assigns an owner to each layer:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Control</th>
+<th style="text-align: left;">Implementation</th>
+<th style="text-align: left;">Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Network isolation</td>
+<td style="text-align: left;">Dedicated VLAN; ACL permitting only EtherNet/IP on TCP 44818 from three approved HMI IPs</td>
+<td style="text-align: left;">OT Network Team</td>
+</tr>
+<tr>
+<td style="text-align: left;">No internet egress</td>
+<td style="text-align: left;">No default route out of OT VLAN; confirmed quarterly in firewall policy review</td>
+<td style="text-align: left;">OT Network Team</td>
+</tr>
+<tr>
+<td style="text-align: left;">Application allowlisting on HMI</td>
+<td style="text-align: left;">Only the Rockwell FactoryTalk View binary whitelisted; USB writes disabled</td>
+<td style="text-align: left;">OT Support</td>
+</tr>
+<tr>
+<td style="text-align: left;">Passive monitoring</td>
+<td style="text-align: left;">Network sensor watching every EtherNet/IP packet; alerts on unexpected source IPs or out-of-range command codes</td>
+<td style="text-align: left;">SOC</td>
+</tr>
+<tr>
+<td style="text-align: left;">Physical access</td>
+<td style="text-align: left;">Locked enclosure; sign-in log; no console access without two-person approval</td>
+<td style="text-align: left;">Plant Security</td>
+</tr>
+<tr>
+<td style="text-align: left;">Replacement roadmap</td>
+<td style="text-align: left;">Capital project approved for FY 2027 and tracked to a named project owner</td>
+<td style="text-align: left;">Engineering Manager</td>
+</tr>
+</tbody>
+</table>
+<p>None of these controls fixes the PLC's underlying vulnerability. Together, they reduce exploitation likelihood to near-zero and make any deviation immediately visible — buying time for the funded replacement to arrive.</p>
+</blockquote>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong>
 An OT system in your environment will not receive another firmware update from its vendor and cannot be replaced for at least four years due to a capital budgeting cycle. What is the minimum set of compensating controls that lets you sleep at night, and at what point do those controls themselves become more expensive than accelerating the replacement?</p>

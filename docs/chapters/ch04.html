@@ -16,6 +16,13 @@
         </header>
         <main>
             <h1>Chapter 4: Principles of Security Architecture and Zero Trust</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>2.1:</strong> Given a scenario, analyze requirements to design resilient systems.</li>
+<li><strong>2.3:</strong> Given a scenario, integrate appropriate controls in the design of a secure architecture.</li>
+<li><strong>2.6:</strong> Given a scenario, integrate Zero Trust concepts into system architecture design.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch04-prospero-zero-trust.html">Prospero Redesigns the Milan Island Network</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Analyze</strong> security requirements to determine optimal component placement.</li>
@@ -161,9 +168,9 @@ Multi-region design is not automatically resilient. If every region depends on a
 <p><strong class="callout-title">Example</strong>
 Consider a retail platform with internet-facing web servers, an API tier, and a payment database. The architect may choose horizontally scaled, non-persistent web servers behind a CDN and WAF; a segmented API layer behind an API gateway; and a tightly controlled, persistent database cluster with separate recovery procedures and stricter administrative access. The system is resilient not because every tier is treated the same, but because each tier is designed according to the kind of state and risk it carries.</p>
 </blockquote>
-<p><img alt="High-Availability Enterprise Network Architecture" src="../assets/images/ch04_ha_architecture.png" />
+<p><img alt="A resilient enterprise design using layered controls, segmented trust zones, and failover-capable service tiers." src="../assets/images/ch04_ha_architecture.png" />
 <em>Figure 4.1: A resilient enterprise design using layered controls, segmented trust zones, and failover-capable service tiers.</em></p>
-<p><img alt="Active-Active vs. Active-Passive Load Balancing" src="../assets/images/ch04_load_balancing.png" />
+<p><img alt="Comparing active-active and active-passive designs for resilient service delivery." src="../assets/images/ch04_load_balancing.png" />
 <em>Figure 4.2: Comparing active-active and active-passive designs for resilient service delivery.</em></p>
 <hr />
 <h2>What Does Zero Trust Actually Mean?</h2>
@@ -176,6 +183,18 @@ Consider a retail platform with internet-facing web servers, an API tier, and a 
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong>
 Zero Trust does not eliminate usability trade-offs. It makes them explicit. Good architecture asks for stronger proof exactly when the risk justifies it, not at random moments that train users to resent security.</p>
+</blockquote>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong></p>
+<p><em>Continuous authorization catching a stolen session token</em></p>
+<p>Prospero's team at <em>Milan Island Telecom</em> configures two risk signals in their identity platform:</p>
+<ul>
+<li><strong>Impossible travel:</strong> A session that started in Chicago should not present requests from Eastern Europe within two hours.</li>
+<li><strong>High-sensitivity resource:</strong> Access to the customer billing API is tagged as a high-privilege action in policy.</li>
+</ul>
+<p>A call-center agent logs in from Chicago, passes MFA, and spends two hours working in the CRM without triggering anything. Later that afternoon, an attacker who captured the session token through a phishing kit tries to use it from a server in Romania to call the billing API.</p>
+<p>The risk engine evaluates: impossible travel + high-sensitivity resource access. The policy fires: step-up MFA required. The attacker does not have the agent's phone. The API call is blocked and logged to the SIEM as a high-severity alert for the SOC.</p>
+<p>The agent is not interrupted during their normal workday. The attacker is stopped precisely at the moment the risk threshold is crossed. That is the practical payoff of continuous authorization: presence on the network is not enough — trust must be re-earned when conditions change.</p>
 </blockquote>
 <h3>Subject-Object Relationships and Least-Privilege Design</h3>
 <p>Zero Trust becomes easier to understand when framed as a <strong>subject-object</strong> problem. A <strong>subject</strong> is the active requester: a user, device, service account, workload, or process. An <strong>object</strong> is the thing being requested: a file share, database, application, API, administrative console, or cryptographic key.</p>
@@ -355,7 +374,7 @@ An enterprise with strong perimeter controls but weak internal telemetry may sto
 </tr>
 </tbody>
 </table>
-<p><img alt="DLP Implementation Across Network Layers" src="../assets/images/ch04_dlp_layers.png" />
+<p><img alt="DLP controls applied across endpoint, gateway, cloud, and data repository layers." src="../assets/images/ch04_dlp_layers.png" />
 <em>Figure 4.3: DLP controls applied across endpoint, gateway, cloud, and data repository layers.</em></p>
 <hr />
 <h2>Chapter Review and Conclusion</h2>

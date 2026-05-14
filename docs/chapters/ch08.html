@@ -16,6 +16,13 @@
         </header>
         <main>
             <h1>Chapter 8: Cryptography and Public Key Infrastructure</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>2.4:</strong> Given a scenario, apply security concepts to the design of access, authentication, and authorization systems.</li>
+<li><strong>3.7:</strong> Explain the importance of advanced cryptographic concepts.</li>
+<li><strong>3.8:</strong> Given a scenario, apply the appropriate cryptographic use case and/or technique.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch08-hatter-pki-crypto.html">The Mad Hatter Rebuilds Teatime Tech's PKI</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Architect</strong> a Public Key Infrastructure (PKI), including certificate authorities, registration authorities, and the certificate lifecycle.</li>
@@ -43,7 +50,7 @@
 <li><strong>Registration Authority (RA)</strong> — The component (sometimes a separate organization, sometimes a function inside the CA) that handles <strong>identity vetting</strong>. The RA verifies that a request for a certificate for <code>bank.example.com</code> actually comes from someone authorized to represent that domain. The CA only signs certificates that the RA has approved.</li>
 </ul>
 <p>The lifecycle of a certificate runs through several stages. A subscriber generates a key pair and a <strong>Certificate Signing Request (CSR)</strong> containing the public key and identity information. The CSR is submitted to the RA, which performs <strong>domain validation</strong> (DV), <strong>organization validation</strong> (OV), or <strong>extended validation</strong> (EV) depending on the certificate class. Once validated, the issuing CA signs the certificate and publishes it. The certificate is installed on the subscriber's system and presented to relying parties during normal operation. Toward the end of its validity period, the subscriber <strong>renews</strong> the certificate; if the private key is compromised before then, the certificate is <strong>revoked</strong>.</p>
-<p><img alt="PKI Certificate Issuance and Validation" src="../assets/images/ch08_pki_lifecycle.png" />
+<p><img alt="The end-to-end lifecycle of a digital certificate. Issuance flows through the registration authority and issuing CA up to the offline root. Use occurs through TLS handshakes. Validation — performed every time the certificate is presented — checks the trust chain, signature, validity dates, subject match, and revocation status." src="../assets/images/ch08_pki_lifecycle.png" />
 <em>Figure 8.1: The end-to-end lifecycle of a digital certificate. Issuance flows through the registration authority and issuing CA up to the offline root. Use occurs through TLS handshakes. Validation — performed every time the certificate is presented — checks the trust chain, signature, validity dates, subject match, and revocation status.</em></p>
 <h3>Certificate Extensions, Templates, and OCSP Stapling</h3>
 <p>A certificate is not just a wrapper around a public key — it carries structured fields, called <strong>extensions</strong>, that constrain how the certificate may be used.</p>
@@ -306,7 +313,7 @@ Output length:   32 bytes</code></p>
 <li><strong>Key splitting</strong> (Shamir's Secret Sharing) divides a secret into <em>n</em> shares such that any <em>k</em> of them can reconstruct the secret but fewer than <em>k</em> reveal nothing. This is how HSM administrator quorums, root CA recovery procedures, and high-value cryptocurrency wallets are protected.</li>
 <li><strong>Forward secrecy</strong> (also called Perfect Forward Secrecy, PFS) means that compromise of a long-term key does not compromise past sessions. It is achieved by exchanging fresh ephemeral keys for each session — typically through ephemeral Diffie-Hellman ((EC)DHE). TLS 1.3 makes forward secrecy mandatory by removing the non-PFS RSA key-exchange option entirely.</li>
 </ul>
-<p><img alt="The TLS 1.3 Handshake" src="../assets/images/ch08_tls_handshake.png" />
+<p><img alt="The TLS 1.3 handshake completes in a single round trip. The client and server exchange ephemeral key shares in their first messages, deriving session keys via (EC)DHE — providing forward secrecy. The server&#x27;s certificate authenticates the exchange but does not encrypt the session keys, which is why a stolen long-term key cannot decrypt past traffic." src="../assets/images/ch08_tls_handshake.png" />
 <em>Figure 8.2: The TLS 1.3 handshake completes in a single round trip. The client and server exchange ephemeral key shares in their first messages, deriving session keys via (EC)DHE — providing forward secrecy. The server's certificate authenticates the exchange but does not encrypt the session keys, which is why a stolen long-term key cannot decrypt past traffic.</em></p>
 <h3>Homomorphic Encryption, Secure Multiparty Computation, and Performance Trade-Offs</h3>
 <p><strong>Homomorphic encryption (HE)</strong> allows computation on ciphertext such that the decrypted result equals the result of the same computation on the plaintext. <strong>Partially homomorphic</strong> schemes support a single operation (RSA, for instance, is homomorphic with respect to multiplication). <strong>Fully homomorphic encryption (FHE)</strong> supports both addition and multiplication and therefore — in principle — arbitrary computation. FHE is an active area of standardization (Microsoft SEAL, Google FHE Transpiler, OpenFHE) but currently runs many orders of magnitude slower than plaintext computation, limiting its practical use to narrow workloads such as private machine-learning inference or encrypted database queries.</p>

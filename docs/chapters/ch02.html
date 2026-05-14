@@ -16,6 +16,12 @@
         </header>
         <main>
             <h1>Chapter 2: Risk Management and Threat Modeling</h1>
+<p><strong>Aligned SecurityX Objectives:</strong></p>
+<ul>
+<li><strong>1.2:</strong> Given a set of organizational security requirements, perform risk management activities.</li>
+<li><strong>1.4:</strong> Given a scenario, perform threat-modeling activities.</li>
+</ul>
+<p><strong>Cloze Problem Set:</strong> <a href="https://brendanpshea.github.io/securityx/problems/ch02-darcy-risk-modeling.html">Fitzwilliam Darcy Quantifies a Vendor Risk</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Conduct</strong> impact analyses using quantitative and qualitative risk assessment methodologies.</li>
@@ -41,7 +47,7 @@
 The fundamental equation of risk management is: <strong>Risk = Threat × Vulnerability × Impact</strong>. If any of these three factors are zero, the overall risk is zero. For example, if a severe vulnerability exists in an operating system, but that system is completely unplugged and locked in a concrete vault (zero threat access), the risk is zero.</p>
 </blockquote>
 <p>To systematically manage this equation, organizations rely on formalized Risk Assessment Frameworks (such as NIST SP 800-30 or ISO 27005). Regardless of the specific framework chosen, the overarching process generally follows a standardized workflow:</p>
-<p><img alt="The Risk Assessment Workflow" src="../assets/images/ch02_risk_workflow.png" /></p>
+<p><img alt="A five-step risk assessment workflow: identify assets, identify threats, identify vulnerabilities, analyze likelihood and impact, then prioritize and treat the resulting risks." src="../assets/images/ch02_risk_workflow.png" /></p>
 <ol>
 <li><strong>Asset Identification:</strong> You cannot protect what you do not know you have. This involves creating a comprehensive inventory of servers, data, personnel, and physical facilities.</li>
 <li><strong>Threat Identification:</strong> Determining who or what might attack the assets (e.g., hackers, natural disasters, insider threats).</li>
@@ -272,7 +278,7 @@ If Target had implemented strict network microsegmentation—completely isolatin
 <p>The CompTIA SecurityX exam requires a deep understanding of several prominent threat modeling frameworks. Each framework serves a slightly different purpose—some focus on the software development lifecycle, while others focus on active network intrusions.</p>
 <h4>The Lockheed Martin Cyber Kill Chain</h4>
 <p>Developed by Lockheed Martin, the Cyber Kill Chain models the sequential phases an adversary must complete to successfully execute a cyberattack. The core philosophy is that an attack is a <em>chain</em> of events; if the defending organization can break the chain at any point, the attack fails.</p>
-<p><img alt="The Lockheed Martin Cyber Kill Chain" src="../assets/images/ch02_cyber_kill_chain.png" /></p>
+<p><img alt="The Lockheed Martin Cyber Kill Chain showing seven sequential stages — reconnaissance, weaponization, delivery, exploitation, installation, command and control, and actions on objectives — with defenders aiming to detect and break the chain at any stage before the attacker reaches the final objective." src="../assets/images/ch02_cyber_kill_chain.png" /></p>
 <ol>
 <li><strong>Reconnaissance:</strong> The attacker gathers intelligence on the target (e.g., searching LinkedIn for employee emails, scanning for open firewall ports).</li>
 <li><strong>Weaponization:</strong> The attacker couples a remote access trojan with an exploit into a deliverable payload (e.g., creating a malicious PDF file).</li>
@@ -288,7 +294,7 @@ The earlier in the Kill Chain an attack is stopped, the cheaper and easier it is
 </blockquote>
 <h4>The Diamond Model of Intrusion Analysis</h4>
 <p>While the Cyber Kill Chain focuses on the <em>sequence</em> of an attack, the <strong>Diamond Model</strong> focuses on the <em>relationships</em> between four core features of every malicious event. </p>
-<p><img alt="The Diamond Model of Intrusion Analysis" src="../assets/images/ch02_diamond_model.png" /></p>
+<p><img alt="The Diamond Model of Intrusion Analysis links four core features of every intrusion — adversary, capability, infrastructure, and victim — arranged as a diamond. Edges between vertices show the analytical pivots an investigator uses to move from one known feature to discover the others." src="../assets/images/ch02_diamond_model.png" /></p>
 <p>The Diamond Model connects:</p>
 <ul>
 <li><strong>Adversary:</strong> The threat actor behind the attack.</li>
@@ -375,7 +381,7 @@ A technical team can successfully contain malware within minutes, but if the Pub
 </blockquote>
 <h3>BCDR, Availability Risk, and Backup Strategies</h3>
 <p>While crisis management handles the human element, <strong>Business Continuity and Disaster Recovery (BCDR)</strong> handles the technical and operational recovery. BCDR is designed to mitigate <strong>Availability Risk</strong>—the risk that critical systems or data will be inaccessible when needed.</p>
-<p><img alt="The BCDR Planning Lifecycle" src="../assets/images/ch02_bcdr_lifecycle.png" /></p>
+<p><img alt="The Business Continuity and Disaster Recovery planning lifecycle: business impact analysis, recovery strategy selection, plan development, training and testing, and ongoing maintenance — a continuous loop in which lessons learned from each test or real event feed back into the next round of planning." src="../assets/images/ch02_bcdr_lifecycle.png" /></p>
 <p>A BCDR plan answers a simple question: <em>How does the business survive if our primary data center is destroyed or our data is encrypted by ransomware?</em></p>
 <p>The cornerstone of any BCDR strategy is backups. However, not all backups provide the same level of protection:</p>
 <ul>
