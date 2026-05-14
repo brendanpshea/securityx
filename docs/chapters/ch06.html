@@ -332,6 +332,7 @@ application behavior. RASP is best understood as a defense-in-depth
 layer added after SAST and DAST have reduced the vulnerability count,
 not as a substitute for fixing the underlying code.</p>
 <table>
+<caption>Table 6.1: When to Use SAST, DAST, IAST, and RASP — each tool fits a different moment in the lifecycle.</caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -381,8 +382,6 @@ risk</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 6.1: When to Use SAST, DAST, IAST, and RASP — each tool
-fits a different moment in the lifecycle.</em></p>
 <h3 id="vulnerability-analysis-and-formal-methods">Vulnerability
 Analysis and Formal Methods</h3>
 <p><strong>Vulnerability analysis</strong> is the broader discipline of
@@ -512,6 +511,12 @@ practices of commercial software vendors as part of procurement. Does
 the vendor maintain a vulnerability disclosure program? Do they provide
 SBoMs? How quickly do they patch critical vulnerabilities?</li>
 </ul>
+<p>These practices overlap heavily with NIST’s Secure Software
+Development Framework, which treats provenance, dependency control,
+artifact integrity, and supplier review as core software security
+activities rather than optional extras <span class="citation"
+data-cites="nist-sp800-218-2022">(<a href="#ref-nist-sp800-218-2022"
+role="doc-biblioref">Souppaya et al. 2022</a>)</span>.</p>
 <h3 id="hardware-supply-chain-risk-management">Hardware Supply Chain
 Risk Management</h3>
 <p>Hardware is also a supply chain risk. Motherboards, network cards,
@@ -535,8 +540,12 @@ sourcing.</li>
 </ul>
 <p>The threat is not hypothetical. Numerous documented cases involve
 counterfeit network equipment installed in government and enterprise
-environments, and public research has demonstrated practical firmware
-implants at the hardware level.</p>
+environments, and NIST’s platform firmware resiliency guidance treats
+unauthorized firmware modification as a realistic attack class that
+organizations should be prepared to detect and recover from <span
+class="citation" data-cites="nist-sp800-193-2018">(<a
+href="#ref-nist-sp800-193-2018" role="doc-biblioref">Regenscheid
+2018</a>)</span>.</p>
 <h3 id="end-of-life-eol-planning">End-of-Life (EOL) Planning</h3>
 <p>Every piece of technology has an <strong>end-of-life (EOL)</strong>
 date — the point at which its vendor stops providing security updates.
@@ -587,8 +596,10 @@ verify that a hardware product meets defined security requirements. For
 the U.S. federal market, <strong>FIPS 140-3</strong> defines
 requirements for cryptographic modules. Products that pass FIPS 140-3
 testing are placed on a validated module list and may be used in federal
-systems requiring certified cryptography. Similar programs exist
-internationally.</p>
+systems requiring certified cryptography <span class="citation"
+data-cites="nist-fips140-3-2019">(<a href="#ref-nist-fips140-3-2019"
+role="doc-biblioref">National Institute of Standards and Technology
+2019</a>)</span>. Similar programs exist internationally.</p>
 <p>The <strong>Common Criteria</strong> framework (ISO 15408) provides a
 broader evaluation process for IT security products, enabling buyers to
 assess products against standardized Protection Profiles or custom
@@ -603,8 +614,12 @@ certified at evaluation).</p>
 of trust:</p>
 <p>A <strong>Trusted Platform Module (TPM)</strong> is a dedicated
 security chip specified by the Trusted Computing Group (TCG), found on
-most modern enterprise laptops, desktops, and servers. The TPM
-provides:</p>
+most modern enterprise laptops, desktops, and servers. The TPM provides
+the kind of measured-boot and protected-key foundation that modern
+firmware-resiliency guidance assumes for trustworthy platform startup
+<span class="citation" data-cites="nist-sp800-193-2018">(<a
+href="#ref-nist-sp800-193-2018" role="doc-biblioref">Regenscheid
+2018</a>)</span>. The TPM provides:</p>
 <ul>
 <li><strong>Hardware-protected key storage:</strong> Private keys
 generated inside the TPM cannot be extracted by software, even by the
@@ -644,6 +659,7 @@ are ultimately protected by the hypervisor and, ideally, by the physical
 TPM of the host. This means VM images can include TPM-dependent
 protections without requiring physical hardware changes.</p>
 <table>
+<caption>Table 6.2: Comparing Hardware Roots of Trust.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -682,7 +698,6 @@ protection</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 6.2: Comparing Hardware Roots of Trust.</em></p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>BitLocker sealed to TPM PCR values</em></p>
@@ -1342,6 +1357,29 @@ deployment</strong>. Regression testing verifies that new code changes
 do not break previously working functionality, and is a <em>testing</em>
 practice rather than a release strategy.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-nist-fips140-3-2019" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2019. <em>Security
+Requirements for Cryptographic Modules</em>. FIPS 140-3. <span>National
+Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.FIPS.140-3">https://doi.org/10.6028/NIST.FIPS.140-3</a>.
+</div>
+<div id="ref-nist-sp800-193-2018" class="csl-entry" role="listitem">
+Regenscheid, Andrew. 2018. <em>Platform Firmware Resiliency
+Guidelines</em>. NIST SP 800-193. <span>National Institute of Standards
+and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-193">https://doi.org/10.6028/NIST.SP.800-193</a>.
+</div>
+<div id="ref-nist-sp800-218-2022" class="csl-entry" role="listitem">
+Souppaya, Murugiah, Karen Scarfone, and Donna Dodson. 2022. <em>Secure
+Software Development Framework (SSDF) Version 1.1: Recommendations for
+Mitigating the Risk of Software Vulnerabilities</em>. NIST SP 800-218.
+<span>National Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-218">https://doi.org/10.6028/NIST.SP.800-218</a>.
+</div>
+</div>
 
         </main>
     </div>

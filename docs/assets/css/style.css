@@ -159,6 +159,26 @@ th {
   color: var(--text-primary);
 }
 
+/* Row headers (left-column subject of each row) — lighter weight than
+   column headers but still visually distinct so the row label reads
+   as a label, not a data cell. */
+td + th[scope="row"],
+tbody th[scope="row"] {
+  background-color: rgba(255, 255, 255, 0.03);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 /* Images */
 img {
   max-width: 100%;

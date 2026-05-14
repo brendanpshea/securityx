@@ -80,7 +80,10 @@ castle-and-moat model: get inside the perimeter and you were trusted.
 Cloud services, remote work, APIs, contractors, and mobile devices have
 dissolved that perimeter. In its place, architects now adopt
 <strong>Zero Trust</strong>: never trust by location alone, validate
-access continuously, and assume compromise is always possible.</p>
+access continuously, and assume compromise is always possible <span
+class="citation" data-cites="nist-sp800-207-2020">(<a
+href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
+2020</a>)</span>.</p>
 <p>In this chapter we walk component placement (firewalls, IPS, IDS,
 WAFs, proxies, API gateways, VPN concentrators, NAC), then resilience
 patterns (scaling, recovery, geographic distribution), then Zero Trust
@@ -241,6 +244,7 @@ remain careful. Moving capabilities to a CDN does not eliminate origin
 security requirements. It simply changes where some controls
 execute.</p>
 <table>
+<caption>Table 4.1: Common Security Components, Their Best Placement Goals, and Frequent Design Mistakes.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -330,8 +334,6 @@ default</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 4.1: Common Security Components, Their Best Placement
-Goals, and Frequent Design Mistakes.</em></p>
 <h3 id="availability-and-integrity-by-design">Availability and Integrity
 by Design</h3>
 <p>Security architects must think beyond blocking attacks. They must
@@ -430,7 +432,9 @@ creates trust. In a traditional perimeter model, users inside the
 network are treated differently from users outside it. In a Zero Trust
 model, access is granted based on verified identity, device posture,
 context, policy, and the specific resource request. Trust is narrow,
-conditional, and continuously reevaluated.</p>
+conditional, and continuously reevaluated <span class="citation"
+data-cites="nist-sp800-207-2020">(<a href="#ref-nist-sp800-207-2020"
+role="doc-biblioref">Rose et al. 2020</a>)</span>.</p>
 <h3
 id="continuous-authorization-and-context-based-reauthentication">Continuous
 Authorization and Context-Based Reauthentication</h3>
@@ -659,6 +663,7 @@ far better clarity because each access decision was tied to a known
 subject, known device posture, and known destination object.</p>
 </blockquote>
 <table>
+<caption>Table 4.2: Comparing the Traditional Perimeter Model with Zero Trust Design.</caption>
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -707,8 +712,6 @@ verified</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 4.2: Comparing the Traditional Perimeter Model with Zero
-Trust Design.</em></p>
 <hr />
 <h2 id="how-do-we-enforce-security-boundaries">How Do We Enforce
 Security Boundaries?</h2>
@@ -906,6 +909,7 @@ together to create enforceable boundaries in a world where users,
 devices, and workloads constantly move.</p>
 </blockquote>
 <table>
+<caption>Table 4.3: Comparing Different Types of Security Boundaries in Enterprise Architecture.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -958,8 +962,6 @@ assessments</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 4.3: Comparing Different Types of Security Boundaries in
-Enterprise Architecture.</em></p>
 <p><img src="../assets/images/ch04_dlp_layers.png"
 alt="DLP controls applied across endpoint, gateway, cloud, and data repository layers." />
 <em>Figure 4.3: DLP controls applied across endpoint, gateway, cloud,
@@ -1181,6 +1183,16 @@ objects/methods, enforce rate and scope limits, and log the access
 decision — making them the natural enforcement point for subject-object
 relationships in service-to-service traffic.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-nist-sp800-207-2020" class="csl-entry" role="listitem">
+Rose, Scott, Oliver Borchert, Stu Mitchell, and Sean Connelly. 2020.
+<em>Zero Trust Architecture</em>. NIST SP 800-207. <span>National
+Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-207">https://doi.org/10.6028/NIST.SP.800-207</a>.
+</div>
+</div>
 
         </main>
     </div>

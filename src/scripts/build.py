@@ -96,6 +96,25 @@ def relax_list_formatting(text):
 
 _THEAD_RE = re.compile(r"<thead\b[^>]*>(.*?)</thead>", re.IGNORECASE | re.DOTALL)
 _TH_RE = re.compile(r"<th\b([^>]*)>", re.IGNORECASE)
+_TABLE_RE = re.compile(r"<table\b[^>]*>.*?</table>", re.IGNORECASE | re.DOTALL)
+_TABLE_OPEN_RE = re.compile(r"<table\b[^>]*>", re.IGNORECASE)
+_TBODY_RE = re.compile(r"(<tbody\b[^>]*>)(.*?)(</tbody>)", re.IGNORECASE | re.DOTALL)
+_TR_RE = re.compile(r"(<tr\b[^>]*>)(.*?)(</tr>)", re.IGNORECASE | re.DOTALL)
+_FIRST_TD_RE = re.compile(r"<td\b([^>]*)>(.*?)</td>", re.IGNORECASE | re.DOTALL)
+# A "<p><em>Table X.Y: ...</em></p>" paragraph that the markdown renderer
+# emits immediately after a table from the source convention
+# "*Table X.Y: ...*".
+_TABLE_AND_CAPTION_RE = re.compile(
+    r"(<table\b[^>]*>.*?</table>)\s*<p>\s*<em>\s*(Table\s+[\d.]+:\s*.*?)</em>\s*</p>",
+    re.IGNORECASE | re.DOTALL,
+)
+
+# Per-chapter exclusions: tables whose first column is NOT a row label
+# (e.g., side-by-side comparisons where both columns are data). Keyed by
+# the markdown filename, valued by a set of zero-based table indices.
+ROW_HEADER_EXCLUDE = {
+    "ch04.md": {1},  # Traditional Perimeter Model vs Zero Trust Model
+}
 
 
 def add_table_header_scopes(html_content):
@@ -112,6 +131,63 @@ def add_table_header_scopes(html_content):
         return f"<thead>{_TH_RE.sub(patch_th, match.group(1))}</thead>"
 
     return _THEAD_RE.sub(patch_thead, html_content)
+
+
+def promote_table_caption_paragraphs(html_content):
+    """Promote each "<p><em>Table X.Y: ...</em></p>" paragraph that follows a
+    <table> into a <caption> inside that table, then drop the redundant
+    paragraph. Idempotent — tables that already have a <caption> are left
+    alone and any duplicate trailing paragraph is still removed.
+    """
+    def replace(match):
+        table_html = match.group(1)
+        caption_text = match.group(2).strip()
+        if "<caption" in table_html.lower():
+            return table_html
+        open_m = _TABLE_OPEN_RE.match(table_html)
+        return (
+            table_html[: open_m.end()]
+            + f"\n<caption>{caption_text}</caption>"
+            + table_html[open_m.end():]
+        )
+
+    return _TABLE_AND_CAPTION_RE.sub(replace, html_content)
+
+
+def promote_first_column_to_row_header(html_content, source_name):
+    """Convert the first <td> of every <tbody> row into <th scope='row'>
+    so screen readers announce the row label when navigating across a row.
+    Skips tables listed in ROW_HEADER_EXCLUDE for this source file."""
+    excluded = ROW_HEADER_EXCLUDE.get(source_name, set())
+
+    def promote_row(tr_match):
+        open_tag, inner, close_tag = tr_match.group(1), tr_match.group(2), tr_match.group(3)
+        new_inner, _ = _FIRST_TD_RE.subn(
+            lambda m: f'<th scope="row"{m.group(1)}>{m.group(2)}</th>',
+            inner,
+            count=1,
+        )
+        return f"{open_tag}{new_inner}{close_tag}"
+
+    def promote_tbody(tbody_match):
+        open_tag, inner, close_tag = tbody_match.group(1), tbody_match.group(2), tbody_match.group(3)
+        return f"{open_tag}{_TR_RE.sub(promote_row, inner)}{close_tag}"
+
+    tables = list(_TABLE_RE.finditer(html_content))
+    if not tables:
+        return html_content
+
+    pieces = []
+    last = 0
+    for idx, m in enumerate(tables):
+        pieces.append(html_content[last:m.start()])
+        if idx in excluded:
+            pieces.append(m.group(0))
+        else:
+            pieces.append(_TBODY_RE.sub(promote_tbody, m.group(0)))
+        last = m.end()
+    pieces.append(html_content[last:])
+    return "".join(pieces)
 
 
 def separate_adjacent_callouts(text):
@@ -198,7 +274,9 @@ def build():
         
         # Inject our premium callout classes
         processed_html = inject_callout_classes(raw_html)
+        processed_html = promote_table_caption_paragraphs(processed_html)
         processed_html = add_table_header_scopes(processed_html)
+        processed_html = promote_first_column_to_row_header(processed_html, md_file.name)
         
         # Wrap in template
         final_html = HTML_TEMPLATE.format(title=title, content=processed_html)

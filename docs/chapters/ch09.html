@@ -250,6 +250,7 @@ inspect file operations, copy/paste, USB use, and uploads to detect
 exfiltration of classified data.</li>
 </ul>
 <table>
+<caption>Table 9.1: Modern endpoint protection has moved from "catch the file" to "explain the behavior, and respond." Traditional AV still has a place — particularly on constrained or air-gapped systems — but EDR is the dominant control on managed corporate fleets.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -304,10 +305,6 @@ subscription</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 9.1: Modern endpoint protection has moved from “catch the
-file” to “explain the behavior, and respond.” Traditional AV still has a
-place — particularly on constrained or air-gapped systems — but EDR is
-the dominant control on managed corporate fleets.</em></p>
 <h3
 id="endpoint-privilege-management-application-control-selinux-and-attack-surface-reduction">Endpoint
 Privilege Management, Application Control, SELinux, and Attack Surface
@@ -663,6 +660,7 @@ entirely: it provides end-to-end signing and encryption between specific
 senders and recipients using X.509 certificates. SPF/DKIM/DMARC protect
 the <em>channel</em>; S/MIME protects the <em>content</em>.</p>
 <table>
+<caption>Table 9.2: Common email attack types and the controls that materially reduce them. Email security is layered: no single control catches all of these, and most successful attacks combine two or three at once.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -722,10 +720,6 @@ browser isolation, FIDO2</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 9.2: Common email attack types and the controls that
-materially reduce them. Email security is layered: no single control
-catches all of these, and most successful attacks combine two or three
-at once.</em></p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>What SPF, DKIM, and DMARC look like in DNS — and what happens
@@ -796,8 +790,12 @@ apps; block specific risky apps; require apps to be installed from
 managed stores.</li>
 <li><strong>Compliance enforcement.</strong> Require disk encryption,
 biometric unlock, current OS version, no jailbreak/root, EDR present and
-reporting; non-compliant devices lose conditional access (Chapter
-5).</li>
+reporting; non-compliant devices lose conditional access (Chapter 5)
+<span class="citation"
+data-cites="nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
+href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
+2020</a>; <a href="#ref-nist-sp800-63-4-2025"
+role="doc-biblioref">Temoshok et al. 2025</a>)</span>.</li>
 <li><strong>Selective wipe.</strong> On a BYOD device, wipe only the
 corporate container — work email, files, app data — without touching the
 user’s personal photos and contacts. Critical for the
@@ -852,7 +850,12 @@ for the small number of executives who are issued company-paid phones.
 EHR access requires a managed device, FIDO2 or Authenticator app MFA,
 recent OS, encryption enabled, and EDR (Defender for Endpoint Mobile)
 reporting. A non-compliant device is blocked at sign-in by conditional
-access.</p>
+access <span class="citation"
+data-cites="nist-sp800-207-2020 nist-sp800-63b-2025">(<a
+href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
+2020</a>; <a href="#ref-nist-sp800-63b-2025"
+role="doc-biblioref">National Institute of Standards and Technology
+2025</a>)</span>.</p>
 <p><strong>Phase 3 — Pilot and rollout.</strong> The pilot covers two
 clinical units (forty users) for thirty days, with daily check-ins and a
 fast-feedback Slack channel. Two issues surface: (1) some older Android
@@ -1123,6 +1126,27 @@ DNS).</li>
 sources in any environment; most malware reveals itself through name
 resolution before any subsequent network behavior is visible.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-nist-sp800-63b-2025" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2025. <em>Digital
+Identity Guidelines: Authentication and Lifecycle Management</em>. <a
+href="https://pages.nist.gov/800-63-4/sp800-63b.html">https://pages.nist.gov/800-63-4/sp800-63b.html</a>.
+</div>
+<div id="ref-nist-sp800-207-2020" class="csl-entry" role="listitem">
+Rose, Scott, Oliver Borchert, Stu Mitchell, and Sean Connelly. 2020.
+<em>Zero Trust Architecture</em>. NIST SP 800-207. <span>National
+Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-207">https://doi.org/10.6028/NIST.SP.800-207</a>.
+</div>
+<div id="ref-nist-sp800-63-4-2025" class="csl-entry" role="listitem">
+Temoshok, D., R. Galluzzo, C. LaSalle, et al. 2025. <em>Digital Identity
+Guidelines</em>. NIST SP 800-63-4. <span>National Institute of Standards
+and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-63-4">https://doi.org/10.6028/NIST.SP.800-63-4</a>.
+</div>
+</div>
 
         </main>
     </div>

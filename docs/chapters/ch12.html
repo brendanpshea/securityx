@@ -203,6 +203,7 @@ and OWASP Dependency-Check automate the monitoring and alerting pipeline
 treated as an afterthought.</p>
 </blockquote>
 <table>
+<caption>Table 12.1: Common Software Vulnerabilities and Mitigations. The "Primary Control" column lists the *architectural* fix — the change that eliminates the root cause rather than just detecting an exploit after the fact.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -277,35 +278,8 @@ scanning</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 12.1: Common Software Vulnerabilities and Mitigations. The
-“Primary Control” column lists the </em>architectural* fix — the change
-that eliminates the root cause rather than just detecting an exploit
-after the fact.*</p>
-<h3 id="cve-cvss-and-scap">CVE, CVSS, and SCAP</h3>
-<p><strong>Common Vulnerabilities and Exposures (CVE)</strong> is the
-standardized naming system for publicly disclosed vulnerabilities. Every
-CVE entry gets a unique identifier (e.g., CVE-2021-44228, the Log4Shell
-identifier), a brief description, and references to advisories and
-patches. CVE is the vocabulary that lets vendors, defenders, and
-vulnerability scanners all refer to the same flaw unambiguously.</p>
-<p><strong>Common Vulnerability Scoring System (CVSS)</strong> provides
-the standardized <em>severity score</em> for each CVE. CVSS v3.1 (and
-v4.0, which is being adopted) computes a 0–10 numeric score from a set
-of metrics organized into three groups:</p>
-<ul>
-<li><strong>Base Score:</strong> Intrinsic characteristics of the
-vulnerability — how it is exploited (network, adjacent, local,
-physical), how complex the attack is, whether privileges or user
-interaction are required, and the impact on confidentiality, integrity,
-and availability.</li>
-<li><strong>Temporal Score:</strong> Time-sensitive factors — whether a
-reliable exploit exists, whether a fix has been issued, and the
-confidence in the vulnerability report.</li>
-<li><strong>Environmental Score:</strong> Organization-specific
-adjustments — how much a specific asset’s confidentiality, integrity, or
-availability actually matters given its role.</li>
-</ul>
 <table>
+<caption>Table 12.2: Understanding CVSS Scoring Metrics. A network-exploitable, low-complexity vulnerability with no privileges required and high impact across all three CIA dimensions scores a perfect 10.0. CVSS helps prioritize remediation, but the environmental score — adjusted for your organization's context — is often more operationally relevant than the base score alone.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -363,12 +337,6 @@ component?</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 12.2: Understanding CVSS Scoring Metrics. A
-network-exploitable, low-complexity vulnerability with no privileges
-required and high impact across all three CIA dimensions scores a
-perfect 10.0. CVSS helps prioritize remediation, but the environmental
-score — adjusted for your organization’s context — is often more
-operationally relevant than the base score alone.</em></p>
 <p><strong>Security Content Automation Protocol (SCAP)</strong> is a
 NIST-maintained suite of standards that allows vulnerability-scanning
 tools to operate against machine-readable policy specifications rather

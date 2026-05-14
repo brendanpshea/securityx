@@ -216,6 +216,7 @@ detonation results.</li>
 attack-surface management feeds.</li>
 </ul>
 <table>
+<caption>Table 11.1: STIX and TAXII are complementary, not alternatives. STIX defines what threat intelligence looks like as data; TAXII defines how that data moves between systems. A modern Threat Intelligence Platform consumes TAXII feeds and stores STIX objects.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -270,10 +271,14 @@ it</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 11.1: STIX and TAXII are complementary, not alternatives.
-STIX defines what threat intelligence looks like as data; TAXII defines
-how that data moves between systems. A modern Threat Intelligence
-Platform consumes TAXII feeds and stores STIX objects.</em></p>
+<p>The current OASIS CTI ecosystem centers on STIX 2.1 and TAXII 2.1,
+with STIX defining the data model and TAXII defining the exchange
+protocol <span class="citation"
+data-cites="oasis-stix-2-1-2021 oasis-taxii-2-1-2021">(<a
+href="#ref-oasis-stix-2-1-2021" role="doc-biblioref">OASIS Open Cyber
+Threat Intelligence Technical Committee 2021a</a>, <a
+href="#ref-oasis-taxii-2-1-2021"
+role="doc-biblioref">2021b</a>)</span>.</p>
 <h3 id="dashboards-reporting-and-security-metrics">Dashboards,
 Reporting, and Security Metrics</h3>
 <p>Dashboards exist for two audiences with very different needs:</p>
@@ -607,9 +612,14 @@ company.</li>
 Threat Intelligence Platforms</h3>
 <p>The plumbing that makes all of this manageable is the combination of
 <strong>STIX</strong> (the data model) and <strong>TAXII</strong> (the
-transport protocol), introduced in Table 11.1. A <strong>Threat
-Intelligence Platform (TIP)</strong> — MISP (open source), Anomali,
-ThreatConnect, ThreatQuotient — sits at the center:</p>
+transport protocol), introduced in Table 11.1 <span class="citation"
+data-cites="oasis-stix-2-1-2021 oasis-taxii-2-1-2021">(<a
+href="#ref-oasis-stix-2-1-2021" role="doc-biblioref">OASIS Open Cyber
+Threat Intelligence Technical Committee 2021a</a>, <a
+href="#ref-oasis-taxii-2-1-2021" role="doc-biblioref">2021b</a>)</span>.
+A <strong>Threat Intelligence Platform (TIP)</strong> — MISP (open
+source), Anomali, ThreatConnect, ThreatQuotient — sits at the
+center:</p>
 <ol type="1">
 <li>The TIP pulls STIX bundles from TAXII servers operated by ISACs,
 vendors, and partners.</li>
@@ -624,6 +634,7 @@ indicator matches, that match itself becomes intelligence to share with
 the community.</li>
 </ol>
 <table>
+<caption>Table 11.2: Threat intelligence is layered across audiences and time horizons. The same campaign produces all four tiers of intelligence — strategic for the board, operational for SOC planning, tactical for hunting, technical for blocking. A program that consumes only one tier is incomplete.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -669,11 +680,6 @@ rules, Sigma rules</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 11.2: Threat intelligence is layered across audiences and
-time horizons. The same campaign produces all four tiers of intelligence
-— strategic for the board, operational for SOC planning, tactical for
-hunting, technical for blocking. A program that consumes only one tier
-is incomplete.</em></p>
 <h3 id="rule-based-detection-languages-sigma-yara-snort">Rule-Based
 Detection Languages: Sigma, YARA, Snort</h3>
 <p>Three open detection languages dominate community sharing:</p>
@@ -972,6 +978,20 @@ IR firms have become a standard structural response to the dwell-time
 and integration blind-spot lessons of the Marriott / Starwood
 breach.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-oasis-stix-2-1-2021" class="csl-entry" role="listitem">
+OASIS Open Cyber Threat Intelligence Technical Committee. 2021a.
+<em>STIX Version 2.1</em>. <a
+href="https://oasis-open.github.io/cti-documentation/stix/intro">https://oasis-open.github.io/cti-documentation/stix/intro</a>.
+</div>
+<div id="ref-oasis-taxii-2-1-2021" class="csl-entry" role="listitem">
+OASIS Open Cyber Threat Intelligence Technical Committee. 2021b.
+<em>TAXII Version 2.1</em>. <a
+href="https://oasis-open.github.io/cti-documentation/taxii/intro">https://oasis-open.github.io/cti-documentation/taxii/intro</a>.
+</div>
+</div>
 
         </main>
     </div>

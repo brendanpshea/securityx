@@ -68,7 +68,10 @@ between IT and OT; hardening and monitoring tuned to constrained
 devices; industry-specific frameworks (NERC CIP, HIPAA, IEC 62443) that
 codify the expectations; and the discipline of <strong>compensating
 controls</strong> — protections you add around a system precisely
-because the system itself cannot be made directly secure.</p>
+because the system itself cannot be made directly secure <span
+class="citation" data-cites="nist-sp800-82r3-2023">(<a
+href="#ref-nist-sp800-82r3-2023" role="doc-biblioref">Stouffer et al.
+2023</a>)</span>.</p>
 <hr />
 <h2 id="how-is-ot-different-from-it">How is OT Different from IT?</h2>
 <p><strong>Operational Technology (OT)</strong> is the hardware and
@@ -168,6 +171,7 @@ process safety engineers, regulatory bodies, and external auditors — not
 just IT security.</li>
 </ul>
 <table>
+<caption>Table 10.1: IT, OT, and IoT operate under fundamentally different constraints. Security architecture has to respect those differences — IT controls applied unmodified to OT typically either break the process or fail to reduce risk.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -240,10 +244,6 @@ injury</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 10.1: IT, OT, and IoT operate under fundamentally different
-constraints. Security architecture has to respect those differences — IT
-controls applied unmodified to OT typically either break the process or
-fail to reduce risk.</em></p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong></p>
 <p><em>Nick Chopper Air-Gaps the Yellow Brick Assembly Lines</em></p>
@@ -599,6 +599,7 @@ legacy system produces, send it to a SIEM. Logs are often the only
 evidence available after an incident.</li>
 </ul>
 <table>
+<caption>Table 10.2: Common legacy vulnerabilities and the compensating controls that meaningfully reduce their risk. The pattern is the same regardless of the specific technology: surround what you cannot fix with controls you do control.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -664,10 +665,6 @@ USB and physical control</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 10.2: Common legacy vulnerabilities and the compensating
-controls that meaningfully reduce their risk. The pattern is the same
-regardless of the specific technology: surround what you cannot fix with
-controls you do control.</em></p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>Compensating controls around an unpatched 1998 Allen-Bradley
@@ -680,6 +677,7 @@ business has deferred for two budget cycles.</p>
 <p>Nick Chopper documents the compensating control stack and assigns an
 owner to each layer:</p>
 <table>
+<caption>Table 10.3: Compensating control stack for the unpatched Allen-Bradley PLC at Yellow Brick Manufacturing — control, implementation, and owner.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -976,6 +974,16 @@ governance control.</li>
 vocabulary for the same segmentation logic the Purdue Model expresses
 graphically; the two frameworks complement each other in practice.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-nist-sp800-82r3-2023" class="csl-entry" role="listitem">
+Stouffer, Keith, Michael Pease, CheeYee Tang, et al. 2023. <em>Guide to
+Operational Technology (OT) Security</em>. NIST SP 800-82 Rev. 3.
+<span>National Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-82r3">https://doi.org/10.6028/NIST.SP.800-82r3</a>.
+</div>
+</div>
 
         </main>
     </div>

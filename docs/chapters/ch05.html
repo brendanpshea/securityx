@@ -83,11 +83,16 @@ refuse to talk to the RADIUS server.</p>
 <p>The thread tying all of this together is the same thread that ran
 through Chapter 4: trust must be narrow, conditional, and continuously
 evaluated. The IAM platform is where Zero Trust either becomes real or
-becomes a marketing slide. In this chapter we walk through the identity
-lifecycle, compare access control models, explore how to lock down
-high-privilege accounts, examine how attackers actually abuse identity
-systems, and finish by troubleshooting the authentication failures that
-fill the average security analyst’s ticket queue.</p>
+becomes a marketing slide <span class="citation"
+data-cites="nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
+href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
+2020</a>; <a href="#ref-nist-sp800-63-4-2025"
+role="doc-biblioref">Temoshok et al. 2025</a>)</span>. In this chapter
+we walk through the identity lifecycle, compare access control models,
+explore how to lock down high-privilege accounts, examine how attackers
+actually abuse identity systems, and finish by troubleshooting the
+authentication failures that fill the average security analyst’s ticket
+queue.</p>
 <hr />
 <h2 id="how-do-we-manage-the-identity-lifecycle">How Do We Manage the
 Identity Lifecycle?</h2>
@@ -347,6 +352,7 @@ override the label themselves.</li>
 </ul>
 </blockquote>
 <table>
+<caption>Table 5.1: Comparing the Four Major Access Control Models.</caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -401,8 +407,6 @@ tools</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 5.1: Comparing the Four Major Access Control
-Models.</em></p>
 <h3 id="policy-decision-and-enforcement-points">Policy Decision and
 Enforcement Points</h3>
 <p>Modern IAM architectures separate the <em>decision</em> about whether
@@ -456,7 +460,11 @@ request originated), <strong>time-based controls</strong> (when access
 is permitted), and <strong>device trust</strong> (is the endpoint
 compliant with patching, encryption, EDR posture). These are the same
 signals we discussed in Chapter 4’s Zero Trust section — IAM is simply
-where most of them are evaluated.</p>
+where most of them are evaluated <span class="citation"
+data-cites="nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
+href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
+2020</a>; <a href="#ref-nist-sp800-63-4-2025"
+role="doc-biblioref">Temoshok et al. 2025</a>)</span>.</p>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong> A contractor needs access to one
 application, from one specific laptop, only during business hours, only
@@ -476,8 +484,14 @@ moves the access decision from “I trust your password” to “I trust the
 cryptographic evidence about your environment.”</p>
 <p><strong>Biometric authentication</strong> uses physical or behavioral
 characteristics — fingerprints, face geometry, iris patterns, voice,
-typing rhythm — to verify identity. Biometrics are convenient and
-resistant to phishing, but they have unique architectural concerns:</p>
+typing rhythm — as part of an authentication flow. In current NIST
+guidance, biometrics are not treated as standalone authenticators; they
+are used to activate or strengthen another factor, and phishing
+resistance depends on the surrounding protocol rather than on the
+biometric by itself <span class="citation"
+data-cites="nist-sp800-63b-2025">(<a href="#ref-nist-sp800-63b-2025"
+role="doc-biblioref">National Institute of Standards and Technology
+2025</a>)</span>. They still have unique architectural concerns:</p>
 <ul>
 <li><strong>Templates, not images.</strong> The biometric system stores
 a mathematical representation, not the raw image. Architects must ensure
@@ -500,11 +514,13 @@ extraction, template comparison, threshold scoring, and the final
 accept/reject decision.</em></p>
 <p><strong>Identity proofing</strong> is the process of confirming, at
 enrollment, that the human behind a credential is who they claim to be.
-NIST’s digital identity guidelines define increasing levels of proofing
-— from self-asserted, through remote document verification, up to
-in-person verification with government-issued ID. Architects choose the
-proofing level based on the sensitivity of what the identity will
-eventually be allowed to do.</p>
+NIST’s current digital identity guidance defines increasing levels of
+proofing — from self-asserted, through remote document verification, up
+to in-person verification with government-issued ID <span
+class="citation" data-cites="nist-sp800-63-4-2025">(<a
+href="#ref-nist-sp800-63-4-2025" role="doc-biblioref">Temoshok et al.
+2025</a>)</span>. Architects choose the proofing level based on the
+sensitivity of what the identity will eventually be allowed to do.</p>
 <h3 id="physical-and-logical-access-control">Physical and Logical Access
 Control</h3>
 <p>A complete IAM program covers both <strong>physical access control
@@ -548,7 +564,10 @@ second approver, with the request and approval logged immutably.</li>
 <li><strong>Strong authentication for the PAM tool itself.</strong> PAM
 is the single most attractive target in the environment; protecting it
 with phishing-resistant MFA and dedicated admin workstations is
-non-negotiable.</li>
+non-negotiable <span class="citation"
+data-cites="nist-sp800-63b-2025">(<a href="#ref-nist-sp800-63b-2025"
+role="doc-biblioref">National Institute of Standards and Technology
+2025</a>)</span>.</li>
 </ul>
 <p>A common pattern in mature organizations is the <strong>tiered
 administration model</strong>: Tier 0 contains identity infrastructure
@@ -754,6 +773,7 @@ generated by a compromised issuer. A provisioning connector that writes
 the wrong group membership may look like an ordinary synchronization
 event until the downstream privilege becomes visible.</p>
 <table>
+<caption>Table 5.2: Common IAM-centric TTPs, their usual objectives, and the signals defenders should prioritize.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -825,8 +845,6 @@ validation failures, SCIM or IdP admin changes</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 5.3: Common IAM-centric TTPs, their usual objectives, and
-the signals defenders should prioritize.</em></p>
 <p>The important distinction is that identity gives these TTPs their
 meaning. The same activity can later be revisited from different
 operational angles. Endpoint and infrastructure chapters can treat it as
@@ -884,6 +902,7 @@ Connect</h3>
 <p>These three protocols dominate modern federation. They are related
 but not interchangeable.</p>
 <table>
+<caption>Table 5.3: SAML vs. OAuth vs. OpenID Connect — what each protocol is for and how each one tends to break.</caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -930,8 +949,6 @@ rotation, audience claim mismatch</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 5.2: SAML vs. OAuth vs. OpenID Connect — what each protocol
-is for and how each one tends to break.</em></p>
 <p><strong>SAML troubleshooting</strong> almost always comes down to one
 of four issues: (1) the IdP and SP disagree on the entity ID or the
 assertion consumer URL, (2) the SAML response signature does not
@@ -999,7 +1016,10 @@ fatigue</strong> attacks, where they trigger repeated push notifications
 until the user finally taps Approve to make them stop. The mature
 response is not to disable MFA but to use number matching, push approval
 with location and application context, or to require step-up via a
-phishing-resistant factor such as a FIDO2 security key.</p>
+phishing-resistant factor such as a FIDO2 security key <span
+class="citation" data-cites="nist-sp800-63b-2025">(<a
+href="#ref-nist-sp800-63b-2025" role="doc-biblioref">National Institute
+of Standards and Technology 2025</a>)</span>.</p>
 <p>Biometric anomalies are usually environmental: a fingerprint sensor
 fails after a screen replacement; face recognition refuses to enroll
 under unusual lighting; voice authentication degrades after the user
@@ -1229,6 +1249,27 @@ preserving identity-based access.</li>
 directory, federation, or provisioning systems rather than simply
 breaking a generic application field.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-nist-sp800-63b-2025" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2025. <em>Digital
+Identity Guidelines: Authentication and Lifecycle Management</em>. <a
+href="https://pages.nist.gov/800-63-4/sp800-63b.html">https://pages.nist.gov/800-63-4/sp800-63b.html</a>.
+</div>
+<div id="ref-nist-sp800-207-2020" class="csl-entry" role="listitem">
+Rose, Scott, Oliver Borchert, Stu Mitchell, and Sean Connelly. 2020.
+<em>Zero Trust Architecture</em>. NIST SP 800-207. <span>National
+Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-207">https://doi.org/10.6028/NIST.SP.800-207</a>.
+</div>
+<div id="ref-nist-sp800-63-4-2025" class="csl-entry" role="listitem">
+Temoshok, D., R. Galluzzo, C. LaSalle, et al. 2025. <em>Digital Identity
+Guidelines</em>. NIST SP 800-63-4. <span>National Institute of Standards
+and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-63-4">https://doi.org/10.6028/NIST.SP.800-63-4</a>.
+</div>
+</div>
 
         </main>
     </div>

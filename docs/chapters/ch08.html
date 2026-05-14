@@ -248,6 +248,7 @@ logs, making it possible to detect unauthorized issuance after the
 fact.</li>
 </ul>
 <table>
+<caption>Table 8.1: Common digital certificate types and their typical use. Lifetimes have trended dramatically downward across the industry — public TLS certificates may not exceed 398 days under current CA/Browser Forum rules, and shorter is better.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -308,10 +309,6 @@ hardware-bound</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 8.1: Common digital certificate types and their typical
-use. Lifetimes have trended dramatically downward across the industry —
-public TLS certificates may not exceed 398 days under current CA/Browser
-Forum rules, and shorter is better.</em></p>
 <hr />
 <h2 id="how-do-we-apply-cryptography-in-the-real-world">How Do We Apply
 Cryptography in the Real World?</h2>
@@ -359,6 +356,7 @@ parties jointly compute a function over their inputs without any party
 learning the others’ inputs.</li>
 </ul>
 <table>
+<caption>Table 8.2: Symmetric and asymmetric cryptography are not competitors; they are complements. Real systems use asymmetric crypto to authenticate parties and exchange a session key, then switch to symmetric crypto for the bulk of the work.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -405,10 +403,6 @@ signatures</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 8.2: Symmetric and asymmetric cryptography are not
-competitors; they are complements. Real systems use asymmetric crypto to
-authenticate parties and exchange a session key, then switch to
-symmetric crypto for the bulk of the work.</em></p>
 <h3 id="secure-email-non-repudiation-and-privacy-use-cases">Secure
 Email, Non-Repudiation, and Privacy Use Cases</h3>
 <p>Email security uses two overlapping tools. <strong>S/MIME</strong>
@@ -662,30 +656,33 @@ Stretching, Key Splitting, and Forward Secrecy</h3>
 password) into a high-entropy key by deliberately slowing down the
 derivation. <strong>PBKDF2</strong>, <strong>bcrypt</strong>,
 <strong>scrypt</strong>, and <strong>Argon2</strong> all do this;
-<strong>Argon2id</strong> is the current OWASP recommendation. A
-well-tuned key-stretching function makes brute force prohibitively
-expensive — a billion-guess-per-second GPU still spends years on a
-strong password.</li>
+<strong>Argon2id</strong> is the current OWASP recommendation <span
+class="citation" data-cites="owasp-password-storage-2026">(<a
+href="#ref-owasp-password-storage-2026" role="doc-biblioref">OWASP Cheat
+Sheet Series Team, n.d.</a>)</span>. A well-tuned key-stretching
+function makes brute force prohibitively expensive.</li>
 </ul>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>Tuning Argon2id for a login server</em></p>
 <p>The OWASP password-storage cheat sheet recommends, for a server that
 should verify a single login in roughly 0.5 seconds on commodity
-hardware, parameters along these lines:</p>
+hardware, parameters along these lines <span class="citation"
+data-cites="owasp-password-storage-2026">(<a
+href="#ref-owasp-password-storage-2026" role="doc-biblioref">OWASP Cheat
+Sheet Series Team, n.d.</a>)</span>:</p>
 <pre><code>Algorithm: Argon2id
 Memory cost (m): 19 MiB    (large enough to defeat ASIC parallelism)
 Time cost (t):   2 iterations
 Parallelism (p): 1 lane
 Salt:            16 random bytes per password (stored alongside the hash)
 Output length:   32 bytes</code></pre>
-<p>The same parameters that take 0.5 seconds on the login server take
-roughly 0.5 seconds on the <em>attacker’s</em> GPU as well — because
+<p>The same parameters that take 0.5 seconds on the login server also
+force the attacker to pay a high per-guess memory cost — because
 Argon2id’s memory-hard design defeats the massive parallelism that
 turned earlier KDFs (MD5, SHA-1, raw SHA-256) into trivial
-password-cracking targets. A 12-character random password under these
-parameters takes longer than the age of the universe to brute force on
-any hardware that exists today.</p>
+password-cracking targets. For strong randomly generated passwords, that
+pushes offline cracking beyond practical current hardware budgets.</p>
 <p>The opposite mistake — storing passwords as a fast hash like SHA-256
 — has produced almost every major credential dump in the last decade.
 Speed is the enemy here, not the goal.</p>
@@ -701,7 +698,9 @@ Secrecy, PFS) means that compromise of a long-term key does not
 compromise past sessions. It is achieved by exchanging fresh ephemeral
 keys for each session — typically through ephemeral Diffie-Hellman
 ((EC)DHE). TLS 1.3 makes forward secrecy mandatory by removing the
-non-PFS RSA key-exchange option entirely.</li>
+non-PFS RSA key-exchange option entirely <span class="citation"
+data-cites="rfc8446-2018">(<a href="#ref-rfc8446-2018"
+role="doc-biblioref">Rescorla 2018</a>)</span>.</li>
 </ul>
 <p><img src="../assets/images/ch08_tls_handshake.png"
 alt="The TLS 1.3 handshake completes in a single round trip. The client and server exchange ephemeral key shares in their first messages, deriving session keys via (EC)DHE — providing forward secrecy. The server’s certificate authenticates the exchange but does not encrypt the session keys, which is why a stolen long-term key cannot decrypt past traffic." />
@@ -841,8 +840,13 @@ still considered comfortable. The practical implication is to prefer
 (PQC)</h3>
 <p><strong>Post-quantum cryptography (PQC)</strong> is a class of
 public-key algorithms believed to be resistant to attacks by both
-classical and quantum computers. After a multi-year competition, NIST in
-2024 standardized three PQC algorithms:</p>
+classical and quantum computers. After a multi-year competition, NIST
+finalized its first three PQC standards in 2024 <span class="citation"
+data-cites="nist-fips203-2024 nist-fips204-2024 nist-fips205-2024">(<a
+href="#ref-nist-fips203-2024" role="doc-biblioref">National Institute of
+Standards and Technology 2024b</a>, <a href="#ref-nist-fips204-2024"
+role="doc-biblioref">2024a</a>, <a href="#ref-nist-fips205-2024"
+role="doc-biblioref">2024c</a>)</span>:</p>
 <ul>
 <li><strong>ML-KEM</strong> (formerly CRYSTALS-Kyber) — A lattice-based
 key encapsulation mechanism, the PQC successor to Diffie-Hellman key
@@ -1162,6 +1166,40 @@ configurable rather than hard-coded — is what makes future migrations
 (such as the move to PQC) possible without rewriting the surrounding
 system.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-nist-fips204-2024" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2024a.
+<em>Module-Lattice-Based Digital Signature Standard</em>. FIPS 204.
+<span>National Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.FIPS.204">https://doi.org/10.6028/NIST.FIPS.204</a>.
+</div>
+<div id="ref-nist-fips203-2024" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2024b.
+<em>Module-Lattice-Based Key-Encapsulation Mechanism Standard</em>. FIPS
+203. <span>National Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.FIPS.203">https://doi.org/10.6028/NIST.FIPS.203</a>.
+</div>
+<div id="ref-nist-fips205-2024" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2024c. <em>Stateless
+Hash-Based Digital Signature Standard</em>. FIPS 205. <span>National
+Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.FIPS.205">https://doi.org/10.6028/NIST.FIPS.205</a>.
+</div>
+<div id="ref-owasp-password-storage-2026" class="csl-entry"
+role="listitem">
+OWASP Cheat Sheet Series Team. n.d. <em>Password Storage Cheat
+Sheet</em>. Accessed May 14, 2026. <a
+href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html</a>.
+</div>
+<div id="ref-rfc8446-2018" class="csl-entry" role="listitem">
+Rescorla, Eric. 2018. <em>The Transport Layer Security (TLS) Protocol
+Version 1.3</em>. RFC 8446. <span>Internet Engineering Task
+Force</span>. <a
+href="https://doi.org/10.17487/RFC8446">https://doi.org/10.17487/RFC8446</a>.
+</div>
+</div>
 
         </main>
     </div>
