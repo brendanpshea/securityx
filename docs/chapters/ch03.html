@@ -226,6 +226,34 @@ the public user’s prompt from the internal production model.</li>
 validation at every single boundary in this pipeline. If an attacker can
 inject malicious data during Step 1, the model created in Step 3 will be
 inherently flawed, no matter how strong the firewalls are in Step 5.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 3.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the core difference between
+explainable and non-explainable AI?</li>
+<li><strong>Discriminate.</strong> If a loan, healthcare, or
+criminal-justice decision must be audited, which model type does the
+chapter say is appropriate?</li>
+<li><strong>Apply.</strong> If poisoned data crosses from the public
+internet into the raw data lake during ingestion, what downstream
+problem does that create for the model?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 3.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Explainable AI</strong> exposes reasoning humans can
+inspect; <strong>non-explainable AI</strong> operates as a black
+box.</li>
+<li><strong>Explainable AI.</strong> The decision path has to be
+auditable for bias and accountability.</li>
+<li>The model becomes <strong>compromised during training</strong>. Even
+if later controls are strong, the resulting model is already
+polluted.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-are-adversaries-weaponizing-ai-ai-enabled-attacks">How Are
 Adversaries Weaponizing AI? (AI-Enabled Attacks)</h2>
@@ -289,7 +317,10 @@ desk when his phone rang. The caller ID showed it was the chief
 executive of the firm’s German parent company—his boss. When the UK CEO
 answered, he heard the familiar German accent, the subtle intonations,
 and the exact speech cadence he had grown accustomed to over years of
-working together.</p>
+working together <span class="citation"
+data-cites="forbes-deepfake-fraud-2019">(<a
+href="#ref-forbes-deepfake-fraud-2019" role="doc-biblioref">Damiani
+2019</a>)</span>.</p>
 <p>The voice on the phone was urgent. The German executive explained
 that the company was in the final stages of a highly confidential
 acquisition and needed to wire €220,000 to a Hungarian supplier
@@ -309,7 +340,10 @@ feeding the AI hours of the German executive’s public conference calls,
 quarterly earnings reports, and interviews, the model learned to
 synthesize his voice with terrifying accuracy. The attackers had
 essentially weaponized the executive’s own public media footprint
-against the company.</p>
+against the company <span class="citation"
+data-cites="forbes-deepfake-fraud-2019">(<a
+href="#ref-forbes-deepfake-fraud-2019" role="doc-biblioref">Damiani
+2019</a>)</span>.</p>
 <p>This watershed moment in cybersecurity demonstrated that the “human
 firewall”—the ability of an employee to intuitively detect a scam—was
 fundamentally broken. The attackers did not need to hack the company’s
@@ -472,6 +506,33 @@ permissions or broad network access. Without robust input validation,
 output sanitization, and strict network segmentation (preventing the AI
 from initiating outbound web requests), the AI simply becomes a highly
 efficient automated execution engine for the adversary.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 3.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Why does AI-enabled polymorphic malware
+defeat signature-based antivirus?</li>
+<li><strong>Discriminate.</strong> An email tailored from an employee’s
+recent social posts is best described as generic phishing or spear
+phishing at scale?</li>
+<li><strong>Apply.</strong> A finance executive receives a live call
+that looks and sounds exactly like the CFO, urgently demanding a wire
+transfer. What control from the chapter most reliably prevents loss even
+if the deepfake is convincing?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 3.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Because the malware can rewrite itself.</strong> Each
+infection may look different, so static signatures stop matching.</li>
+<li><strong>Spear phishing at scale.</strong> AI removes the old
+trade-off between personalization and volume.</li>
+<li><strong>Out-of-band authentication.</strong> The payment still needs
+approval on a separate trusted channel or physical factor.</li>
+</ol>
+</details>
 <hr />
 <h2
 id="how-do-we-protect-ai-models-from-attack-the-owasp-top-10-for-llms">How
@@ -690,6 +751,34 @@ smartphones or local hospital servers). Only the updated mathematical
 weights—not the raw data itself—are sent back to the central cloud
 server. This drastically reduces the risk of mass data exposure.</li>
 </ul>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 3.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the difference between direct and
+indirect prompt injection?</li>
+<li><strong>Discriminate.</strong> If a portal blindly renders
+model-generated JavaScript and triggers XSS, is the failure prompt
+injection or insecure output handling?</li>
+<li><strong>Apply.</strong> A hospital wants an AI to learn broad
+patterns without memorizing individual patient records. Which defense
+from the chapter best fits that goal?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 3.3</strong>
+</summary>
+<ol type="1">
+<li><strong>Direct injection</strong> is typed straight into the
+chatbot; <strong>indirect injection</strong> is hidden inside data the
+model later ingests, such as retrieved documents or uploaded files.</li>
+<li><strong>Insecure output handling.</strong> The system trusted unsafe
+model output instead of sanitizing it.</li>
+<li><strong>Differential privacy.</strong> It adds statistical noise
+during training so the model learns trends without memorizing specific
+records.</li>
+</ol>
+</details>
 <hr />
 <h2 id="governing-ai-and-securing-the-enterprise">Governing AI and
 Securing the Enterprise</h2>
@@ -903,6 +992,34 @@ by a third-party vendor. By embracing a localized, open-source model,
 Dracula successfully modernized the Blood Bank’s capabilities while
 maintaining absolute regulatory compliance.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 3.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the chapter’s illusion of
+competence problem with AI?</li>
+<li><strong>Discriminate.</strong> If an assistant can send emails,
+approve refunds, or open firewall rules on its own, is the main risk
+overreliance or excessive agency?</li>
+<li><strong>Apply.</strong> Researchers are pasting raw patient records
+into a public chatbot. Following Dracula’s response, what three
+governance moves should the CISO make?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 3.4</strong>
+</summary>
+<ol type="1">
+<li>The model sounds fluent and authoritative even when it is wrong, so
+humans start trusting it without verification.</li>
+<li><strong>Excessive agency.</strong> The model has been given more
+action-taking power than the process should allow.</li>
+<li><strong>Block the unsafe path, update policy, and provide a safe
+alternative.</strong> Dracula used DLP or firewall controls to stop
+public AI use, tightened the AUP and training, and stood up a private
+air-gapped model.</li>
+</ol>
+</details>
 <h3 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h3>
 <p>The rapid integration of Artificial Intelligence represents the most
@@ -1148,6 +1265,12 @@ the training-objective level.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-forbes-deepfake-fraud-2019" class="csl-entry"
+role="listitem">
+Damiani, Jesse. 2019. <em>A Voice Deepfake Was Used to Scam a CEO Out of
+$243,000</em>. <a
+href="https://www.forbes.com/sites/jessedamiani/2019/09/03/a-voice-deepfake-was-used-to-scam-a-ceo-out-of-243000/">https://www.forbes.com/sites/jessedamiani/2019/09/03/a-voice-deepfake-was-used-to-scam-a-ceo-out-of-243000/</a>.
+</div>
 <div id="ref-owasp-llm-top10-2025" class="csl-entry" role="listitem">
 OWASP Gen AI Security Project. 2024. <em>OWASP Top 10 for LLM
 Applications 2025</em>. <a

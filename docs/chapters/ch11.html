@@ -158,6 +158,34 @@ Microsoft Sentinel. One rule, any SIEM — and it lives in Git with a
 commit history and ATT&amp;CK annotation (T1053.005) so coverage maps
 stay accurate.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 11.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Name the five stages of the SIEM pipeline
+described in the chapter.</li>
+<li><strong>Discriminate.</strong> Cloud-audit logs and EDR logs both
+arrive, but analysts cannot correlate them because their field names and
+structures do not line up. Which SIEM stage is failing?</li>
+<li><strong>Apply.</strong> Your SOC is moving from one SIEM platform to
+another but wants to keep a suspicious-scheduled-task detection portable
+and auditable. What two practices from the section help most?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 11.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Collection, normalization and enrichment, storage and
+indexing, correlation and detection, and alerting, dashboards, and
+response.</strong></li>
+<li><strong>Normalization and enrichment.</strong> Without a shared
+schema, cross-source joins become fragile or impossible.</li>
+<li><strong>Write the rule in Sigma</strong> and <strong>manage it as
+detection-as-code in Git</strong>. That gives portability across SIEMs
+and an auditable review history.</li>
+</ol>
+</details>
 <h3 id="prioritizing-alerts-and-reducing-noise">Prioritizing Alerts and
 Reducing Noise</h3>
 <p>Most SOCs do not fail because they detect too little — they fail
@@ -216,7 +244,10 @@ detonation results.</li>
 attack-surface management feeds.</li>
 </ul>
 <table>
-<caption>Table 11.1: STIX and TAXII are complementary, not alternatives. STIX defines what threat intelligence looks like as data; TAXII defines how that data moves between systems. A modern Threat Intelligence Platform consumes TAXII feeds and stores STIX objects.</caption>
+<caption>Table 11.1: STIX and TAXII are complementary, not alternatives.
+STIX defines what threat intelligence looks like as data; TAXII defines
+how that data moves between systems. A modern Threat Intelligence
+Platform consumes TAXII feeds and stores STIX objects.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -317,6 +348,36 @@ OAuth grant logs all in the same SIEM with a shared user identifier.
 None of that is exotic. Most organizations simply have not connected the
 data.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 11.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Which two outcome metrics does the chapter
+treat as more meaningful than “number of events ingested”?</li>
+<li><strong>Discriminate.</strong> The same alert fires once on a domain
+controller using a domain-admin account and once on a low-value
+workstation using a standard user. Which should be triaged first, and
+why?</li>
+<li><strong>Apply.</strong> A SOC receives 400 alerts a day, many from
+vulnerability scanners and known developer tests. Name three
+noise-reduction steps from the chapter.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 11.2</strong>
+</summary>
+<ol type="1">
+<li><strong>MTTD and MTTR.</strong> They measure whether the security
+team is actually detecting and responding effectively.</li>
+<li><strong>The domain-controller and domain-admin alert</strong> should
+go first because asset criticality and privilege level both raise the
+likely impact dramatically.</li>
+<li><strong>Tune noisy events at the source, maintain a known-noise
+allowlist, and measure false-positive rate per detection so weak rules
+get tuned or retired.</strong> The chapter also recommends staging
+alerts by severity and criticality.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-baseline-normal-behavior">How Do We Baseline Normal
 Behavior?</h2>
@@ -427,6 +488,35 @@ an attacker — internal or external — who has <em>legitimate access</em>
 is invisible to access-control alone. Only deviation from baseline
 reveals them.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 11.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Besides users, what kinds of entities does
+UEBA baseline in the chapter?</li>
+<li><strong>Discriminate.</strong> A service account suddenly begins
+performing interactive logons. Why is that a strong UEBA anomaly even if
+the account is technically valid?</li>
+<li><strong>Apply.</strong> In Hamlet’s case, what combination of
+signals turned technically authorized database access into a likely
+insider incident?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 11.3</strong>
+</summary>
+<ol type="1">
+<li>UEBA baselines <strong>hosts, service accounts, applications, and
+other entities</strong>, not just human users.</li>
+<li>It violates the account’s <strong>normal baseline</strong>. Service
+accounts are supposed to act like services, not like people logging in
+interactively.</li>
+<li>The decisive pattern was <strong>off-hours first-time use of the
+replica, progressively larger <code>SELECT *</code> exports, local CSV
+staging, and unusual outbound HTTPS to personal cloud storage</strong>.
+No single event was enough; the composition was.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-proactively-hunt-for-threats">How Do We Proactively
 Hunt for Threats?</h2>
@@ -507,23 +597,23 @@ auditors and leadership can point to.</p>
 Access</em></p>
 <p>In September 2018, Marriott International disclosed that an
 unauthorized party had been inside the reservation database of its
-<strong>Starwood</strong> subsidiary since <strong>2014</strong> — four
-years of continuous access before detection. By the time investigators
-finished counting, the breach involved guest records for approximately
-<strong>383 million people</strong>, including names, mailing addresses,
-passport numbers (more than five million in unencrypted form), Starwood
-loyalty account information, and in some cases payment card numbers
-protected with an AES-128 encryption scheme whose keys may also have
-been accessible.</p>
-<p>The exposure came to light only because Marriott — which acquired
-Starwood in 2016 — was in the middle of an IT integration project that
-involved consolidating the reservation databases. As part of that
-consolidation, the integration team ran a routine scan against the
-legacy Starwood environment that produced an alert about an unusual
-encrypted file. Pulling on that thread led investigators to a webshell,
-the webshell to a longer history of access, and the history of access to
-a sophisticated and persistent intrusion that had been quietly operating
-since before Marriott had even started acquisition negotiations.</p>
+<strong>Starwood</strong> subsidiary since <strong>2014</strong>. At
+disclosure time, Marriott said the affected database contained
+information on up to approximately <strong>500 million guests</strong>,
+including names, mailing addresses, phone numbers, email addresses,
+passport numbers, Starwood loyalty account information, dates of birth,
+and in some cases payment card data <span class="citation"
+data-cites="marriott-starwood-breach-2018">(<a
+href="#ref-marriott-starwood-breach-2018" role="doc-biblioref">Marriott
+International 2018</a>)</span>.</p>
+<p>The exposure came to light after Marriott received an alert from an
+internal security tool regarding an attempt to access the Starwood guest
+reservation database in the United States. Pulling on that thread led
+investigators to a longer history of unauthorized access in the Starwood
+network that had persisted since 2014 <span class="citation"
+data-cites="marriott-starwood-breach-2018">(<a
+href="#ref-marriott-starwood-breach-2018" role="doc-biblioref">Marriott
+International 2018</a>)</span>.</p>
 <p>The detection failures were not exotic. They were the kind of
 multi-year operational drift this chapter has been describing:</p>
 <ul>
@@ -537,22 +627,23 @@ placed median dwell time for APTs at roughly 100 days. Starwood’s
 intrusion was <em>fifteen times that</em>. With long enough dwell, any
 architecture that depends on perimeter prevention and rare audit will
 fail.</li>
-<li><strong>Failure to surface the intrusion during due
-diligence.</strong> Marriott’s 2016 acquisition of Starwood included
-security due diligence, but did not surface the active intrusion.
-Subsequent acquisitions across the industry now routinely include
-compromise assessments performed by external IR firms before close.</li>
+<li><strong>Acquired-environment blind spots.</strong> The intrusion
+predated Marriott’s 2016 acquisition of Starwood and remained in the
+inherited environment for years, illustrating how acquired platforms can
+sit outside the acquirer’s normal telemetry and hardening processes for
+too long <span class="citation"
+data-cites="marriott-starwood-breach-2018">(<a
+href="#ref-marriott-starwood-breach-2018" role="doc-biblioref">Marriott
+International 2018</a>)</span>.</li>
 <li><strong>Unencrypted PII.</strong> Passport numbers were stored in
 cleartext for a meaningful subset of records. Modern PCI-equivalent
 practice would have used tokenization (Chapter 8) so that even a
 complete database extraction would have yielded surrogate values rather
 than government identifiers.</li>
 </ul>
-<p>The regulatory consequences were substantial. The UK Information
-Commissioner’s Office initially proposed a £99 million GDPR fine; after
-appeals and adjustments for pandemic-era considerations, the final
-penalty was £18.4 million. U.S. and other regulatory actions added
-further costs. Civil litigation continued for years.</p>
+<p>The regulatory and legal consequences were substantial. Marriott
+faced regulatory scrutiny in multiple jurisdictions, extensive
+remediation work, and years of litigation and response costs.</p>
 <p>Two structural lessons for security operations come from the Marriott
 / Starwood case:</p>
 <ol type="1">
@@ -568,6 +659,35 @@ Hypothesis-based hunts, honey tokens, and behavioral analytics are the
 controls that close the long-tail gap.</li>
 </ol>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 11.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What makes a threat hunt different from
+waiting for an alert?</li>
+<li><strong>Discriminate.</strong> A fake AWS access key is planted in a
+developer’s home directory, and any use of it triggers an alert. What is
+that object called?</li>
+<li><strong>Apply.</strong> Your company acquires another firm with a
+legacy reservation platform. Name two actions from the Marriott lesson
+that should happen before full integration.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 11.4</strong>
+</summary>
+<ol type="1">
+<li><strong>A hunt is hypothesis-driven and assumes detection may
+already have failed.</strong> It goes looking for adversary behavior
+rather than waiting for a rule to fire.</li>
+<li><strong>A honey token or canary credential.</strong> Its value is
+that no legitimate actor should ever touch it.</li>
+<li><strong>Time-boxed telemetry integration into the main SIEM</strong>
+and <strong>a deliberate compromise assessment or threat-hunting effort
+on the acquired environment</strong> are the two structural steps the
+case study argues for.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-leverage-threat-intelligence">How Do We Leverage
 Threat Intelligence?</h2>
@@ -634,7 +754,11 @@ indicator matches, that match itself becomes intelligence to share with
 the community.</li>
 </ol>
 <table>
-<caption>Table 11.2: Threat intelligence is layered across audiences and time horizons. The same campaign produces all four tiers of intelligence — strategic for the board, operational for SOC planning, tactical for hunting, technical for blocking. A program that consumes only one tier is incomplete.</caption>
+<caption>Table 11.2: Threat intelligence is layered across audiences and
+time horizons. The same campaign produces all four tiers of intelligence
+— strategic for the board, operational for SOC planning, tactical for
+hunting, technical for blocking. A program that consumes only one tier
+is incomplete.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -876,8 +1000,9 @@ either in an incident, a new detection rule, or documented evidence of
 coverage.</li>
 <li>In the Marriott / Starwood breach disclosed in 2018, attackers had
 access to the Starwood reservation environment for approximately four
-years before discovery, and the initial detection came during an
-IT-integration scan rather than from a SOC alert.</li>
+years before discovery, and the initial detection came from an internal
+security tool alert against the Starwood database rather than from
+mature continuous monitoring of the inherited environment.</li>
 <li>The four-tier threat intelligence model — strategic, operational,
 tactical, technical — describes the same intelligence repackaged for
 different audiences and time horizons, with technical IoCs at the
@@ -943,9 +1068,9 @@ OS and applications with full instrumentation.</li>
 <li><strong>True.</strong> This is the canonical structure of a mature
 hunting program — hypothesis-driven, with all outcomes producing
 artifacts that strengthen the SOC.</li>
-<li><strong>True.</strong> Four years of dwell, discovery during a
-post-acquisition integration scan rather than via SOC detection —
-exactly as described in the case study.</li>
+<li><strong>True.</strong> Four years of dwell and discovery only after
+an internal security tool alerted on access to the Starwood database
+capture the core lesson about legacy-environment blind spots.</li>
 <li><strong>True.</strong> The model is one of audience and horizon; the
 same campaign produces all four tiers of intelligence
 simultaneously.</li>
@@ -981,6 +1106,12 @@ breach.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-marriott-starwood-breach-2018" class="csl-entry"
+role="listitem">
+Marriott International. 2018. <em>Marriott Announces Starwood Guest
+Reservation Database Security Incident</em>. <a
+href="https://news.marriott.com/news/2018/11/30/marriott-announces-starwood-guest-reservation-database-security-incident">https://news.marriott.com/news/2018/11/30/marriott-announces-starwood-guest-reservation-database-security-incident</a>.
+</div>
 <div id="ref-oasis-stix-2-1-2021" class="csl-entry" role="listitem">
 OASIS Open Cyber Threat Intelligence Technical Committee. 2021a.
 <em>STIX Version 2.1</em>. <a

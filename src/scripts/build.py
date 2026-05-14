@@ -51,7 +51,7 @@ def inject_callout_classes(html_content):
         ("[Thought Question]", "callout-thought", "Thought Question"),
         ("[Example]", "callout-example", "Example")
     ]
-    
+
     for tag, css_class, title in callouts:
         escaped_tag = re.escape(tag)
         # Look for <blockquote><p><strong>[Tag]</strong>
@@ -66,7 +66,27 @@ def inject_callout_classes(html_content):
             rf'</p>\n</blockquote>\n<blockquote class="{css_class}">\n<p><strong class="callout-title">{title}</strong>',
             html_content,
         )
-        
+
+    # Quick Check callouts carry a number suffix (e.g. [Quick Check 1.1]).
+    # Match the bracketed label with any trailing identifier and preserve it
+    # in the rendered title so "Quick Check 1.1" stays visible.
+    qc_pattern = re.compile(
+        r'(<blockquote>\s*<p>\s*<strong>)\[Quick Check([^\]]*)\](</strong>)',
+        re.IGNORECASE,
+    )
+    html_content = qc_pattern.sub(
+        lambda m: f'<blockquote class="callout-quick-check">\n<p><strong class="callout-title">Quick Check{m.group(2)}</strong>',
+        html_content,
+    )
+    qc_nested = re.compile(
+        r'(</p>\s*<p>\s*<strong>)\[Quick Check([^\]]*)\](</strong>)',
+        re.IGNORECASE,
+    )
+    html_content = qc_nested.sub(
+        lambda m: f'</p>\n</blockquote>\n<blockquote class="callout-quick-check">\n<p><strong class="callout-title">Quick Check{m.group(2)}</strong>',
+        html_content,
+    )
+
     return html_content
 
 def relax_list_formatting(text):

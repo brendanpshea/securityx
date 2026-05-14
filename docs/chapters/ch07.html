@@ -133,7 +133,9 @@ They authenticate API requests, but they cannot prevent you from issuing
 an access key with administrator privileges and committing it to a
 public Git repository.</p>
 <table>
-<caption>Table 7.1: Security responsibilities by cloud service model. The shaded line moves up as the customer offloads more to the provider — but the top row never changes.</caption>
+<caption>Table 7.1: Security responsibilities by cloud service model. The
+shaded line moves up as the customer offloads more to the provider — but
+the top row never changes.</caption>
 <thead>
 <tr>
 <th scope="col" style="text-align: left;">Layer</th>
@@ -267,6 +269,38 @@ built-in licensing; other software must be brought by the customer
 through a <strong>Bring Your Own License (BYOL)</strong> model. License
 compliance, version management, and renewal in BYOL scenarios remain the
 customer’s responsibility.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 7.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Across IaaS, PaaS, and SaaS, which three
+responsibilities always remain with the customer?</li>
+<li><strong>Discriminate.</strong> A team deploys code to Azure App
+Service. Microsoft patches the OS and runtime, while the team manages
+the application code, data, and identities. Which cloud service model is
+this?</li>
+<li><strong>Apply.</strong> An engineer says, “The provider encrypts the
+bucket by default, so if the bucket is public that is the cloud’s
+problem.” Name two customer-side controls from the section that would
+have prevented the exposure.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 7.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Data classification, identity and access management of the
+customer’s users, and service configuration.</strong> Those remain on
+the customer side in every cloud service model.</li>
+<li><strong>PaaS.</strong> The provider runs and patches the platform,
+but the customer still owns the code, configuration, data, and identity
+layer.</li>
+<li><strong>Account-level Block Public Access and an org-wide policy
+preventing public bucket policies</strong> would both have stopped the
+mistake. A <strong>CSPM scan</strong> would also have caught the
+effective public read before it became a breach.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-secure-cloud-workloads-and-containers">How Do We
 Secure Cloud Workloads and Containers?</h2>
@@ -380,7 +414,9 @@ functions</strong> are the dominant serverless misconfiguration pattern,
 and they turn a small code-level vulnerability into a much larger blast
 radius.</p>
 <table>
-<caption>Table 7.2: Security controls for containers vs. serverless. Both follow least-privilege principles, but the layers where controls apply are different.</caption>
+<caption>Table 7.2: Security controls for containers vs. serverless. Both
+follow least-privilege principles, but the layers where controls apply
+are different.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -475,6 +511,35 @@ laptop a year later through a phishing email, the lateral path that
 would once have led to “everything” now ended at a single development
 function with read access to a single non-production bucket.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 7.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What are the four layers of container
+security described in the section?</li>
+<li><strong>Discriminate.</strong> A Kubernetes pod runs as root, is
+marked privileged, and mounts the host filesystem. Which
+container-security layer is failing most directly?</li>
+<li><strong>Apply.</strong> Dorothy finds Lambda functions with
+<code>*:*</code> permissions and a shared payment API key in environment
+variables. Name two changes she made to reduce that risk.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 7.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Image security, registry security, runtime security, and
+orchestrator security.</strong> The chapter treats each as its own
+control layer.</li>
+<li><strong>Runtime security.</strong> Those are exactly the kinds of
+conditions Kubernetes pod security standards are meant to prevent.</li>
+<li><strong>She replaced the wildcard role with least-privilege
+execution-role templates</strong> and <strong>moved the shared API key
+into Secrets Manager with dedicated access permissions</strong>. She
+also layered logging and alerting around unexpected API use.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-automate-cloud-delivery-securely">How Do We Automate
 Cloud Delivery Securely?</h2>
@@ -573,6 +638,37 @@ that has led to major public breaches. The principle is the same as SAST
 but for infrastructure: shift the discovery left, into the PR review,
 before the resource ever exists in production.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 7.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What identity pattern should CI/CD
+pipelines use instead of long-lived static cloud keys, and what does
+policy-as-code do?</li>
+<li><strong>Discriminate.</strong> Checkov rejects a Terraform pull
+request because it would create an unencrypted, publicly reachable
+bucket. Is that CSPM or policy-as-code?</li>
+<li><strong>Apply.</strong> A frontend deployment pipeline stores a
+permanent cloud admin key and can modify production IAM. Name two design
+fixes from the section.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 7.3</strong>
+</summary>
+<ol type="1">
+<li><strong>OIDC federation with short-lived tokens</strong> should
+replace static keys. <strong>Policy-as-code</strong> scans IaC against
+security rules and rejects unsafe changes before deployment.</li>
+<li><strong>Policy-as-code.</strong> The problem is being caught in the
+pipeline before the resource exists, not by post-deployment posture
+monitoring.</li>
+<li><strong>Replace the static key with an OIDC-federated role</strong>
+and <strong>scope that role down to only the deployment actions the
+frontend pipeline actually needs</strong>. High-impact production or IAM
+changes should also require human approval.</li>
+</ol>
+</details>
 <h3 id="package-and-dependency-monitoring">Package and Dependency
 Monitoring</h3>
 <p>The same supply chain concerns covered in Chapter 6 apply with extra
@@ -729,7 +825,11 @@ Canadian customers. Names, addresses, credit scores, balances, Social
 Security numbers, and bank account numbers were exfiltrated. The breach
 is significant not only for its scale but because it laid out, in
 unusually clear terms, how cloud-specific design choices interact with
-cloud-specific attack techniques.</p>
+cloud-specific attack techniques <span class="citation"
+data-cites="capitalone-breach-2019 doj-paige-thompson-2022">(<a
+href="#ref-capitalone-breach-2019" role="doc-biblioref">Capital One
+Financial Corporation 2019</a>; <a href="#ref-doj-paige-thompson-2022"
+role="doc-biblioref">U.S. Department of Justice 2022</a>)</span>.</p>
 <p>The attacker exploited a <strong>Server-Side Request Forgery
 (SSRF)</strong> vulnerability in a misconfigured <strong>Web Application
 Firewall</strong> running on AWS EC2. SSRF is a class of attack in which
@@ -741,7 +841,11 @@ of a feature called the <strong>EC2 Instance Metadata Service
 <code>169.254.169.254</code> that returns information about the
 instance, including the temporary IAM credentials associated with the
 instance’s role.</p>
-<p>The attack chain was:</p>
+<p>The attack chain was <span class="citation"
+data-cites="capitalone-breach-2019 doj-paige-thompson-2022">(<a
+href="#ref-capitalone-breach-2019" role="doc-biblioref">Capital One
+Financial Corporation 2019</a>; <a href="#ref-doj-paige-thompson-2022"
+role="doc-biblioref">U.S. Department of Justice 2022</a>)</span>:</p>
 <ol type="1">
 <li>The attacker discovered the SSRF vulnerability in the WAF and used
 it to make the WAF’s host instance request
@@ -767,8 +871,40 @@ IMDSv2 makes the SSRF-to-metadata path significantly harder, and it is
 now the default for new EC2 launches. But IMDSv2 is not a substitute for
 least-privilege IAM roles, network policies, and SSRF-resistant code —
 it is one layer of defense in depth, and any modern cloud architecture
-should be assuming all of those layers operate together.</p>
+should be assuming all of those layers operate together <span
+class="citation" data-cites="aws-imdsv2-2019">(<a
+href="#ref-aws-imdsv2-2019" role="doc-biblioref">MacCárthaigh
+2019</a>)</span>.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 7.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Name four security functions an API gateway
+centralizes.</li>
+<li><strong>Discriminate.</strong> An inline control blocks an HR
+coordinator from uploading termination letters to a personal Google
+Drive account before the upload completes. Is that an API-based CASB or
+a proxy-based CASB?</li>
+<li><strong>Apply.</strong> An EC2-hosted WAF has an SSRF flaw that can
+reach the instance metadata service. Name three defenses from the
+section that reduce the blast radius of that flaw.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 7.4</strong>
+</summary>
+<ol type="1">
+<li><strong>Authentication, authorization, rate limiting, and request
+validation</strong> are four of the core gateway functions. The chapter
+also adds logging and tracing.</li>
+<li><strong>Proxy-based CASB.</strong> It is inspecting and blocking the
+action in real time, before the data reaches the SaaS provider.</li>
+<li><strong>IMDSv2, least-privilege IAM roles, and tighter downstream
+access controls</strong> are the key defenses. The chapter also stresses
+SSRF-resistant code and layered network restrictions.</li>
+</ol>
+</details>
 <h3 id="beyond-rate-limiting-cost-controls-and-ddos">Beyond Rate
 Limiting: Cost Controls and DDoS</h3>
 <p>Two API security concerns deserve a final note. <strong>Cost
@@ -1233,6 +1369,11 @@ organization-level guardrails, and policy-as-code in IaC pipelines.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-capitalone-breach-2019" class="csl-entry" role="listitem">
+Capital One Financial Corporation. 2019. <em>Capital One Announces Data
+Security Incident</em>. <a
+href="https://investor.capitalone.com/news-releases/news-release-details/capital-one-announces-data-security-incident">https://investor.capitalone.com/news-releases/news-release-details/capital-one-announces-data-security-incident</a>.
+</div>
 <div id="ref-fedramp-authorization-designations-2026" class="csl-entry"
 role="listitem">
 Federal Risk and Authorization Management Program. 2026. <em>Initial
@@ -1244,6 +1385,18 @@ Joint Task Force. 2020. <em>Security and Privacy Controls for
 Information Systems and Organizations</em>. NIST SP 800-53 Rev. 5.
 <span>National Institute of Standards and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.800-53r5">https://doi.org/10.6028/NIST.SP.800-53r5</a>.
+</div>
+<div id="ref-aws-imdsv2-2019" class="csl-entry" role="listitem">
+MacCárthaigh, Colm. 2019. <em>Add Defense in Depth Against Open
+Firewalls, Reverse Proxies, and SSRF Vulnerabilities with Enhancements
+to the EC2 Instance Metadata Service</em>. <span>AWS Security
+Blog</span>. <a
+href="https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/">https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/</a>.
+</div>
+<div id="ref-doj-paige-thompson-2022" class="csl-entry" role="listitem">
+U.S. Department of Justice. 2022. <em>United States v. Paige
+Thompson</em>. <a
+href="https://www.justice.gov/usao-wdwa/united-states-v-paige-thompson">https://www.justice.gov/usao-wdwa/united-states-v-paige-thompson</a>.
 </div>
 </div>
 

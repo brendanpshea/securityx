@@ -171,7 +171,8 @@ historical data to calculate an accurate Annualized Rate of Occurrence
 scenarios, Qualitative Analysis is often more appropriate.</p>
 </blockquote>
 <table>
-<caption>Table 2.1: Comparing Qualitative vs. Quantitative Risk Metrics.</caption>
+<caption>Table 2.1: Comparing Qualitative vs. Quantitative Risk
+Metrics.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -406,6 +407,33 @@ a new threat intelligence report indicated that a hostile nation-state
 was targeting investment firms, increasing the DDoS ARO to 2.0, how
 would that change the ALE and the final budget recommendation?</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 2.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What does ALE measure, and which two values
+do you multiply to calculate it?</li>
+<li><strong>Discriminate.</strong> A team is assessing a brand-new
+zero-day with no reliable historical frequency data. Should they favor
+qualitative or quantitative analysis, and why?</li>
+<li><strong>Apply.</strong> A backup policy exists on paper, but nobody
+has ever run a restore drill or incident exercise against it. According
+to the chapter, what key step is still missing?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 2.1</strong>
+</summary>
+<ol type="1">
+<li><strong>ALE</strong> is the expected annual loss from a threat. It
+is calculated as <strong>SLE x ARO</strong>.</li>
+<li><strong>Qualitative analysis.</strong> Without credible historical
+data, a quantitative ARO is just guesswork.</li>
+<li><strong>Validation and testing.</strong> The organization still has
+to prove the control or plan works through exercises, retesting, or
+restore drills.</li>
+</ol>
+</details>
 <hr />
 <h2 id="who-are-our-adversaries">Who Are Our Adversaries?</h2>
 <p>Once we understand our assets and the impact if they are compromised,
@@ -565,7 +593,11 @@ monitoring the vendor’s cybersecurity posture.</p>
 <p>In 2013, the retail giant Target suffered one of the most infamous
 data breaches in history, resulting in the theft of 40 million credit
 and debit card numbers. The breach was a masterclass in exploiting
-third-party vendor risk.</p>
+third-party vendor risk <span class="citation"
+data-cites="senate-target-breach-2014">(<a
+href="#ref-senate-target-breach-2014" role="doc-biblioref">United States
+Senate Committee on Commerce, Science, and Transportation, Majority
+Staff 2014</a>)</span>.</p>
 <p>Target had invested millions of dollars in robust perimeter security
 for their corporate network and point-of-sale (POS) systems. However, a
 financially motivated cybercriminal syndicate realized that attacking
@@ -577,14 +609,22 @@ serviced Target’s stores.</p>
 granted the HVAC vendor remote access to its vendor portal. The
 attackers launched a simple phishing campaign against Fazio employees
 and successfully infected the small vendor’s computers with a
-credential-stealing trojan.</p>
+credential-stealing trojan <span class="citation"
+data-cites="senate-target-breach-2014 krebs-target-vendor-2014">(<a
+href="#ref-senate-target-breach-2014" role="doc-biblioref">United States
+Senate Committee on Commerce, Science, and Transportation, Majority
+Staff 2014</a>; <a href="#ref-krebs-target-vendor-2014"
+role="doc-biblioref">Krebs 2014</a>)</span>.</p>
 <p>Using the stolen credentials, the attackers logged into Target’s
 vendor portal. From there, they were able to pivot out of the vendor
 system and traverse Target’s internal network until they reached the POS
 registers. The attackers deployed custom malware onto the cash registers
 that scraped the credit card data from the magnetic stripe the exact
-moment a customer swiped their card, before the data could be
-encrypted.</p>
+moment a customer swiped their card, before the data could be encrypted
+<span class="citation" data-cites="senate-target-breach-2014">(<a
+href="#ref-senate-target-breach-2014" role="doc-biblioref">United States
+Senate Committee on Commerce, Science, and Transportation, Majority
+Staff 2014</a>)</span>.</p>
 <p>This catastrophic breach demonstrated that an enterprise’s security
 is only as strong as its weakest vendor. It fundamentally changed how
 the cybersecurity industry approaches third-party risk and network
@@ -597,6 +637,35 @@ network microsegmentation—completely isolating the HVAC vendor portal on
 a separate VLAN from the point-of-sale network—how would the outcome of
 this attack have changed?</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 2.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Which two factors does the chapter use to
+profile threat actors?</li>
+<li><strong>Discriminate.</strong> If your direct vendor is secure, but
+the cloud host that vendor uses gets breached, is that vendor risk or
+subprocessor risk?</li>
+<li><strong>Apply.</strong> A contractor portal must stay online, but
+you do not want a phishing compromise at the vendor to become a bridge
+into payment systems. What architectural control from the Target case
+most changes the outcome?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 2.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Motivation and resources or capabilities.</strong> The
+chapter asks why the actor is attacking and what time, money, skill, and
+access they bring.</li>
+<li><strong>Subprocessor risk.</strong> The exposure comes from the
+vendor’s vendor rather than the direct third party you reviewed.</li>
+<li><strong>Strict segmentation or microsegmentation.</strong> Isolating
+the vendor portal from sensitive internal systems blocks the pivot into
+assets like POS or payment networks.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-model-threats-effectively">How Do We Model Threats
 Effectively?</h2>
@@ -872,6 +941,36 @@ accumulates. This is where abuse cases, attack trees, and design reviews
 are most powerful, because the team can eliminate entire classes of
 threats before code is ever written or infrastructure is ever
 deployed.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 2.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What four features does the Diamond Model
+connect?</li>
+<li><strong>Discriminate.</strong> If a defender wants a catalog of
+real-world tactics like Credential Access and OS Credential Dumping,
+should they use MITRE ATT&amp;CK or STRIDE?</li>
+<li><strong>Apply.</strong> During an acquisition, enumeration discovers
+forgotten legacy web servers on the acquired company’s internet edge.
+What does that do to the attack surface, and what should the security
+team do next?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 2.3</strong>
+</summary>
+<ol type="1">
+<li><strong>Adversary, victim, capability, and
+infrastructure.</strong></li>
+<li><strong>MITRE ATT&amp;CK.</strong> ATT&amp;CK catalogs observed
+tactics and techniques; <strong>STRIDE</strong> is a design-time
+framework for software threat categories.</li>
+<li>The attack surface has <strong>expanded with unvetted
+systems</strong>. The team should update the threat model, review the
+new architecture, and add controls or segmentation before integrating
+them.</li>
+</ol>
+</details>
 <hr />
 <h2 id="what-is-the-plan-for-the-worst-case-scenario">What is the Plan
 for the Worst-Case Scenario?</h2>
@@ -1015,6 +1114,34 @@ the Wonderland Logistics network for six months before launching the
 ransomware, how would that have impacted the safety and reliability of
 the disconnected tape backups?</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 2.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What does the 3-2-1 backup rule
+require?</li>
+<li><strong>Discriminate.</strong> During a ransomware event, which
+backup type is safer: connected or disconnected?</li>
+<li><strong>Apply.</strong> Wonderland Logistics had week-old offline
+tapes and separate transaction logs. What combination let Alice restore
+both availability and data integrity without paying the ransom?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 2.4</strong>
+</summary>
+<ol type="1">
+<li><strong>Three copies of data, on two kinds of media, with one copy
+offsite and offline.</strong></li>
+<li><strong>Disconnected backups.</strong> Ransomware can usually reach
+connected backups, but it cannot encrypt media that is offline or
+isolated.</li>
+<li><strong>Disconnected backups plus hashing and remote
+journaling.</strong> Alice restored from the offline tapes, verified the
+data with hashes, and replayed the journaled transactions to catch up
+safely.</li>
+</ol>
+</details>
 <hr />
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
@@ -1242,11 +1369,25 @@ Conducting Risk Assessments</em>. NIST SP 800-30 Rev. 1. <span>National
 Institute of Standards and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.800-30r1">https://doi.org/10.6028/NIST.SP.800-30r1</a>.
 </div>
+<div id="ref-krebs-target-vendor-2014" class="csl-entry"
+role="listitem">
+Krebs, Brian. 2014. <em>Email Attack on Vendor Set up Breach at
+Target</em>. <a
+href="https://krebsonsecurity.com/2014/02/email-attack-on-vendor-set-up-breach-at-target/">https://krebsonsecurity.com/2014/02/email-attack-on-vendor-set-up-breach-at-target/</a>.
+</div>
 <div id="ref-nist-csf-2-2024" class="csl-entry" role="listitem">
 National Institute of Standards and Technology. 2024. <em>Cybersecurity
 Framework 2.0</em>. NIST CSWP 29. <span>National Institute of Standards
 and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.CSWP.29">https://doi.org/10.6028/NIST.CSWP.29</a>.
+</div>
+<div id="ref-senate-target-breach-2014" class="csl-entry"
+role="listitem">
+United States Senate Committee on Commerce, Science, and Transportation,
+Majority Staff. 2014. <em>A <span>“Kill Chain”</span> Analysis of the
+2013 Target Data Breach</em>. <span>United States Senate Committee on
+Commerce, Science, and Transportation</span>. <a
+href="https://www.commerce.senate.gov/wp-content/uploads/media/doc/2014%200325%20Target%20Kill%20Chain%20Analysis.pdf">https://www.commerce.senate.gov/wp-content/uploads/media/doc/2014%200325%20Target%20Kill%20Chain%20Analysis.pdf</a>.
 </div>
 </div>
 

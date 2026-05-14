@@ -137,6 +137,38 @@ the offline root. Use occurs through TLS handshakes. Validation —
 performed every time the certificate is presented — checks the trust
 chain, signature, validity dates, subject match, and revocation
 status.</em></p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 8.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What do the root CA, intermediate CA, and
+registration authority each do in a well-designed PKI?</li>
+<li><strong>Discriminate.</strong> A request containing a public key and
+identity information is submitted for approval before a certificate is
+issued. What is that object called?</li>
+<li><strong>Apply.</strong> An enterprise keeps its root CA online and
+uses it to issue daily leaf certificates directly. Name two design
+problems with that choice and the safer structure the chapter
+recommends.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 8.1</strong>
+</summary>
+<ol type="1">
+<li>The <strong>root CA</strong> is the offline trust anchor, the
+<strong>intermediate CA</strong> handles day-to-day issuance, and the
+<strong>RA</strong> performs identity vetting before issuance.</li>
+<li><strong>A Certificate Signing Request (CSR).</strong> It carries the
+subscriber’s public key and identity claims to the issuance
+workflow.</li>
+<li><strong>The root is overexposed</strong> and <strong>a compromise
+would endanger the entire hierarchy immediately</strong>. The safer
+design is an <strong>offline root signing one or more
+intermediates</strong>, with the RA approving requests before those
+intermediates issue leaf certs.</li>
+</ol>
+</details>
 <h3 id="certificate-extensions-templates-and-ocsp-stapling">Certificate
 Extensions, Templates, and OCSP Stapling</h3>
 <p>A certificate is not just a wrapper around a public key — it carries
@@ -218,6 +250,35 @@ typical of Let’s Encrypt) is the modern solution: when certificates
 expire quickly, revocation matters less because the window of abuse is
 naturally bounded.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 8.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Which certificate field controls hostname
+validity, and what public mechanism lets domain owners detect
+unauthorized certificate issuance?</li>
+<li><strong>Discriminate.</strong> A certificate issued for TLS web
+server authentication is used to sign software. Which extension should
+have prevented that misuse?</li>
+<li><strong>Apply.</strong> Browsers often soft-fail when an OCSP
+responder is unavailable. What two operational practices from the
+section reduce the practical pain of revocation?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 8.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Subject Alternative Name (SAN)</strong> controls hostname
+validity, and <strong>Certificate Transparency (CT)</strong> lets domain
+owners detect rogue issuance after the fact.</li>
+<li><strong>Extended Key Usage (EKU).</strong> It constrains what the
+certificate may legitimately be used for.</li>
+<li><strong>OCSP stapling and short-lived certificates.</strong>
+Stapling avoids direct client-to-CA checks, and short lifetimes
+naturally limit the abuse window even when revocation is imperfect.</li>
+</ol>
+</details>
 <h3 id="certificate-deployment-and-integration-approaches">Certificate
 Deployment and Integration Approaches</h3>
 <p>Modern PKI is rarely managed by hand. <strong>Automated Certificate
@@ -248,7 +309,10 @@ logs, making it possible to detect unauthorized issuance after the
 fact.</li>
 </ul>
 <table>
-<caption>Table 8.1: Common digital certificate types and their typical use. Lifetimes have trended dramatically downward across the industry — public TLS certificates may not exceed 398 days under current CA/Browser Forum rules, and shorter is better.</caption>
+<caption>Table 8.1: Common digital certificate types and their typical
+use. Lifetimes have trended dramatically downward across the industry —
+public TLS certificates may not exceed 398 days under current CA/Browser
+Forum rules, and shorter is better.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -356,7 +420,10 @@ parties jointly compute a function over their inputs without any party
 learning the others’ inputs.</li>
 </ul>
 <table>
-<caption>Table 8.2: Symmetric and asymmetric cryptography are not competitors; they are complements. Real systems use asymmetric crypto to authenticate parties and exchange a session key, then switch to symmetric crypto for the bulk of the work.</caption>
+<caption>Table 8.2: Symmetric and asymmetric cryptography are not
+competitors; they are complements. Real systems use asymmetric crypto to
+authenticate parties and exchange a session key, then switch to
+symmetric crypto for the bulk of the work.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -475,6 +542,39 @@ HSM), and the operating system verifies the signature before allowing
 execution. Code signing is the foundation of secure update systems and
 modern application allowlisting.</li>
 </ul>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 8.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the dominant cryptographic control
+for data at rest, for data in transit, and for data in use?</li>
+<li><strong>Discriminate.</strong> A dashboard shows
+<code>****-****-****-1234</code> to a call-center agent; a payment
+processor replaces the real card number with a vault-backed surrogate
+used in downstream systems. Which is masking and which is
+tokenization?</li>
+<li><strong>Apply.</strong> A company wants phishing-resistant workforce
+authentication and strong service-to-service identity inside a service
+mesh. Which two mechanisms from the chapter fit best, and why?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 8.3</strong>
+</summary>
+<ol type="1">
+<li><strong>Data at rest</strong> is mainly protected with symmetric
+encryption and keys in a <strong>KMS or HSM</strong>. <strong>Data in
+transit</strong> is protected with <strong>TLS, IPsec, or SSH</strong>.
+<strong>Data in use</strong> needs controls such as <strong>confidential
+computing</strong>, or more specialized approaches like HE or SMPC.</li>
+<li>The first is <strong>data masking</strong>. The second is
+<strong>tokenization</strong>.</li>
+<li>Use <strong>FIDO2 / WebAuthn</strong> for workforce logins because
+the server stores only a public key and the authenticator signs
+challenges. Use <strong>mTLS</strong> for service-to-service identity
+because both sides authenticate with certificates.</li>
+</ol>
+</details>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong></p>
 <p><em>The Mad Hatter and the Three-Seventeen A.M. Outage</em></p>
@@ -753,21 +853,28 @@ domains: <code>*.google.com</code>, <code>*.yahoo.com</code>,
 <code>*.skype.com</code>, addresses for the CIA and Mossad, and Tor
 hidden-service routers. Many of these certificates were technically
 valid: signed by a root that every major browser shipped in its trust
-store.</p>
+store <span class="citation" data-cites="foxit-diginotar-2011">(<a
+href="#ref-foxit-diginotar-2011" role="doc-biblioref">Fox-IT
+2011</a>)</span>.</p>
 <p>The bogus <code>*.google.com</code> certificate was used in a real
 attack. Iranian Internet service providers — most likely with state
 cooperation — performed a man-in-the-middle interception of HTTPS
 traffic from approximately 300,000 users connecting to Gmail. Each
 user’s browser saw a “valid” certificate, no warning, and a working
 session. The attackers had read access to email, contact lists, and the
-session cookies needed to impersonate those users on later visits.</p>
+session cookies needed to impersonate those users on later visits <span
+class="citation" data-cites="foxit-diginotar-2011">(<a
+href="#ref-foxit-diginotar-2011" role="doc-biblioref">Fox-IT
+2011</a>)</span>.</p>
 <p>The attack was detected almost by accident. A single user in Iran,
 running a Chromium build that included Google’s experimental
 certificate-pinning enforcement, saw a warning that the certificate did
 not match the pinned key. He posted to a Google support forum. Within
 hours, Google’s security team had a sample of the rogue certificate.
 Within days, every major browser vendor had pushed an emergency update
-revoking trust in DigiNotar.</p>
+revoking trust in DigiNotar <span class="citation"
+data-cites="foxit-diginotar-2011">(<a href="#ref-foxit-diginotar-2011"
+role="doc-biblioref">Fox-IT 2011</a>)</span>.</p>
 <p>The forensic investigation that followed was devastating. DigiNotar’s
 logs were incomplete. The attackers had moved laterally from a
 public-facing web server into the CA’s signing systems through a Windows
@@ -777,12 +884,17 @@ of all, DigiNotar could not produce a complete list of every certificate
 the attackers had issued. The auditors estimated 531 fraudulent
 certificates; the company itself could not confirm the number. When you
 cannot tell trustworthy issuance from fraudulent issuance, <em>all</em>
-of your issuance must be presumed compromised.</p>
+of your issuance must be presumed compromised <span class="citation"
+data-cites="foxit-diginotar-2011">(<a href="#ref-foxit-diginotar-2011"
+role="doc-biblioref">Fox-IT 2011</a>)</span>.</p>
 <p>The Dutch government — which used DigiNotar to sign certificates for
 its tax authority, judiciary, and emergency services — moved its entire
 infrastructure off DigiNotar in a forty-eight hour scramble. The browser
 vendors completed the global revocation. DigiNotar filed for bankruptcy
-on September 20, 2011, less than three months after the breach.</p>
+on September 20, 2011, less than three months after the breach <span
+class="citation" data-cites="foxit-diginotar-2011">(<a
+href="#ref-foxit-diginotar-2011" role="doc-biblioref">Fox-IT
+2011</a>)</span>.</p>
 <p>Two structural consequences shaped modern PKI:</p>
 <ol type="1">
 <li><strong>Certificate Transparency (CT)</strong> was developed and
@@ -790,13 +902,14 @@ standardized as RFC 6962 (2013). CT requires that publicly trusted
 certificates be submitted to public, append-only logs. Domain owners can
 monitor those logs and detect unauthorized issuance against their
 domains within hours. Modern browsers refuse certificates that lack CT
-signatures.</li>
-<li><strong>CA agility and accountability</strong> became enforceable.
-The CA/Browser Forum tightened audit requirements, browsers became
-willing to distrust major CAs (Symantec in 2017, Camerfirma in 2021,
-Entrust in 2024) when their operations fell short, and certificate
-lifetimes have steadily shortened to limit the blast radius of any
-future compromise.</li>
+signatures <span class="citation" data-cites="rfc6962-2013">(<a
+href="#ref-rfc6962-2013" role="doc-biblioref">Laurie et al.
+2013</a>)</span>.</li>
+<li><strong>CA agility and accountability</strong> became more
+enforceable. The CA/Browser Forum tightened audit expectations, browsers
+became more willing to distrust CAs whose operational controls fell
+short, and certificate lifetimes steadily shortened to limit the blast
+radius of future compromises.</li>
 </ol>
 <p>DigiNotar is the case the entire modern web learned from. Every
 architectural choice in this chapter — short-lived certificates,
@@ -819,6 +932,39 @@ the verifier (login servers), not in hot paths.</li>
 for high-fanout services, that improvement is worth a migration on its
 own.</li>
 </ul>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 8.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> In envelope encryption, what do the DEK and
+KEK each do?</li>
+<li><strong>Discriminate.</strong> Which control protects weak passwords
+against offline guessing, and which control protects past TLS sessions
+if the server’s long-term private key is stolen?</li>
+<li><strong>Apply.</strong> Several banks want to compute a shared
+fraud-detection result without revealing their raw customer data to one
+another. Which advanced technique from the chapter fits best, and why is
+ordinary encryption at rest not enough?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 8.4</strong>
+</summary>
+<ol type="1">
+<li>The <strong>DEK</strong> encrypts the data itself. The
+<strong>KEK</strong> lives in the KMS or HSM and <strong>wraps the
+DEK</strong>.</li>
+<li><strong>Key stretching</strong> with something like Argon2id
+protects weak passwords against offline guessing. <strong>Forward
+secrecy</strong> protects past TLS sessions when a long-term key is
+later compromised.</li>
+<li>The best fit is <strong>secure multiparty computation
+(SMPC)</strong> because the parties can compute jointly without
+revealing their inputs. Encryption at rest only protects stored data; it
+does not solve the compute-together-without-sharing-plaintext
+problem.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-will-quantum-computing-change-cryptography">How Will Quantum
 Computing Change Cryptography?</h2>
@@ -1169,6 +1315,17 @@ system.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-foxit-diginotar-2011" class="csl-entry" role="listitem">
+Fox-IT. 2011. <em>Interim Report: DigiNotar Certificate Authority Breach
+<span>“Operation Black Tulip”</span></em>. <span>Fox-IT</span>. <a
+href="https://www.sec.gov/Archives/edgar/data/1044777/000119312511241796/dex992.htm">https://www.sec.gov/Archives/edgar/data/1044777/000119312511241796/dex992.htm</a>.
+</div>
+<div id="ref-rfc6962-2013" class="csl-entry" role="listitem">
+Laurie, Ben, Adam Langley, and Emery Kasper. 2013. <em>Certificate
+Transparency</em>. RFC 6962. <span>Internet Engineering Task
+Force</span>. <a
+href="https://doi.org/10.17487/RFC6962">https://doi.org/10.17487/RFC6962</a>.
+</div>
 <div id="ref-nist-fips204-2024" class="csl-entry" role="listitem">
 National Institute of Standards and Technology. 2024a.
 <em>Module-Lattice-Based Digital Signature Standard</em>. FIPS 204.

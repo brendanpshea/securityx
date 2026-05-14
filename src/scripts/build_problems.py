@@ -37,7 +37,7 @@ PAGE_TMPL = """<!DOCTYPE html>
             <h1>{title}</h1>
 
             <section class="problem-context">{context_html}</section>
-
+            {artifact_block}
             <section class="problem-prompt">{prompt_html}</section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="{pid}">
@@ -106,6 +106,18 @@ def build_problem(path: Path) -> dict:
     prompt_html = render_md(data.get("prompt_md", ""))
     body_html = replace_tokens(render_md(data["body_md"]), data["blanks"])
 
+    artifact_md = data.get("artifact_md", "")
+    artifact_title = data.get("artifact_title", "Artifact")
+    if artifact_md:
+        artifact_block = (
+            f'<section class="problem-artifact" aria-label="{html.escape(artifact_title)}">'
+            f'<h2 class="problem-artifact-title">{html.escape(artifact_title)}</h2>'
+            f'{render_md(artifact_md)}'
+            f'</section>'
+        )
+    else:
+        artifact_block = ""
+
     runtime = {
         "id": data["id"],
         "blanks": {
@@ -123,6 +135,7 @@ def build_problem(path: Path) -> dict:
         chapter=data["chapter"],
         pid=html.escape(data["id"]),
         context_html=context_html,
+        artifact_block=artifact_block,
         prompt_html=prompt_html,
         body_html=body_html,
         data_json=json.dumps(runtime).replace("</", "<\\/"),

@@ -244,7 +244,8 @@ remain careful. Moving capabilities to a CDN does not eliminate origin
 security requirements. It simply changes where some controls
 execute.</p>
 <table>
-<caption>Table 4.1: Common Security Components, Their Best Placement Goals, and Frequent Design Mistakes.</caption>
+<caption>Table 4.1: Common Security Components, Their Best Placement
+Goals, and Frequent Design Mistakes.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -334,6 +335,33 @@ default</td>
 </tr>
 </tbody>
 </table>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 4.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the operational difference between
+an IDS and an IPS?</li>
+<li><strong>Discriminate.</strong> If the goal is to mediate and inspect
+outbound user web traffic, do you place a forward proxy or a reverse
+proxy?</li>
+<li><strong>Apply.</strong> A mobile app and several partners call
+business services directly. Which control should sit in front of that
+interface, and what two jobs should it do?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 4.1</strong>
+</summary>
+<ol type="1">
+<li><strong>IDS</strong> alerts out of band; <strong>IPS</strong> sits
+inline and can block traffic, which also makes it riskier to
+mis-tune.</li>
+<li><strong>A forward proxy.</strong> A reverse proxy protects
+server-side ingress, not user-side egress.</li>
+<li><strong>An API gateway.</strong> It should authenticate callers and
+validate or rate-limit requests before they reach the service.</li>
+</ol>
+</details>
 <h3 id="availability-and-integrity-by-design">Availability and Integrity
 by Design</h3>
 <p>Security architects must think beyond blocking attacks. They must
@@ -417,6 +445,33 @@ segmented trust zones, and failover-capable service tiers.</em></p>
 alt="Comparing active-active and active-passive designs for resilient service delivery." />
 <em>Figure 4.2: Comparing active-active and active-passive designs for
 resilient service delivery.</em></p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 4.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the difference between horizontal
+and vertical scaling?</li>
+<li><strong>Discriminate.</strong> If every region depends on one global
+identity service or certificate authority, is the design truly
+resilient?</li>
+<li><strong>Apply.</strong> In the retail example, which tier should be
+horizontally scaled and non-persistent, and which tier should remain
+persistent and tightly controlled?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 4.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Horizontal scaling</strong> adds more nodes;
+<strong>vertical scaling</strong> adds more power to one node.</li>
+<li><strong>No.</strong> The architecture still has a hidden centralized
+point of failure.</li>
+<li>The <strong>web tier</strong> can be horizontally scaled and
+non-persistent; the <strong>payment database</strong> should stay
+persistent, segmented, and tightly controlled.</li>
+</ol>
+</details>
 <hr />
 <h2 id="what-does-zero-trust-actually-mean">What Does Zero Trust
 Actually Mean?</h2>
@@ -663,7 +718,8 @@ far better clarity because each access decision was tied to a known
 subject, known device posture, and known destination object.</p>
 </blockquote>
 <table>
-<caption>Table 4.2: Comparing the Traditional Perimeter Model with Zero Trust Design.</caption>
+<caption>Table 4.2: Comparing the Traditional Perimeter Model with Zero
+Trust Design.</caption>
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -712,6 +768,32 @@ verified</td>
 </tr>
 </tbody>
 </table>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 4.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What assumption does Zero Trust
+reject?</li>
+<li><strong>Discriminate.</strong> In a Zero Trust architecture, does a
+VPN provide trust or only secure transport?</li>
+<li><strong>Apply.</strong> A session starts from Chicago, then tries to
+call the customer billing API from Romania. What should the architecture
+do?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 4.3</strong>
+</summary>
+<ol type="1">
+<li>It rejects the idea that <strong>network location alone creates
+trust</strong>.</li>
+<li><strong>Secure transport only.</strong> Authorization still depends
+on identity, device posture, context, and policy.</li>
+<li>It should <strong>step up, block, or terminate the request</strong>
+because impossible travel plus access to a sensitive API crosses the
+risk threshold.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-enforce-security-boundaries">How Do We Enforce
 Security Boundaries?</h2>
@@ -893,23 +975,32 @@ Google’s BeyondCorp initiative. After realizing that employees
 increasingly worked from untrusted networks, and that the internal
 network itself could no longer be assumed safe by default, Google began
 replacing location-based trust with device and user-centered access
-decisions.</p>
+decisions <span class="citation" data-cites="google-beyondcorp-2014">(<a
+href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
+2014</a>)</span>.</p>
 <p>Instead of assuming that being on the corporate LAN granted broad
 trust, BeyondCorp evaluated user identity, device posture, and the
 requested application before granting access. Applications were exposed
 through access proxies and policy engines rather than hidden behind a
 monolithic VPN model. This was a foundational architectural shift:
 access became a function of verified context rather than physical
-network placement.</p>
+network placement <span class="citation"
+data-cites="google-beyondcorp-2014">(<a
+href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
+2014</a>)</span>.</p>
 <p>The lesson for security architects is not that every enterprise must
 copy Google’s exact tooling. The lesson is that the perimeter is no
 longer the only meaningful security boundary. Identity, device trust,
 application gateways, telemetry, and policy engines must all work
 together to create enforceable boundaries in a world where users,
-devices, and workloads constantly move.</p>
+devices, and workloads constantly move <span class="citation"
+data-cites="google-beyondcorp-2014">(<a
+href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
+2014</a>)</span>.</p>
 </blockquote>
 <table>
-<caption>Table 4.3: Comparing Different Types of Security Boundaries in Enterprise Architecture.</caption>
+<caption>Table 4.3: Comparing Different Types of Security Boundaries in
+Enterprise Architecture.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -966,6 +1057,35 @@ assessments</td>
 alt="DLP controls applied across endpoint, gateway, cloud, and data repository layers." />
 <em>Figure 4.3: DLP controls applied across endpoint, gateway, cloud,
 and data repository layers.</em></p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 4.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What do classification labels and tagging
+strategies let the architecture do automatically?</li>
+<li><strong>Discriminate.</strong> Scanning email or SaaS uploads for
+sensitive content is what kind of DLP, and searching cloud storage for
+forgotten sensitive files is what kind?</li>
+<li><strong>Apply.</strong> An auditor wants proof that the architecture
+works. Name one metric from the chapter that shows risk movement rather
+than raw event volume.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 4.4</strong>
+</summary>
+<ol type="1">
+<li>They make data sensitivity <strong>visible and
+machine-readable</strong>, so systems can apply controls like
+encryption, retention, and DLP automatically.</li>
+<li>Upload inspection is <strong>DLP in transit</strong>; searching
+repositories for risky sensitive data is <strong>data
+discovery</strong>.</li>
+<li>One good example is a <strong>reduction in standing privileged
+access</strong>. That shows risk moving, not just events
+accumulating.</li>
+</ol>
+</details>
 <hr />
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
@@ -1191,6 +1311,12 @@ Rose, Scott, Oliver Borchert, Stu Mitchell, and Sean Connelly. 2020.
 <em>Zero Trust Architecture</em>. NIST SP 800-207. <span>National
 Institute of Standards and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.800-207">https://doi.org/10.6028/NIST.SP.800-207</a>.
+</div>
+<div id="ref-google-beyondcorp-2014" class="csl-entry" role="listitem">
+Ward, Rory, and Betsy Beyer. 2014. <span>“BeyondCorp: A New Approach to
+Enterprise Security”</span><em><span class="nocase">;login:</span></em>
+39 (6): 6–11. <a
+href="https://research.google/pubs/beyondcorp-a-new-approach-to-enterprise-security/">https://research.google/pubs/beyondcorp-a-new-approach-to-enterprise-security/</a>.
 </div>
 </div>
 

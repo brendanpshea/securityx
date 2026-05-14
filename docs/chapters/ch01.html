@@ -198,7 +198,8 @@ license.</li>
 </ol>
 </blockquote>
 <table>
-<caption>Table 1.1: Comparing Policies, Standards, Procedures, and Guidelines.</caption>
+<caption>Table 1.1: Comparing Policies, Standards, Procedures, and
+Guidelines.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -258,6 +259,44 @@ use an old tool that was decommissioned three years ago, your governance
 is broken, and during a crisis, staff will be forced to improvise—often
 insecurely.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 1.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Which two document types in the governance
+hierarchy are mandatory <em>and</em> change most often as technology
+evolves?</li>
+<li><strong>Discriminate.</strong> A new memo states: <em>“All laptops
+must use full-disk encryption with AES-256.”</em> Is this a policy,
+standard, guideline, or procedure — and what single word in the sentence
+tells you?</li>
+<li><strong>Apply.</strong> A junior analyst drafts a 60-page “Security
+Policy” that names Cisco firewalls, requires 14-character passwords, and
+lists the exact CLI commands for resetting a switch. Name one thing
+wrong with this document and where each misplaced item actually
+belongs.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 1.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Standards and Procedures.</strong> Both are mandatory;
+standards update with tech shifts, and procedures change with every
+software version. Policies are mandatory but slow-changing; guidelines
+are optional.</li>
+<li><strong>Standard.</strong> The giveaway is <em>“AES-256”</em> — a
+specific, measurable technical requirement. A policy would say
+<em>“laptops must be encrypted”</em> and leave the algorithm to the
+standard.</li>
+<li>The document conflates all four tiers. The vendor name
+(<em>Cisco</em>) belongs in a <strong>standard</strong>; the
+<em>14-character</em> threshold is also a <strong>standard</strong>; the
+<em>CLI reset steps</em> are a <strong>procedure</strong>. The policy
+itself should only require strong authentication and approved network
+equipment.</li>
+</ol>
+</details>
 <h3 id="raci-matrices-and-management-commitment">RACI Matrices and
 Management Commitment</h3>
 <p>Even a perfect documentation hierarchy fails without clear ownership.
@@ -341,6 +380,39 @@ shelf. It is a living, breathing contract between the security team, the
 executive board, and the employees. It is the blueprint that ensures
 when the technology is deployed, it is deployed with purpose, backed by
 authority, and managed with absolute clarity.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 1.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> In RACI, which role can be assigned to only
+<em>one</em> person, and why?</li>
+<li><strong>Discriminate.</strong> During an active incident, the legal
+team must be asked before the SOC takes a customer-facing database
+offline. Are they Consulted or Informed?</li>
+<li><strong>Apply.</strong> A CISO publishes a strict MFA policy but
+quietly grants the VP of Sales a permanent exception because she
+“doesn’t have time” for it. Using the chapter’s vocabulary, what
+specifically has failed — and what is the predicted downstream effect on
+the rest of the workforce?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 1.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Accountable.</strong> A single owner has the authority to
+make the final call and to be answerable for the outcome. Shared
+accountability dissolves into no accountability when a decision is
+urgent.</li>
+<li><strong>Consulted.</strong> Their input is <em>required before</em>
+the action, and the communication is two-way. Informed parties are only
+notified after the fact (one-way).</li>
+<li><strong>Management Commitment</strong> has failed — specifically the
+<em>Enforcement</em> avenue. The exception signals that policies bend
+for important people, and the “Tone at the Top” argument predicts
+declining MFA adoption and a wave of similar exception requests.</li>
+</ol>
+</details>
 <h2 id="how-do-we-build-a-culture-of-security-awareness">How Do We Build
 a Culture of Security Awareness?</h2>
 <p>Even with airtight documentation and a clean RACI matrix, an
@@ -500,6 +572,51 @@ firing or reprimanding an employee) generally considered
 counterproductive when an employee falls for a simulated phishing
 test?</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 1.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What distinguishes <em>whaling</em> from
+ordinary <em>spear phishing</em>, and how does an <em>OPSEC</em> failure
+differ in mechanism from a phishing attack?</li>
+<li><strong>Discriminate.</strong> A network engineer posts on LinkedIn:
+<em>“Led successful Windows Server 2012 R2 migration.”</em> Hours later
+an attacker calls the helpdesk impersonating that engineer and asks for
+a password reset. Label each step (the post, the call) with the correct
+category and name the human lever the call exploits.</li>
+<li><strong>Apply.</strong> Your awareness program runs one annual
+phishing simulation with a 22% click rate, and employees routinely post
+badge photos and project details on social media. Propose two changes
+that would move the needle — one for each problem — and explain why each
+works.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 1.3</strong>
+</summary>
+<ol type="1">
+<li><strong>Whaling</strong> targets high-profile executives (CEO, CFO)
+specifically because they can authorize wire transfers or grant access
+to the most sensitive assets; spear phishing targets a <em>specific</em>
+individual or department but not necessarily a C-level one.
+<strong>OPSEC failures are passive leaks</strong> — the attacker
+collects publicly-shared scraps and assembles them. Phishing is
+<em>active manipulation</em>: the attacker contacts the target
+directly.</li>
+<li>The LinkedIn post is an <strong>OPSEC failure</strong> — passive
+disclosure of the OS version and its associated vulnerabilities. The
+helpdesk call is <strong>vishing</strong> (voice phishing), exploiting
+<strong>authority</strong> (impersonation of a known employee). The
+OPSEC leak is what made the vishing call credible — that’s the
+chained-failure pattern the chapter is teaching.</li>
+<li>Examples: (a) move from annual to <strong>monthly simulated phishing
+with immediate post-click micro-training</strong> that names the exact
+red flag missed — frequent rehearsal beats one-shot training; (b) train
+employees in <strong>Situational Awareness</strong> — viewing daily
+actions through an adversary’s eyes — so badge photos and project posts
+get caught before they’re published.</li>
+</ol>
+</details>
 <h2 id="which-governance-frameworks-matter-most">Which Governance
 Frameworks Matter Most?</h2>
 <p>Civil engineers don’t invent new formulas for the tensile strength of
@@ -696,6 +813,47 @@ without containing a single piece of real user information.</p>
 separation, security leaders ensure that the organization’s crown jewels
 remain locked in the vault, rather than being left unattended on a
 developer’s test bench.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 1.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Contrast COBIT and ITIL in one sentence
+each, then name the five stages of the data lifecycle.</li>
+<li><strong>Discriminate.</strong> A SaaS vendor’s enterprise customer
+asks for an auditor-attested report proving the vendor handles customer
+data responsibly. Which framework is the customer asking for, and why is
+NIST CSF the wrong answer?</li>
+<li><strong>Apply.</strong> A QA team copies a recent production
+database export into staging “just for one sprint” to reproduce a
+customer bug. Name two distinct governance failures this triggers, then
+propose an acceptable alternative that lets QA do their job — and say
+when you’d prefer it over the other option drawn from the section.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 1.4</strong>
+</summary>
+<ol type="1">
+<li><strong>COBIT</strong> defines the <em>control objectives</em> IT
+must meet to support business goals (the “What”); <strong>ITIL</strong>
+specifies the day-to-day service-management <em>processes</em> —
+ticketing, change management, incident workflows — that satisfy those
+objectives (the “How”). Data lifecycle: <strong>Creation → Storage →
+Usage → Archival → Destruction</strong>.</li>
+<li><strong>SOC 2.</strong> It is the auditor-attested reporting
+framework procurement teams ask for. NIST CSF is a <em>voluntary
+self-organized</em> framework with no external attestation, so it can’t
+function as proof for a third party.</li>
+<li>Failures: (a) <strong>excessive access</strong> — QA and devs
+without clearance for live PII now have it; (b) <strong>compliance
+violation</strong> — PCI DSS, HIPAA, and GDPR all prohibit live data in
+non-prod (and staging typically lacks WAFs, expanding attack surface).
+Alternatives: <strong>data masking</strong> is fastest when the schema
+is stable and realistic distributions matter; <strong>synthetic
+data</strong> is better when even masked records are too risky or when
+you need edge cases production doesn’t contain.</li>
+</ol>
+</details>
 <h2 id="navigating-compliance-and-ethics">Navigating Compliance and
 Ethics</h2>
 <p>Everything so far has been internal — the policies, frameworks, and
@@ -795,12 +953,54 @@ brands can simply revoke the merchant’s ability to process cards. For an
 e-commerce business, losing Visa and Mastercard is the end of the
 company.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 1.5</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the GDPR breach-notification
+deadline (and from what moment does the clock start), and which of HIPAA
+/ PCI DSS is <em>not</em> a law?</li>
+<li><strong>Discriminate.</strong> A nurse leaves an unencrypted laptop
+with patient records in a coffee shop, and it’s stolen. The laptop had a
+strong login password. Has a HIPAA breach occurred — and if so, which
+specific control failed?</li>
+<li><strong>Apply.</strong> A US-based ad-tech startup serves a
+JavaScript tracker on EU users’ browsers and also stores customers’
+credit card numbers in the same database as its product catalog. The
+founders argue GDPR doesn’t apply (no EU offices) and that PCI DSS is
+“just a guideline.” Evaluate both claims, naming the specific concept
+that defeats each one.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 1.5</strong>
+</summary>
+<ol type="1">
+<li><strong>72 hours</strong> from the moment the organization becomes
+<em>aware</em> of the breach. <strong>PCI DSS is not a law</strong> — it
+is contractual, enforced by the card brands, which can revoke the
+merchant’s ability to process cards.</li>
+<li><strong>Yes — a HIPAA breach has occurred.</strong> The control of
+record is <strong>encryption at rest</strong>, not the login password. A
+login screen doesn’t protect ePHI from someone who pulls the drive; only
+encryption does, and HIPAA was written knowing this.</li>
+<li>Both arguments fail. <strong>GDPR applies
+extraterritorially</strong> to any organization processing EU resident
+data — the tracker firing in an EU browser binds the startup.
+<strong>PCI DSS is contractual but mandatory</strong>; storing
+cardholder data alongside the product catalog violates <strong>network
+segmentation</strong>, and the fix is isolating cardholder data on its
+own segmented network (VLAN/subnet, restricted firewall rules, separate
+access controls).</li>
+</ol>
+</details>
 <h3 id="the-rest-of-the-landscape">The Rest of the Landscape</h3>
 <p>Beyond GDPR-style privacy law and HIPAA/PCI-style industry standards,
 several other regimes show up in CAS-005 and in real practice. The table
 summarizes them rather than walking through each in narrative form.</p>
 <table>
-<caption>Table 1.3: A field guide to the major compliance regimes.</caption>
+<caption>Table 1.3: A field guide to the major compliance
+regimes.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -923,14 +1123,20 @@ safeguards</td>
 (2023)</strong></p>
 <p>To understand the sheer power of modern compliance laws, we must look
 at the historic penalty levied against Meta (the parent company of
-Facebook and Instagram) in May 2023.</p>
+Facebook and Instagram) in May 2023 <span class="citation"
+data-cites="dpc-meta-transfers-2023">(<a
+href="#ref-dpc-meta-transfers-2023" role="doc-biblioref">Data Protection
+Commission 2023</a>)</span>.</p>
 <p>For years, Meta had been transferring the personal data of its
 European users to its massive data centers located in the United States.
 This was originally legal under an international data transfer agreement
 known as “Privacy Shield.” However, European courts invalidated Privacy
 Shield because they ruled that U.S. intelligence agencies had too much
 surveillance reach, meaning EU citizens’ data was not adequately
-protected from government snooping once it landed on American soil.</p>
+protected from government snooping once it landed on American soil <span
+class="citation" data-cites="cjeu-schrems-ii-2020">(<a
+href="#ref-cjeu-schrems-ii-2020" role="doc-biblioref">Court of Justice
+of the European Union 2020</a>)</span>.</p>
 <p>Despite the invalidation of the agreement, Meta continued to transfer
 the data, arguing that it used standard contractual clauses to protect
 the information. The Irish Data Protection Commission (DPC), acting on
@@ -939,8 +1145,12 @@ behalf of the EU under the GDPR, disagreed.</p>
 GDPR’s strict rules on data sovereignty. The penalty was staggering: a
 record-breaking <strong>€1.2 billion ($1.3 billion)</strong> fine, the
 largest ever issued under the GDPR. Furthermore, Meta was ordered to
-completely suspend the transfer of EU user data to the United States and
-delete the data that had been unlawfully transferred.</p>
+suspend future transfers and to bring its processing into compliance by
+ceasing the unlawful processing, including storage, of EU/EEA user data
+in the United States <span class="citation"
+data-cites="dpc-meta-transfers-2023">(<a
+href="#ref-dpc-meta-transfers-2023" role="doc-biblioref">Data Protection
+Commission 2023</a>)</span>.</p>
 <p>The case reset the global technology landscape. It proved that
 compliance is not just a checklist — it is a geopolitical issue. It
 demonstrated that no company, regardless of size or influence, is beyond
@@ -1148,6 +1358,22 @@ scenarios.</li>
 but the card brands can — and do — revoke the merchant’s ability to
 process cards, which is functionally fatal for an online retailer.</li>
 </ol>
+<h1 class="unnumbered" id="bibliography">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent"
+role="list">
+<div id="ref-cjeu-schrems-ii-2020" class="csl-entry" role="listitem">
+Court of Justice of the European Union. 2020. <em>Data Protection
+Commissioner v Facebook Ireland Limited and Maximillian Schrems, Case
+c-311/18</em>. <a
+href="https://curia.europa.eu/juris/liste.jsf?num=C-311/18">https://curia.europa.eu/juris/liste.jsf?num=C-311/18</a>.
+</div>
+<div id="ref-dpc-meta-transfers-2023" class="csl-entry" role="listitem">
+Data Protection Commission. 2023. <em>Inquiry Concerning Data Transfers
+from the EU/EEA to the US by Meta Platforms Ireland Limited for Its
+Facebook Service</em>. <a
+href="https://www.dataprotection.ie/en/dpc-guidance/decisions/inquiry-concerning-data-transfers-eueea-us-meta-platforms-ireland-limited-its-facebook-service">https://www.dataprotection.ie/en/dpc-guidance/decisions/inquiry-concerning-data-transfers-eueea-us-meta-platforms-ireland-limited-its-facebook-service</a>.
+</div>
+</div>
 
         </main>
     </div>

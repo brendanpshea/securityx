@@ -194,6 +194,35 @@ the CMDB, the cloud provider’s inventory APIs, the Active Directory
 computer list, and the EDR console is more valuable than most teams
 realize.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 9.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What are the four steps in the mature
+change-management workflow described in the chapter?</li>
+<li><strong>Discriminate.</strong> A VM exists in the cloud provider
+inventory and the EDR console, but not in the CMDB. What operational
+problem does that reveal?</li>
+<li><strong>Apply.</strong> A team requests an inbound firewall rule to
+TCP 6443 from the entire DevOps VLAN to a Kubernetes API server. Name
+two corrections Juliet’s change process made before approval in the
+example.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 9.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Request and impact assessment, approval, implementation in a
+defined window, and post-implementation review.</strong></li>
+<li><strong>Shadow IT or CMDB drift.</strong> The environment contains
+an asset the system of record does not accurately reflect.</li>
+<li><strong>The rule was narrowed to specific CI/CD runner IPs</strong>
+and <strong>verification included both a successful allowed connection
+and a confirmed rejection from a non-approved source</strong>. The exact
+change was then recorded in the ticket.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-lock-down-endpoints-and-servers">How Do We Lock Down
 Endpoints and Servers?</h2>
@@ -250,7 +279,10 @@ inspect file operations, copy/paste, USB use, and uploads to detect
 exfiltration of classified data.</li>
 </ul>
 <table>
-<caption>Table 9.1: Modern endpoint protection has moved from "catch the file" to "explain the behavior, and respond." Traditional AV still has a place — particularly on constrained or air-gapped systems — but EDR is the dominant control on managed corporate fleets.</caption>
+<caption>Table 9.1: Modern endpoint protection has moved from “catch the
+file” to “explain the behavior, and respond.” Traditional AV still has a
+place — particularly on constrained or air-gapped systems — but EDR is
+the dominant control on managed corporate fleets.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -399,6 +431,38 @@ backend can. The defensive payoff: even an attacker using a freshly
 compiled, never-before-seen credential-dumping tool trips the same
 behavioral fingerprint.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 9.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What kinds of telemetry does EDR collect
+that traditional antivirus generally does not?</li>
+<li><strong>Discriminate.</strong> <code>powershell.exe</code> opens
+<code>lsass.exe</code>, performs large <code>ReadProcessMemory</code>
+calls, and writes a high-entropy blob. What attack activity is this, and
+what detection model catches it best?</li>
+<li><strong>Apply.</strong> A fixed-purpose server still lets users keep
+local admin rights and run arbitrary unsigned utilities. Name two
+controls from the section that would most directly reduce that
+risk.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 9.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Process, network, file, registry, and related behavioral
+telemetry.</strong> EDR watches sequences of activity, not just static
+file signatures.</li>
+<li><strong>Credential dumping</strong>, specifically the kind of
+LSASS-memory access associated with tools like Mimikatz. A
+<strong>behavior-based EDR model</strong> is the best fit.</li>
+<li><strong>Endpoint Privilege Management</strong> to remove routine
+admin rights and <strong>application allowlisting or ASR-style execution
+controls</strong> to prevent unapproved binaries and risky child-process
+behavior.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-troubleshoot-network-defenses">How Do We Troubleshoot
 Network Defenses?</h2>
@@ -515,7 +579,11 @@ computers in 150 countries — including the UK National Health Service
 (NHS), which had to cancel an estimated 19,000 appointments and turn
 ambulances away from affected hospitals; Spain’s Telefónica; FedEx;
 Renault; Russian banks; German railway displays; and a long list of
-other organizations whose Friday afternoon ended in ransom screens.</p>
+other organizations whose Friday afternoon ended in ransom screens <span
+class="citation" data-cites="msrc-wannacry-2017 nao-wannacry-2017">(<a
+href="#ref-msrc-wannacry-2017" role="doc-biblioref">Microsoft Security
+Response Center 2017</a>; <a href="#ref-nao-wannacry-2017"
+role="doc-biblioref">National Audit Office 2017</a>)</span>.</p>
 <p>The technical pattern was a textbook case of every theme in this
 section. The exploit at the core was <strong>EternalBlue</strong>, a
 vulnerability in Microsoft’s SMBv1 protocol that had been developed and
@@ -525,7 +593,11 @@ the Shadow Brokers group in April 2017. Microsoft had released the patch
 patch had not been applied widely. The NHS in particular was running
 large numbers of Windows XP and Windows 7 systems behind under-resourced
 IT teams, with SMBv1 enabled and exposed across flat internal networks
-where workstations could freely talk SMB to one another.</p>
+where workstations could freely talk SMB to one another <span
+class="citation" data-cites="msrc-wannacry-2017 nao-wannacry-2017">(<a
+href="#ref-msrc-wannacry-2017" role="doc-biblioref">Microsoft Security
+Response Center 2017</a>; <a href="#ref-nao-wannacry-2017"
+role="doc-biblioref">National Audit Office 2017</a>)</span>.</p>
 <p>Once a single host inside an organization was compromised — typically
 through an exposed SMB port reachable from the internet, or through an
 infected mobile device crossing the perimeter — the worm scanned the
@@ -557,13 +629,46 @@ been out of support for three years. The systems running it were “too
 critical to upgrade” — and therefore guaranteed to be the worst-affected
 when something like WannaCry arrived. Microsoft eventually released an
 emergency XP patch <em>for free</em>, an unprecedented move that itself
-is a measure of how badly the long tail of EOL systems shapes
-incidents.</li>
+is a measure of how badly the long tail of EOL systems shapes incidents
+<span class="citation" data-cites="msrc-wannacry-2017">(<a
+href="#ref-msrc-wannacry-2017" role="doc-biblioref">Microsoft Security
+Response Center 2017</a>)</span>.</li>
 <li><strong>Egress and DNS visibility help even mid-attack.</strong>
 Hutchins’s kill-switch discovery was possible because researchers were
 looking at DNS queries from infected hosts in real time.</li>
 </ol>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 9.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Give one common cause of IDS/IPS false
+positives and one common cause of false negatives from the section.</li>
+<li><strong>Discriminate.</strong> Users say “small pages load, large
+pages hang” across an IPsec tunnel. Which network problem fits that
+symptom best?</li>
+<li><strong>Apply.</strong> A hospital still has unpatched SMB-reachable
+Windows hosts on a flat internal network. Name two controls from the
+chapter that would most directly limit WannaCry-style spread.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 9.3</strong>
+</summary>
+<ol type="1">
+<li>A <strong>false positive</strong> example is legitimate internal
+scanner traffic matching attack signatures. A <strong>false
+negative</strong> example is encrypted or asymmetric traffic the sensor
+cannot fully inspect.</li>
+<li><strong>An MTU or MSS mismatch across the tunnel.</strong> The fix
+is typically MSS clamping so large packets stop fragmenting and
+failing.</li>
+<li><strong>Patch or retire the vulnerable SMB systems</strong> and
+<strong>segment or firewall workstation-to-workstation SMB
+paths</strong>. Host firewalls and disabling legacy SMB behaviors also
+cut the worm’s blast radius.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-secure-core-network-services">How Do We Secure Core
 Network Services?</h2>
@@ -660,7 +765,10 @@ entirely: it provides end-to-end signing and encryption between specific
 senders and recipients using X.509 certificates. SPF/DKIM/DMARC protect
 the <em>channel</em>; S/MIME protects the <em>content</em>.</p>
 <table>
-<caption>Table 9.2: Common email attack types and the controls that materially reduce them. Email security is layered: no single control catches all of these, and most successful attacks combine two or three at once.</caption>
+<caption>Table 9.2: Common email attack types and the controls that
+materially reduce them. Email security is layered: no single control
+catches all of these, and most successful attacks combine two or three
+at once.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -745,6 +853,38 @@ never shows up in any employee’s mailbox from that source. The DMARC
 aggregate report logged the attempt and surfaced it in the security
 team’s weekly review.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 9.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What do SPF, DKIM, and DMARC each validate
+or enforce?</li>
+<li><strong>Discriminate.</strong> A public authoritative nameserver
+answers AXFR requests from anyone on the internet. What reconnaissance
+exposure does that create?</li>
+<li><strong>Apply.</strong> A phishing campaign sends mail that appears
+to come from the CFO’s domain using a rented VPS. Name three layered
+controls from the section that should block or blunt that attack.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 9.4</strong>
+</summary>
+<ol type="1">
+<li><strong>SPF</strong> validates authorized sending IPs,
+<strong>DKIM</strong> validates the message signature, and
+<strong>DMARC</strong> aligns those checks with the visible
+<code>From:</code> domain and tells receivers what to do on
+failure.</li>
+<li>It exposes the <strong>entire zone contents</strong>, leaking the
+organization’s naming map and host inventory for reconnaissance.</li>
+<li><strong>DMARC with aligned SPF or DKIM</strong>,
+<strong>secure-email controls such as lookalike detection or
+sandboxing</strong>, and <strong>post-delivery controls such as browser
+isolation or FIDO2-resistant credential theft mitigation</strong> all
+reduce the attack’s chance of succeeding.</li>
+</ol>
+</details>
 <h3 id="dosddos-and-resource-exhaustion">DoS/DDoS and Resource
 Exhaustion</h3>
 <p>A <strong>Denial of Service (DoS)</strong> attack consumes a resource
@@ -781,7 +921,13 @@ Containment</h3>
 category of <strong>Unified Endpoint Management (UEM)</strong> — gives
 IT a central control plane over enrolled devices. Microsoft Intune,
 Jamf, VMware Workspace ONE, and Google Workspace MDM are common
-platforms. Capabilities typically include:</p>
+platforms. NIST’s current enterprise mobile-device and BYOD guidance
+treats centralized management, policy enforcement, and app/container
+controls as foundational safeguards <span class="citation"
+data-cites="nist-sp800-124r2-2023 nist-sp1800-22-2023">(<a
+href="#ref-nist-sp800-124r2-2023" role="doc-biblioref">Howell et al.
+2023</a>; <a href="#ref-nist-sp1800-22-2023" role="doc-biblioref">Boeckl
+et al. 2023</a>)</span>. Capabilities typically include:</p>
 <ul>
 <li><strong>Configuration profile push.</strong> Wi-Fi, VPN,
 certificate, and policy profiles delivered automatically.</li>
@@ -792,10 +938,13 @@ managed stores.</li>
 biometric unlock, current OS version, no jailbreak/root, EDR present and
 reporting; non-compliant devices lose conditional access (Chapter 5)
 <span class="citation"
-data-cites="nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
-href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
-2020</a>; <a href="#ref-nist-sp800-63-4-2025"
-role="doc-biblioref">Temoshok et al. 2025</a>)</span>.</li>
+data-cites="nist-sp800-124r2-2023 nist-sp1800-22-2023 nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
+href="#ref-nist-sp800-124r2-2023" role="doc-biblioref">Howell et al.
+2023</a>; <a href="#ref-nist-sp1800-22-2023" role="doc-biblioref">Boeckl
+et al. 2023</a>; <a href="#ref-nist-sp800-207-2020"
+role="doc-biblioref">Rose et al. 2020</a>; <a
+href="#ref-nist-sp800-63-4-2025" role="doc-biblioref">Temoshok et al.
+2025</a>)</span>.</li>
 <li><strong>Selective wipe.</strong> On a BYOD device, wipe only the
 corporate container — work email, files, app data — without touching the
 user’s personal photos and contacts. Critical for the
@@ -851,11 +1000,13 @@ EHR access requires a managed device, FIDO2 or Authenticator app MFA,
 recent OS, encryption enabled, and EDR (Defender for Endpoint Mobile)
 reporting. A non-compliant device is blocked at sign-in by conditional
 access <span class="citation"
-data-cites="nist-sp800-207-2020 nist-sp800-63b-2025">(<a
-href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
-2020</a>; <a href="#ref-nist-sp800-63b-2025"
-role="doc-biblioref">National Institute of Standards and Technology
-2025</a>)</span>.</p>
+data-cites="nist-sp800-124r2-2023 nist-sp1800-22-2023 nist-sp800-207-2020 nist-sp800-63b-2025">(<a
+href="#ref-nist-sp800-124r2-2023" role="doc-biblioref">Howell et al.
+2023</a>; <a href="#ref-nist-sp1800-22-2023" role="doc-biblioref">Boeckl
+et al. 2023</a>; <a href="#ref-nist-sp800-207-2020"
+role="doc-biblioref">Rose et al. 2020</a>; <a
+href="#ref-nist-sp800-63b-2025" role="doc-biblioref">National Institute
+of Standards and Technology 2025</a>)</span>.</p>
 <p><strong>Phase 3 — Pilot and rollout.</strong> The pilot covers two
 clinical units (forty users) for thirty days, with daily check-ins and a
 fast-feedback Slack channel. Two issues surface: (1) some older Android
@@ -1129,6 +1280,29 @@ resolution before any subsequent network behavior is visible.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-nist-sp1800-22-2023" class="csl-entry" role="listitem">
+Boeckl, Kaitlin, Nakia Grayson, Gema Howell, et al. 2023. <em>Mobile
+Device Security: Bring Your Own Device (BYOD)</em>. NIST SP 1800-22.
+<span>National Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.1800-22">https://doi.org/10.6028/NIST.SP.1800-22</a>.
+</div>
+<div id="ref-nist-sp800-124r2-2023" class="csl-entry" role="listitem">
+Howell, Gema, Joshua Franklin, Vincent Sritapan, Murugiah Souppaya, and
+Karen Scarfone. 2023. <em>Guidelines for Managing the Security of Mobile
+Devices in the Enterprise</em>. NIST SP 800-124 Rev. 2. <span>National
+Institute of Standards and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-124r2">https://doi.org/10.6028/NIST.SP.800-124r2</a>.
+</div>
+<div id="ref-msrc-wannacry-2017" class="csl-entry" role="listitem">
+Microsoft Security Response Center. 2017. <em>Customer Guidance for
+WannaCrypt Attacks</em>. <a
+href="https://www.microsoft.com/en-us/msrc/blog/2017/05/customer-guidance-for-wannacrypt-attacks">https://www.microsoft.com/en-us/msrc/blog/2017/05/customer-guidance-for-wannacrypt-attacks</a>.
+</div>
+<div id="ref-nao-wannacry-2017" class="csl-entry" role="listitem">
+National Audit Office. 2017. <em>Investigation: WannaCry Cyber Attack
+and the NHS</em>. <span>National Audit Office</span>. <a
+href="https://www.nao.org.uk/reports/investigation-wannacry-cyber-attack-and-the-nhs/">https://www.nao.org.uk/reports/investigation-wannacry-cyber-attack-and-the-nhs/</a>.
+</div>
 <div id="ref-nist-sp800-63b-2025" class="csl-entry" role="listitem">
 National Institute of Standards and Technology. 2025. <em>Digital
 Identity Guidelines: Authentication and Lifecycle Management</em>. <a

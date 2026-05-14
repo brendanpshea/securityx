@@ -237,6 +237,36 @@ scheduled weekly instead. What do you gain and what do you lose by
 accepting that trade-off? What compensating controls would you want in
 place if you agreed?</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 6.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the difference between a functional
+requirement and a non-functional security requirement?</li>
+<li><strong>Discriminate.</strong> Which control flags insecure code
+patterns as developers write, and which control prevents direct merges
+without review: linting or branch protection?</li>
+<li><strong>Apply.</strong> If DAST moves from every merge to a weekly
+schedule, what do you lose, and what compensating controls would you
+want in place?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 6.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Functional requirements</strong> describe what the system
+does; <strong>non-functional security requirements</strong> describe how
+securely or reliably it must behave.</li>
+<li><strong>Linting</strong> flags insecure code patterns;
+<strong>branch protection</strong> enforces PRs, reviews, and passing
+checks before merge.</li>
+<li>You lose <strong>fast detection of runtime and integration flaws on
+each merge</strong>. You would want stronger upstream controls such as
+SAST or IAST, solid regression tests, and safer release gates like
+canary deployment and rollback.</li>
+</ol>
+</details>
 <hr />
 <h2 id="what-tools-are-available-for-software-assurance">What Tools Are
 Available for Software Assurance?</h2>
@@ -332,7 +362,8 @@ application behavior. RASP is best understood as a defense-in-depth
 layer added after SAST and DAST have reduced the vulnerability count,
 not as a substitute for fixing the underlying code.</p>
 <table>
-<caption>Table 6.1: When to Use SAST, DAST, IAST, and RASP — each tool fits a different moment in the lifecycle.</caption>
+<caption>Table 6.1: When to Use SAST, DAST, IAST, and RASP — each tool
+fits a different moment in the lifecycle.</caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -448,14 +479,19 @@ zero-day vulnerability in <strong>Log4j</strong>, a widely used Java
 logging library maintained by the Apache Software Foundation. The
 vulnerability — CVE-2021-44228, quickly nicknamed
 <strong>Log4Shell</strong> — allowed an attacker to achieve remote code
-execution on any server running a vulnerable version of Log4j, simply by
-causing the server to log a crafted string. Practically every enterprise
-Java application used Log4j. So did an enormous number of commercial
-products, embedded systems, game servers, cloud services, and industrial
-control systems.</p>
+execution on servers running vulnerable versions of Log4j, simply by
+causing the server to log a crafted string. Log4j was embedded across an
+enormous share of enterprise Java applications, commercial products,
+cloud services, and industrial control systems <span class="citation"
+data-cites="cisa-log4j-guidance-2022">(<a
+href="#ref-cisa-log4j-guidance-2022" role="doc-biblioref">Cybersecurity
+and Infrastructure Security Agency 2022</a>)</span>.</p>
 <p>The severity was assigned a CVSS score of 10.0 — the maximum.
 Security teams worldwide faced an immediate and urgent question: <em>do
-we have Log4j in our systems?</em></p>
+we have Log4j in our systems?</em> <span class="citation"
+data-cites="cisa-log4j-guidance-2022">(<a
+href="#ref-cisa-log4j-guidance-2022" role="doc-biblioref">Cybersecurity
+and Infrastructure Security Agency 2022</a>)</span></p>
 <p>For organizations with mature SBoMs and SCA tooling, the answer came
 quickly. A query against the SBoM inventory returned a list of systems
 running affected versions. Teams could prioritize based on internet
@@ -471,9 +507,9 @@ attacker had already compromised.</p>
 <p>The incident made the case for SBoMs in a way that years of advocacy
 had not. It demonstrated concretely that supply chain visibility is not
 a theoretical benefit: it is the difference between a two-day incident
-and a three-month crisis. The U.S. government’s subsequent mandates for
-SBoMs in federal software procurement were a direct policy response to
-Log4Shell.</p>
+and a three-month crisis. It also made it much easier for security
+leaders and policymakers to argue that SBoMs should become a normal part
+of software procurement.</p>
 </blockquote>
 <hr />
 <h2 id="how-do-we-manage-the-supply-chain-and-plan-for-end-of-life">How
@@ -577,6 +613,33 @@ explicitly, quantify the risk, document it with senior executive
 sign-off, and revisit it at regular intervals — not let it quietly
 persist indefinitely.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 6.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What do SCA tools provide, and what does an
+SBoM provide?</li>
+<li><strong>Discriminate.</strong> A tool that attacks a running
+application from the outside is DAST or SAST?</li>
+<li><strong>Apply.</strong> A web-facing system has reached EOL but
+cannot be replaced immediately. What compensating controls does the
+chapter recommend?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 6.2</strong>
+</summary>
+<ol type="1">
+<li><strong>SCA</strong> inventories third-party dependencies and known
+vulnerabilities; an <strong>SBoM</strong> records the full
+machine-readable ingredient list of the software.</li>
+<li><strong>DAST.</strong> It probes a live application the way an
+attacker would.</li>
+<li><strong>Segment it, watch it closely, and shrink
+connectivity.</strong> The chapter recommends network isolation,
+enhanced monitoring, and restricted inbound paths.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-establish-hardware-roots-of-trust">How Do We Establish
 Hardware Roots of Trust?</h2>
@@ -818,6 +881,34 @@ simple: if you generate a secret outside the device and then inject it,
 you have already exposed it. Secrets should be generated where they will
 live — inside the hardware that protects them.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 6.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the main architectural difference
+between a TPM and an HSM?</li>
+<li><strong>Discriminate.</strong> A virtual machine needs TPM-style
+attestation and disk-key protection. Which control from the chapter fits
+that use case?</li>
+<li><strong>Apply.</strong> What principle did Victor Frankenstein’s
+redesign enforce when he changed how device keys were created?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 6.3</strong>
+</summary>
+<ol type="1">
+<li>A <strong>TPM</strong> is a per-device root of trust for measured
+boot and local key protection; an <strong>HSM</strong> is shared
+tamper-resistant infrastructure for high-value enterprise
+cryptography.</li>
+<li><strong>A vTPM.</strong> It gives the guest TPM-like functions
+through the hypervisor.</li>
+<li><strong>Generate secrets where they will live.</strong> Victor moved
+key generation into protected hardware instead of creating keys outside
+the device and injecting them later.</li>
+</ol>
+</details>
 <hr />
 <h2
 id="how-do-we-secure-the-boot-process-and-defend-against-hardware-attacks">How
@@ -1071,6 +1162,35 @@ suggest about what the attacker attempted? What would you expect the
 system’s state to be if the Secure Boot enforcement was properly
 configured?</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 6.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What does Secure Boot do, and what does
+Measured Boot do?</li>
+<li><strong>Discriminate.</strong> A Thunderbolt peripheral reading RAM
+directly is what kind of attack: DMA or cold boot?</li>
+<li><strong>Apply.</strong> A recovered laptop shows a chassis intrusion
+event followed by a Secure Boot failure for the bootloader. What does
+that sequence suggest, and what should the system have done if controls
+worked?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 6.4</strong>
+</summary>
+<ol type="1">
+<li><strong>Secure Boot</strong> blocks untrusted boot components;
+<strong>Measured Boot</strong> records what ran into TPM PCRs for later
+attestation.</li>
+<li><strong>DMA.</strong> The attacker is using a peripheral to access
+live memory directly; cold boot is the cooled-RAM retention attack.</li>
+<li>It suggests <strong>physical tampering plus an attempted bootloader
+or bootkit modification</strong>. A correctly configured system should
+refuse to boot the altered component and keep TPM-sealed data
+inaccessible.</li>
+</ol>
+</details>
 <hr />
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
@@ -1360,6 +1480,12 @@ practice rather than a release strategy.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-cisa-log4j-guidance-2022" class="csl-entry"
+role="listitem">
+Cybersecurity and Infrastructure Security Agency. 2022. <em>Apache Log4j
+Vulnerability Guidance</em>. <a
+href="https://www.cisa.gov/news-events/news/apache-log4j-vulnerability-guidance">https://www.cisa.gov/news-events/news/apache-log4j-vulnerability-guidance</a>.
+</div>
 <div id="ref-nist-fips140-3-2019" class="csl-entry" role="listitem">
 National Institute of Standards and Technology. 2019. <em>Security
 Requirements for Cryptographic Modules</em>. FIPS 140-3. <span>National

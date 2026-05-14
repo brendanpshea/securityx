@@ -285,6 +285,33 @@ access across the entire SaaS portfolio in under five minutes. The
 incident with Moriarty was the last time the company learned about an
 unfederated application from its SOC instead of from its inventory.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 5.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is privilege creep?</li>
+<li><strong>Discriminate.</strong> In federation, which side
+authenticates the user and which side consumes the signed assertion or
+token: the IdP or the SP?</li>
+<li><strong>Apply.</strong> Moriarty was terminated, but two unfederated
+SaaS apps still allowed access. What program did Emma launch to fix that
+class of problem?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 5.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Privilege creep</strong> is the gradual buildup of
+unnecessary access over time, especially when role changes only add
+privileges and never remove them.</li>
+<li>The <strong>IdP</strong> authenticates the user and issues the
+assertion or token; the <strong>SP</strong> consumes it to grant
+application access.</li>
+<li><strong>Federate or retire.</strong> Emma pushed every app under SSO
+and HR-driven deprovisioning, using SCIM where needed.</li>
+</ol>
+</details>
 <hr />
 <h2 id="which-access-control-model-is-right-for-the-job">Which Access
 Control Model Is Right for the Job?</h2>
@@ -352,7 +379,8 @@ override the label themselves.</li>
 </ul>
 </blockquote>
 <table>
-<caption>Table 5.1: Comparing the Four Major Access Control Models.</caption>
+<caption>Table 5.1: Comparing the Four Major Access Control
+Models.</caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -532,6 +560,33 @@ unlock the jump host that manages the servers inside it. When physical
 and logical IAM are unified, one revocation event removes both the badge
 and the network access. When they are separate, the badge office and the
 helpdesk often disagree about who still works at the company.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 5.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What does a PDP do, and what does a PEP
+do?</li>
+<li><strong>Discriminate.</strong> If a file owner manually decides who
+else can read a folder, is that DAC or MAC?</li>
+<li><strong>Apply.</strong> A contractor needs one application, from one
+laptop, only during business hours, only inside one country. Which model
+from the chapter expresses that cleanly, and which signals should it
+use?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 5.2</strong>
+</summary>
+<ol type="1">
+<li>The <strong>PDP</strong> evaluates policy and returns the decision;
+the <strong>PEP</strong> enforces that decision.</li>
+<li><strong>DAC.</strong> The owner is exercising discretion over the
+resource.</li>
+<li><strong>ABAC or conditional access.</strong> It should evaluate
+signals like user-to-device binding, geography, time, and device
+trust.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-secure-high-privilege-accounts">How Do We Secure
 High-Privilege Accounts?</h2>
@@ -653,7 +708,10 @@ Attack</strong></p>
 chain attacks in modern history, but for this chapter the most relevant
 detail is what attackers did <em>after</em> gaining a foothold. Once
 inside affected environments, the threat actor — later attributed to a
-Russian state-sponsored group — pivoted toward the identity layer.</p>
+Russian state-sponsored group — pivoted toward the identity layer <span
+class="citation" data-cites="mandiant-sunburst-2020">(<a
+href="#ref-mandiant-sunburst-2020" role="doc-biblioref">Mandiant
+2020</a>)</span>.</p>
 <p>The technique that became known as <strong>Golden SAML</strong>
 worked like this. In a federated environment, the on-premises Active
 Directory Federation Services (AD FS) server signs SAML assertions using
@@ -663,12 +721,18 @@ store, they can mint their own SAML assertions for any user, with any
 claims they like, including assertions that bypass MFA because the SAML
 response asserts that MFA was already performed. Service providers —
 including major cloud platforms — would accept those forged assertions
-as legitimate, because the cryptographic signature verified.</p>
+as legitimate, because the cryptographic signature verified <span
+class="citation" data-cites="mandiant-golden-saml-2021">(<a
+href="#ref-mandiant-golden-saml-2021" role="doc-biblioref">Mandiant
+2021</a>)</span>.</p>
 <p>Attackers used this technique to access cloud email and document
 repositories belonging to government agencies and large enterprises. The
 breach was not detected by the cloud providers, because from their
 perspective every login looked normal. It was detected, eventually, by
-behavioral anomalies and threat intelligence sharing.</p>
+behavioral anomalies and threat intelligence sharing <span
+class="citation" data-cites="mandiant-golden-saml-2021">(<a
+href="#ref-mandiant-golden-saml-2021" role="doc-biblioref">Mandiant
+2021</a>)</span>.</p>
 <p>The architectural lessons are sharp. Federation servers and their
 signing certificates are Tier 0 assets and must be protected as fiercely
 as domain controllers. Token-signing keys should live in HSMs where the
@@ -680,6 +744,32 @@ enormously powerful — but it concentrates trust in a small number of
 cryptographic secrets, and those secrets must be defended
 accordingly.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 5.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What does just-in-time privileged access
+replace?</li>
+<li><strong>Discriminate.</strong> If an attacker steals the AD FS
+token-signing certificate, is that mainly a password problem or a
+federation trust problem?</li>
+<li><strong>Apply.</strong> What two protective steps does the chapter
+recommend for limiting Golden SAML-style damage?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 5.3</strong>
+</summary>
+<ol type="1">
+<li>It replaces <strong>standing admin privilege</strong> with
+temporary, time-limited elevation.</li>
+<li><strong>A federation trust problem.</strong> The attacker can forge
+SAML assertions that service providers will accept as real.</li>
+<li><strong>Protect the signing key in an HSM and centralize IdP and SP
+logging.</strong> That hardens the secret and improves detection when
+assertions look valid but behavior does not.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-identity-attacks-actually-unfold">How Do Identity Attacks
 Actually Unfold?</h2>
@@ -773,7 +863,8 @@ generated by a compromised issuer. A provisioning connector that writes
 the wrong group membership may look like an ordinary synchronization
 event until the downstream privilege becomes visible.</p>
 <table>
-<caption>Table 5.2: Common IAM-centric TTPs, their usual objectives, and the signals defenders should prioritize.</caption>
+<caption>Table 5.2: Common IAM-centric TTPs, their usual objectives, and
+the signals defenders should prioritize.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -902,7 +993,8 @@ Connect</h3>
 <p>These three protocols dominate modern federation. They are related
 but not interchangeable.</p>
 <table>
-<caption>Table 5.3: SAML vs. OAuth vs. OpenID Connect — what each protocol is for and how each one tends to break.</caption>
+<caption>Table 5.3: SAML vs. OAuth vs. OpenID Connect — what each protocol
+is for and how each one tends to break.</caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -1035,6 +1127,32 @@ without context is barely better than no MFA at all. Conditional access
 policies that show the location, the app, and a number-matching code are
 an architectural fix, not a user-training problem.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 5.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What three things does Kerberos depend on
+working correctly?</li>
+<li><strong>Discriminate.</strong> A redirect URI mismatch or stale JWKS
+cache points to which protocol family: OAuth/OIDC or Kerberos?</li>
+<li><strong>Apply.</strong> A user keeps approving MFA pushes they did
+not initiate just to make the prompts stop. What fix does the chapter
+recommend instead of disabling MFA?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 5.4</strong>
+</summary>
+<ol type="1">
+<li><strong>Time synchronization, DNS resolution, and correct
+SPNs.</strong></li>
+<li><strong>OAuth/OIDC.</strong> Those are classic token and
+redirect-flow problems, not Kerberos ticketing problems.</li>
+<li>Use <strong>number matching or context-rich prompts</strong>, and
+when possible step up to a <strong>phishing-resistant factor</strong>
+like FIDO2.</li>
+</ol>
+</details>
 <hr />
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
@@ -1252,6 +1370,18 @@ breaking a generic application field.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-mandiant-sunburst-2020" class="csl-entry" role="listitem">
+Mandiant. 2020. <em>Highly Evasive Attacker Leverages SolarWinds Supply
+Chain to Compromise Multiple Global Victims with SUNBURST Backdoor</em>.
+<a
+href="https://cloud.google.com/blog/topics/threat-intelligence/evasive-attacker-leverages-solarwinds-supply-chain-compromises-with-sunburst-backdoor">https://cloud.google.com/blog/topics/threat-intelligence/evasive-attacker-leverages-solarwinds-supply-chain-compromises-with-sunburst-backdoor</a>.
+</div>
+<div id="ref-mandiant-golden-saml-2021" class="csl-entry"
+role="listitem">
+Mandiant. 2021. <em>Remediation and Hardening Strategies for Microsoft
+365 to Defend Against UNC2452</em>. <a
+href="https://cloud.google.com/blog/topics/threat-intelligence/remediation-and-hardening-strategies-for-microsoft-365-to-defend-against-unc2452">https://cloud.google.com/blog/topics/threat-intelligence/remediation-and-hardening-strategies-for-microsoft-365-to-defend-against-unc2452</a>.
+</div>
 <div id="ref-nist-sp800-63b-2025" class="csl-entry" role="listitem">
 National Institute of Standards and Technology. 2025. <em>Digital
 Identity Guidelines: Authentication and Lifecycle Management</em>. <a

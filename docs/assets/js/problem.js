@@ -119,9 +119,14 @@
     panel.hidden = false;
 
     const allRight = correct === totalBlanks;
-    readout.textContent = allRight
+    const score = allRight
       ? `All ${totalBlanks} correct.`
       : `${correct} / ${totalBlanks} correct${unanswered ? ` (${unanswered} unanswered)` : ''}.`;
+    // Append a pointer so screen-reader users know the panel below the form
+    // is new content (WCAG 4.1.3 / 3.2.2). Focus stays on the Submit button
+    // so keyboard users can fix a wrong answer and resubmit without
+    // tabbing back up.
+    readout.textContent = allRight ? score : `${score} Explanations added below the form.`;
     readout.classList.toggle('all-correct', allRight);
 
     // Persist progress.

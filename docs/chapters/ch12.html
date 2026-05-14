@@ -203,83 +203,64 @@ and OWASP Dependency-Check automate the monitoring and alerting pipeline
 treated as an afterthought.</p>
 </blockquote>
 <table>
-<caption>Table 12.1: Common Software Vulnerabilities and Mitigations. The "Primary Control" column lists the *architectural* fix — the change that eliminates the root cause rather than just detecting an exploit after the fact.</caption>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 33%" />
-<col style="width: 33%" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" style="text-align: left;">Vulnerability Class</th>
-<th scope="col" style="text-align: left;">Mechanism</th>
-<th scope="col" style="text-align: left;">Primary Control</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th scope="row" style="text-align: left;">SQL Injection</th>
-<td style="text-align: left;">Unsanitized input concatenated into
-SQL</td>
-<td style="text-align: left;">Parameterized queries / prepared
-statements</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">XSS (Stored/Reflected)</th>
-<td style="text-align: left;">Unencoded user input rendered in HTML</td>
-<td style="text-align: left;">Output encoding; Content-Security-Policy
-header</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">CSRF</th>
-<td style="text-align: left;">Forged request using victim’s live
-session</td>
-<td style="text-align: left;">CSRF tokens; SameSite=Strict cookie
-attribute</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">SSRF</th>
-<td style="text-align: left;">Server fetches attacker-controlled
-URL</td>
-<td style="text-align: left;">URL allow-listing; block internal metadata
-endpoints</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">Insecure Deserialization</th>
-<td style="text-align: left;">Malicious payload in serialized
-object</td>
-<td style="text-align: left;">Avoid native deserialization of untrusted
-data</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">Buffer Overflow</th>
-<td style="text-align: left;">Write past allocated buffer boundary</td>
-<td style="text-align: left;">Memory-safe languages; ASLR, NX, stack
-canaries</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">Hard-Coded Credentials</th>
-<td style="text-align: left;">Secret embedded in source or config</td>
-<td style="text-align: left;">Secrets manager; pre-commit secret
-scanning</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">Vulnerable Dependency</th>
-<td style="text-align: left;">Known CVE in shipped library</td>
-<td style="text-align: left;">SBoM + automated dependency scanning in
-CI/CD</td>
-</tr>
-<tr>
-<th scope="row" style="text-align: left;">Insecure Configuration</th>
-<td style="text-align: left;">Default creds, open ports, weak
-ciphers</td>
-<td style="text-align: left;">Hardening benchmarks (CIS), config drift
-scanning</td>
-</tr>
-</tbody>
-</table>
+<caption>Table 12.1: Common Software Vulnerabilities and Mitigations. The
+“Primary Control” column lists the </em>architectural* fix — the change
+that eliminates the root cause rather than just detecting an exploit
+after the fact.*</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 12.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the primary architectural control
+for SQL injection, XSS, and CSRF?</li>
+<li><strong>Discriminate.</strong> An attacker never sees the victim’s
+session cookie but still causes the victim’s browser to submit a
+state-changing request. What vulnerability class is that?</li>
+<li><strong>Apply.</strong> A web application both concatenates user
+input into SQL and lets users submit arbitrary URLs that the server
+fetches. Name two root-cause fixes from the chapter.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 12.1</strong>
+</summary>
+<ol type="1">
+<li><strong>Parameterized queries</strong> fix SQL injection,
+<strong>output encoding</strong> fixes XSS, and <strong>CSRF
+tokens</strong> fix CSRF.</li>
+<li><strong>CSRF.</strong> It abuses the browser’s automatic cookie
+attachment; the attacker does not need to steal the cookie.</li>
+<li><strong>Use parameterized queries instead of string
+concatenation</strong> and <strong>restrict server-side fetching to
+validated or allow-listed destinations while blocking internal metadata
+targets</strong>.</li>
+</ol>
+</details>
+<h3 id="cve-cvss-and-scap">CVE, CVSS, and SCAP</h3>
+<p><strong>Common Vulnerabilities and Exposures (CVE)</strong> is the
+standardized naming system for publicly disclosed vulnerabilities. Every
+CVE entry gets a unique identifier (e.g., CVE-2021-44228, the Log4Shell
+identifier), a brief description, and references to advisories and
+patches. CVE is the vocabulary that lets vendors, defenders, and
+vulnerability scanners all refer to the same flaw unambiguously.</p>
+<p><strong>Common Vulnerability Scoring System (CVSS)</strong> provides
+the standardized <em>severity score</em> for each CVE. CVSS v3.1 (and
+v4.0, which is being adopted) computes a 0–10 numeric score from a set
+of metrics organized into three groups:</p>
+<ul>
+<li><strong>Base Score:</strong> Intrinsic characteristics of the
+vulnerability — how it is exploited (network, adjacent, local,
+physical), how complex the attack is, whether privileges or user
+interaction are required, and the impact on confidentiality, integrity,
+and availability.</li>
+<li><strong>Temporal Score:</strong> Time-sensitive factors — whether a
+reliable exploit exists, whether a fix has been issued, and the
+confidence in the vulnerability report.</li>
+<li><strong>Environmental Score:</strong> Organization-specific
+adjustments — how much a specific asset’s confidentiality, integrity, or
+availability actually matters given its role.</li>
+</ul>
 <table>
-<caption>Table 12.2: Understanding CVSS Scoring Metrics. A network-exploitable, low-complexity vulnerability with no privileges required and high impact across all three CIA dimensions scores a perfect 10.0. CVSS helps prioritize remediation, but the environmental score — adjusted for your organization's context — is often more operationally relevant than the base score alone.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -337,6 +318,86 @@ component?</td>
 </tr>
 </tbody>
 </table>
+<p><em>Table 12.2: Understanding CVSS Scoring Metrics. A
+network-exploitable, low-complexity vulnerability with no privileges
+required and high impact across all three CIA dimensions scores a
+perfect 10.0. CVSS helps prioritize remediation, but the environmental
+score — adjusted for your organization’s context — is often more
+operationally relevant than the base score alone.</caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" style="text-align: left;">Vulnerability Class</th>
+<th scope="col" style="text-align: left;">Mechanism</th>
+<th scope="col" style="text-align: left;">Primary Control</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SQL Injection</td>
+<td style="text-align: left;">Unsanitized input concatenated into
+SQL</td>
+<td style="text-align: left;">Parameterized queries / prepared
+statements</td>
+</tr>
+<tr>
+<td style="text-align: left;">XSS (Stored/Reflected)</td>
+<td style="text-align: left;">Unencoded user input rendered in HTML</td>
+<td style="text-align: left;">Output encoding; Content-Security-Policy
+header</td>
+</tr>
+<tr>
+<td style="text-align: left;">CSRF</td>
+<td style="text-align: left;">Forged request using victim’s live
+session</td>
+<td style="text-align: left;">CSRF tokens; SameSite=Strict cookie
+attribute</td>
+</tr>
+<tr>
+<td style="text-align: left;">SSRF</td>
+<td style="text-align: left;">Server fetches attacker-controlled
+URL</td>
+<td style="text-align: left;">URL allow-listing; block internal metadata
+endpoints</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insecure Deserialization</td>
+<td style="text-align: left;">Malicious payload in serialized
+object</td>
+<td style="text-align: left;">Avoid native deserialization of untrusted
+data</td>
+</tr>
+<tr>
+<td style="text-align: left;">Buffer Overflow</td>
+<td style="text-align: left;">Write past allocated buffer boundary</td>
+<td style="text-align: left;">Memory-safe languages; ASLR, NX, stack
+canaries</td>
+</tr>
+<tr>
+<td style="text-align: left;">Hard-Coded Credentials</td>
+<td style="text-align: left;">Secret embedded in source or config</td>
+<td style="text-align: left;">Secrets manager; pre-commit secret
+scanning</td>
+</tr>
+<tr>
+<td style="text-align: left;">Vulnerable Dependency</td>
+<td style="text-align: left;">Known CVE in shipped library</td>
+<td style="text-align: left;">SBoM + automated dependency scanning in
+CI/CD</td>
+</tr>
+<tr>
+<td style="text-align: left;">Insecure Configuration</td>
+<td style="text-align: left;">Default creds, open ports, weak
+ciphers</td>
+<td style="text-align: left;">Hardening benchmarks (CIS), config drift
+scanning</td>
+</tr>
+</tbody>
+</table>
 <p><strong>Security Content Automation Protocol (SCAP)</strong> is a
 NIST-maintained suite of standards that allows vulnerability-scanning
 tools to operate against machine-readable policy specifications rather
@@ -373,6 +434,35 @@ base score, temporal score, and environmental score together to produce
 a defensible priority list? What non-CVSS factors — like whether a
 finding is on an internet-facing asset — would you also layer in?</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 12.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What do CVE, CVSS, and SCAP each contribute
+to vulnerability management?</li>
+<li><strong>Discriminate.</strong> A scanner ingests a CIS benchmark
+expressed as XML and automatically checks Linux hosts against it. Which
+SCAP components are doing the work?</li>
+<li><strong>Apply.</strong> A scanner reports 1,400 findings, but
+engineering can only fix 50 per sprint. How should the section’s
+prioritization logic rank the queue?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 12.2</strong>
+</summary>
+<ol type="1">
+<li><strong>CVE names the vulnerability, CVSS scores its severity, and
+SCAP provides machine-readable standards that let scanners automate
+identification and compliance checking.</strong></li>
+<li><strong>XCCDF and OVAL.</strong> XCCDF carries the checklist, and
+OVAL carries the machine-readable state checks used to evaluate it.</li>
+<li>Use <strong>CVSS base, temporal, and environmental context
+together</strong>, then layer on practical risk such as <strong>internet
+exposure, exploit availability, and asset criticality</strong>. The
+chapter is clear that raw base score alone is not enough.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-can-automation-force-multiply-security">How Can Automation
 Force-Multiply Security?</h2>
@@ -532,6 +622,36 @@ automation does not replace incident responders. It replaces the
 mechanical parts of the job so responders can spend their time on the
 parts that actually require judgment.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 12.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is the difference between a SOAR
+playbook and a runbook?</li>
+<li><strong>Discriminate.</strong> A SIEM alert automatically disables
+an AD account, revokes Entra sessions, and opens a ticket. What kind of
+system behavior is that?</li>
+<li><strong>Apply.</strong> Your containment automation is fast but
+brittle and hard to audit. Name three engineering practices from the
+chapter that make that automation safer.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 12.3</strong>
+</summary>
+<ol type="1">
+<li>A <strong>playbook</strong> is the automated response logic in the
+SOAR platform, while a <strong>runbook</strong> is the documented manual
+procedure analysts follow when judgment is required.</li>
+<li><strong>A SOAR playbook executing automated response
+actions.</strong></li>
+<li><strong>Version control, testing against historical alerts, and
+structured logging tied to the incident record</strong> are three key
+practices. The chapter also calls for human confirmation at
+containment-or-beyond stages where a bad decision can hurt
+operations.</li>
+</ol>
+</details>
 <h3 id="generative-ai-for-security-operations">Generative AI for
 Security Operations</h3>
 <p><strong>Generative AI</strong> has entered the security operations
@@ -769,7 +889,13 @@ Vulnerability Management and IR</strong></p>
 the most consequential data breaches in U.S. history — 147 million
 consumers’ personal records, including Social Security numbers, birth
 dates, addresses, and driver’s license numbers, were exfiltrated by
-attackers who maintained undetected access for 78 days.</p>
+attackers who maintained undetected access for 78 days <span
+class="citation"
+data-cites="house-equifax-report-2018 ftc-equifax-settlement-2019">(<a
+href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
+Committee on Oversight and Government Reform 2018</a>; <a
+href="#ref-ftc-equifax-settlement-2019" role="doc-biblioref">Federal
+Trade Commission 2019</a>)</span>.</p>
 <p>The entry point was straightforward and entirely preventable. Apache
 Struts, a Java web framework used in Equifax’s online dispute portal,
 had a critical remote code execution vulnerability — CVE-2017-5638 —
@@ -778,23 +904,36 @@ team received the CERT alert. The organization had a policy requiring
 patches for critical vulnerabilities within 48 hours. The patch was
 never applied to this particular server. When attackers exploited the
 vulnerability in May 2017, they found a pathway directly into Equifax’s
-internal network.</p>
+internal network <span class="citation"
+data-cites="house-equifax-report-2018 ftc-equifax-settlement-2019">(<a
+href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
+Committee on Oversight and Government Reform 2018</a>; <a
+href="#ref-ftc-equifax-settlement-2019" role="doc-biblioref">Federal
+Trade Commission 2019</a>)</span>.</p>
 <p>The breach went undetected for 78 days partly because SSL inspection
 on a load balancer had been disabled — an expired internal certificate
 had broken the inspection capability nine months earlier, and nobody had
 fixed it. As a result, encrypted attacker traffic traversing the network
 was never decrypted and examined. When the SSL inspection was re-enabled
 as part of an unrelated maintenance window in late July, the inspected
-traffic immediately revealed the attack.</p>
-<p>The congressional aftermath was scathing. The FTC fined Equifax $575
-million, then the largest data breach settlement in U.S. history. The
-CEO, CIO, and CSO all resigned. The Senate Permanent Subcommittee on
-Investigations report identified four root causes: a failure to
-implement a scanning process that would have caught the unpatched
-server, a failure to renew and enforce the SSL inspection certificate,
-an overly flat internal network that allowed lateral movement once the
-portal was compromised, and an IR process with no effective mechanism
-for verifying that critical patch obligations had actually been met.</p>
+traffic immediately revealed the attack <span class="citation"
+data-cites="house-equifax-report-2018">(<a
+href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
+Committee on Oversight and Government Reform 2018</a>)</span>.</p>
+<p>The congressional and regulatory aftermath was scathing. The FTC
+settlement totaled at least $575 million, and the CEO, CIO, and CSO all
+resigned. Congressional investigators and regulators pointed to
+recurring root causes: failure to implement a scanning process that
+would have caught the unpatched server, failure to renew and enforce the
+SSL inspection certificate, an overly flat internal network that allowed
+lateral movement once the portal was compromised, and an
+incident-response process with no effective mechanism for verifying that
+critical patch obligations had actually been met <span class="citation"
+data-cites="house-equifax-report-2018 ftc-equifax-settlement-2019">(<a
+href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
+Committee on Oversight and Government Reform 2018</a>; <a
+href="#ref-ftc-equifax-settlement-2019" role="doc-biblioref">Federal
+Trade Commission 2019</a>)</span>.</p>
 <p>The Equifax breach remains the canonical case study for vulnerability
 management failure because every one of its root causes — a missed
 patch, an expired certificate, a flat network, and an unverified process
@@ -944,6 +1083,40 @@ soldering equipment for ISP), specialized software (Cellebrite UFED,
 MSAB XRY), and significant skill — but they are often the only option
 for recovering evidence from a wiped, locked, or damaged mobile
 device.</p>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 12.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Under the order-of-volatility principle,
+what kinds of evidence should be captured before a disk image?</li>
+<li><strong>Discriminate.</strong> An analyst reboots a compromised
+laptop before acquisition. Name two kinds of evidence that action is
+likely to destroy.</li>
+<li><strong>Apply.</strong> You have one incident involving a cloud
+workload and another involving a locked mobile device. Name one
+cloud-specific evidence source and one hardware-level extraction
+technique from the chapter, then explain why chain of custody still
+matters for both.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 12.4</strong>
+</summary>
+<ol type="1">
+<li><strong>RAM, open network connections, running processes, and active
+sessions</strong> should all be captured before disk imaging because
+they disappear first.</li>
+<li><strong>Memory-resident artifacts</strong> such as decrypted keys or
+in-memory malware state, and <strong>live network or process
+state</strong> such as active connections and process trees.</li>
+<li>A cloud case can rely on <strong>CloudTrail, disk snapshots, or
+container or Kubernetes audit logs</strong>, while a locked mobile
+device may require <strong>JTAG or ISP extraction</strong>.
+<strong>Chain of custody matters because the evidence must have a
+documented, intact handling history if it is going to support
+discipline, legal action, or defensible findings.</strong></li>
+</ol>
+</details>
 <hr />
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
@@ -1126,6 +1299,13 @@ application vulnerability, not a credential attack.)</strong></p></li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-ftc-equifax-settlement-2019" class="csl-entry"
+role="listitem">
+Federal Trade Commission. 2019. <em>Equifax to Pay $575 Million as Part
+of Settlement with FTC, CFPB, and States Related to 2017 Data
+Breach</em>. <a
+href="https://www.ftc.gov/news-events/news/press-releases/2019/07/equifax-pay-575-million-part-settlement-ftc-cfpb-states-related-2017-data-breach">https://www.ftc.gov/news-events/news/press-releases/2019/07/equifax-pay-575-million-part-settlement-ftc-cfpb-states-related-2017-data-breach</a>.
+</div>
 <div id="ref-nist-sp800-61r3-2025" class="csl-entry" role="listitem">
 Nelson, Alexander, Sanjay Rekhi, Murugiah Souppaya, and Karen Scarfone.
 2025. <em>Incident Response Recommendations and Considerations for
@@ -1133,6 +1313,13 @@ Cybersecurity Risk Management: A CSF 2.0 Community Profile</em>. NIST SP
 800-61 Rev. 3. <span>National Institute of Standards and
 Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.800-61r3">https://doi.org/10.6028/NIST.SP.800-61r3</a>.
+</div>
+<div id="ref-house-equifax-report-2018" class="csl-entry"
+role="listitem">
+U.S. House Committee on Oversight and Government Reform. 2018. <em>The
+Equifax Data Breach</em>. <span>U.S. House Committee on Oversight and
+Government Reform</span>. <a
+href="https://www.govinfo.gov/app/details/GOVPUB-Y4_G74_7-PURL-gpo191321">https://www.govinfo.gov/app/details/GOVPUB-Y4_G74_7-PURL-gpo191321</a>.
 </div>
 </div>
 

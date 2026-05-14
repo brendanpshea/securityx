@@ -139,6 +139,36 @@ telemetry aggregates up the Purdue levels, control stays local, and
 anything compromised on the IT side cannot reach the PLCs at Level
 1.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 10.1</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Distinguish ICS, SCADA, PLC, and historian
+in one short phrase each.</li>
+<li><strong>Discriminate.</strong> A Level 3 system records every
+measured tag over time for compliance and troubleshooting. What OT
+component is that?</li>
+<li><strong>Apply.</strong> A plant currently allows the corporate IT
+network to initiate direct connections into Level 1 controllers. What
+boundary pattern from the chapter should replace that design?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 10.1</strong>
+</summary>
+<ol type="1">
+<li><strong>ICS</strong> is the umbrella control-system category,
+<strong>SCADA</strong> is the supervisory architecture for distributed
+sites, a <strong>PLC</strong> runs local control logic, and the
+<strong>historian</strong> stores time-series process data.</li>
+<li><strong>The historian.</strong> That is its exact role in the OT
+stack.</li>
+<li><strong>An industrial DMZ and firewall boundary between IT and
+OT</strong> should replace direct IT-to-controller access. The chapter’s
+model pushes data upward through controlled paths but does not allow
+routine inbound control from corporate IT into Level 1.</li>
+</ol>
+</details>
 <h3 id="safety-and-environmental-constraints">Safety and Environmental
 Constraints</h3>
 <p>The single most important fact about OT is that the priorities are
@@ -171,7 +201,10 @@ process safety engineers, regulatory bodies, and external auditors — not
 just IT security.</li>
 </ul>
 <table>
-<caption>Table 10.1: IT, OT, and IoT operate under fundamentally different constraints. Security architecture has to respect those differences — IT controls applied unmodified to OT typically either break the process or fail to reduce risk.</caption>
+<caption>Table 10.1: IT, OT, and IoT operate under fundamentally different
+constraints. Security architecture has to respect those differences — IT
+controls applied unmodified to OT typically either break the process or
+fail to reduce risk.</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -303,6 +336,38 @@ itself the first time a vendor’s remote technician made a configuration
 mistake — the recording let the team understand and reverse the change
 without an outage.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 10.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> How do OT priorities differ from classic IT
+priorities, and why does that change the way security controls are
+chosen?</li>
+<li><strong>Discriminate.</strong> An engineer proposes weekly active
+vulnerability scans against 25-year-old PLCs. Is that the chapter’s
+recommended practice?</li>
+<li><strong>Apply.</strong> A vendor-support PC on the plant floor is
+still internet-facing. Name two architecture changes Nick made that
+directly address that risk.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 10.2</strong>
+</summary>
+<ol type="1">
+<li>OT prioritizes <strong>safety first, then availability</strong>,
+with integrity and confidentiality behind them. That means controls that
+are routine in IT can be unacceptable in OT if they risk disrupting the
+physical process.</li>
+<li><strong>No.</strong> The chapter explicitly recommends
+<strong>passive monitoring</strong>, because active scanning can crash
+fragile legacy OT devices.</li>
+<li><strong>He removed the direct remote-access path</strong> and
+<strong>replaced it with a jump host in an industrial DMZ with MFA, PAM,
+and session recording</strong>. He also segmented the lines into
+explicit OT zones and conduits.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-secure-iot-and-embedded-systems">How Do We Secure IoT
 and Embedded Systems?</h2>
@@ -424,6 +489,37 @@ assume the device will be on a flat network. Following those
 instructions without inserting a VLAN and ACL is how building-systems
 vendors regularly become the entry point of a corporate breach.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 10.3</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> What is a System-on-Chip (SoC), and why
+does it matter so much to the security of an IoT device?</li>
+<li><strong>Discriminate.</strong> A camera SSID uses a shared PSK but
+no VLAN isolation, so one compromised camera can reach internal servers.
+What design failure is doing the damage?</li>
+<li><strong>Apply.</strong> A building-security camera fleet only needs
+to talk to the vendor cloud. Name three controls from the section that
+should shape its wireless and network design.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 10.3</strong>
+</summary>
+<ol type="1">
+<li>An <strong>SoC</strong> bundles CPU, memory, peripherals, radios,
+and often security features onto one die. Its support for things like
+secure boot and hardware key storage defines the <strong>security
+floor</strong> of the finished device.</li>
+<li><strong>Flat network design with no per-SSID VLAN and ACL
+isolation.</strong> The camera’s vulnerability becomes dangerous because
+the architecture lets it reach far beyond what it actually needs.</li>
+<li><strong>A dedicated IoT SSID or VLAN, egress-only firewall rules to
+the vendor cloud, and client isolation</strong> are three core controls.
+Per-device PSKs or certificates and monitoring add further
+containment.</li>
+</ol>
+</details>
 <hr />
 <h2 id="what-are-the-industry-specific-infrastructure-challenges">What
 Are the Industry-Specific Infrastructure Challenges?</h2>
@@ -484,7 +580,10 @@ the cursor opened the controls for <strong>sodium hydroxide</strong>
 (lye) — used in trace amounts to adjust pH — and changed the setpoint
 from 100 parts per million to <strong>11,100 parts per million</strong>,
 more than a hundredfold increase that would have been a credible threat
-to public health if the change had been allowed to stand.</p>
+to public health if the change had been allowed to stand <span
+class="citation" data-cites="cisa-oldsmar-2021">(<a
+href="#ref-cisa-oldsmar-2021" role="doc-biblioref">Cybersecurity and
+Infrastructure Security Agency 2021</a>)</span>.</p>
 <p>The operator immediately reversed the change. The SCADA system never
 propagated the new setpoint to the dosing equipment, and the plant’s pH
 alarms would have caught any real chemical change before water reached
@@ -511,25 +610,56 @@ investigation — almost certainly entered through the shared TeamViewer
 credentials and never needed any kind of zero-day exploit. The defining
 feature of the incident is how <em>unsophisticated</em> it was; the only
 reason it was not a public-health emergency was the operator who
-happened to be looking at the screen.</p>
-<p>Two structural changes followed in the months and years after
-Oldsmar:</p>
-<ol type="1">
-<li><strong>EPA cybersecurity expectations for water utilities</strong>
-were significantly tightened, with periodic enforcement debates over
-whether they should be mandatory or advisory. The 2023 Sackett v. EPA
-ruling and subsequent state-level rules continue to evolve.</li>
-<li><strong>CISA and the FBI</strong> issued joint advisories on
-remote-access hygiene that pointed directly at the patterns Oldsmar
-exhibited: shared accounts, no MFA, missing logging, unrestricted
-internet exposure of operator workstations.</li>
-</ol>
+happened to be looking at the screen <span class="citation"
+data-cites="cisa-oldsmar-2021">(<a href="#ref-cisa-oldsmar-2021"
+role="doc-biblioref">Cybersecurity and Infrastructure Security Agency
+2021</a>)</span>.</p>
+<p>The incident quickly became a reference point for water-sector cyber
+hygiene. CISA and the FBI issued joint guidance that pointed directly at
+the patterns Oldsmar exposed: shared accounts, no MFA, missing logging,
+and unrestricted internet exposure of operator workstations <span
+class="citation" data-cites="cisa-oldsmar-2021">(<a
+href="#ref-cisa-oldsmar-2021" role="doc-biblioref">Cybersecurity and
+Infrastructure Security Agency 2021</a>)</span>.</p>
 <p>The Oldsmar incident is now the textbook case study for why every OT
 environment needs jump hosts, MFA, segmentation, and the assumption that
 an operator-visible SCADA console is a target. Plants that rebuilt
 remote access on those principles in the years that followed cite
 Oldsmar by name in their justifications.</p>
 </blockquote>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 10.4</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Match NERC CIP, HIPAA/FDA device
+cybersecurity guidance, and CMMC/NIST SP 800-171 to the sectors they
+primarily govern.</li>
+<li><strong>Discriminate.</strong> A hospital procurement team demands
+an SBOM and supported firmware updates across a medical device’s
+reasonable lifetime. Which driver from the chapter is behind that
+requirement?</li>
+<li><strong>Apply.</strong> A water utility still uses a shared
+remote-access password with no MFA for operator workstations. Name two
+immediate fixes the Oldsmar lesson says should happen first.</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 10.4</strong>
+</summary>
+<ol type="1">
+<li><strong>NERC CIP</strong> maps to bulk electric utilities,
+<strong>HIPAA plus FDA cybersecurity requirements</strong> map to
+healthcare and medical devices, and <strong>CMMC / NIST SP
+800-171</strong> map to defense contractors handling CUI.</li>
+<li><strong>The FDA’s premarket cybersecurity guidance and the later
+statutory authority behind it.</strong> The chapter ties SBOMs and
+supported update lifetimes directly to that medical-device context.</li>
+<li><strong>Replace shared remote access with named, controlled access
+through a jump host</strong> and <strong>enforce MFA with logging on
+that path</strong>. The chapter also treats internet exposure and weak
+segmentation as problems to remove immediately.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-protect-what-we-cannot-patch">How Do We Protect What
 We Cannot Patch?</h2>
@@ -599,7 +729,10 @@ legacy system produces, send it to a SIEM. Logs are often the only
 evidence available after an incident.</li>
 </ul>
 <table>
-<caption>Table 10.2: Common legacy vulnerabilities and the compensating controls that meaningfully reduce their risk. The pattern is the same regardless of the specific technology: surround what you cannot fix with controls you do control.</caption>
+<caption>Table 10.2: Common legacy vulnerabilities and the compensating
+controls that meaningfully reduce their risk. The pattern is the same
+regardless of the specific technology: surround what you cannot fix with
+controls you do control.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -677,7 +810,9 @@ business has deferred for two budget cycles.</p>
 <p>Nick Chopper documents the compensating control stack and assigns an
 owner to each layer:</p>
 <table>
-<caption>Table 10.3: Compensating control stack for the unpatched Allen-Bradley PLC at Yellow Brick Manufacturing — control, implementation, and owner.</caption>
+<caption>Table 10.3: Compensating control stack for the unpatched
+Allen-Bradley PLC at Yellow Brick Manufacturing — control,
+implementation, and owner.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -977,6 +1112,11 @@ graphically; the two frameworks complement each other in practice.</li>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-cisa-oldsmar-2021" class="csl-entry" role="listitem">
+Cybersecurity and Infrastructure Security Agency. 2021. <em>Compromise
+of u.s. Water Treatment Facility</em>. <a
+href="https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-042a">https://www.cisa.gov/news-events/cybersecurity-advisories/aa21-042a</a>.
+</div>
 <div id="ref-nist-sp800-82r3-2023" class="csl-entry" role="listitem">
 Stouffer, Keith, Michael Pease, CheeYee Tang, et al. 2023. <em>Guide to
 Operational Technology (OT) Security</em>. NIST SP 800-82 Rev. 3.
