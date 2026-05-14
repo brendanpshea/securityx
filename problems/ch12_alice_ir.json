@@ -1,0 +1,160 @@
+{
+  "id": "ch12-alice-ir-automation",
+  "chapter": 12,
+  "title": "Alice Liddell Automates Incident Response at Wonderland Logistics",
+  "context_md": "Alice Liddell, Incident Response Manager at *Wonderland Logistics* (a 6,000-employee regional freight company), is rebuilding the company's vulnerability management and incident response program after a credential-stuffing attack exposed 23 employee accounts. Her mandate covers three areas: closing the vulnerability pipeline gaps that let exposures accumulate undetected, deploying SOAR automation to compress response time, and establishing a forensic evidence process that can support disciplinary and legal action if a future incident involves an insider.\n\nAlice also needs to present the program to the board using consistent, industry-standard terminology — CVSS scoring, NIST lifecycle framing, and measurable outcome metrics that replace the old vanity numbers.",
+  "prompt_md": "Complete Alice's program documentation by selecting the correct option for each blank.",
+  "body_md": "Alice starts with the vulnerability backlog. The security scanner produces thousands of findings per month, and the engineering team can only remediate a fixed number per sprint. To prioritize rationally, Alice uses the industry-standard **{{cvss}}** scoring system, which produces a 0–10 numeric severity rating from metrics like attack vector, complexity, privileges required, and CIA impact. A network-exploitable, low-complexity flaw with no privileges required and full impact on confidentiality scores near the maximum and jumps the queue regardless of the business unit's protest.\n\nFor machine-readable compliance scanning, Alice adopts the NIST **{{scap}}** suite, specifically using **{{xccdf}}** documents to encode CIS Benchmark hardening checklists that the scanner can evaluate automatically against every enrolled Linux host. The complementary **{{oval}}** language provides the system-state checks that determine whether each checklist item passes or fails on a given host.\n\nTo catch vulnerable third-party libraries before they ship to production, Alice mandates that every CI/CD pipeline produce a **{{sbom}}** — a machine-readable inventory of every dependency — and that the pipeline fail the build when any entry in that inventory matches a critical CVE.\n\nOn the automation side, Alice builds a credential-stuffing response **{{playbook}}** in the SOAR platform. When the SIEM fires the credential-stuffing alert pattern, the playbook automatically disables the flagged AD account, revokes all active cloud sessions, resets the password, and opens an incident ticket — compressing a 20-minute manual workflow to under 90 seconds. The complementary **{{runbook}}** documents the manual steps an analyst follows for edge cases the automation cannot handle, such as when the flagged account belongs to an executive requiring HR sign-off before lockout.\n\nFor email-borne threats, Alice wires a phishing-detection playbook to the email gateway. Any suspicious message triggers the SOAR to extract headers and URLs, check them against the **{{tip}}**, auto-quarantine the message fleet-wide, and push identified malicious URLs to the DNS **{{sinkhole}}** — converting a detection into a containment action with no analyst involvement.\n\nAlice frames the entire IR program around the four-phase **{{nist}}** lifecycle. She opens every board presentation with two numbers: **{{mttd}}** (how long an intrusion dwells before discovery) and **{{mttr}}** (how long from discovery to containment) — replacing the previous vanity metric of total events ingested.\n\nWhen a suspicious endpoint is identified during an active incident, Alice's forensic procedure follows the **{{volatility}}** principle: before imaging the disk, the responder must first capture RAM contents, running process list, and open network connections — evidence that vanishes the moment the system is powered off. All captured evidence is hashed and documented in a **{{coc}}** form to maintain legal admissibility.\n\nFinally, Alice deploys an isolated detonation environment — a **{{sandbox}}** — so analysts can safely execute suspicious files and observe behavioral indicators (network connections, registry writes, process injection attempts) without risk to the production network. Indicators extracted from those detonation reports feed directly back into the SOAR's IOC-blocking pipeline.",
+  "blanks": {
+    "cvss": {
+      "answer": "CVSS (Common Vulnerability Scoring System)",
+      "distractors": [
+        "STRIDE threat model",
+        "DREAD scoring rubric",
+        "Nessus plugin priority",
+        "CMDB criticality tier"
+      ],
+      "explanation": "CVSS (Common Vulnerability Scoring System) is the industry-standard 0–10 numeric scoring system for vulnerability severity. The base score is derived from attack vector, complexity, privileges required, user interaction, scope, and CIA impact. It is the primary triage tool for prioritizing a vulnerability remediation backlog."
+    },
+    "scap": {
+      "answer": "SCAP (Security Content Automation Protocol)",
+      "distractors": [
+        "STIX (Structured Threat Information eXpression)",
+        "TAXII (Trusted Automated eXchange of Indicator Information)",
+        "OWASP ASVS",
+        "ISO 27001 Annex A"
+      ],
+      "explanation": "SCAP is the NIST-maintained suite of standards — CVE, CVSS, CPE, OVAL, XCCDF — that enables automated, machine-readable vulnerability scanning and compliance assessment. Tools like OpenSCAP, Tenable, and Qualys consume SCAP-formatted content to run scans without manual checklist interpretation."
+    },
+    "xccdf": {
+      "answer": "XCCDF (Extensible Configuration Checklist Description Format)",
+      "distractors": [
+        "OVAL",
+        "CPE",
+        "CVE",
+        "CVSS"
+      ],
+      "explanation": "XCCDF encodes compliance checklists — like CIS Benchmarks — in a machine-readable XML format that SCAP-compliant scanners can evaluate automatically, producing a scored compliance report without manual review. OVAL provides the underlying system-state checks that XCCDF rules invoke."
+    },
+    "oval": {
+      "answer": "OVAL (Open Vulnerability and Assessment Language)",
+      "distractors": [
+        "XCCDF",
+        "CPE",
+        "Sigma",
+        "YARA"
+      ],
+      "explanation": "OVAL defines the machine-readable system-state checks that determine whether a vulnerability or configuration condition is present on a given host. XCCDF references OVAL checks to determine pass/fail status for each benchmark item. Together they form the SCAP compliance scanning pipeline."
+    },
+    "sbom": {
+      "answer": "SBoM (Software Bill of Materials)",
+      "distractors": [
+        "CMDB (Configuration Management Database)",
+        "CI/CD pipeline manifest",
+        "Asset register spreadsheet",
+        "Binary diff report"
+      ],
+      "explanation": "A Software Bill of Materials is a machine-readable inventory of every component, library, and dependency in a software artifact. SBoMs are essential for rapidly answering 'are we affected?' when a critical library CVE is disclosed — without an SBoM, teams must manually audit every application, which can take weeks."
+    },
+    "playbook": {
+      "answer": "SOAR playbook",
+      "distractors": [
+        "SOAR runbook",
+        "incident response policy",
+        "vulnerability scan template",
+        "tabletop exercise script"
+      ],
+      "explanation": "A SOAR playbook is the automated workflow logic — the if-this-then-that policy that the SOAR platform executes without human intervention. It differs from a runbook, which documents the manual procedure an analyst follows. Playbooks compress response time by automating the mechanical steps that do not require judgment."
+    },
+    "runbook": {
+      "answer": "runbook",
+      "distractors": [
+        "playbook",
+        "incident response policy",
+        "threat model",
+        "CVSS scoring guide"
+      ],
+      "explanation": "A runbook documents the manual steps an analyst follows when automation is insufficient or when a human decision point requires judgment — such as an executive account lockout requiring HR sign-off. Runbooks complement playbooks: the playbook handles the routine, the runbook handles the edge cases."
+    },
+    "tip": {
+      "answer": "Threat Intelligence Platform (TIP)",
+      "distractors": [
+        "SIEM correlation engine",
+        "EDR console",
+        "vulnerability scanner",
+        "CMDB"
+      ],
+      "explanation": "A Threat Intelligence Platform (TIP) aggregates, deduplicates, scores, and ages indicators from multiple feeds. Checking extracted IOCs against the TIP allows the SOAR to determine whether a phishing URL matches a known campaign — enriching the decision logic before any blocking action is taken."
+    },
+    "sinkhole": {
+      "answer": "DNS sinkhole",
+      "distractors": [
+        "zone transfer (AXFR)",
+        "BGP blackhole route",
+        "ACL null route",
+        "DNSSEC validation"
+      ],
+      "explanation": "A DNS sinkhole redirects queries for known-malicious domains to a controlled address rather than the real destination, both blocking the connection and generating a SIEM alert identifying which internal host made the query. Pushing newly extracted phishing URLs to the sinkhole turns a detection into an immediate containment action."
+    },
+    "nist": {
+      "answer": "NIST SP 800-61r2 IR lifecycle",
+      "distractors": [
+        "MITRE ATT&CK Framework",
+        "NIST CSF (Cybersecurity Framework)",
+        "ISO 27035 incident management",
+        "OWASP Testing Guide"
+      ],
+      "explanation": "NIST SP 800-61r2 defines the four-phase incident response lifecycle: Preparation, Detection and Analysis, Containment/Eradication/Recovery, and Post-Incident Activity. It is the primary U.S. government and industry reference for structuring an IR program and the framework explicitly referenced on the CompTIA SecurityX exam."
+    },
+    "mttd": {
+      "answer": "Mean Time to Detect (MTTD)",
+      "distractors": [
+        "Total Events Per Day",
+        "Number of Open Vulnerabilities",
+        "Patch Compliance Percentage",
+        "Analyst Headcount"
+      ],
+      "explanation": "MTTD measures the average time between initial compromise and detection — the canonical detective-effectiveness metric. Reducing dwell time directly limits the attacker's ability to escalate privileges, exfiltrate data, and establish persistence. It is the right replacement for vanity volume metrics like events ingested per day."
+    },
+    "mttr": {
+      "answer": "Mean Time to Respond (MTTR)",
+      "distractors": [
+        "Mean Time to Patch (MTTP)",
+        "Mean Time to Recover (MTTR)",
+        "Mean Time Between Failures (MTBF)",
+        "Mean Time to Acknowledge (MTTA)"
+      ],
+      "explanation": "MTTR (Mean Time to Respond) measures the average time from detection to containment — the primary metric of response program effectiveness. Together, MTTD and MTTR are the two outcome-oriented numbers that tell an executive how quickly the security program finds and stops active incidents."
+    },
+    "volatility": {
+      "answer": "order of volatility",
+      "distractors": [
+        "chain of custody",
+        "least privilege",
+        "defense-in-depth",
+        "fail-secure design"
+      ],
+      "explanation": "The order of volatility principle states that the most perishable evidence — RAM, active network connections, running processes — must be captured first because it disappears when the system powers off or reboots. Disk imaging comes later. Violating this order risks permanently losing the most behaviorally rich evidence in an investigation."
+    },
+    "coc": {
+      "answer": "chain of custody",
+      "distractors": [
+        "order of volatility",
+        "incident ticket",
+        "forensic hash report",
+        "post-incident report"
+      ],
+      "explanation": "Chain of custody is the documented, unbroken record of who collected each piece of evidence, when, from what source, under what hash, and who had access to it afterward. Without an intact chain of custody, forensic findings may be inadmissible in disciplinary hearings or legal proceedings — which is especially important for insider-threat investigations."
+    },
+    "sandbox": {
+      "answer": "malware sandbox",
+      "distractors": [
+        "production EDR console",
+        "SIEM correlation engine",
+        "vulnerability scanner",
+        "firewall DMZ"
+      ],
+      "explanation": "A malware sandbox (Cuckoo, Any.run, Triage, VMRay) executes suspicious files in an isolated environment and captures their behavioral profile — network connections, registry changes, dropped files, process injection attempts — without any risk to the production network. Behavioral IOCs extracted from sandbox reports feed directly into containment and blocking pipelines."
+    }
+  }
+}
