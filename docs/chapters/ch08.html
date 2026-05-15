@@ -1163,6 +1163,160 @@ surrounding system.</li>
 hash-chained data structures that provide tamper-evident record
 keeping.</li>
 </ul>
+<h3 id="synthesis-activities">Synthesis Activities</h3>
+<p>These are open-ended activities meant to extend the chapter beyond
+what a search engine — or a chatbot — can answer on its own. Each works
+individually or in a group; the goal is the conversation, the debate, or
+the artifact, not a paper about it. Activities marked with <em>No one to
+interview?</em> or <em>Studying alone?</em> sidebars include AI-based
+alternatives — used here as a sparring partner, role-player, or
+facilitator, not as a source.</p>
+<h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
+hour)</em></h4>
+<p>Talk to someone who actually works with cryptography in production —
+a PKI administrator, certificate-lifecycle manager, application security
+engineer who has done a TLS migration, cloud KMS operator, or hardware
+security module engineer. A few questions worth asking, in roughly this
+order:</p>
+<ul>
+<li>Walk me through what happens in your environment when a certificate
+is about to expire. Who notices first, and what stops a quiet
+outage?</li>
+<li>What’s the messiest part of your key management — and how much of it
+is purely organizational rather than technical?</li>
+<li>When have you had to rotate a key under time pressure? What broke
+that you didn’t expect to break?</li>
+<li>How are you thinking about post-quantum migration? What is your
+organization actually doing today, and what is just on a slide?</li>
+<li>What’s one thing the crypto literature or textbooks get wrong about
+how this work happens?</li>
+</ul>
+<p>Listen for the gap between cryptography as taught (math, protocols,
+key sizes) and cryptography as operated (renewals, rotations, vendor
+lock-in on HSMs, and the inventory problem of “where is this key
+actually used”).</p>
+<blockquote>
+<p><em>No one to interview?</em> Run the conversation with a chatbot in
+role. A prompt that works: <em>“You are a senior PKI engineer at a large
+financial services firm. You own the internal CA hierarchy, certificate
+lifecycle automation, and the early stages of a post-quantum migration
+plan. You have been doing this for fifteen years and survived one
+near-disaster involving an expired intermediate CA. I’m interviewing you
+for a class. Answer in character. When I ask something a real PKI
+engineer would not actually know — especially deep math questions a
+cryptographer would handle — say so.”</em> The rehearsal exposes which
+of your questions conflate cryptography research with cryptography
+operations.</p>
+</blockquote>
+<h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
+<p>Pick the position you find <em>least</em> sympathetic and argue it as
+well as you can:</p>
+<ul>
+<li>Organizations should begin migrating to post-quantum cryptography
+<em>now</em>, even at significant performance and complexity cost.
+Harvest-now-decrypt-later attacks are already happening, and waiting for
+cryptographically relevant quantum computers to exist before acting is
+waiting too long.</li>
+<li>Aggressive post-quantum migration today is a misallocation of
+security budget. PQC algorithms are young, implementations are immature,
+and the realistic timeline to a cryptographically relevant quantum
+computer is far enough out that cryptographic agility — the
+<em>ability</em> to migrate quickly — is the responsible investment, not
+the migration itself.</li>
+<li>The whole framing is wrong. The crypto in TLS, signed software, and
+disk encryption is not what fails in real incidents. Key management —
+expired certificates, leaked HSM credentials, hardcoded secrets in
+repos, single signing keys in single-administrator hands — is where the
+failures happen. Spending the next decade migrating algorithms while the
+operational picture stays broken is solving the wrong problem.</li>
+</ul>
+<p>The exercise only works if you defend the position you don’t already
+hold. In class, assign positions and go live; the surprise of having to
+think on your feet is the point.</p>
+<blockquote>
+<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
+attack it from the opposite position. A prompt that produces real
+sparring: <em>“Take the opposite position from the argument below and
+attack it as aggressively as a senior cryptography engineer who deeply
+disagrees. Cite real PKI outages, real key-management incidents, real
+PQC migration projects in industry. Don’t be polite. After each of my
+replies, escalate.”</em> The goal isn’t to beat the model. It’s to find
+out which parts of your case fold under pressure.</p>
+</blockquote>
+<h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
+min)</em></h4>
+<p>Find a cryptography, PKI, or key-management event from the last six
+months. Good hunting grounds: NIST’s Post-Quantum Cryptography
+standardization milestones (ML-KEM, ML-DSA, SLH-DSA implementation
+guidance), browser-vendor announcements about CA trust changes (Apple,
+Google, Mozilla, Microsoft root program changes), Certificate
+Transparency log incidents, recent TLS or PKI outages caused by expired
+or revoked certificates, and disclosures involving HSM or cloud KMS
+vulnerabilities. Be ready to explain to a classmate, in two minutes,
+what happened, which part of the cryptographic lifecycle (algorithm,
+key, certificate, trust store, protocol) was decisive, and what other
+organizations are doing differently as a result. Bring two primary
+sources you’d point them to if they wanted to read further.</p>
+<h4 id="lab-artifact-inspect-a-real-certificate-chain-20-min">Lab
+Artifact: Inspect a Real Certificate Chain <em>(20 min)</em></h4>
+<p>Every HTTPS site you visit presents a certificate chain — a signed
+assertion of identity that your browser silently validates dozens of
+times a day. In this activity you will examine one of those chains end
+to end and verify it against public Certificate Transparency logs.</p>
+<ol type="1">
+<li>Pick a public HTTPS site you care about — your bank, your school, a
+major SaaS application you use. Visit it in your browser.</li>
+<li>Open the certificate viewer. In Chrome or Edge: click the padlock in
+the address bar, then “Connection is secure,” then “Certificate is
+valid.” In Firefox: click the padlock, “Connection secure,” “More
+information,” “View Certificate.”</li>
+<li>Identify, for the leaf (site) certificate: the
+<strong>subject</strong> (CN, SAN list), the <strong>issuer</strong>,
+the <strong>validity period</strong> (from / to), the <strong>signature
+algorithm</strong>, the <strong>public key algorithm and size</strong>,
+and the <strong>key usage / extended key usage</strong> extensions.</li>
+<li>Walk up the chain to the root. Identify each intermediate and root
+CA. Which root CA does your browser ultimately anchor trust in?</li>
+<li>Now go to <a href="https://crt.sh">crt.sh</a> and search for the
+site’s domain. Identify at least one certificate the site has used in
+the past — note the issuer, validity period, and how it differs from the
+current one. Are there any certificates listed that you would not have
+expected (sub-domains you didn’t know about, issuers the org would not
+knowingly use)?</li>
+<li>Then answer: if the issuer’s signing key were compromised tomorrow,
+what would the recovery look like for this site? How would the browser’s
+trust store actually learn about the revocation, and how quickly?</li>
+</ol>
+<p><strong>Safety:</strong> This is entirely passive — you are reading
+certificates your browser already received and querying public
+Certificate Transparency logs. Do not attempt to validate, decrypt, or
+interact with any certificate beyond inspecting its public fields.</p>
+<h4 id="map-a-trust-boundary-2-hours">Map a Trust Boundary <em>(2+
+hours)</em></h4>
+<p>A certificate is, at heart, a chain of trust that ends at a root
+certificate authority you have to assume is honest. In this activity you
+will diagram one such chain explicitly and identify where the trust
+assumption is weakest.</p>
+<p>Pick one system to model:</p>
+<ul>
+<li>The TLS certificate chain that protects a public-facing web
+application you operate or use, plus the trust stores (browser, OS,
+language runtime) that anchor the validating side.</li>
+<li>An internal PKI for a mid-sized enterprise: offline root CA, online
+intermediate CAs, issuance to employee devices and internal services,
+plus the CRL/OCSP infrastructure that revocation depends on.</li>
+<li>A code-signing chain: developer signing certificate → intermediate
+CA → publisher root, plus the OS-level mechanisms (Windows Authenticode,
+macOS notarization) that decide whether to trust a signed binary.</li>
+</ul>
+<p>Draw the system: every certificate, every signing relationship, every
+private key, every trust store, and every revocation mechanism that has
+to work for the chain to be trustworthy. Mark each trust boundary. For
+each, answer: what key signs what, who has access to the private key,
+where is that key stored, and what happens if it is compromised?
+Identify the boundary where compromise would have the largest blast
+radius — that is the Tier 0 secret around which the rest of the
+architecture has to be designed.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
