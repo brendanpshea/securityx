@@ -1,6 +1,6 @@
-# SecurityX: An Open Textbook for the CompTIA SecurityX (CAS-005) Exam
+# Threats Real and Imagined: A Cybersecurity Casebook for SecurityX
 
-**SecurityX** is an open-access textbook and practice-problem collection that prepares readers for the CompTIA SecurityX (CAS-005) certification exam. It is freely available for both self-study and classroom adoption.
+***Threats Real and Imagined*** is an open-access textbook and practice-problem collection that prepares readers for the CompTIA SecurityX (CAS-005) certification exam. It is freely available for both self-study and classroom adoption.
 
 **Read the book online:** <https://brendanpshea.github.io/securityx/>
 
@@ -18,7 +18,7 @@ Each of the twelve chapters follows a consistent structure:
 - **Historical case studies** of real-world breaches (Target, SolarWinds, Capital One, Equifax, DigiNotar, Log4Shell, and others)
 - **Diagrams and tables** generated reproducibly from Python scripts
 - **Review questions** and answer keys
-- **Interactive scenario problems** (one per chapter) where readers practice applying chapter concepts in cloze-style decision-making exercises
+- **Interactive practice-based questions (PBQs)** (one per chapter) where readers apply chapter concepts in scenario-driven decision exercises
 
 ## Status
 
@@ -36,7 +36,7 @@ All 12 chapter sources and all 12 interactive scenario problems are present in t
 src/chapters/        Markdown source for each chapter
 src/scripts/         Build scripts for HTML pages and figures
 refs.bib             Shared bibliography for static chapter citations
-problems/            JSON source files for interactive practice problems
+problems/            JSON source files for interactive PBQs
 docs/                Generated static site (published via GitHub Pages)
 docs/chapters/       Rendered chapter HTML
 docs/problems/       Rendered interactive problems
@@ -86,7 +86,7 @@ Contributions are welcome and appreciated. Useful contributions include:
 
 - **Errata** — typos, factual errors, broken links, outdated references
 - **Clarifications** — confusing passages, missing context, better examples
-- **New practice problems** — additional scenarios for any chapter (see [`problems/README.md`](problems/README.md) for the JSON schema)
+- **New PBQs** — additional scenarios for any chapter (see [`problems/README.md`](problems/README.md) for the JSON schema)
 - **Translations** or adaptations for non-US-English audiences
 - **Diagrams** or alternative figures
 
@@ -103,7 +103,7 @@ You are free to:
 
 Under the following terms:
 
-- **Attribution** — You must give appropriate credit to *Brendan Shea, SecurityX: An Open Textbook for the CompTIA SecurityX (CAS-005) Exam*, provide a link to the license, and indicate if changes were made.
+- **Attribution** — You must give appropriate credit to *Brendan Shea, Threats Real and Imagined: A Cybersecurity Casebook for SecurityX*, provide a link to the license, and indicate if changes were made.
 - **NonCommercial** — You may not use the material for commercial purposes.
 
 The full license text is in [LICENSE](LICENSE).
@@ -116,4 +116,4 @@ The full license text is in [LICENSE](LICENSE).
 
 If you use or adapt this work, please cite it as:
 
-> Shea, B. (2026). *SecurityX: An Open Textbook for the CompTIA SecurityX (CAS-005) Exam.* https://brendanpshea.github.io/securityx/
+> Shea, B. (2026). *Threats Real and Imagined: A Cybersecurity Casebook for SecurityX.* https://brendanpshea.github.io/securityx/

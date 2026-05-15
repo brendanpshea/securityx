@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Victor Frankenstein Audits an IoT Insulin Pump - SecurityX Practice</title>
+    <title>Victor Frankenstein Audits an IoT Insulin Pump - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter 6</p>
@@ -23,19 +23,42 @@
             <section class="problem-context"><p>Victor Frankenstein, Bio-Tech Security Engineer at <em>Geneva Labs</em>, is leading the security audit for a next-generation networked insulin pump before FDA submission. The device runs custom firmware on an ARM SoC, communicates over Bluetooth Low Energy with a clinician's tablet, and pulls signed firmware updates from Geneva's CI/CD pipeline.</p>
 <p>Three concerns dominate Victor's review. First, the development team built the firmware-signing key into the build server's environment variables — Victor wants the key generation, storage, and signing operations all to happen inside dedicated tamper-resistant hardware. Second, an attacker with brief physical access to the pump should not be able to swap in a malicious firmware image; the device must verify firmware integrity before each boot, and the boot chain itself must be measured so a remote attestation server can detect tampering after the fact. Third, the company's CI/CD pipeline must catch vulnerable open-source dependencies <em>and</em> produce a machine-readable inventory that hospitals can ingest into their own vulnerability programs — particularly relevant after the Log4Shell scramble two years ago.</p>
 <p>Victor also has to plan for the day this pump model reaches end-of-life, and he must defend against a known class of attacks where a small device is wedged between a USB port and a peripheral to silently capture data.</p></section>
+            <section class="problem-artifact artifact-checklist" aria-label="Supporting artifact"><pre><code>Pump v2.0-rc3  pre-FDA hardware assurance review
+Reviewer: V. Frankenstein   Date: 2026-05-10   Sign-off withheld.
+──────────────────────────────────────────────────────────────
+[FAIL]  CR-01  Firmware-signing private key stored in build-server
+               env var ($PUMP_SIGN_KEY). The same OS that runs
+               npm install reads the production signing key.
 
-            <section class="problem-prompt"><p>Complete Victor's hardware-assurance review by selecting the correct concept for each blank.</p></section>
+[FAIL]  CR-02  No per-stage signature verification at boot.
+               No boot-stage measurement to platform registers.
+               (Remote attestation impossible until both are fixed.)
+
+[GAP]   CR-03  CI pipeline produces no machine-readable component
+               inventory. No scanner inspects open-source
+               dependencies. Post-Log4Shell guidance ignored.
+
+[GAP]   CR-04  Source-tree static analysis: not run.
+               BLE runtime test rig: not yet built (QA committed Q3).
+
+[FAIL]  CR-05  Charging dock has exposed USB-A ports. No covers.
+               No clinician warning in the ops manual.
+
+[GAP]   CR-06  Published end-of-support date for v2: TBD.
+               Hospitals cannot plan refresh budgets.
+</code></pre></section>
+            <section class="problem-prompt"><p>Map each <code>[FAIL]</code> / <code>[GAP]</code> line to the correct control, then click <strong>Check answers</strong>.</p></section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="ch06-frankenstein-hardware">
-                <p>To remove the firmware-signing key from the build server, Victor will move all signing operations into an <strong><span class="cloze-blank" data-blank="key_hardware"></span></strong> — a dedicated, tamper-resistant device whose private keys never leave the boundary in plaintext. For per-device measurements and remote attestation of the pump itself, each unit will ship with a <strong><span class="cloze-blank" data-blank="platform_module"></span></strong> that stores boot-stage hashes in tamper-evident registers.</p>
-<p>The boot process must verify the cryptographic signature on each stage before executing it; this is <strong><span class="cloze-blank" data-blank="boot_a"></span></strong>. To additionally record what was actually loaded — so a remote server can later confirm the device booted clean firmware — Victor will enable <strong><span class="cloze-blank" data-blank="boot_b"></span></strong>, which extends measurements into the platform module's PCRs.</p>
-<p>In the CI/CD pipeline, Victor will add <strong><span class="cloze-blank" data-blank="sca_tool"></span></strong> to flag vulnerable open-source components, and the pipeline will publish a <strong><span class="cloze-blank" data-blank="inventory"></span></strong> alongside each release so hospitals can match component versions against future CVEs without reverse-engineering the firmware.</p>
-<p>To catch insecure code patterns before the binary is even built, Victor will run <strong><span class="cloze-blank" data-blank="static_test"></span></strong> against the source tree. To find runtime issues such as authentication bypasses on the BLE interface, the QA team will run <strong><span class="cloze-blank" data-blank="dynamic_test"></span></strong> against built firmware in a hardware-in-the-loop rig.</p>
-<p>For the day the pump model is retired, Victor will publish a documented <strong><span class="cloze-blank" data-blank="eol_plan"></span></strong> so hospitals know exactly when security updates will stop and can budget for replacement. Finally, to defend against a malicious device wedged between a USB port and a legitimate peripheral, Victor will warn clinicians in the operations manual about <strong><span class="cloze-blank" data-blank="usb_attack"></span></strong> and require port covers on the charging dock.</p>
+                <p><strong>CR-01</strong> is closed by moving all signing into an <strong><span class="cloze-blank" data-blank="key_hardware"></span></strong> — a dedicated, tamper-resistant device whose private keys never leave the boundary in plaintext. <strong>CR-02</strong> is closed by shipping each pump with a <strong><span class="cloze-blank" data-blank="platform_module"></span></strong> that stores boot-stage hashes in tamper-evident registers.</p>
+<p>With the platform module in place, the boot process must verify the cryptographic signature on each stage before executing it: this is <strong><span class="cloze-blank" data-blank="boot_a"></span></strong>. To additionally record what was actually loaded so a remote server can later confirm the device booted clean firmware, Victor will enable <strong><span class="cloze-blank" data-blank="boot_b"></span></strong>, which extends measurements into the module's PCRs.</p>
+<p><strong>CR-03</strong> is closed by adding <strong><span class="cloze-blank" data-blank="sca_tool"></span></strong> to the pipeline to flag vulnerable open-source components, plus a <strong><span class="cloze-blank" data-blank="inventory"></span></strong> published alongside each release so hospitals can match component versions against future CVEs without reverse-engineering the firmware.</p>
+<p><strong>CR-04</strong> is closed in two halves: <strong><span class="cloze-blank" data-blank="static_test"></span></strong> against the source tree before the binary is built, and <strong><span class="cloze-blank" data-blank="dynamic_test"></span></strong> against the running firmware in the BLE rig.</p>
+<p><strong>CR-06</strong> is closed with a published <strong><span class="cloze-blank" data-blank="eol_plan"></span></strong> so hospitals know exactly when security updates will stop. <strong>CR-05</strong> is mitigated by warning clinicians about <strong><span class="cloze-blank" data-blank="usb_attack"></span></strong> — the class of attack where a thin malicious device is wedged in line with a legitimate USB port — and requiring port covers on the dock.</p>
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>

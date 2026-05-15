@@ -19,7 +19,7 @@ PAGE_TMPL = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} - SecurityX Practice</title>
+    <title>{title} - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +30,7 @@ PAGE_TMPL = """<!DOCTYPE html>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter {chapter}</p>
@@ -62,7 +62,7 @@ INDEX_TMPL = """<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Practice Problems - SecurityX</title>
+    <title>Practice-Based Questions - SecurityX</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -74,8 +74,8 @@ INDEX_TMPL = """<!DOCTYPE html>
             <a href="../index.html" class="back-link">&larr; Table of Contents</a>
         </header>
         <main id="main">
-            <h1>Practice Problems</h1>
-            <p>One scenario per chapter. Read the setup, fill in the blanks, then click <strong>Check answers</strong>. You can retry until everything is green.</p>
+            <h1>Practice-Based Questions</h1>
+            <p>One PBQ per chapter. Read the setup, fill in the blanks, then click <strong>Check answers</strong>. You can retry until everything is green.</p>
             <ul class="problem-list">
                 {items}
             </ul>
@@ -107,11 +107,18 @@ def build_problem(path: Path) -> dict:
     body_html = replace_tokens(render_md(data["body_md"]), data["blanks"])
 
     artifact_md = data.get("artifact_md", "")
-    artifact_title = data.get("artifact_title", "Artifact")
+    artifact_title = data.get("artifact_title", "")
+    artifact_kind = data.get("artifact_kind", "")
     if artifact_md:
-        artifact_block = (
-            f'<section class="problem-artifact" aria-label="{html.escape(artifact_title)}">'
+        kind_class = f" artifact-{artifact_kind}" if artifact_kind else ""
+        label = artifact_title or "Supporting artifact"
+        title_html = (
             f'<h2 class="problem-artifact-title">{html.escape(artifact_title)}</h2>'
+            if artifact_title else ""
+        )
+        artifact_block = (
+            f'<section class="problem-artifact{kind_class}" aria-label="{html.escape(label)}">'
+            f'{title_html}'
             f'{render_md(artifact_md)}'
             f'</section>'
         )

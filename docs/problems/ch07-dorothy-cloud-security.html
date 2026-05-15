@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dorothy Gale Secures the Emerald City Cloud - SecurityX Practice</title>
+    <title>Dorothy Gale Secures the Emerald City Cloud - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter 7</p>
@@ -23,20 +23,26 @@
             <section class="problem-context"><p>Dorothy Gale, Cloud Architect at <em>Emerald City Solutions</em>, has just inherited a sprawling AWS environment built rapidly during the company's pandemic-era growth. The footprint includes managed Kubernetes clusters running customer workloads, a fleet of Lambda functions stitched together by API Gateway, an S3 bucket holding eight years of customer data, and a half-dozen SaaS apps that the marketing team adopted without telling IT.</p>
 <p>Last quarter brought two scares. First, a security researcher demonstrated that a misconfigured Lambda IAM role had read access to the customer S3 bucket — and the function had a server-side request forgery flaw that an attacker could have exploited to pivot. (The Capital One breach had used a strikingly similar pattern.) Second, an external auditor flagged that the bucket was "public" — though it later turned out only the <em>bucket policy</em> was misread; objects inside had no public ACLs. Either way, the auditor was unimpressed.</p>
 <p>Dorothy now has board backing to tighten things up. Her plan covers responsibility boundaries, container and serverless hardening, API protections, governance of shadow SaaS, customer-managed encryption, and a layered control strategy that includes detective and preventative components — not just preventative.</p></section>
-
-            <section class="problem-prompt"><p>Complete Dorothy's cloud security plan by selecting the correct option for each blank.</p></section>
+            <section class="problem-artifact artifact-findings" aria-label="External Cloud Audit — Emerald City Solutions, engagement EC-Q3"><h2 class="problem-artifact-title">External Cloud Audit — Emerald City Solutions, engagement EC-Q3</h2><p><em>Auditor: Glinda Northrop, OSCP/OSCE. Findings 1–6 of 6. Distribution: CISO, Cloud Architect, Board Audit Committee.</em></p>
+<p><strong>[HIGH] F-1.</strong> Lambda function <code>customer-search-v3</code> holds <code>s3:GetObject</code> on <code>*</code> — not scoped to the <code>/customer/</code> prefix — and the <code>/lookup</code> endpoint exposes a confirmed SSRF vector. The pre-conditions for a Capital-One-shaped exfiltration are present.</p>
+<p><strong>[HIGH] F-2.</strong> EKS cluster <code>prod-east-1</code> enforces no admission-time image policy. Pods are running with node-level IAM credentials rather than per-pod workload identities.</p>
+<p><strong>[HIGH] F-3.</strong> API Gateway in front of the Lambda fleet authenticates clients with a static API key in the URL query string. No per-client throttling or quota configured.</p>
+<p><strong>[MED] F-4.</strong> Customer bucket <code>cust-data-prod</code> is encrypted with the default AWS-managed KMS key. The enterprise contract signed 2026-04 with <strong>Munchkin Industries</strong> stipulates keys that AWS cannot read.</p>
+<p><strong>[MED] F-5.</strong> The Marketing team has onboarded four SaaS apps (Asana, Calendly, Loom, Notion) without IT registration. Customer data has already flowed into at least two of these tenants.</p>
+<p><strong>[INFO] F-6.</strong> Bucket public-exposure regression reported by internal auditor on 2026-08-14 — on review, object ACLs were never actually public (bucket-policy misread). No continuous configuration-drift detection is in place; the next check is the annual external audit.</p></section>
+            <section class="problem-prompt"><p>Map each finding (F-1 through F-6) to Dorothy's planned control, then click <strong>Check answers</strong>.</p></section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="ch07-dorothy-cloud-security">
-                <p>First, Dorothy reminds the team that under the <strong><span class="cloze-blank" data-blank="model"></span></strong>, AWS is responsible for security <em>of</em> the cloud (hypervisor, physical data center, managed control planes), while Emerald City is responsible for security <em>in</em> the cloud (IAM configuration, data, OS patching where applicable, network rules).</p>
-<p>For the Kubernetes clusters, she will require all images to pass through an <strong><span class="cloze-blank" data-blank="image_control"></span></strong> before they can be deployed, and she will enforce least-privilege pod identities using <strong><span class="cloze-blank" data-blank="pod_identity"></span></strong> rather than node-level credentials.</p>
-<p>For the Lambda functions, Dorothy will scope each function's IAM role to only the specific S3 prefixes it needs — a direct application of the <strong><span class="cloze-blank" data-blank="principle"></span></strong> principle. The API Gateway in front of them will enforce <strong><span class="cloze-blank" data-blank="api_authz"></span></strong> for client-to-API authorization and <strong><span class="cloze-blank" data-blank="api_throttle"></span></strong> to blunt abuse and runaway costs.</p>
-<p>To discover and govern the shadow SaaS adopted by marketing, Dorothy will deploy a <strong><span class="cloze-blank" data-blank="casb"></span></strong>, configured in API mode to inspect data already in those tenants and produce a Shadow IT report.</p>
-<p>For the customer S3 bucket, she will switch from AWS-managed encryption keys to <strong><span class="cloze-blank" data-blank="key_mgmt"></span></strong> so Emerald City can revoke access cryptographically without AWS's involvement and meet a customer contract that requires it. To detect public-exposure regressions, she will turn on <strong><span class="cloze-blank" data-blank="detection_control"></span></strong> — a continuous configuration-monitoring service — rather than relying on the next annual audit.</p>
+                <p>First, Dorothy reminds the team that under the <strong><span class="cloze-blank" data-blank="model"></span></strong>, AWS is responsible for security <em>of</em> the cloud, while every finding in Glinda's report is security <em>in</em> the cloud — Emerald City's responsibility.</p>
+<p><strong>F-2</strong> is fixed by requiring every container image to pass through an <strong><span class="cloze-blank" data-blank="image_control"></span></strong> before deployment, and by giving each pod its own <strong><span class="cloze-blank" data-blank="pod_identity"></span></strong> rather than inheriting node credentials.</p>
+<p><strong>F-1</strong> is the textbook violation of the <strong><span class="cloze-blank" data-blank="principle"></span></strong> principle — the Lambda role needs scoping to just the prefixes it actually uses. <strong>F-3</strong> is fixed by enforcing <strong><span class="cloze-blank" data-blank="api_authz"></span></strong> at the API Gateway for client-to-API authorization, plus <strong><span class="cloze-blank" data-blank="api_throttle"></span></strong> to blunt abuse and runaway costs.</p>
+<p><strong>F-5</strong> — the shadow SaaS — is addressed with a <strong><span class="cloze-blank" data-blank="casb"></span></strong> in API mode that can inspect data already resident in those tenants and produce a Shadow IT report.</p>
+<p><strong>F-4</strong> is fixed by switching to <strong><span class="cloze-blank" data-blank="key_mgmt"></span></strong> so Emerald City can revoke access cryptographically without AWS's involvement. <strong>F-6</strong> is fixed by turning on <strong><span class="cloze-blank" data-blank="detection_control"></span></strong> — a continuous configuration-monitoring service — rather than waiting for next year's audit.</p>
 <p>Finally, when customer data is deleted from S3, Dorothy must address the risk that fragments of the data remain recoverable from underlying storage media. This residual-data risk is called <strong><span class="cloze-blank" data-blank="remanence"></span></strong>, and the contractual mitigation is to require provider attestation of secure deletion procedures.</p>
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>

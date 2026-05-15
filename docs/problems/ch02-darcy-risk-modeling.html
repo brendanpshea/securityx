@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitzwilliam Darcy Quantifies a Vendor Risk - SecurityX Practice</title>
+    <title>Fitzwilliam Darcy Quantifies a Vendor Risk - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter 2</p>
@@ -23,18 +23,35 @@
             <section class="problem-context"><p>Fitzwilliam Darcy, Director of Risk Management at <em>Derbyshire Holdings</em>, has just inherited oversight of the company's third-party HVAC contractor, <strong>Pemberley Climate Services</strong>. Pemberley's technicians plug their laptops directly into the corporate network when servicing chillers in the data center — a practice that survived an acquisition five years ago and was never re-evaluated.</p>
 <p>The asset Darcy is most worried about is the customer payment database, valued at <strong>$4,000,000</strong>. Based on Pemberley's poor patching record and recent breaches at peer firms, Darcy estimates that a Pemberley-originated compromise would destroy roughly <strong>25%</strong> of that asset's value, and that such an incident is plausible <strong>once every five years</strong>.</p>
 <p>Darcy is presenting to the board next month. The CEO, Mr. Bingley, wants three things: a defensible dollar figure for annual exposure, a clear classification of the threat actor profile (so legal can decide whether to involve law enforcement preemptively), and a recommended treatment strategy. Darcy also plans to map Pemberley's likely intrusion path against an industry framework, and to argue for a continuous-monitoring tool rather than the current annual questionnaire.</p></section>
+            <section class="problem-artifact artifact-card" aria-label="Supporting artifact"><pre><code>Derbyshire Holdings — Vendor Risk Register
+  Entry .................. PCS-2025-04
+  Status ................. open, awaiting board memo
+  Reviewer ............... F. Darcy   (escalate: yes)
 
-            <section class="problem-prompt"><p>Fill in each blank to complete Darcy's board memo, then click <strong>Submit</strong>.</p></section>
+  Vendor ................. Pemberley Climate Services
+  Engagement type ........ on-site HVAC subcontractor, 5-yr renewal
+  Asset at risk .......... PROD-FIN-01  Customer payment database
+  Asset Value (AV) ....... $4,000,000
+  Exposure Factor (EF) ... 0.25      (≈ 25% loss per incident)
+  ARO .................... 0.2       (~ once per 5 yrs, per peer data)
+
+  Access path ............ tech laptops → DC LAN directly
+                           NO segmentation; NO jump host
+  Authentication ......... shared 'pemberley-hvac' local account
+  Last assessment ........ paper questionnaire, 14 mos ago (Boyd, ext.)
+  Continuous monitoring .. NONE
+</code></pre></section>
+            <section class="problem-prompt"><p>Use the register entry to complete Darcy's board memo, then click <strong>Check answers</strong>.</p></section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="ch02-darcy-risk-modeling">
-                <p>Given the asset value and exposure factor, the <strong>Single Loss Expectancy (SLE)</strong> for a Pemberley-driven breach of the payment database is <strong><span class="cloze-blank" data-blank="sle"></span></strong>. With an annualized rate of occurrence of 0.2, the <strong>Annualized Loss Expectancy (ALE)</strong> is <strong><span class="cloze-blank" data-blank="ale"></span></strong>.</p>
-<p>Because Pemberley itself is unlikely to be the attacker — but is the <em>path</em> an attacker would use — Darcy classifies this as a <strong><span class="cloze-blank" data-blank="risk_category"></span></strong> risk. The most likely adversary profile, motivated by financial gain and possessing moderate but not nation-state-level resources, is the <strong><span class="cloze-blank" data-blank="actor"></span></strong>.</p>
+                <p>Using the AV and EF fields in the register, the <strong>Single Loss Expectancy (SLE)</strong> for a Pemberley-driven breach is <strong><span class="cloze-blank" data-blank="sle"></span></strong>. Multiplying by ARO, the <strong>Annualized Loss Expectancy (ALE)</strong> is <strong><span class="cloze-blank" data-blank="ale"></span></strong>.</p>
+<p>Because the <em>access path</em> field makes Pemberley the conduit (not the attacker), Darcy classifies this as a <strong><span class="cloze-blank" data-blank="risk_category"></span></strong> risk. The most likely adversary profile, motivated by financial gain and possessing moderate but not nation-state-level resources, is the <strong><span class="cloze-blank" data-blank="actor"></span></strong>.</p>
 <p>To map the likely intrusion (initial access via the contractor laptop, then lateral movement to the database), Darcy will present the scenario using the <strong><span class="cloze-blank" data-blank="framework"></span></strong> framework, which catalogs adversary tactics and techniques observed in the wild.</p>
-<p>Given that the ALE exceeds the cost of network segmentation but the residual risk is still non-zero, Darcy recommends a <strong><span class="cloze-blank" data-blank="treatment"></span></strong> strategy — segment Pemberley onto an isolated VLAN and require jump-host access. To replace the static annual questionnaire with continuous visibility into Pemberley's security posture, Darcy will propose adopting a <strong><span class="cloze-blank" data-blank="monitoring_tool"></span></strong> platform.</p>
+<p>Given that the ALE exceeds the cost of network segmentation but the residual risk is still non-zero, Darcy recommends a <strong><span class="cloze-blank" data-blank="treatment"></span></strong> strategy — segment Pemberley onto an isolated VLAN and require jump-host access. To replace the <em>Last assessment</em> / <em>Continuous monitoring</em> gap in the register, Darcy will propose adopting a <strong><span class="cloze-blank" data-blank="monitoring_tool"></span></strong> platform.</p>
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>

@@ -1,6 +1,6 @@
 # Accessibility Statement
 
-*CompTIA SecurityX (CAS-005) Textbook*
+*Threats Real and Imagined: A Cybersecurity Casebook for SecurityX*
 
 We want this textbook to work for everyone preparing for the SecurityX exam, including learners who use screen readers, keyboard navigation, screen magnifiers, or other assistive technology. This page summarizes the accessibility features in place, the standard we aim for, the known gaps we are still working on, and how to report problems.
 
@@ -18,7 +18,7 @@ The site targets **WCAG 2.1 Level AA**. The published HTML has been checked with
 - **Descriptive alt text.** Every figure in chapters 1–12 has an alt attribute that describes what the diagram shows — not just its title — so the educational content is available to screen-reader users. Figures with on-page captions (`*Figure X.Y: ...*`) duplicate the caption text into the alt attribute on purpose.
 - **Text-first content.** All concepts, case studies, key points, and warnings are presented as text. Figures reinforce the prose but no exam-relevant content is image-only.
 - **Keyboard navigation.** Every link, button, and form control is reachable and operable from the keyboard. There are no custom interactive controls that bypass the browser's focus model.
-- **Practice-problem feedback.** When you check answers on a cloze exercise, the score is announced through an `aria-live` status region, incorrect answers are marked with `aria-invalid="true"`, and each blank carries an `aria-label` identifying its position ("Answer 3 of 7"). If the attempt is imperfect, the announcement appends "Explanations added below the form" so screen-reader users know the panel of explanations is new content. Color is paired with text labels in the explanation panel so the green ✓ / red ✗ is not the only signal. Focus stays on the Submit button so a keyboard user can fix one wrong answer and resubmit without re-tabbing through the form.
+- **PBQ feedback.** When you check answers on a practice-based question (PBQ), the score is announced through an `aria-live` status region, incorrect answers are marked with `aria-invalid="true"`, and each blank carries an `aria-label` identifying its position ("Answer 3 of 7"). If the attempt is imperfect, the announcement appends "Explanations added below the form" so screen-reader users know the panel of explanations is new content. Color is paired with text labels in the explanation panel so the green ✓ / red ✗ is not the only signal. Focus stays on the Submit button so a keyboard user can fix one wrong answer and resubmit without re-tabbing through the form.
 - **Inline links carry a non-color distinguisher.** Inline body links are underlined in addition to being colored, so users who cannot distinguish the cyan accent from surrounding text still recognize them as links (WCAG 1.4.1). Block-style links — the skip link, back link, chapter cards, and problem-list rows — are not underlined because their bounding-box treatment already conveys interactivity.
 - **Reduced motion.** The site honors `prefers-reduced-motion`. Hover transforms, transitions, and animations collapse to near-zero duration for users who request that preference.
 - **Color is not the only signal.** Callout boxes (Case Study, Warning, Key Point, Thought Question, Example) all carry a visible text label in addition to their color treatment.

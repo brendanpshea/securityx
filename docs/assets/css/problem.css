@@ -58,6 +58,95 @@
   font-weight: 600;
 }
 
+/* Preserve code blocks inside any artifact genre. */
+.problem-artifact pre {
+  background-color: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  padding: 0.7rem 0.9rem;
+  margin: 0.6rem 0;
+  overflow-x: auto;
+  white-space: pre;
+  font-family: var(--font-mono);
+}
+
+/* --- Genre variants --------------------------------------------------- */
+
+/* Memo / email — first-name communication, not system output.
+   Sans-serif body, lighter background, no monospace. */
+.problem-artifact.artifact-memo {
+  font-family: var(--font-sans);
+  background-color: rgba(255, 255, 255, 0.03);
+  border-left-color: var(--accent-cyan);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+.problem-artifact.artifact-memo ol {
+  padding-left: 1.25rem;
+}
+
+/* Narrative RCA / post-mortem — long-form prose with headed sections. */
+.problem-artifact.artifact-rca {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.7;
+  border-left-color: #fbbf24; /* amber, signals incident retrospective */
+}
+.problem-artifact.artifact-rca h3,
+.problem-artifact.artifact-rca h4 {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin: 1rem 0 0.4rem 0;
+}
+.problem-artifact.artifact-rca h3:first-child,
+.problem-artifact.artifact-rca h4:first-child {
+  margin-top: 0;
+}
+
+/* Markdown tables (comparison, inventory) — drop the monospace wrapper. */
+.problem-artifact.artifact-table,
+.problem-artifact.artifact-inventory {
+  font-family: var(--font-sans);
+  font-size: 0.97rem;
+  line-height: 1.6;
+  border-left-color: #60a5fa; /* blue */
+}
+.problem-artifact.artifact-table table,
+.problem-artifact.artifact-inventory table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+.problem-artifact.artifact-table th,
+.problem-artifact.artifact-table td,
+.problem-artifact.artifact-inventory th,
+.problem-artifact.artifact-inventory td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+.problem-artifact.artifact-table th,
+.problem-artifact.artifact-inventory th {
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+/* Severity-tagged audit findings — left-tint by HIGH / MED / INFO inline. */
+.problem-artifact.artifact-findings {
+  border-left-color: #f87171; /* red */
+}
+
+/* Letter-grade scorecard — pink accent. */
+.problem-artifact.artifact-scorecard {
+  border-left-color: #f472b6; /* pink */
+}
+
 .problem-body p {
   line-height: 1.9;
 }

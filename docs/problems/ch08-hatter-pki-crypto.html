@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Mad Hatter Rebuilds Teatime Tech&#x27;s PKI - SecurityX Practice</title>
+    <title>The Mad Hatter Rebuilds Teatime Tech&#x27;s PKI - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter 8</p>
@@ -23,21 +23,33 @@
             <section class="problem-context"><p>After the 3:17 a.m. outage caused by a quietly expired intermediate CA, the Mad Hatter — Lead Cryptographer at <em>Teatime Tech</em> — has been given a clean slate to redesign the company's cryptographic posture from the ground up.</p>
 <p>His remit covers four fronts. First, a proper PKI hierarchy with monitored renewals, automated issuance for the customer-facing tier, and revocation that actually works under load. Second, end-to-end data protection across rest, transit, and use, including a sane key-management story for several petabytes of customer data sitting in an object store. Third, modernization of the company's authentication: passwords are out, hardware-backed keys are in, and service-to-service traffic inside the platform must mutually authenticate. Fourth — and most strategically — the Hatter has been asked by the board to begin a multi-year migration toward post-quantum cryptography for any data that must remain confidential beyond 2035.</p>
 <p>A respected national news outlet recently ran a profile on the DigiNotar collapse from 2011, and the Hatter's CEO has read it twice. The CEO would prefer not to be the next case study.</p></section>
-
-            <section class="problem-prompt"><p>Complete the Mad Hatter's cryptographic redesign by selecting the correct option for each blank.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Post-mortem — TLS outage, 2026-04-22 03:17 UTC.</strong> &nbsp; <em>Author: M. Hatter, on-call. Status: draft, not yet circulated. Do not forward.</em></p>
+<h3>What happened</h3>
+<p>At 03:17 UTC every customer-facing TLS endpoint started returning <code>SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE</code>. The intermediate CA cert had expired 90 minutes earlier; no monitor existed on the intermediate itself — only on the leaf certs that it signed. Restoration took ~5 hours including a manual re-issuance ceremony nobody had walked through since 2023.</p>
+<h3>Contributing conditions</h3>
+<ul>
+<li><strong>Root CA posture.</strong> The root signing key still lives on the issuance system, 24/7. Same blast radius as any production server; not what 'root' is supposed to mean.</li>
+<li><strong>Renewals.</strong> Manual every 90 days via emailed CSRs. Three were missed in the last year. We have been 'going to automate this' since 2023.</li>
+<li><strong>Revocation path.</strong> Every TLS client hits the CA's OCSP responder directly on each new connection. Adds ~200 ms. CA outage = our outage.</li>
+<li><strong>Legacy CN reliance.</strong> Two production certs still validate only via the Common Name field — the SAN extension is empty. Modern browsers will reject these the moment the legacy CN grace window closes (Chrome 130+).</li>
+<li><strong>Bulk object encryption.</strong> AES-256-CBC with no integrity tag. Last pen test flagged padding-oracle exposure on the decrypt API; the report is six months old and nobody has prioritized it.</li>
+</ul>
+<h3>Next</h3>
+<p>PKI redesign kicks off Monday. CEO has read the DigiNotar profile in <em>The Atlantic</em> twice and wants a plan, not a post-mortem.</p></section>
+            <section class="problem-prompt"><p>Use the post-mortem to map each contributing condition to the Mad Hatter's redesign control, then click <strong>Check answers</strong>.</p></section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="ch08-hatter-pki-crypto">
-                <p>The Hatter starts by rebuilding the PKI as a proper hierarchy. The signing key for the top of the trust chain is moved into an HSM in a physically secured vault and brought online only for ceremonies; this is the <strong><span class="cloze-blank" data-blank="root_posture"></span></strong> root CA. Day-to-day issuance flows through an intermediate CA, so that compromise of an intermediate can be contained without invalidating the entire trust hierarchy.</p>
-<p>For public-facing TLS, customer-managed certificates will be issued and rotated automatically using the <strong><span class="cloze-blank" data-blank="acme"></span></strong> protocol. Each certificate's valid hostnames are listed in the <strong><span class="cloze-blank" data-blank="san"></span></strong> extension, since modern browsers ignore the legacy Common Name field entirely. To detect any rogue or accidental issuance against Teatime Tech domains by <em>any</em> CA in the world, the Hatter enables monitoring of public <strong><span class="cloze-blank" data-blank="ct"></span></strong> logs.</p>
-<p>For revocation, rather than relying on each client to fetch a CRL or call the CA on every connection, Teatime Tech servers will fetch a fresh signed status response from the CA periodically and attach it to the TLS handshake. This optimization is <strong><span class="cloze-blank" data-blank="stapling"></span></strong>, and it improves both privacy and latency.</p>
-<p>For the petabytes of customer data in object storage, the Hatter implements <strong><span class="cloze-blank" data-blank="envelope"></span></strong> encryption: a per-object Data Encryption Key (DEK) encrypts the object itself, and a Key Encryption Key (KEK) held in the HSM wraps the DEK. The bulk symmetric algorithm is AES-256 in <strong><span class="cloze-blank" data-blank="aead"></span></strong> mode, which provides confidentiality and integrity in a single primitive — eliminating an entire class of padding-oracle bugs.</p>
+                <p>The <em>Root CA posture</em> condition is closed by moving the signing key into an HSM in a physically secured vault and bringing it online only for ceremonies — the <strong><span class="cloze-blank" data-blank="root_posture"></span></strong> root CA. Day-to-day issuance flows through an intermediate so a future intermediate compromise stays contained.</p>
+<p>The <em>Renewals</em> condition is automated away by adopting the <strong><span class="cloze-blank" data-blank="acme"></span></strong> protocol for issuance and renewal. The <em>Legacy CN reliance</em> condition is closed by requiring all valid hostnames in the <strong><span class="cloze-blank" data-blank="san"></span></strong> extension, since modern browsers ignore the Common Name field entirely. To detect rogue or accidental issuance against Teatime Tech domains by <em>any</em> CA in the world, the Hatter enables monitoring of public <strong><span class="cloze-blank" data-blank="ct"></span></strong> logs.</p>
+<p>The <em>Revocation path</em> condition is fixed by <strong><span class="cloze-blank" data-blank="stapling"></span></strong> — the server fetches a fresh signed OCSP response periodically and attaches it to the TLS handshake, so clients never call the CA directly.</p>
+<p>For petabyte-scale customer data in object storage, the Hatter implements <strong><span class="cloze-blank" data-blank="envelope"></span></strong> encryption: a per-object DEK encrypts the object, and a KEK held in the HSM wraps the DEK. The <em>Bulk object encryption</em> condition is closed by replacing CBC with AES-256 in <strong><span class="cloze-blank" data-blank="aead"></span></strong> mode, which provides confidentiality and integrity in a single primitive — eliminating the padding-oracle class entirely.</p>
 <p>When a customer terminates their contract, instead of attempting to overwrite media in a multi-tenant store, Teatime Tech will simply destroy the customer's KEK. This is <strong><span class="cloze-blank" data-blank="crypto_erase"></span></strong> — the only practical sanitization technique in shared cloud storage.</p>
 <p>For authentication, employees are migrating from passwords to hardware authenticators implementing the <strong><span class="cloze-blank" data-blank="fido"></span></strong> standard, where the device holds a private key and the server stores only the public key — so a credential database breach yields nothing replayable. Service-to-service traffic inside the platform uses <strong><span class="cloze-blank" data-blank="mtls"></span></strong>, with each workload identified by a short-lived certificate from an internal CA.</p>
 <p>The board's quantum mandate drives the final piece. The Hatter knows that an adversary can record encrypted traffic today and decrypt it years later once a quantum computer arrives — the <strong><span class="cloze-blank" data-blank="harvest"></span></strong> threat model. To address this for long-confidentiality data, he deploys a TLS configuration that combines classical X25519 with the NIST-standardized post-quantum key encapsulation algorithm <strong><span class="cloze-blank" data-blank="pqc_kem"></span></strong> in a <strong><span class="cloze-blank" data-blank="hybrid"></span></strong> key exchange, so the session is protected against both today's adversaries and a future quantum one. The TLS version selected is 1.3, in part because <strong><span class="cloze-blank" data-blank="pfs"></span></strong> is mandatory in 1.3 — every session uses ephemeral key shares so that compromise of a long-term key cannot retroactively decrypt past traffic.</p>
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>

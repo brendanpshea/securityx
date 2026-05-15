@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nick Chopper Segments the Yellow Brick Plant Floor - SecurityX Practice</title>
+    <title>Nick Chopper Segments the Yellow Brick Plant Floor - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter 10</p>
@@ -22,21 +22,90 @@
 
             <section class="problem-context"><p>Nick Chopper, OT Engineer at <em>Yellow Brick Manufacturing</em>, has finally been given budget and executive backing to fix the plant's industrial cybersecurity posture. The site runs six aluminum extrusion lines, four of them anchored by 1998-era Allen-Bradley ControlLogix PLCs driving 800°C presses. Today, those lines sit on the same flat network as the corporate file servers, payroll, and a forgotten internet-exposed remote-access PC that a vendor used during the pandemic and never disconnected.</p>
 <p>The CISO has been clear: production cannot stop, no PLC can be replaced this year, and safety regulators must sign off on any change that touches a control loop. Within those constraints, Nick must produce a defensible IT/OT segmentation plan, harden the legacy industrial PCs that cannot be patched, and bring the wireless infrastructure used by warehouse handhelds and building HVAC under proper control. He also needs a compensating-control playbook for the third-party vendors who insist on retaining remote-support access under their service contracts.</p></section>
-
-            <section class="problem-prompt"><p>Complete Nick's plan by selecting the correct option for each blank.</p></section>
+            <section class="problem-artifact artifact-inventory" aria-label="Plant Floor — Walkthrough Notes (Chopper, week of 2026-05-04)"><h2 class="problem-artifact-title">Plant Floor — Walkthrough Notes (Chopper, week of 2026-05-04)</h2><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Asset</th>
+<th>Vintage</th>
+<th>Location</th>
+<th>Network</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A-01</strong></td>
+<td>4× Allen-Bradley ControlLogix PLCs</td>
+<td>1998</td>
+<td>Lines 1–4, press hall</td>
+<td>flat /16</td>
+<td>drives 800 °C extrusion press; vendor confirmed: active probing has crashed identical units at peer sites</td>
+</tr>
+<tr>
+<td><strong>A-02</strong></td>
+<td>Flat /16 corporate network</td>
+<td>n/a</td>
+<td>site-wide</td>
+<td>—</td>
+<td>PLCs share Layer-2 with payroll, file servers, corporate WLAN</td>
+</tr>
+<tr>
+<td><strong>A-03</strong></td>
+<td><code>TEMP-VENDOR-RDP</code> PC</td>
+<td>2020 install</td>
+<td>maintenance office</td>
+<td>public IP, MFA-less RDP</td>
+<td>left over from pandemic vendor support; never decommissioned</td>
+</tr>
+<tr>
+<td><strong>A-04</strong></td>
+<td>6× HMI workstations</td>
+<td>Windows XP</td>
+<td>line-side panels</td>
+<td>flat /16</td>
+<td>cannot upgrade — would re-trigger control-loop recertification</td>
+</tr>
+<tr>
+<td><strong>A-05</strong></td>
+<td>HMI USB ports</td>
+<td>enabled, writeable</td>
+<td>(all of A-04)</td>
+<td>—</td>
+<td>no removable-media policy on the floor</td>
+</tr>
+<tr>
+<td><strong>A-06</strong></td>
+<td>Warehouse handhelds + 12× HVAC controllers</td>
+<td>wireless</td>
+<td>building-wide</td>
+<td>shared SSID with payroll</td>
+<td>acquired during HQ remodel; never reviewed</td>
+</tr>
+<tr>
+<td><strong>A-07</strong></td>
+<td>8× retired-product PLCs</td>
+<td>EoL 2009</td>
+<td>Lines 5–6 (decommissioning queue)</td>
+<td>flat /16</td>
+<td>vendor confirmed in writing: no further security patches, ever</td>
+</tr>
+</tbody>
+</table></section>
+            <section class="problem-prompt"><p>Map each asset row above to Nick's planned control, then click <strong>Check answers</strong>.</p></section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="ch10-chopper-ot-segmentation">
-                <p>Nick begins by mapping the existing environment without touching anything that could disturb production. Because actively probing a 1998 PLC has a real chance of crashing it, his asset-inventory tool uses <strong><span class="cloze-blank" data-blank="discovery"></span></strong> rather than active scanning, listening at SPAN ports for thirty days before any change is made.</p>
-<p>The core of the plan is a layered architecture aligned to the <strong><span class="cloze-blank" data-blank="model"></span></strong>, with an industrial DMZ inserted between the corporate IT network and the OT environment. All north-south traffic between IT and OT must traverse this DMZ — no direct connections are permitted. Inside the OT zone, each assembly line becomes its own segment per the zone-and-conduit logic of the international standard <strong><span class="cloze-blank" data-blank="iec"></span></strong>.</p>
+                <p>Because <strong>A-01</strong> confirms that active probing crashes these PLCs, Nick's asset-inventory tool uses <strong><span class="cloze-blank" data-blank="discovery"></span></strong> rather than active scanning, listening at SPAN ports for thirty days before any change is made.</p>
+<p><strong>A-02</strong>'s flat-network problem is fixed with a layered architecture aligned to the <strong><span class="cloze-blank" data-blank="model"></span></strong> — an industrial DMZ inserted between corporate IT and the OT environment. All north-south traffic must traverse this DMZ. Inside the OT zone, each assembly line becomes its own segment per the zone-and-conduit logic of the international standard <strong><span class="cloze-blank" data-blank="iec"></span></strong>.</p>
 <p>The top priority of the design is not confidentiality but <strong><span class="cloze-blank" data-blank="priority"></span></strong>, because a mis-issued control command on the extrusion press has produced operator injuries in the plant's history and could do so again. This inverted priority order is what differentiates OT security architecture from IT.</p>
-<p>For the Windows XP industrial PCs that cannot be upgraded without recertifying the entire line, Nick deploys <strong><span class="cloze-blank" data-blank="allowlist"></span></strong> so that only the small fixed set of approved engineering applications can execute. He also strips writeable USB capability except by formal exception — recognizing that USB has been the canonical vector for compromising air-gapped OT systems ever since <strong><span class="cloze-blank" data-blank="worm"></span></strong> in 2010.</p>
-<p>Vendor remote support cannot be eliminated under existing service contracts, so Nick replaces the forgotten internet-facing PC with a properly engineered <strong><span class="cloze-blank" data-blank="jumphost"></span></strong> that enforces multi-factor authentication, time-boxes each session to the scheduled change window, and records full keystroke and screen video of every vendor connection for later audit.</p>
-<p>For the warehouse handhelds and the building HVAC controllers that connect over wireless, Nick rolls out a segmented WLAN. The corporate-employee SSID uses <strong><span class="cloze-blank" data-blank="wifi_auth"></span></strong> for mutual certificate-based authentication with forward secrecy, while the building-systems SSID is mapped to its own <strong><span class="cloze-blank" data-blank="vlan"></span></strong> with egress-only firewall rules to the vendor cloud and client isolation enforced at the wireless controller.</p>
-<p>Finally, for the eight specific PLCs that the vendor will never patch again because the product line was retired in 2009, Nick documents the architectural protections as formal <strong><span class="cloze-blank" data-blank="controls"></span></strong> — network isolation, protocol-aware OT firewalls, passive monitoring, jump-host-only administrative access — and pairs each one with a tracked entry on the multi-year <strong><span class="cloze-blank" data-blank="roadmap"></span></strong> so that the executive committee has continuous visibility into how long this technical debt is expected to remain.</p>
+<p>For the Windows XP HMIs in <strong>A-04</strong>, Nick deploys <strong><span class="cloze-blank" data-blank="allowlist"></span></strong> so that only the small fixed set of approved engineering applications can execute. He also strips writeable USB capability except by formal exception — recognizing that USB has been the canonical vector for compromising air-gapped OT systems ever since <strong><span class="cloze-blank" data-blank="worm"></span></strong> in 2010.</p>
+<p><strong>A-03</strong> is replaced with a properly engineered <strong><span class="cloze-blank" data-blank="jumphost"></span></strong> that enforces multi-factor authentication, time-boxes each session to the scheduled change window, and records full keystroke and screen video of every vendor connection for later audit.</p>
+<p><strong>A-06</strong> is fixed by rolling out a segmented WLAN. The corporate-employee SSID uses <strong><span class="cloze-blank" data-blank="wifi_auth"></span></strong> for mutual certificate-based authentication with forward secrecy, while the building-systems SSID is mapped to its own <strong><span class="cloze-blank" data-blank="vlan"></span></strong> with egress-only firewall rules to the vendor cloud and client isolation enforced at the wireless controller.</p>
+<p>Finally, for the retired PLCs in <strong>A-07</strong>, Nick documents the architectural protections as formal <strong><span class="cloze-blank" data-blank="controls"></span></strong> — network isolation, protocol-aware OT firewalls, passive monitoring, jump-host-only administrative access — and pairs each one with a tracked entry on the multi-year <strong><span class="cloze-blank" data-blank="roadmap"></span></strong> so that the executive committee has continuous visibility into how long this technical debt is expected to remain.</p>
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>

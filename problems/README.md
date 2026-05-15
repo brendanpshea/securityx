@@ -11,7 +11,7 @@ renders these into static HTML pages under `docs/problems/`.
   "chapter": 1,
   "title": "Snow White Builds an Awareness Program",
   "context_md": "Markdown setup, 100-300 words. May reference textbook characters.",
-  "prompt_md": "Optional short instruction shown above the cloze body.",
+  "prompt_md": "Optional short instruction shown above the PBQ body.",
   "body_md": "Markdown with {{token}} placeholders for each blank.",
   "blanks": {
     "token_name": {

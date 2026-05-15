@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alice Liddell Automates Incident Response at Wonderland Logistics - SecurityX Practice</title>
+    <title>Alice Liddell Automates Incident Response at Wonderland Logistics - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter 12</p>
@@ -22,22 +22,46 @@
 
             <section class="problem-context"><p>Alice Liddell, Incident Response Manager at <em>Wonderland Logistics</em> (a 6,000-employee regional freight company), is rebuilding the company's vulnerability management and incident response program after a credential-stuffing attack exposed 23 employee accounts. Her mandate covers three areas: closing the vulnerability pipeline gaps that let exposures accumulate undetected, deploying SOAR automation to compress response time, and establishing a forensic evidence process that can support disciplinary and legal action if a future incident involves an insider.</p>
 <p>Alice also needs to present the program to the board using consistent, industry-standard terminology — CVSS scoring, NIST lifecycle framing, and measurable outcome metrics that replace the old vanity numbers.</p></section>
+            <section class="problem-artifact artifact-ticket-queue" aria-label="Supporting artifact"><pre><code>WONDERLAND-SOAR // queue.export // 2026-05-12 08:00 // owner=aliceL
+──────────────────────────────────────────────────────────────────
+T-101  vuln-backlog       sev=?    age=∞     scanner reports 3,400 open
+                                              findings; eng capacity ≈50
+                                              fixes/sprint; no consistent
+                                              prioritization — loudest BU wins.
 
-            <section class="problem-prompt"><p>Complete Alice's program documentation by selecting the correct option for each blank.</p></section>
+T-102  cis-linux-audit    sev=med  age=21d   1,200 hosts must be evaluated
+                                              against CIS Linux Benchmark.
+                                              Current process: 30-min manual
+                                              checklist per host. JK won't sign.
+
+T-103  cred-stuff-alert   sev=high recur=6×/wk  manual response ≈20 min/incident:
+                                              disable acct, revoke cloud
+                                              sessions, reset pwd, open ticket.
+
+T-104  phish-attach.docx  sev=high age=2h    analyst observed opening on
+                                              PROD workstation 'to see what
+                                              it does.' writeup pending. (!)
+
+T-105  insider-exfil      sev=crit  closed-incomplete  laptop powered off
+                                              before IR arrived. Only disk
+                                              image captured. RAM, processes,
+                                              and open conns — lost.
+</code></pre></section>
+            <section class="problem-prompt"><p>Map each ticket in the queue to Alice's program control, then click <strong>Check answers</strong>.</p></section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="ch12-alice-ir-automation">
-                <p>Alice starts with the vulnerability backlog. The security scanner produces thousands of findings per month, and the engineering team can only remediate a fixed number per sprint. To prioritize rationally, Alice uses the industry-standard <strong><span class="cloze-blank" data-blank="cvss"></span></strong> scoring system, which produces a 0–10 numeric severity rating from metrics like attack vector, complexity, privileges required, and CIA impact. A network-exploitable, low-complexity flaw with no privileges required and full impact on confidentiality scores near the maximum and jumps the queue regardless of the business unit's protest.</p>
-<p>For machine-readable compliance scanning, Alice adopts the NIST <strong><span class="cloze-blank" data-blank="scap"></span></strong> suite, specifically using <strong><span class="cloze-blank" data-blank="xccdf"></span></strong> documents to encode CIS Benchmark hardening checklists that the scanner can evaluate automatically against every enrolled Linux host. The complementary <strong><span class="cloze-blank" data-blank="oval"></span></strong> language provides the system-state checks that determine whether each checklist item passes or fails on a given host.</p>
+                <p><strong>T-101</strong> is solved by prioritizing the 3,400 findings with the industry-standard <strong><span class="cloze-blank" data-blank="cvss"></span></strong> scoring system, which produces a 0–10 numeric severity rating from metrics like attack vector, complexity, privileges required, and CIA impact. A network-exploitable, low-complexity flaw with no privileges required and full impact on confidentiality scores near the maximum and jumps the queue regardless of the business unit's protest.</p>
+<p><strong>T-102</strong> is solved by adopting the NIST <strong><span class="cloze-blank" data-blank="scap"></span></strong> suite, specifically using <strong><span class="cloze-blank" data-blank="xccdf"></span></strong> documents to encode the CIS Linux Benchmark checklists that the scanner can evaluate automatically against all 1,200 hosts. The complementary <strong><span class="cloze-blank" data-blank="oval"></span></strong> language provides the system-state checks that determine whether each checklist item passes or fails on a given host.</p>
 <p>To catch vulnerable third-party libraries before they ship to production, Alice mandates that every CI/CD pipeline produce a <strong><span class="cloze-blank" data-blank="sbom"></span></strong> — a machine-readable inventory of every dependency — and that the pipeline fail the build when any entry in that inventory matches a critical CVE.</p>
-<p>On the automation side, Alice builds a credential-stuffing response <strong><span class="cloze-blank" data-blank="playbook"></span></strong> in the SOAR platform. When the SIEM fires the credential-stuffing alert pattern, the playbook automatically disables the flagged AD account, revokes all active cloud sessions, resets the password, and opens an incident ticket — compressing a 20-minute manual workflow to under 90 seconds. The complementary <strong><span class="cloze-blank" data-blank="runbook"></span></strong> documents the manual steps an analyst follows for edge cases the automation cannot handle, such as when the flagged account belongs to an executive requiring HR sign-off before lockout.</p>
+<p><strong>T-103</strong> is solved by building a credential-stuffing response <strong><span class="cloze-blank" data-blank="playbook"></span></strong> in the SOAR platform. When the SIEM fires the credential-stuffing alert pattern, the playbook automatically disables the flagged AD account, revokes all active cloud sessions, resets the password, and opens an incident ticket — compressing the 20-minute manual workflow to under 90 seconds. The complementary <strong><span class="cloze-blank" data-blank="runbook"></span></strong> documents the manual steps an analyst follows for edge cases the automation cannot handle, such as when the flagged account belongs to an executive requiring HR sign-off before lockout.</p>
 <p>For email-borne threats, Alice wires a phishing-detection playbook to the email gateway. Any suspicious message triggers the SOAR to extract headers and URLs, check them against the <strong><span class="cloze-blank" data-blank="tip"></span></strong>, auto-quarantine the message fleet-wide, and push identified malicious URLs to the DNS <strong><span class="cloze-blank" data-blank="sinkhole"></span></strong> — converting a detection into a containment action with no analyst involvement.</p>
 <p>Alice frames the entire IR program around the four-phase <strong><span class="cloze-blank" data-blank="nist"></span></strong> lifecycle. She opens every board presentation with two numbers: <strong><span class="cloze-blank" data-blank="mttd"></span></strong> (how long an intrusion dwells before discovery) and <strong><span class="cloze-blank" data-blank="mttr"></span></strong> (how long from discovery to containment) — replacing the previous vanity metric of total events ingested.</p>
-<p>When a suspicious endpoint is identified during an active incident, Alice's forensic procedure follows the <strong><span class="cloze-blank" data-blank="volatility"></span></strong> principle: before imaging the disk, the responder must first capture RAM contents, running process list, and open network connections — evidence that vanishes the moment the system is powered off. All captured evidence is hashed and documented in a <strong><span class="cloze-blank" data-blank="coc"></span></strong> form to maintain legal admissibility.</p>
-<p>Finally, Alice deploys an isolated detonation environment — a <strong><span class="cloze-blank" data-blank="sandbox"></span></strong> — so analysts can safely execute suspicious files and observe behavioral indicators (network connections, registry writes, process injection attempts) without risk to the production network. Indicators extracted from those detonation reports feed directly back into the SOAR's IOC-blocking pipeline.</p>
+<p><strong>T-105</strong> is exactly the failure mode the <strong><span class="cloze-blank" data-blank="volatility"></span></strong> principle exists to prevent: before imaging the disk, the responder must first capture RAM contents, running process list, and open network connections — evidence that vanishes the moment the system is powered off. All captured evidence is hashed and documented in a <strong><span class="cloze-blank" data-blank="coc"></span></strong> form to maintain legal admissibility.</p>
+<p><strong>T-104</strong> is exactly why Alice deploys an isolated detonation environment — a <strong><span class="cloze-blank" data-blank="sandbox"></span></strong> — so analysts can safely execute suspicious files and observe behavioral indicators (network connections, registry writes, process injection attempts) without risk to the production network. Indicators extracted from those detonation reports feed directly back into the SOAR's IOC-blocking pipeline.</p>
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>

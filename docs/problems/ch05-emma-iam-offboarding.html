@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emma Woodhouse Handles a Hostile Offboarding - SecurityX Practice</title>
+    <title>Emma Woodhouse Handles a Hostile Offboarding - SecurityX PBQ</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/problem.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="container">
         <header>
-            <a href="./index.html" class="back-link">&larr; All Problems</a>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
         </header>
         <main id="main">
             <p class="problem-chapter">Chapter 5</p>
@@ -23,20 +23,38 @@
             <section class="problem-context"><p>Emma Woodhouse, IAM Specialist at <em>Highbury Networks</em>, gets a 4:55 p.m. call from HR: a senior systems engineer named Frank Churchill is being terminated for cause, effective immediately. Frank has accounts in roughly forty systems — Highbury's on-prem Active Directory, two cloud tenants, the customer support tool, the source code repository, the secrets vault, and a dozen SaaS apps onboarded over the years through the company's identity provider.</p>
 <p>Emma's nightmare: Highbury never finished cleaning up the IAM landscape after last year's acquisition, so some apps still use local accounts that were never wired to the IdP. Frank also held a long-lived API token for the deployment pipeline and has SSH keys cached on at least two laptops.</p>
 <p>Emma needs to revoke access cleanly, prevent Frank from re-authenticating with cached credentials, ensure none of his automation accounts continue running with his identity attached, and produce an audit-ready record for legal. She also wants to use this incident to push leadership toward closing the structural gaps — federation coverage, secrets rotation, and a real PAM rollout — before the next termination.</p></section>
-
-            <section class="problem-prompt"><p>Walk through Emma's offboarding playbook by selecting the correct option for each step.</p></section>
+            <section class="problem-artifact artifact-log" aria-label="Supporting artifact"><pre><code>$ idp-admin account.export --user fchurchill --include-derived
+  ran 16:54 by ewoodhouse@highbury  ticket: TERM-2099
+──────────────────────────────────────────────────────────────
+AD       fchurchill         federated      groups: eng-prod,
+                                                  secrets-admin
+SAML     salesforce         active         last_login=15:38
+SAML     servicenow         active         last_login=15:12
+SAML     github-enterprise  active         last_login=15:51
+                                            sessions: 3 (browser, cached)
+SAML     snowflake          active         last_login=11:02
+LOCAL    legacy-billing     active         NOT federated
+                                            (2023 acq, never migrated)
+LOCAL    bug-tracker-19     active         NOT federated
+LOCAL    timesheet-old      active         NOT federated
+TOKEN    deploy-pipeline    issued 2023-03  no_expiry  scope: prod/*
+SSH-KEY  authorized_keys    present on 22 hosts (eng-prod cluster)
+──────────────────────────────────────────────────────────────
+10 rows.  Termination effective 17:00 today.  Hostile separation.
+</code></pre></section>
+            <section class="problem-prompt"><p>Use the export to step through Emma's offboarding playbook, then click <strong>Check answers</strong>.</p></section>
 
             <form id="cloze-form" class="problem-body" data-problem-id="ch05-emma-iam-offboarding">
-                <p>Emma's first action is to disable Frank's account at the <strong><span class="cloze-blank" data-blank="authority"></span></strong>, which acts as the single source of truth for any application connected via federation. For applications that remain SAML- or OIDC-federated, this single change effectively kills new sessions because each app trusts assertions issued by that source.</p>
-<p>However, federated logout does not invalidate <strong><span class="cloze-blank" data-blank="cached_artifact"></span></strong> that may already be sitting in Frank's browser or device. To kill those, Emma triggers a global session/token revocation in the IdP and the SaaS apps that support it.</p>
-<p>For the long-lived deployment-pipeline token, Emma must perform an immediate <strong><span class="cloze-blank" data-blank="secret_action"></span></strong> — and going forward, Highbury should adopt <strong><span class="cloze-blank" data-blank="secret_practice"></span></strong> so that no human-owned credential lives longer than the human's tenure.</p>
-<p>The SSH keys cached on Frank's laptops are best handled by removing his public key from the <strong><span class="cloze-blank" data-blank="ssh_location"></span></strong> on every server he could reach. Long-term, Emma will route all SSH access through a <strong><span class="cloze-blank" data-blank="pam_tool"></span></strong>, which brokers session-by-session credentials and records keystrokes for high-privilege sessions.</p>
-<p>For the local accounts on un-federated legacy apps, Emma must disable each one manually; this is a textbook failure of <strong><span class="cloze-blank" data-blank="lifecycle_gap"></span></strong>. To prevent recurrence, Emma will propose <strong><span class="cloze-blank" data-blank="provisioning_protocol"></span></strong>, the standard for automating provisioning and deprovisioning across SaaS.</p>
+                <p>Emma's first action — driven by the AD row — is to disable Frank's account at the <strong><span class="cloze-blank" data-blank="authority"></span></strong>, which acts as the single source of truth for every SAML row in the export. This single change effectively kills new sessions because each app trusts assertions issued by that source.</p>
+<p>However, federated logout does not invalidate the <strong><span class="cloze-blank" data-blank="cached_artifact"></span></strong> flagged on the GitHub row (<code>sessions: 3, browser, cached</code>) — already issued and sitting client-side. To kill those, Emma triggers a global session/token revocation in the IdP and in the SaaS apps that support it.</p>
+<p>The <code>TOKEN deploy-pipeline</code> row — <code>no_expiry, scope: prod/*</code> — requires an immediate <strong><span class="cloze-blank" data-blank="secret_action"></span></strong>. Going forward, Highbury should adopt <strong><span class="cloze-blank" data-blank="secret_practice"></span></strong> so that no human-owned credential lives longer than the human's tenure.</p>
+<p>The <code>SSH-KEY</code> row is handled by removing Frank's public key from the <strong><span class="cloze-blank" data-blank="ssh_location"></span></strong> on every host in the eng-prod cluster. Long-term, Emma will route all SSH access through a <strong><span class="cloze-blank" data-blank="pam_tool"></span></strong>, which brokers session-by-session credentials and records keystrokes for high-privilege sessions.</p>
+<p>The three <code>LOCAL</code> rows — <em>not federated</em> — must be disabled manually; this is a textbook failure of <strong><span class="cloze-blank" data-blank="lifecycle_gap"></span></strong>. To prevent recurrence, Emma will propose <strong><span class="cloze-blank" data-blank="provisioning_protocol"></span></strong>, the standard for automating provisioning and deprovisioning across SaaS.</p>
 <p>Finally, to give legal a defensible timeline of every revocation action, Emma exports the <strong><span class="cloze-blank" data-blank="audit_artifact"></span></strong> from the IdP, PAM, and source repo.</p>
                 <div class="problem-actions">
-                    <button type="submit" class="btn btn-primary" id="btn-submit">Submit</button>
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
                     <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
-                    <span id="score-readout" class="score-readout"></span>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
                 </div>
             </form>
         </main>
