@@ -2,6 +2,8 @@
 
 ***Threats Real and Imagined*** is an open-access textbook and practice-problem collection that prepares readers for the CompTIA SecurityX (CAS-005) certification exam. It is freely available for both self-study and classroom adoption.
 
+**By Brendan Shea, PhD.**
+
 **Read the book online:** <https://brendanpshea.github.io/securityx/>
 
 ---
@@ -12,12 +14,13 @@ The CAS-005 exam covers a broad sweep of senior-level cybersecurity practice —
 
 Each of the twelve chapters follows a consistent structure:
 
-- **Learning outcomes** mapped to Bloom's taxonomy
+- **Learning outcomes** mapped to Bloom's taxonomy and aligned to specific CAS-005 objectives
 - **Core narrative content** organized around guiding questions
+- **Quick Checks** at the end of each major section — short Recall / Discriminate / Apply prompts with inline answers
 - **Fictional case studies** featuring a recurring cast of characters drawn from literature and folklore (Snow White as a GRC analyst, Fitzwilliam Darcy as a risk director, Count Dracula as a CISO, etc.) — chosen to make scenarios memorable without trivializing the material
 - **Historical case studies** of real-world breaches (Target, SolarWinds, Capital One, Equifax, DigiNotar, Log4Shell, and others)
 - **Diagrams and tables** generated reproducibly from Python scripts
-- **Review questions** and answer keys
+- **Synthesis Activities** at the end of each chapter — five open-ended exercises (practitioner interview, structured debate, current-events watch, hands-on lab artifact, and a deeper applied exercise) that extend the chapter beyond what a search engine or chatbot can answer
 - **Interactive practice-based questions (PBQs)** (one per chapter) where readers apply chapter concepts in scenario-driven decision exercises
 
 ## Status
