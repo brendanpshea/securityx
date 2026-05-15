@@ -75,7 +75,7 @@ INDEX_TMPL = """<!DOCTYPE html>
         </header>
         <main id="main">
             <h1>Practice-Based Questions</h1>
-            <p>One PBQ per chapter. Read the setup, fill in the blanks, then click <strong>Check answers</strong>. You can retry until everything is green.</p>
+            <p>PBQs are grouped by chapter. <strong>Design</strong> items ask you to apply the chapter's concepts to a new scenario; <strong>Diagnostic</strong> items ask you to walk backward through an incident and name the control that failed. Read the setup, fill in the blanks, then click <strong>Check answers</strong>.</p>
             <ul class="problem-list">
                 {items}
             </ul>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darcy Reviews the Pemberley Loss (Diagnostic) - SecurityX PBQ</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
+        </header>
+        <main id="main">
+            <p class="problem-chapter">Chapter 2</p>
+            <h1>Darcy Reviews the Pemberley Loss (Diagnostic)</h1>
+
+            <section class="problem-context"><p>Eight months after Darcy presented the Pemberley risk memo, the board approved the mitigation strategy on paper — segmenting Pemberley onto an isolated VLAN, deploying a GRC monitoring platform — and then deferred the funding to <em>next</em> fiscal year. Two priorities took precedence: a Salesforce migration and an acquisition Darcy's CEO was rumored to be courting.</p>
+<p>In September, Pemberley Climate Services itself was compromised. A credential-stuffing attack against Pemberley's contractor VPN — which did not require MFA — gave the attacker a foothold. A few days later, an HVAC technician's laptop connected to the Derbyshire Holdings data-center LAN through the same cable Pemberley technicians had been using for five years. The attacker piggybacked, moved laterally across the flat /16 to PROD-FIN-01, and exfiltrated <strong>180,432 cardholder records</strong> over six hours. No alert fired.</p>
+<p>Darcy is now drafting the loss report for the board audit committee. The number on the bottom line is <strong>$4.8 million</strong> — 4.8 times the Single Loss Expectancy he modeled in Q1. His task is not to redo the risk calculation. It is to identify, for each contributing failure, <em>which specific risk-management control</em> failed — including the modeling itself.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Post-incident loss report — engagement PCS-2025-04.</strong> &nbsp; <em>Author: F. Darcy, Director of Risk Management. Status: draft for board audit committee. Do not forward.</em></p>
+<h3>Timeline</h3>
+<ul>
+<li><strong>2026-09-03</strong> Pemberley contractor VPN compromised via credential stuffing. Pemberley does not require MFA for contractor accounts.</li>
+<li><strong>2026-09-04</strong> Pemberley technician logs into the Derbyshire data center as usual — through the on-site LAN cable. Attacker piggybacks the trusted session.</li>
+<li><strong>2026-09-05</strong> Lateral movement across the flat /16 to PROD-FIN-01. 180,432 cardholder records exfiltrated over a six-hour window.</li>
+<li><strong>2026-09-08</strong> Visa notifies Derbyshire. Forensics engaged.</li>
+</ul>
+<h3>Actual losses (preliminary, expected to grow)</h3>
+<table>
+<thead>
+<tr>
+<th>Line item</th>
+<th style="text-align: right;">Amount</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Regulatory fines and assessment fees</td>
+<td style="text-align: right;">$1,800,000</td>
+</tr>
+<tr>
+<td>Customer-churn revenue impact (year 1)</td>
+<td style="text-align: right;">$1,300,000</td>
+</tr>
+<tr>
+<td>Incident response, forensics, legal</td>
+<td style="text-align: right;">$950,000</td>
+</tr>
+<tr>
+<td>Card-brand mandatory remediation program</td>
+<td style="text-align: right;">$750,000</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>$4,800,000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Q1 SLE estimate: <strong>$1,000,000</strong>. Realized loss / modeled loss: <strong>4.8×</strong>.</p>
+<h3>Contributing failures</h3>
+<ul>
+<li>Risk register entry PCS-2025-04 was last reviewed <strong>14 months</strong> before the incident. No interim re-assessment of Pemberley's posture; the deferred GRC platform never went in.</li>
+<li>The board approved the mitigation strategy (segmentation + jump host) but deferred the funding to next fiscal. No documented acknowledgment that the residual exposure would be carried for another year. The mitigation existed only on paper.</li>
+<li>Pemberley's poor patching record was already known from peer-industry reports published <strong>six months</strong> before the incident. Derbyshire never followed up; no contractual remediation was required.</li>
+<li>The EF estimate (0.25) accounted for direct data-restoration cost only. Regulatory fines, customer churn, and the card-brand remediation program — all predictable line items for a payment-card breach — were not modeled.</li>
+<li>180,432 records left the network across six hours without triggering an alert. Egress telemetry was being collected; no pattern had ever been authored against it.</li>
+</ul></section>
+            <section class="problem-prompt"><p>For each contributing failure in the loss report, identify the specific risk-management control that failed.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch02-darcy-incident">
+                <p>The pattern in which the board approved the mitigation, deferred its funding, and left the residual exposure undocumented is — in risk-management terms — an undocumented form of <strong><span class="cloze-blank" data-blank="treatment_failure"></span></strong>. It is worse than explicit acceptance, because there is no signed acknowledgment that the gap is being carried forward, and no trigger date for re-evaluating it.</p>
+<p>The 14-month staleness of risk register entry PCS-2025-04 is a failure of <strong><span class="cloze-blank" data-blank="monitoring_failure"></span></strong> — exactly the gap Darcy's original GRC recommendation was meant to close, but which was deferred alongside the segmentation funding.</p>
+<p>The 4.8× ratio between the modeled SLE and the realized loss is, on examination, not stochastic. It reflects <strong><span class="cloze-blank" data-blank="sle_failure"></span></strong>. Regulatory fines, customer churn, and mandatory card-brand remediation programs are predictable, recurring line items in any payment-card breach; treating the EF as a pure data-restoration multiplier under-models the exposure by design.</p>
+<p>The attacker's initial-access pattern — compromising the contractor and pivoting through their legitimate access path — maps directly to MITRE ATT&amp;CK <strong><span class="cloze-blank" data-blank="technique"></span></strong>. Darcy's original memo named this category of risk in plain language; ATT&amp;CK's catalog provides the operational TTP label for it.</p>
+<p>The fact that 180,432 records left the network across six hours without triggering an alert is a detection failure rooted in <strong><span class="cloze-blank" data-blank="detection_failure"></span></strong>. The telemetry existed — it was just not being matched against any pattern that would have called attention to the volume.</p>
+<p>Given the 4.8× miss on the SLE and the unresolved Pemberley dependency, Darcy's revised board memo recommends pairing the now-non-negotiable segmentation work with <strong><span class="cloze-blank" data-blank="new_treatment"></span></strong> to bound the financial impact of any future incident the strengthened mitigation does not fully prevent.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch02-darcy-incident", "blanks": {"treatment_failure": {"answer": "risk acceptance (de facto, undocumented)", "distractors": ["risk transfer via cyber insurance", "risk avoidance (contract termination)", "implemented mitigation", "compensating control"], "explanation": "When a mitigation is approved on paper but the funding to implement it is deferred \u2014 with no signed acknowledgment that the gap is being carried forward \u2014 the organization has *de facto* accepted the residual risk. The chapter explicitly warns that this is worse than explicit acceptance: there is no documented owner, no review date, and no trail for the auditor. Transfer, avoidance, and compensating controls all require a deliberate, documented decision; none happened here."}, "monitoring_failure": {"answer": "continuous third-party monitoring (GRC platform)", "distractors": ["annual external penetration test", "procurement vendor-selection review", "asset classification", "mean time to detect (MTTD)"], "explanation": "Darcy's original memo specifically recommended replacing the annual paper questionnaire with a continuous third-party monitoring platform \u2014 a GRC tool that would have surfaced Pemberley's degrading posture months before the incident. Deferring it alongside the segmentation funding meant the organization continued to rely on a single 14-month-old snapshot. A penetration test or procurement review are point-in-time controls and would not have caught this."}, "sle_failure": {"answer": "incomplete impact modeling (regulatory fines, churn, remediation excluded)", "distractors": ["bad luck (left-tail statistical event)", "vendor over-reporting of asset value", "miscalculation of ARO", "inflation between Q1 and Q3"], "explanation": "The 0.25 EF was applied only to the direct data-restoration cost. Regulatory fines, customer churn, and the card-brand mandatory remediation program are *predictable, recurring* line items for any payment-card breach \u2014 they belong in the impact model from the start. The 4.8\u00d7 miss is structural, not stochastic; it is the canonical failure mode of an under-scoped EF, not a tail-of-the-distribution surprise."}, "technique": {"answer": "Trusted Relationship (T1199)", "distractors": ["Phishing (T1566)", "Exploit Public-Facing Application (T1190)", "Drive-by Compromise (T1189)", "Valid Accounts (T1078)"], "explanation": "T1199 \u2014 Trusted Relationship \u2014 is the ATT&CK technique that names exactly this pattern: compromising a third party and pivoting through their existing legitimate access. T1566 (phishing), T1190 (web-app exploit), and T1189 (drive-by) all describe direct-to-target initial-access paths. T1078 (valid accounts) is what the attacker *used* after pivoting, not the initial-access label."}, "detection_failure": {"answer": "DLP rules never authored against existing egress telemetry", "distractors": ["encryption keys exposed in source control", "lack of multi-factor authentication on the database", "DNS resolution disabled on the egress path", "physical air-gap between IT and OT missing"], "explanation": "The egress logs were being collected \u2014 that part of the control was working. What was missing was the *pattern* side: a DLP rule that flags 180,000 cardholder records leaving the network in a six-hour window. Generating telemetry is half the control; defining alert criteria against it is the other half. None of the other distractors would have produced a six-hour silent exfiltration."}, "new_treatment": {"answer": "risk transfer via cyber insurance", "distractors": ["additional risk acceptance with board sign-off", "termination of the Pemberley contract (risk avoidance)", "annual external penetration test", "mandatory passphrase guideline"], "explanation": "Mitigation reduces probability; transfer bounds the financial impact when the mitigation isn't sufficient or hasn't been fully implemented. After a 4.8\u00d7 miss on the SLE, transferring catastrophic-tail risk via cyber insurance is the canonical second control \u2014 explicitly named in the chapter as one of the four risk-treatment options. Pure acceptance leaves the exposure unbounded; avoidance (contract termination) is operationally implausible mid-engagement; the technical-control distractors do not address financial impact at all."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>

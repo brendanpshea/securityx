@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dorothy Reviews the Emerald City Breach (Diagnostic) - SecurityX PBQ</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
+        </header>
+        <main id="main">
+            <p class="problem-chapter">Chapter 7</p>
+            <h1>Dorothy Reviews the Emerald City Breach (Diagnostic)</h1>
+
+            <section class="problem-context"><p>Seven months after Dorothy presented her audit-response plan to the board, the board approved 'phased remediation' — a polite phrase for <em>we'll do the easy ones first</em>. The CASB rollout shipped. The CSPM didn't. The Lambda least-privilege refactor was in flight; the customer-managed-keys migration was scheduled for Q4. Then the news broke.</p>
+<p>On a Saturday morning Glinda Northrop forwarded a tip: a sample of Emerald City customer records had appeared for sale on a forum. By Monday afternoon Dorothy was estimating <strong>14.2 million records exposed</strong> — the entire <code>cust-data-prod</code> bucket — and had a tentative dwell time of <strong>eleven hours</strong>. CloudTrail had recorded every step; nobody had been watching it. The board's first question to Dorothy was the predictable one: <em>Isn't this AWS's fault?</em></p>
+<p>It was not.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Post-incident report — Emerald City Solutions cloud breach.</strong> &nbsp; <em>Author: D. Gale, Cloud Architect. Status: draft for board and Munchkin Industries notification. Do not forward.</em></p>
+<h3>Timeline (from CloudTrail, reconstructed)</h3>
+<ul>
+<li><strong>04:11</strong> External request to <code>/lookup?host=...</code> triggers the known SSRF in <code>customer-search-v3</code>. The Lambda fetches <code>http://169.254.169.254/latest/meta-data/iam/security-credentials/...</code> and returns the role's temporary credentials in the HTTP response.</li>
+<li><strong>04:14</strong> Attacker assumes the Lambda role from outside AWS. CloudTrail logs the <code>AssumeRole</code> event normally.</li>
+<li><strong>04:18</strong> <code>ListObjectsV2</code> issued against <code>cust-data-prod</code>. Lambda role still has <code>s3:GetObject</code> on <code>*</code> — the refactor was in flight, not in production.</li>
+<li><strong>04:21 – 15:09</strong> 14,217,883 objects pulled. Records remain encrypted on the wire but <code>kms:Decrypt</code> is implicitly granted to the same role; decryption is seamless and silent.</li>
+<li><strong>Saturday a.m.</strong> Sample appears on a dark-web forum. Glinda Northrop forwards the tip.</li>
+</ul>
+<h3>Contributing failures</h3>
+<ul>
+<li>The Lambda role still held <code>s3:GetObject</code> on <code>*</code>. The least-privilege refactor was real work, <em>in progress</em>, not production.</li>
+<li>The bucket was encrypted with the default AWS-managed KMS key. Because the same IAM principal had both read and decrypt rights, the encryption protected against literally no one in the attack chain.</li>
+<li>CloudTrail recorded every step. No CSPM deployment, no behavioral alert against anomalous S3 bulk reads, no rate limit on outbound object retrievals. The data exited at AWS line rate over eleven hours.</li>
+<li>The SSRF vector itself was a known finding from the Q3 audit. The patch was in the application-team backlog at priority 'P3 — fix this quarter.'</li>
+<li>Marketing's shadow SaaS (Notion, Loom) did <em>not</em> contain this dataset, but the team's habit of moving data into unmanaged tenants meant several quarters of incident-response staff hours went into proving a negative before Dorothy could focus on the actual exfil path.</li>
+</ul>
+<h3>What the board needs to hear</h3>
+<p>Every line on the contributing-failures list lives on Emerald City's side of the line. The infrastructure operated as designed.</p></section>
+            <section class="problem-prompt"><p>For each contributing failure in Dorothy's loss report, name the specific control or principle that failed.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch07-dorothy-incident">
+                <p>The SSRF-to-IMDS-to-S3 chain — application flaw exfiltrating role credentials, role credentials reading the data — is the textbook <strong><span class="cloze-blank" data-blank="ssrf_chain"></span></strong> pattern. It is the same shape that produced the Capital One breach in 2019, and it is testable only because every step requires controls on the customer's side of the model to be present and correct.</p>
+<p>The Lambda role's continued <code>s3:GetObject</code> on <code>*</code> is a direct violation of the <strong><span class="cloze-blank" data-blank="iam_failure"></span></strong> principle the chapter names by hand. Scoping the role to just the prefixes the function actually reads would not have prevented the SSRF, but it would have bounded the data the attacker could exfiltrate to whatever the legitimate function was authorized to touch.</p>
+<p>The AWS-managed KMS encryption did not protect the data in this incident because <strong><span class="cloze-blank" data-blank="encryption_failure"></span></strong>. This is the specific cryptographic reason customer-managed keys (CMK / BYOK) matter — without separating the read and decrypt grants, the encryption is a checkbox, not a control.</p>
+<p>The eleven-hour silent exfiltration of 14 million records reflects the absence of <strong><span class="cloze-blank" data-blank="detection_failure"></span></strong>. CloudTrail's data was there; nobody had authored a rule against it, and the continuous configuration-monitoring service had been deferred to next fiscal.</p>
+<p>When the board asks whether AWS is at fault, Dorothy points to the <strong><span class="cloze-blank" data-blank="shared_responsibility"></span></strong> model: every contributing failure on the list above lives on Emerald City's side of the boundary. The hypervisor, the data center, and the KMS service operated correctly.</p>
+<p>For the next fiscal quarter, Dorothy is moving the deferred Q4 work — encrypting <code>cust-data-prod</code> with <strong><span class="cloze-blank" data-blank="treatment"></span></strong> rather than the AWS-managed key — to immediate. The cryptographic point of this change is that AWS itself cannot read the data, and any compromised IAM principal must additionally compromise Emerald City's KMS authorization to decrypt anything.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch07-dorothy-incident", "blanks": {"ssrf_chain": {"answer": "Server-Side Request Forgery (SSRF) \u2192 IMDS credential theft", "distractors": ["Cross-Site Request Forgery (CSRF)", "Stored Cross-Site Scripting (XSS)", "SQL injection (SQLi)", "Open redirect"], "explanation": "SSRF is the application-layer flaw that lets a server make HTTP requests on behalf of the attacker, including to the metadata service at 169.254.169.254. The metadata service hands back temporary IAM role credentials. That credential-theft step is what made this Capital-One-shaped rather than just a leaky API. CSRF, XSS, SQLi, and open redirect are unrelated web-app flaws."}, "iam_failure": {"answer": "least privilege", "distractors": ["defense in depth", "open by default", "separation of duties", "shared responsibility"], "explanation": "The Lambda needed read access to one S3 prefix; it had read access to every object in every bucket the account could reach. Scoping IAM permissions to exactly what a workload needs is the canonical application of *least privilege* the chapter calls out by name. Defense in depth, separation of duties, and shared responsibility are related concepts but do not name this specific scope-creep failure."}, "encryption_failure": {"answer": "the same IAM principal held both s3:GetObject and kms:Decrypt \u2014 encryption only stops principals that lack the decrypt grant", "distractors": ["AWS-managed KMS keys are stored in plaintext inside the S3 metadata layer", "the AES-256 algorithm is broken against attackers with cloud access", "the bucket policy automatically overrides any encryption setting", "AWS-managed keys can be forged by anyone with a valid AWS account"], "explanation": "AWS-managed KMS encryption is real cryptography, but it stops only the principals who lack the `kms:Decrypt` grant for that key. Because the Lambda role had both `s3:GetObject` and implicit `kms:Decrypt`, the attacker who stole the role's credentials inherited *both* \u2014 and decryption was seamless. Customer-managed keys (CMK) let the customer enforce a separate decrypt boundary that the IAM principal cannot bypass without also compromising the KMS authorization."}, "detection_failure": {"answer": "CSPM with behavioral alerting on CloudTrail (anomalous S3 bulk read)", "distractors": ["a new web application firewall (WAF) rule", "disabling VPC flow logs to reduce noise", "enabling S3 Transfer Acceleration", "encrypting EBS volumes on the Lambda execution environment"], "explanation": "CloudTrail was already recording every API call. What was missing was the second half of the control: a continuous-monitoring tool (CSPM, AWS Security Hub, GuardDuty for S3) defining behavioral patterns \u2014 *this Lambda role just read 14 million objects in eleven hours* \u2014 and alerting on them. A WAF would not see post-authentication API calls; flow logs would be at the wrong layer; the other distractors are unrelated."}, "shared_responsibility": {"answer": "Shared Responsibility Model", "distractors": ["Zero Trust Model", "Bell-LaPadula Model", "STRIDE threat model", "OSI Reference Model"], "explanation": "The Shared Responsibility Model is the chapter's canonical framing for cloud security: the provider secures the cloud (hypervisor, data center, managed-service control planes); the customer secures *in* the cloud (IAM, application code, encryption choices, configuration). Every contributing failure in Dorothy's report \u2014 IAM scope, application SSRF, KMS choice, missing detection \u2014 is on the customer side."}, "treatment": {"answer": "customer-managed keys (CMK / BYOK)", "distractors": ["AWS-managed keys with default rotation", "no encryption at all (lower attack surface)", "a single static AES key hard-coded into Lambda", "self-signed TLS certificates fronting the bucket"], "explanation": "Customer-managed keys put the decrypt boundary inside Emerald City's KMS authorization domain. After this incident, a compromised IAM principal that holds `s3:GetObject` would still need a separate `kms:Decrypt` grant on a key Emerald City explicitly controls \u2014 and Emerald City can revoke that grant in seconds, breaking the attacker's access even if the IAM permissions are still wrong. AWS-managed keys are what failed; the other distractors are non-controls."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>

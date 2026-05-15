@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hamlet Investigates the Insider That Dwelled (Diagnostic) - SecurityX PBQ</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
+        </header>
+        <main id="main">
+            <p class="problem-chapter">Chapter 11</p>
+            <h1>Hamlet Investigates the Insider That Dwelled (Diagnostic)</h1>
+
+            <section class="problem-context"><p>Four months into Hamlet's rebuilt detection program at Denmark Cyber Defense, the executive dashboard tells a flattering story: average MTTD is down 38%, the auto-acknowledged-alert rate is under 12%, and the detection-as-code repo has 41 contributors. Two distinct alerts have already led to confirmed contained incidents.</p>
+<p>Then, on a Tuesday morning, Horatio Communications — a customer — calls. They have evidence that a year's worth of their proprietary research has been sold to a competitor by a former Denmark Cyber Defense employee who left amicably six weeks ago.</p>
+<p>Walking the telemetry backward, Hamlet finds that the signals were <em>all there</em>. The UEBA had flagged the employee's peer-relative behavior twice. A Sigma rule had fired weeks earlier on a related indicator. An ISAC bulletin two weeks before the exfil began had named the exact staging-domain pattern the employee eventually used. Every one of these had been triaged — and dismissed — because nothing had connected them.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Detection retrospective — Insider exfil case INC-2026-117.</strong> &nbsp; <em>Author: Hamlet, Detection Engineering Lead. Status: draft for SOC leadership and Horatio Communications counsel.</em></p>
+<h3>What we missed, and when</h3>
+<ul>
+<li><strong>Day −393</strong> (~13 months before exfil discovered). UEBA anomaly score on <code>emp-073</code>: download volume from <code>research-share-prod</code> exceeded the peer-group baseline by 4.2σ. Alert opened, severity Low. Closed within 9 minutes with note: <em>'finance access — normal for role.'</em> The note was wrong; the employee was in research, not finance.</li>
+<li><strong>Day −51</strong>. Sigma rule <code>T1041-staging-upload-anomaly</code> fires twice on the same workstation. The rule's published FPR was 64% — analysts had learned to dismiss it without investigating. Auto-ack triggered after analyst marked it 'noise.'</li>
+<li><strong>Day −14</strong>. ISAC bulletin <code>MS-ISAC-2026-04-118</code> arrives via TAXII. It describes — by sector — exactly this attack: staging domain pattern <code>*-research-mirror[0-9]\.[a-z]+\.cc</code>, file naming <code>proj-&lt;5-digit&gt;.tar.gz</code>. The IOCs sat in the raw feed. Nothing ever correlated them with the workstation events from Day −51.</li>
+<li><strong>Day 0 → Day +28</strong>. ~14 GB of research data exfiltrated, in 200 MB nightly bursts, to <code>research-mirror02.synapse-int.cc</code>. Telemetry captured every transfer.</li>
+<li><strong>Day +28</strong>. Employee resigns. Offboarding clean. No flags on the way out.</li>
+<li><strong>Day +70</strong> (today). Horatio Communications calls.</li>
+</ul>
+<h3>What Hamlet now knows</h3>
+<p>The data was there. The detections existed. The hunt — the question that would have joined these three signals into one investigation — was never asked. The dashboard reads green because <em>the program optimized for the things it had decided to measure</em>.</p></section>
+            <section class="problem-prompt"><p>For each missed signal in the retrospective, name the specific detection-engineering control or discipline that failed.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch11-hamlet-incident">
+                <p>Two relevant alerts fired and were closed because no one had a guiding question that connected them. In threat-hunting terms, this is a failure of <strong><span class="cloze-blank" data-blank="hypothesis_failure"></span></strong> — the discipline of starting an investigation from a specific testable claim about adversary behavior rather than from whichever alert happens to be at the top of the queue.</p>
+<p>The employee's <code>research-share-prod</code> downloads were all <em>technically within authorized permissions</em>; what made them anomalous was the comparison against other people in the same role. The UEBA primitive that surfaced this — and was then dismissed with a wrong note — is <strong><span class="cloze-blank" data-blank="peer_baseline"></span></strong>.</p>
+<p>The Sigma rule that fired with a 64% false-positive rate, and was therefore being routinely ignored, exposes a gap in the program. Catching and tuning a rule with that FPR before analysts learned to auto-dismiss it is the job of <strong><span class="cloze-blank" data-blank="detection_quality"></span></strong>.</p>
+<p>The ISAC bulletin arrived with the exact staging-domain regex and filename pattern the attacker used. It sat in the raw feed and never reached the SOC analyst working the Sigma alert. The pipeline gap is that the indicators were never <strong><span class="cloze-blank" data-blank="intel_failure"></span></strong>.</p>
+<p>The SIEM was ingesting endpoint, network, and identity data — but cross-source joins between the UEBA score (identity domain), the Sigma rule's process telemetry (endpoint), and the ISAC's domain IOCs (network) never produced a unified picture. This reflects a foundational failure of <strong><span class="cloze-blank" data-blank="telemetry_gap"></span></strong>.</p>
+<p>The reason this dwelled for thirteen months is exactly the gap Hamlet's new outcome-oriented dashboard was built to surface — the gap the old vanity metric of <em>events processed per day</em> could never expose. The number that would have called attention to this case as it lengthened is <strong><span class="cloze-blank" data-blank="metric_failure"></span></strong>.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch11-hamlet-incident", "blanks": {"hypothesis_failure": {"answer": "hypothesis-driven hunting", "distractors": ["signature-based detection", "blocklist enforcement", "automated IOC ingestion", "log retention policy"], "explanation": "Threat hunting is hypothesis-driven by definition: a hunter starts with a specific testable claim ('if an insider were exfiltrating research data slowly, what would the joint signal across UEBA, EDR, and network look like?') and goes looking for evidence. Without that guiding question, alerts get triaged one at a time and never join into the larger story they describe. The other distractors are upstream/operational controls, not hunting disciplines."}, "peer_baseline": {"answer": "peer-group analysis", "distractors": ["signature matching", "deterministic blocklist", "role-based access control", "static threshold alerting"], "explanation": "Peer-group analysis compares an entity against others in the same role to surface deviations that do not violate explicit access-control rules. The employee was authorized to download research; only the comparison against peers exposed that the *volume and frequency* were 4.2\u03c3 outside the role's normal envelope. Static thresholds and signatures would not have alerted; RBAC was satisfied."}, "detection_quality": {"answer": "detection-as-code (FPR-tracked rule lifecycle)", "distractors": ["vendor-managed detection service", "monthly rule audit by the SOC manager", "outsourcing detection to a vendor SOC", "quarterly tabletop exercise"], "explanation": "Detection-as-code is the practice of treating every rule like application code: in version control, reviewed, *tested against historical data, with its false-positive rate measured continuously*. A rule with a 64% FPR is not a 'noisy rule' \u2014 it is a rule the program should have tuned, gated, or retired. Without the FPR-tracked lifecycle, the rule kept firing and analysts kept dismissing it, which is functionally the same as not having the detection at all."}, "intel_failure": {"answer": "enriched and correlated to telemetry via the TIP", "distractors": ["published in STIX format", "transported via TAXII", "deduplicated against commercial feeds", "manually printed for the SOC manager"], "explanation": "STIX and TAXII describe the *data model* and *transport* \u2014 both were working; the bulletin arrived and was readable. What was missing was the curated platform layer (the TIP) that scores indicators by fidelity, ages them, enriches each alert with the relevant intel, and correlates IOCs against SIEM telemetry. Without that enrichment step, the bulletin sat in the raw feed and the SOC analyst working the related Sigma alert had no idea it existed."}, "telemetry_gap": {"answer": "normalization (OCSF / ECS)", "distractors": ["ingestion volume (EPS)", "retention period", "encryption at rest", "hot-tier storage allocation"], "explanation": "The SIEM was ingesting the data \u2014 that part was working. What was missing was schema normalization (OCSF, ECS) so that an identity event from the UEBA, a process event from the EDR, and a domain IOC from the ISAC could all be joined on common user/host/IP fields. Without that, cross-source correlation is impractical and the analyst never sees the unified picture. The distractors are real cost dimensions but none of them block the join."}, "metric_failure": {"answer": "MTTD (Mean Time to Detect)", "distractors": ["Events Per Second (EPS) ingested", "Total rules deployed in the SIEM", "Analyst headcount on shift", "Average size of an alert payload"], "explanation": "MTTD is the dwell-time metric \u2014 the average interval between initial compromise and detection. A 13-month dwell on this case would have lit up an MTTD-tracked dashboard immediately; on an 'events processed per day' dashboard, it is literally invisible. This is exactly the substitution Hamlet's program documentation called for in the design PBQ."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>

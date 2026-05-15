@@ -1,0 +1,72 @@
+{
+  "id": "ch12-alice-incident",
+  "chapter": 12,
+  "title": "Alice Reviews the Hare Incident (Diagnostic)",
+  "context_md": "Six months into Alice's IR-automation program at Wonderland Logistics, the metrics look strong. The credential-stuffing playbook has fired 87 times with no false positives — disabling accounts, revoking sessions, resetting passwords, opening tickets, all in under 90 seconds. MTTD on routine alerts is down 41%. Board approval, well earned.\n\nThen a single case unravels everything.\n\nA freight dispatcher — internal name `march.hare@wonderland-logistics.com` — was the subject of a customer ethics complaint. While HR was preparing an investigation, the SIEM fired a credential-stuffing alert on Hare's account; passwords from an unrelated 2024 LinkedIn dump had been replayed. The SOAR playbook executed normally: account disabled, all cloud sessions revoked, password reset, ticket opened. Routine. Ninety seconds. Green light on the dashboard.\n\nThe routine action destroyed the HR investigation. The session revocation purged Hare's cached browser tokens, his outbound email queue (with two attachments Legal had hoped to preserve), and his open file handles. Hare was alerted to the lockout by his phone two seconds later and immediately powered off his company laptop. By the time IR arrived to image the device, the RAM, running processes, open network connections, and unsaved chat client state were already gone.\n\nA week later, an analyst opened the original suspicious `.docx` from the email-gateway phishing alert *on her production workstation* — 'just to see what was in it' — and triggered a beacon to an attacker-controlled C2. Two separate failures, one bad week.",
+  "artifact_kind": "rca",
+  "artifact_md": "**Post-incident retrospective — case INC-2026-204 (Hare).** &nbsp; *Author: A. Liddell, IR Manager. Status: draft for board audit committee and legal. Do not forward.*\n\n### Sequence of events\n\n- **09:14:02** SIEM credential-stuffing alert on `march.hare@wonderland-logistics.com`. 23 login attempts from rotating IPs against the cloud-SSO endpoint.\n- **09:14:14** SOAR playbook `creds-stuff-v3` fires. Account disabled, cloud sessions revoked, password reset, ticket opened. No human approval gate.\n- **09:14:16** Hare receives a Slack alert from the SSO portal: *'You have been signed out.'* He powers off his laptop within 2 minutes — an action consistent with awareness of an ongoing investigation, but indistinguishable from a normal user reacting to suspicious activity.\n- **09:14–10:42** IR called in by HR. By the time the laptop is connected to the imaging station, RAM is unrecoverable. Two email attachments in the outbound queue have been purged by the session revocation step in the playbook. Slack DM history flagged for legal hold is intact; cached browser state used for two of Hare's research domains is not.\n- **Day +6** Analyst opens the original suspicious `.docx` (from a separate case, INC-2026-198) on her production workstation. The file calls out to `tea-party-c2.invalid` and drops a payload. The host is quarantined within 14 minutes by EDR, but the analyst's email cache and saved credentials briefly exposed.\n\n### Contributing failures\n\n- The credential-stuffing playbook had no scoping condition for accounts flagged for active investigation, legal hold, or HR review. It fires the same on every alert.\n- Even where the playbook is the right response, there was no manual escalation path for high-sensitivity accounts — no procedure for *don't auto-fire on these accounts; route to a human-led process instead*.\n- IR was called twelve minutes after the laptop powered off. The capture order assumed the system was still on; nobody on shift had run this scenario in tabletop.\n- Captured evidence was hashed and logged, but the unbroken who-touched-what record between the playbook's actions and the IR team's image was never reconstructed for the legal hold.\n- The `.docx` from INC-2026-198 was opened on a production workstation. Wonderland Logistics has no isolated detonation environment; the analyst was 'trying to help.'\n- The dashboard's headline IR metrics — MTTD, MTTR — are real and improving. They do not show *how often automation destroys the evidence it was meant to preserve*.",
+  "prompt_md": "For each contributing failure in the retrospective, identify the specific IR control, principle, or process gap.",
+  "body_md": "The destruction of Hare's RAM, running-process list, and open network connections — the most behaviorally rich evidence in the case — is a direct violation of the **{{volatility_failure}}** principle. The principle exists precisely because once the host is powered off, this evidence is unrecoverable; the IR team's capture order has to put it first, before disk imaging.\n\nThe credential-stuffing playbook fired identically on every alert regardless of account context. The fact that Hare was under HR investigation should have routed the response to a **{{runbook_gap}}** — the human-judgment counterpart to a playbook, where HR and legal sign-off precede any automated lockout that could destroy evidence.\n\nThe broader problem is structural: the automation had no scoping or guardrails for accounts under active investigation, legal hold, or HR review. This is — in SOAR design terms — a failure of **{{automation_blast_radius}}**. Effective playbooks include conditional gates: *don't fire on these accounts; alert and escalate instead.*\n\nWhen the IR team finally produced the image and the evidence log for legal, the gaps in the record — what the playbook touched, what the analyst touched, what hashes were captured when — left the hold technically unprotectable. The artifact that legal needed and did not get is a complete **{{coc_failure}}**.\n\nThe second incident a week later — the analyst opening the suspicious `.docx` on her production workstation 'to see what it does' — reflects the absence of a **{{sandbox_failure}}**. Behavioral analysis of unknown samples must happen in an isolated environment whose compromise harms nothing; a production endpoint is exactly the system the sandbox exists to protect.\n\nFinally, the dashboard's flattering numbers on **{{metric_realized}}** measured *how fast the program responded once an alert fired* — but they did not measure how often the response itself made the underlying case worse. Going forward, Alice will add a counter for *automation-induced evidence loss events*, so that the next time the playbook compresses 20 minutes into 90 seconds, the dashboard also shows what those 18 minutes used to contain.",
+  "blanks": {
+    "volatility_failure": {
+      "answer": "order of volatility",
+      "distractors": [
+        "chain of custody",
+        "least privilege",
+        "defense in depth",
+        "fail-secure default"
+      ],
+      "explanation": "The order of volatility principle states that the most perishable evidence — RAM, active network connections, running processes, open file handles — must be captured first because it disappears the moment the system is powered off. Disk imaging comes later. Hare powered off within two minutes of the playbook firing; every byte of high-value evidence was gone before IR arrived."
+    },
+    "runbook_gap": {
+      "answer": "runbook (manual escalation path for sensitive accounts)",
+      "distractors": [
+        "an additional SOAR playbook",
+        "a CVSS re-scoring step",
+        "a SOC tabletop exercise",
+        "an automated patch deployment"
+      ],
+      "explanation": "A runbook is the manual procedure an analyst follows when human judgment is required — and the chapter explicitly contrasts it with a playbook (which automates the routine). For accounts under HR investigation or legal hold, the right response is escalation to a runbook that requires HR/legal sign-off *before* any automated lockout, precisely so the response doesn't destroy the underlying case."
+    },
+    "automation_blast_radius": {
+      "answer": "playbook scoping / guardrails (e.g., do-not-fire conditions on flagged accounts)",
+      "distractors": [
+        "increased automation coverage across more alerts",
+        "moving the playbook from staging into production faster",
+        "lowering the severity threshold for credential-stuffing alerts",
+        "running the playbook on a more powerful SOAR host"
+      ],
+      "explanation": "Effective SOAR design includes conditional guardrails: this playbook does not fire on accounts under legal hold, active HR investigation, or any account in a configurable 'human-in-the-loop' watchlist. Without scoping, the blast radius of every automation grows with every flag a separate process raises on the same account. The distractors all *expand* the automation; they do not bound it."
+    },
+    "coc_failure": {
+      "answer": "chain of custody",
+      "distractors": [
+        "order of volatility",
+        "post-incident lessons-learned report",
+        "vulnerability scan report",
+        "forensic image of the disk"
+      ],
+      "explanation": "Chain of custody is the unbroken documentary record of who collected each piece of evidence, when, from what source, under what hash, and who had access to it afterward. Without it — even with a perfect image — the evidence may be inadmissible in disciplinary or legal proceedings. This is especially important when *the response system itself* (the playbook) took actions that altered the host."
+    },
+    "sandbox_failure": {
+      "answer": "malware sandbox / detonation environment",
+      "distractors": [
+        "the SIEM correlation engine",
+        "the production EDR console",
+        "the vulnerability scanner",
+        "the firewall DMZ"
+      ],
+      "explanation": "A malware sandbox (Cuckoo, Any.run, VMRay, etc.) executes suspicious files in an isolated environment whose compromise harms nothing. Behavioral IOCs extracted from the detonation feed back into containment pipelines. Opening a suspicious `.docx` on a production workstation is exactly the failure mode the sandbox exists to prevent — and the chapter calls this out directly."
+    },
+    "metric_realized": {
+      "answer": "MTTD and MTTR (which measure response *speed*, not response *quality*)",
+      "distractors": [
+        "CVSS base score distribution",
+        "patch-compliance percentage",
+        "SBoM ingestion rate",
+        "number of analyst certifications"
+      ],
+      "explanation": "MTTD and MTTR are real, important detective- and response-effectiveness metrics — and Alice's improvements on both are genuine. But they measure speed, not quality. A 90-second automated response that destroys the evidence underlying an HR investigation is *fast* and *bad*, and the dashboard cannot tell the difference. Going forward, Alice adds a counter that surfaces the cost the speed metrics hide — automation-induced evidence loss — so future tradeoffs are visible."
+    }
+  }
+}

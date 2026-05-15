@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snow White Investigates the Doc Incident (Diagnostic) - SecurityX PBQ</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
+        </header>
+        <main id="main">
+            <p class="problem-chapter">Chapter 1</p>
+            <h1>Snow White Investigates the Doc Incident (Diagnostic)</h1>
+
+            <section class="problem-context"><p>Six months after Snow White stood up the security awareness program at <em>Seven Dwarfs Mining</em>, click-through on simulated phishing is down 80%. The board is pleased. The Q3 audit committee thanked her by name.</p>
+<p>Then, on a Friday afternoon, the company loses <strong>$2.3 million</strong> to a wire-transfer fraud.</p>
+<p>Snow White is now drafting the 72-hour board report. Her task is no longer to design the program — it is to walk <em>backward</em> through what happened and name the specific governance control that failed at each step. The lesson she wants the board to take is uncomfortable: an awareness program is necessary, not sufficient. Around it has to sit a documentation hierarchy, an unambiguous RACI, and a culture of enforcement that does not bend for executives.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Post-incident report — wire-transfer fraud, 2026-11-14.</strong> &nbsp; <em>Author: S. White, GRC Analyst. Status: draft for board. Do not forward.</em></p>
+<h3>What happened</h3>
+<p>Friday 14:32 — vishing call to Doc (CEO) from a spoofed CFO number. Caller claimed an urgent acquisition wire to <em>Queen's Royal Bank</em> and pressed for action 'before market close.' Doc verbally authorized a $2.3M wire to the Treasury team without calling the CFO back. Treasury executed by 16:18. Recovery to date: <strong>$0</strong>.</p>
+<h3>Contributing failures</h3>
+<ul>
+<li>Doc was granted a permanent exception from quarterly phishing simulations and the awareness program. The justification on file reads: <em>'CEO doesn't have time.'</em></li>
+<li>The program did not establish any mandatory call-back-to-known-number rule for wires above $50,000. Treasury followed Doc's verbal instruction because they had nothing written that said they shouldn't.</li>
+<li>'Who is authorized to override the wire-approval threshold?' was never resolved during program rollout. Treasury escalated to Doc; Doc was the only approver named — both <em>requester</em> and <em>approver</em> in the same person.</li>
+<li>Doc also held a permanent MFA exception on his executive email. The CFO's account (used by the attacker to harvest the context that made the call credible) had been accessed from an unfamiliar IP two days earlier. No alert fired; nobody was watching.</li>
+<li>Helpdesk received a near-identical vishing call to Grumpy in Accounting the previous week. He reported it via the awareness program's <em>Report Phishing</em> button as he'd been trained. The report sat in a queue. No advisory was issued. Nobody was looking.</li>
+</ul>
+<h3>What this means</h3>
+<p>The simulated-phishing click-rate metric on my Q3 dashboard was real, but it described the workforce. It did not describe the executive who was actually targeted, the procedure that was actually executed, or the report that was actually filed.</p></section>
+            <section class="problem-prompt"><p>Working backward from each contributing failure in the post-incident report, identify the governance control that failed.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch01-snow-white-incident">
+                <p>Doc's exemption from training and simulations is — independent of any document tier — a failure of <strong><span class="cloze-blank" data-blank="commitment_failure"></span></strong>. The chapter's <em>Tone at the Top</em> doctrine specifically warned that exceptions for senior leaders dissolve the program in the eyes of every other employee.</p>
+<p>The absent mandatory call-back rule for wires above $50,000 should have been written into a wire-approval <strong><span class="cloze-blank" data-blank="missing_doc"></span></strong>, since the requirement is mandatory, measurable, and tied to a numeric threshold.</p>
+<p>The fact that Doc was both the requester and the only authorized approver is a textbook failure of the <strong><span class="cloze-blank" data-blank="raci_gap"></span></strong> — specifically, the absence of separation between the <em>Responsible</em> and <em>Accountable</em> roles for the same transaction.</p>
+<p>The attack technique itself — a phone call impersonating an executive to authorize a large transfer — is best classified as <strong><span class="cloze-blank" data-blank="attack_type"></span></strong>.</p>
+<p>The earlier Grumpy report sitting unactioned in a queue is a failure of the awareness program's <strong><span class="cloze-blank" data-blank="grumpy_report_failure"></span></strong> — a one-way path from reporter to a black hole rather than a closed-loop process that produces an advisory.</p>
+<p>Snow White's headline recommendation — dual approval with mandatory call-back for any wire above the threshold, <em>with no exceptions for executives</em> — is an example of a <strong><span class="cloze-blank" data-blank="recommendation"></span></strong> that closes both the procedural and the cultural gap simultaneously.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch01-snow-white-incident", "blanks": {"commitment_failure": {"answer": "Management Commitment (Tone at the Top)", "distractors": ["the Acceptable Use Policy", "the data-masking standard", "the phishing-simulation vendor", "the MFA enrollment workflow"], "explanation": "Granting senior leaders permanent exceptions from the awareness program is the canonical failure mode the chapter warns about: the workforce reads the exception as proof the program is theater. Management Commitment \u2014 the 'Tone at the Top' \u2014 is the doctrine whose absence is the root cause of Doc's exposure. No document tier alone fixes it."}, "missing_doc": {"answer": "Standard", "distractors": ["Policy", "Guideline", "Procedure", "Audit report"], "explanation": "Mandatory, measurable, threshold-driven requirements (e.g., 'call back to a known number for wires above $50,000') belong in a Standard. A Policy would say 'authenticate wire requests' without naming the threshold; a Guideline would be optional; a Procedure would describe the click-by-click steps once the Standard's rule is in place."}, "raci_gap": {"answer": "RACI matrix", "distractors": ["Acceptable Use Policy", "NIST CSF mapping", "audit report", "change-management ticket"], "explanation": "When the requester and the sole approver are the same person, the RACI matrix has collapsed Responsible and Accountable into one role. The chapter's RACI section is exactly the artifact intended to prevent this \u2014 the same individual cannot legitimately hold both R and A on a transaction that moves real money."}, "attack_type": {"answer": "Whaling via vishing", "distractors": ["Smishing", "Spear phishing email", "Indirect prompt injection", "Stored XSS"], "explanation": "The attack targeted the CEO (whaling) and was delivered by voice (vishing). The combination is the textbook executive-targeted social-engineering pattern from chapter 1. Smishing is SMS-based; spear phishing email is email-based; the AI/web-app distractors belong to later chapters."}, "grumpy_report_failure": {"answer": "reporting-and-response loop", "distractors": ["phishing-simulation cadence", "training content", "compliance attestation", "post-click micro-training"], "explanation": "A *Report Phishing* button is only the first half of the control. Without a closed-loop process \u2014 triage, fleet-wide search, advisory to all employees \u2014 reports accumulate in a queue and the next caller succeeds. The chapter's *Communication and Reporting* paragraph is specifically about this loop, not about volume of reports collected."}, "recommendation": {"answer": "compensating control with separation of duties", "distractors": ["acceptance of residual risk", "transfer of risk via cyber insurance", "exception granted via guideline", "single point of accountability"], "explanation": "Dual approval + mandatory call-back is a compensating control that introduces separation of duties at the procedural level *and* removes the cultural exception that enabled the incident. Risk transfer (insurance) does not prevent the next occurrence; acceptance and exception both leave the gap in place; a single point of accountability is precisely what failed here."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>
