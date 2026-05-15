@@ -148,8 +148,8 @@ def create_tls_handshake():
                 text_color=TEXT_DARK, fontsize=12)
 
     # Vertical lifelines
-    ax.plot([3.25, 3.25], [0.6, 9.0], color=SLATE, lw=1.4, ls='--')
-    ax.plot([10.75, 10.75], [0.6, 9.0], color=SLATE, lw=1.4, ls='--')
+    ax.plot([3.25, 3.25], [2.0, 9.0], color=SLATE, lw=1.4, ls='--')
+    ax.plot([10.75, 10.75], [2.0, 9.0], color=SLATE, lw=1.4, ls='--')
 
     # Messages: (y, direction, label, sub, color)
     messages = [
@@ -200,12 +200,10 @@ def create_tls_handshake():
             bbox=dict(boxstyle='round,pad=0.3', fc=EMERALD, ec='white'))
 
     # Bottom note
-    ax.text(7.0, 1.6,
-            'TLS 1.3 completes the handshake in a single round trip (1-RTT). '
-            'Forward secrecy is provided by ephemeral\n'
-            '(EC)DHE key shares — the server certificate authenticates the exchange but '
-            'does not encrypt the session keys.',
-            ha='center', fontsize=10, color=SLATE)
+    ax.text(7.0, 1.1,
+            'TLS 1.3 completes the handshake in one round trip (1-RTT).\n'
+            'Ephemeral (EC)DHE provides forward secrecy; the certificate authenticates the server but does not encrypt session keys.',
+            ha='center', fontsize=9.5, color=SLATE, style='italic')
 
     plt.title('The TLS 1.3 Handshake', fontsize=16, fontweight='bold', pad=14)
     plt.tight_layout()

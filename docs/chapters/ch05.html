@@ -1252,121 +1252,143 @@ WPA3 handshake replacing WPA2’s four-way handshake.</li>
 <li><strong>MFA Fatigue:</strong> Attack pattern that triggers repeated
 push prompts until the user approves.</li>
 </ul>
-<h3 id="review-questions">Review Questions</h3>
+<h3 id="synthesis-activities">Synthesis Activities</h3>
+<p>These are open-ended activities meant to extend the chapter beyond
+what a search engine — or a chatbot — can answer on its own. Each works
+individually or in a group; the goal is the conversation, the debate, or
+the artifact, not a paper about it. Activities marked with <em>No one to
+interview?</em> or <em>Studying alone?</em> sidebars include AI-based
+alternatives — used here as a sparring partner, role-player, or
+facilitator, not as a source.</p>
+<h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
+hour)</em></h4>
+<p>Talk to someone who actually does this work — an IAM admin, identity
+architect, IT helpdesk lead, or compliance officer at your school,
+employer, or a willing local organization. A few questions worth asking,
+in roughly this order:</p>
+<ul>
+<li>Walk me through what happens when a new employee starts on Monday —
+every system that has to know about them by end of day.</li>
+<li>What’s the messiest part of the identity lifecycle in your
+environment, and why hasn’t it been fixed?</li>
+<li>When was the last time you had to revoke access in a hurry, and what
+made it hard?</li>
+<li>What tool or capability do you wish you had?</li>
+<li>What’s one thing the textbooks or certs get wrong about this
+work?</li>
+</ul>
+<p>Follow up on whatever surprises you. The point is to hear the work in
+someone’s own words.</p>
+<blockquote>
+<p><em>No one to interview?</em> Run the conversation with a chatbot in
+role. A prompt that works: <em>“You are a senior IAM architect with
+twelve years of experience at a 5,000-person logistics company. I’m
+interviewing you for a class. Answer in character. Push back on
+questions that are too broad, and when I ask about something you’d
+realistically not know, say so.”</em> You won’t be hearing what a real
+engineer thinks — the model doesn’t know — but you’ll get a credible
+rehearsal, and you’ll find out which of your questions are too vague
+before they would have been wasted on a real person.</p>
+</blockquote>
+<h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
+<p>Pick the position you find <em>least</em> sympathetic and argue it as
+well as you can:</p>
+<ul>
+<li>Federation should be mandatory for every business application, no
+exceptions. The risk of unfederated apps drifting out of HR-driven
+deprovisioning outweighs every other concern.</li>
+<li>Federation slows down fast-moving teams and concentrates risk in one
+identity provider whose outage halts the entire company. A pragmatic IAM
+program lives with some unfederated applications and offsets them with
+strong manual offboarding.</li>
+<li>SSO and federation build a surveillance dossier that no individual
+employee meaningfully consented to. The convenience to administrators
+comes at a real cost to employee privacy that the security field
+consistently understates.</li>
+</ul>
+<p>The exercise only works if you defend the position you don’t already
+hold. In class, assign positions and go live; the surprise of having to
+think on your feet is the point.</p>
+<blockquote>
+<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
+attack it from the opposite position. A prompt that produces real
+sparring: <em>“Take the opposite position from the argument below and
+attack it as aggressively as a senior security architect who deeply
+disagrees. Cite real federation outages, real breaches that exploited
+unfederated apps, real privacy concerns about SSO logging. Don’t be
+polite. After each of my replies, escalate.”</em> The goal isn’t to beat
+the model. It’s to find out which parts of your case fold under
+pressure.</p>
+</blockquote>
+<h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
+min)</em></h4>
+<p>Find an identity-related incident, regulatory action, or vendor
+controversy from the last six months. Good hunting grounds: CISA
+advisories on identity-system compromises (Okta, Microsoft Entra, Active
+Directory), Krebs on Security, The Record, NIST SP 800-63 revision
+drafts, FIDO Alliance updates on passkey rollout, and EU eIDAS 2.0
+implementation milestones. Be ready to explain to a classmate, in two
+minutes, what happened, what failed at the IAM layer, and what the
+industry response has been. Bring two primary sources you’d point them
+to if they wanted to read further.</p>
+<h4 id="lab-artifact-decode-a-real-jwt-20-min">Lab Artifact: Decode a
+Real JWT <em>(20 min)</em></h4>
+<p>Almost every modern web app you log into hands your browser an OIDC
+ID token or an OAuth access token in JWT form — a base64-encoded
+structure your browser then sends back on every request. In this
+activity you will capture one of your own tokens and reverse-engineer
+what your identity provider is asserting about you.</p>
 <ol type="1">
-<li>Federation lets the Service Provider read the user’s password
-directly from the Identity Provider so it can verify it
-independently.</li>
-<li>Deprovisioning a departing employee’s access only in the HR system
-is sufficient if the HR system is the authoritative source.</li>
-<li>RBAC can suffer from “role explosion” as organizations create
-increasingly specific roles to capture business reality.</li>
-<li>ABAC decisions can incorporate attributes about the subject, the
-object, the action, and the environment.</li>
-<li>Mandatory Access Control (MAC) lets the resource owner override
-classification decisions when convenient.</li>
-<li>A Policy Decision Point evaluates a request and returns permit or
-deny; a Policy Enforcement Point implements that decision.</li>
-<li>Conditional access typically combines signals such as device
-posture, geographic location, and time of day.</li>
-<li>A leaked biometric template is no different from a leaked password —
-you simply enroll a new biometric.</li>
-<li>Just-in-time access reduces standing privilege by elevating a user
-only for a defined window of time.</li>
-<li>Hardcoded secrets in a git repository are safe to remove with a
-single delete commit because the history is inaccessible.</li>
-<li>The Golden SAML attack works by stealing the SAML token-signing key
-from the federation server.</li>
-<li>SAML troubleshooting frequently involves clock skew, certificate
-expiry, and entity ID mismatches.</li>
-<li>OAuth 2.0 and OpenID Connect are the same protocol with two
-different names.</li>
-<li>Kerberos depends critically on time synchronization between the
-client, server, and key distribution center.</li>
-<li>802.1X with EAP-TLS authenticates clients using certificates rather
-than passwords.</li>
-<li>WPA3’s SAE handshake is designed to resist offline dictionary
-attacks compared with WPA2’s four-way handshake.</li>
-<li>MFA fatigue attacks are best mitigated by disabling MFA for users
-who report frequent push prompts.</li>
-<li>A PAM platform’s value comes primarily from storing privileged
-passwords; session recording is unnecessary overhead.</li>
-<li>Service accounts and workload identities should be subject to the
-same lifecycle discipline as human accounts.</li>
-<li>Federation concentrates trust in cryptographic secrets such as
-token-signing certificates, which must be protected as Tier 0
-assets.</li>
-<li>Credential dumping is purely an endpoint malware topic and has
-little relevance to IAM architecture.</li>
-<li>Lateral movement in enterprise environments often depends on the
-reuse of compromised identity material across trust zones.</li>
-<li>Registering a new MFA device, adding a new OAuth consent grant, or
-disabling audit collection can all be examples of defensive evasion in
-identity systems.</li>
-<li>LDAP injection, claim manipulation, and provisioning abuse are
-examples of trust-boundary failures that can affect identity
-workflows.</li>
+<li>Log into a service that uses OIDC. Google, Microsoft, GitHub, or any
+site where you click “Sign in with Google/Microsoft/GitHub” will
+work.</li>
+<li>Open your browser’s developer tools (F12), go to the
+<em>Application</em> or <em>Storage</em> tab, and look under
+<em>Cookies</em> or <em>Local Storage</em> for a long string starting
+with <code>eyJ</code>. You can also watch the <em>Network</em> tab
+during login and find a request whose response body or
+<code>Authorization</code> header contains a JWT.</li>
+<li>Paste that string into <a href="https://jwt.io">jwt.io</a>. The site
+decodes the header and payload locally in your browser — it does not
+transmit the token.</li>
+<li>Identify the <strong>issuer</strong> (<code>iss</code>),
+<strong>audience</strong> (<code>aud</code>), <strong>subject</strong>
+(<code>sub</code>), <strong>expiry</strong> (<code>exp</code> — convert
+from Unix time), and <strong>signing algorithm</strong> (header
+<code>alg</code>). Find at least two other claims and figure out what
+they mean.</li>
+<li>Answer for yourself: <em>what would change about your access to this
+service if you altered the <code>exp</code> field and resubmitted the
+token? Why does the answer have to do with the signature?</em></li>
 </ol>
-<h4 id="answer-key">Answer Key</h4>
-<ol type="1">
-<li><strong>False:</strong> The SP never sees the user’s password. The
-IdP authenticates the user and issues a signed assertion that the SP
-validates.</li>
-<li><strong>False:</strong> Deprovisioning must propagate to every
-downstream application; unfederated apps require SCIM, manual
-offboarding, or retirement.</li>
-<li><strong>True:</strong> Without disciplined role design, RBAC
-environments accumulate thousands of overlapping roles.</li>
-<li><strong>True:</strong> That is precisely the four-tuple ABAC
-evaluates.</li>
-<li><strong>False:</strong> MAC is enforced by the system regardless of
-owner preference — that rigidity is its security value.</li>
-<li><strong>True:</strong> The PDP/PEP separation is the standard
-architecture for centralized policy with distributed enforcement.</li>
-<li><strong>True:</strong> These context signals are the foundation of
-conditional access policies.</li>
-<li><strong>False:</strong> Biometrics cannot be reissued. A leaked
-template compromises that biometric forever.</li>
-<li><strong>True:</strong> JIT access is the cornerstone of modern PAM
-design.</li>
-<li><strong>False:</strong> Git history retains the secret. Rotation is
-the only safe response after exposure.</li>
-<li><strong>True:</strong> That is the core mechanism — once the signing
-key is stolen, the attacker can forge arbitrary assertions.</li>
-<li><strong>True:</strong> These are the three most common SAML failure
-modes.</li>
-<li><strong>False:</strong> OAuth 2.0 is an authorization framework.
-OIDC is an authentication layer built on top of it.</li>
-<li><strong>True:</strong> Kerberos typically requires time
-synchronization within five minutes.</li>
-<li><strong>True:</strong> EAP-TLS uses mutual certificate
-authentication.</li>
-<li><strong>True:</strong> SAE provides forward secrecy and resists
-offline dictionary attacks.</li>
-<li><strong>False:</strong> The right response is number matching,
-context-rich prompts, or phishing-resistant factors — not disabling
-MFA.</li>
-<li><strong>False:</strong> Session recording, approval workflows, and
-JIT elevation are all core PAM capabilities, not optional extras.</li>
-<li><strong>True:</strong> Service accounts often have broader privilege
-than humans and require equally rigorous lifecycle management.</li>
-<li><strong>True:</strong> The Golden SAML attack and many similar
-federation compromises hinge on the protection of these signing
-keys.</li>
-<li><strong>False:</strong> Credential dumping is an endpoint technique,
-but in SecurityX it is highly relevant to IAM because the stolen
-material is used to impersonate subjects, escalate privilege, and pivot
-across identity boundaries.</li>
-<li><strong>True:</strong> Reused Kerberos tickets, hashes, tokens, and
-over-permissioned service accounts are common mechanisms for
-identity-enabled lateral movement.</li>
-<li><strong>True:</strong> Quiet changes to MFA enrollment, OAuth
-grants, and logging are classic ways attackers evade detection while
-preserving identity-based access.</li>
-<li><strong>True:</strong> These attacks manipulate the trust logic of
-directory, federation, or provisioning systems rather than simply
-breaking a generic application field.</li>
-</ol>
+<p><strong>Safety:</strong> A live JWT is a credential. Do not paste
+tokens from your employer’s systems, your school’s SSO, or any account
+that isn’t yours. Use a personal test account if you’re unsure.</p>
+<h4 id="map-a-trust-boundary-2-hours">Map a Trust Boundary <em>(2+
+hours)</em></h4>
+<p>Federation concentrates trust into a small number of cryptographic
+relationships. In this activity you will diagram those relationships
+explicitly for a real or representative system, and identify where you
+have the least confidence in the trust assumptions.</p>
+<p>Pick one system to model:</p>
+<ul>
+<li>The “Sign in with Google/Microsoft/Apple” flow for a SaaS
+application you actually use.</li>
+<li>Your school’s or employer’s SSO portal, federating to a handful of
+downstream applications.</li>
+<li>A hypothetical RBAC + ABAC hybrid for a small healthcare clinic with
+EHR, HR, billing, and a patient-facing portal.</li>
+</ul>
+<p>Draw the system: identity provider, service providers, attribute
+sources, policy decision points, policy enforcement points, and every
+signing key, certificate, or shared secret that makes the trust work.
+Mark each trust boundary explicitly. For each boundary, answer: what
+crosses it, what control validates what crosses, who controls the key
+material, and what would happen if that key were stolen? Identify the
+boundary where the consequences of compromise would be largest — that is
+the “Tier 0” relationship the architecture depends on.</p>
+<p>The point is not to design a perfect system; it is to be able to see,
+on paper, where the architecture’s neck is exposed.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">

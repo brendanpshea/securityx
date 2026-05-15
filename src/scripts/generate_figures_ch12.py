@@ -37,121 +37,100 @@ def rounded_box(ax, x, y, w, h, text, fc, ec='white', text_color=TEXT_LIGHT,
                 color=text_color, fontsize=fontsize, fontweight='bold')
 
 
-def arrow(ax, start, end, color=SLATE, style='-|>', lw=2.0, ms=16, ls='-'):
-    ax.add_patch(FancyArrowPatch(start, end, arrowstyle=style,
-                                 mutation_scale=ms, lw=lw, color=color,
-                                 linestyle=ls))
+def arrow(ax, start, end, color=SLATE, style='-|>', lw=2.0, ms=16, ls='-',
+          connectionstyle=None):
+    kwargs = {
+        'arrowstyle': style,
+        'mutation_scale': ms,
+        'lw': lw,
+        'color': color,
+        'linestyle': ls,
+    }
+    if connectionstyle:
+        kwargs['connectionstyle'] = connectionstyle
+    ax.add_patch(FancyArrowPatch(start, end, **kwargs))
 
 
 def create_soar_phishing_workflow():
-    fig, ax = plt.subplots(figsize=(16, 10))
+    fig, ax = plt.subplots(figsize=(16, 8.8))
     ax.set_xlim(0, 16)
-    ax.set_ylim(0, 10.5)
+    ax.set_ylim(0, 8.8)
     ax.axis('off')
 
-    # ---- Trigger row ----
-    rounded_box(ax, 0.3, 8.8, 3.0, 1.1,
-                'Email Gateway / SEG',
-                SURFACE_ALT, fontsize=10,
-                subtext='suspicious attachment\nor link detected')
-    arrow(ax, (3.3, 9.35), (4.1, 9.35), color=SLATE, lw=1.6)
-    rounded_box(ax, 4.1, 8.8, 3.2, 1.1,
-                'SOAR Trigger',
-                AMBER, text_color=TEXT_DARK, fontsize=11,
-                subtext='Phishing Response\nPlaybook fires')
-    arrow(ax, (7.3, 9.35), (8.1, 9.35), color=AMBER, lw=1.6)
-    rounded_box(ax, 8.1, 8.8, 3.2, 1.1,
-                'Header + URL Analysis',
-                CYAN, text_color=TEXT_DARK, fontsize=10,
-                subtext='extract IOCs, check\nVirusTotal / PhishTank')
-    rounded_box(ax, 12.2, 8.8, 3.5, 1.1,
-                'Threat Intel Lookup',
-                PURPLE, fontsize=10,
-                subtext='TIP / SIEM: known\ncampaign match?')
-    arrow(ax, (11.3, 9.35), (12.2, 9.35), color=CYAN, lw=1.6)
+    ax.text(1.8, 7.95, 'Detect', ha='center', va='bottom',
+        fontsize=10, fontweight='bold', color=SLATE)
+    ax.text(8.0, 7.95, 'Decide', ha='center', va='bottom',
+        fontsize=10, fontweight='bold', color=SLATE)
+    ax.text(12.8, 7.95, 'Respond', ha='center', va='bottom',
+        fontsize=10, fontweight='bold', color=SLATE)
 
-    # ---- Decision diamond ----
-    diamond_cx, diamond_cy = 7.0, 7.1
-    diamond_pts = [(diamond_cx, diamond_cy + 0.75),
-                   (diamond_cx + 1.3, diamond_cy),
-                   (diamond_cx, diamond_cy - 0.75),
-                   (diamond_cx - 1.3, diamond_cy)]
+    rounded_box(ax, 0.5, 6.45, 2.5, 1.0,
+        'Email Alert',
+        SURFACE_ALT, fontsize=11,
+        subtext='SEG flags suspicious message')
+    rounded_box(ax, 3.6, 6.45, 3.0, 1.0,
+        'Enrich + Score',
+        CYAN, text_color=TEXT_DARK, fontsize=11,
+        subtext='extract IOCs, query TIP and sandbox')
+
+    diamond_cx, diamond_cy = 8.05, 6.95
+    diamond_pts = [(diamond_cx, diamond_cy + 0.7),
+           (diamond_cx + 1.15, diamond_cy),
+           (diamond_cx, diamond_cy - 0.7),
+           (diamond_cx - 1.15, diamond_cy)]
     diamond = plt.Polygon(diamond_pts, closed=True,
-                          facecolor=ROSE, edgecolor='white', linewidth=1.8)
+              facecolor=AMBER, edgecolor='white', linewidth=1.8)
     ax.add_patch(diamond)
-    ax.text(diamond_cx, diamond_cy, 'Malicious?', ha='center', va='center',
-            color=TEXT_LIGHT, fontsize=10, fontweight='bold')
-    ax.text(diamond_cx + 1.5, diamond_cy, 'YES', ha='left', va='center',
-            color=ROSE, fontsize=9, fontweight='bold')
-    ax.text(diamond_cx - 1.65, diamond_cy, 'NO →\nEscalate\nto analyst', ha='left', va='center',
-            color=SLATE, fontsize=8)
+    ax.text(diamond_cx, diamond_cy + 0.05, 'High', ha='center', va='center',
+        color=TEXT_DARK, fontsize=10, fontweight='bold')
+    ax.text(diamond_cx, diamond_cy - 0.18, 'confidence?', ha='center', va='center',
+        color=TEXT_DARK, fontsize=10, fontweight='bold')
 
-    # Down arrow from intel lookup
-    arrow(ax, (13.95, 8.8), (13.95, 7.85), color=PURPLE, lw=1.4)
-    rounded_box(ax, 11.8, 6.8, 4.3, 1.0,
-                'Score & Decide',
-                SURFACE_ALT, fontsize=10,
-                subtext='confidence score → auto or analyst')
-    arrow(ax, (11.8, 7.3), (8.3, 7.1), color=SLATE, lw=1.4)
+    rounded_box(ax, 6.8, 4.9, 2.4, 0.92,
+        'Analyst Review',
+        PURPLE, fontsize=10,
+        subtext='low-confidence or ambiguous alerts')
 
-    # Down arrow from SOAR trigger to decision
-    arrow(ax, (5.7, 8.8), (7.0, 7.85), color=AMBER, lw=1.4)
+    rounded_box(ax, 9.55, 6.45, 3.1, 1.0,
+        'Quarantine + Block',
+        ROSE, fontsize=11,
+                subtext='remove mail, block URLs and IPs')
+    rounded_box(ax, 13.1, 6.45, 2.7, 1.0,
+        'Case + Notify',
+        EMERALD, text_color=TEXT_DARK, fontsize=11,
+                subtext='incident record and user guidance')
+    rounded_box(ax, 9.55, 3.9, 3.1, 1.0,
+        'Endpoint Follow-up',
+        CYAN, text_color=TEXT_DARK, fontsize=11,
+                subtext='EDR checks for click or execution')
+    rounded_box(ax, 13.1, 3.9, 2.7, 1.0,
+        'Isolate Endpoint',
+        ROSE, fontsize=11,
+                subtext='network isolate the compromised host')
+    rounded_box(ax, 11.25, 1.35, 3.8, 1.0,
+        'Post-Incident Review',
+        SURFACE_ALT, fontsize=11,
+        subtext='metrics, IOC export, and playbook tuning')
 
-    # ---- Auto-response row ----
-    arrow(ax, (8.3, 7.1), (10.0, 7.1), color=ROSE, lw=1.6)
+    arrow(ax, (3.0, 6.95), (3.6, 6.95), color=SLATE, lw=1.8)
+    arrow(ax, (6.6, 6.95), (6.95, 6.95), color=CYAN, lw=1.8)
+    arrow(ax, (8.05, 7.65), (8.05, 5.82), color=PURPLE, lw=1.8)
+    arrow(ax, (9.2, 6.95), (9.55, 6.95), color=AMBER, lw=1.8)
+    arrow(ax, (12.65, 6.95), (13.1, 6.95), color=ROSE, lw=1.8)
+    arrow(ax, (11.1, 6.45), (11.1, 4.9), color=ROSE, lw=1.8)
+    arrow(ax, (14.45, 6.45), (14.45, 2.35), color=EMERALD, lw=1.6, ls='--')
+    arrow(ax, (12.65, 4.4), (13.1, 4.4), color=CYAN, lw=1.8)
+    arrow(ax, (11.1, 3.9), (12.2, 2.35), color=SLATE, lw=1.6, ls='--')
+    arrow(ax, (14.45, 3.9), (13.55, 2.35), color=ROSE, lw=1.8)
 
-    rounded_box(ax, 10.0, 6.55, 2.5, 1.1,
-                'Auto-Quarantine',
-                ROSE, fontsize=10,
-                subtext='pull email from all\ninboxes (M365 / GSuite)')
-    arrow(ax, (12.5, 7.1), (13.1, 7.1), color=ROSE, lw=1.4)
-    rounded_box(ax, 13.1, 6.55, 2.6, 1.1,
-                'Block IOCs',
-                AMBER, text_color=TEXT_DARK, fontsize=10,
-                subtext='push URLs/IPs to\nfirewall + DNS sinkhole')
+    ax.text(8.45, 7.18, 'Yes', color=TEXT_DARK, fontsize=8.5, fontweight='bold')
+    ax.text(8.25, 5.95, 'No', color=PURPLE, fontsize=8.5, fontweight='bold')
+    ax.text(12.95, 2.55, 'no host impact', color=SLATE, fontsize=8, style='italic')
+    ax.text(14.75, 2.7, 'host interacted', color=ROSE, fontsize=8, style='italic', rotation=90)
 
-    # ---- Triage / Notify row ----
-    arrow(ax, (11.25, 6.55), (11.25, 5.6), color=ROSE, lw=1.4)
-    rounded_box(ax, 9.6, 4.6, 3.3, 0.95,
-                'Notify Reporter',
-                SURFACE_ALT, fontsize=10,
-                subtext='auto-reply to user with\nconfirmation + guidance')
-    arrow(ax, (11.25, 4.6), (11.25, 3.6), color=SLATE, lw=1.4)
-    rounded_box(ax, 9.6, 2.65, 3.3, 0.95,
-                'Create SIEM Incident',
-                CYAN, text_color=TEXT_DARK, fontsize=10,
-                subtext='ticket, timeline, IOCs\nlinked to alert')
-
-    # ---- Endpoint isolation branch ----
-    arrow(ax, (14.4, 6.55), (14.4, 5.55), color=AMBER, lw=1.4)
-    rounded_box(ax, 12.9, 4.6, 3.0, 0.95,
-                'Scope: Any Clicks?',
-                AMBER, text_color=TEXT_DARK, fontsize=10,
-                subtext='EDR: link-click or\nattachment exec?')
-    arrow(ax, (14.4, 4.6), (14.4, 3.6), color=ROSE, lw=1.6)
-    rounded_box(ax, 12.9, 2.65, 3.0, 0.95,
-                'Isolate Endpoint',
-                ROSE, fontsize=10,
-                subtext='EDR network-isolate\n+ alert SOC analyst')
-
-    # ---- Post-incident ----
-    arrow(ax, (10.75, 2.65), (10.75, 1.7), color=SLATE, lw=1.4)
-    rounded_box(ax, 9.2, 0.75, 3.1, 0.95,
-                'Post-Incident',
-                EMERALD, text_color=TEXT_DARK, fontsize=10,
-                subtext='metrics update • TIP IOC\nexport • runbook review')
-
-    # ---- Legend ----
-    rounded_box(ax, 0.3, 0.3, 1.2, 0.7, 'Automated', EMERALD,
-                text_color=TEXT_DARK, fontsize=8)
-    rounded_box(ax, 1.8, 0.3, 1.4, 0.7, 'Analyst Gate', SURFACE_ALT,
-                fontsize=8)
-    rounded_box(ax, 3.5, 0.3, 1.3, 0.7, 'Decision', ROSE, fontsize=8)
-
-    ax.text(8.0, 0.15,
-            'Steps in green/cyan/amber execute automatically within seconds. '
-            'ROSE nodes require analyst confirmation or are escalation paths.',
-            ha='center', fontsize=9, color=SLATE, style='italic')
+    ax.text(8.0, 0.35,
+        'Low-confidence alerts branch to analyst review. Endpoint isolation happens only when telemetry shows user interaction.',
+        ha='center', fontsize=9, color=SLATE, style='italic')
 
     plt.title('Automated SOAR Phishing Response Workflow',
               fontsize=16, fontweight='bold', pad=14)
@@ -162,74 +141,54 @@ def create_soar_phishing_workflow():
 
 
 def create_nist_ir_lifecycle():
-    fig, ax = plt.subplots(figsize=(14, 9))
+    fig, ax = plt.subplots(figsize=(14, 8.6))
     ax.set_xlim(0, 14)
-    ax.set_ylim(0, 9)
+    ax.set_ylim(0, 8.6)
     ax.axis('off')
 
-    cx, cy = 7.0, 4.5
-    radius = 2.8
+    cx, cy = 7.0, 4.15
+    box_w, box_h = 3.9, 1.55
 
-    # ---- Four phase boxes arranged in a diamond/cycle ----
-    phases = [
-        (cx, cy + radius, CYAN, TEXT_DARK,
-         'Preparation',
-         'Policies • playbooks • tooling\ntraining • threat intel feeds\nIR team assembly'),
-        (cx + radius * 1.05, cy, AMBER, TEXT_DARK,
-         'Detection &\nAnalysis',
-         'SIEM alerts • log triage\nIOC correlation • scoping\nmalware sandbox'),
-        (cx, cy - radius, ROSE, TEXT_LIGHT,
-         'Containment, Eradication\n& Recovery',
-         'isolate hosts • block IOCs\nreimage • restore backups\nvalidate clean state'),
-        (cx - radius * 1.05, cy, PURPLE, TEXT_LIGHT,
-         'Post-Incident\nActivity',
-         'lessons-learned meeting\nroot cause analysis\ndetection rule updates'),
-    ]
+    phases = {
+        'prep': (5.05, 6.45, CYAN, TEXT_DARK,
+                 'Preparation',
+                 'plans, tooling, contacts\ntraining and exercises'),
+        'detect': (9.35, 4.05, AMBER, TEXT_DARK,
+                   'Detection &\nAnalysis',
+                   'triage alerts, scope impact\ncollect and analyze evidence'),
+        'contain': (5.05, 1.25, ROSE, TEXT_LIGHT,
+                    'Containment, Eradication\n& Recovery',
+                    'isolate, eradicate, restore\nvalidate a clean state'),
+        'post': (0.75, 4.05, PURPLE, TEXT_LIGHT,
+                 'Post-Incident\nActivity',
+                 'lessons learned, root cause\nupdate detections and playbooks'),
+    }
 
-    box_w, box_h = 3.4, 1.9
-    centers = []
-    for bx, by, fc, tc, title, sub in phases:
-        lx = bx - box_w / 2
-        ly = by - box_h / 2
-        rounded_box(ax, lx, ly, box_w, box_h, title, fc,
+    for x, y, fc, tc, title, sub in phases.values():
+        rounded_box(ax, x, y, box_w, box_h, title, fc,
                     text_color=tc, fontsize=12, subtext=sub)
-        centers.append((bx, by))
 
-    # ---- Cycle arrows between phases ----
-    offsets = [
-        ((centers[0][0] + 0.6, centers[0][1] - 0.9),
-         (centers[1][0] - 0.8, centers[1][1] + 0.6), AMBER),
-        ((centers[1][0] - 0.4, centers[1][1] - 0.9),
-         (centers[2][0] + 0.8, centers[2][1] + 0.6), ROSE),
-        ((centers[2][0] - 0.6, centers[2][1] + 0.9),
-         (centers[3][0] + 0.7, centers[3][1] - 0.6), PURPLE),
-        ((centers[3][0] + 0.4, centers[3][1] + 0.9),
-         (centers[0][0] - 0.8, centers[0][1] - 0.6), CYAN),
-    ]
-    for start, end, col in offsets:
-        arrow(ax, start, end, color=col, lw=2.2, ms=18)
+    arrow(ax, (7.25, 6.45), (9.55, 5.55), color=AMBER, lw=2.4, ms=18,
+          connectionstyle='arc3,rad=-0.05')
+    arrow(ax, (9.35, 4.0), (7.8, 2.7), color=ROSE, lw=2.4, ms=18,
+          connectionstyle='arc3,rad=-0.05')
+    arrow(ax, (5.0, 1.65), (3.55, 3.15), color=PURPLE, lw=2.4, ms=18,
+          connectionstyle='arc3,rad=-0.05')
+    arrow(ax, (4.65, 5.15), (5.65, 6.45), color=CYAN, lw=2.4, ms=18,
+          connectionstyle='arc3,rad=-0.05')
 
-    # ---- Center label ----
     circle = plt.Circle((cx, cy), 1.1, color=SURFACE, zorder=3)
     ax.add_patch(circle)
-    ax.text(cx, cy + 0.18, 'NIST SP', ha='center', va='center',
+    ax.text(cx, cy + 0.17, 'Continuous', ha='center', va='center',
             color=TEXT_LIGHT, fontsize=11, fontweight='bold', zorder=4)
-    ax.text(cx, cy - 0.22, '800-61r2', ha='center', va='center',
+    ax.text(cx, cy - 0.12, 'IR cycle', ha='center', va='center',
+            color=TEXT_LIGHT, fontsize=11, fontweight='bold', zorder=4)
+    ax.text(cx, cy - 0.45, 'SP 800-61r2', ha='center', va='center',
             color=SLATE, fontsize=10, zorder=4)
 
-    # ---- Supplemental detail boxes ----
-    detail_items = [
-        (0.3, 7.7, SURFACE_ALT, 'Key Prep Artifacts',
-         '• IR Policy & plan\n• Contact lists\n• Jump bag / forensic kit\n• Tabletop exercises'),
-        (10.4, 7.7, SURFACE_ALT, 'Severity Triage',
-         '• P1 (Critical) < 15 min\n• P2 (High) < 1 hr\n• P3 (Medium) < 4 hr\n• P4 (Low) < 24 hr'),
-        (0.3, 0.3, SURFACE_ALT, 'Chain of Custody',
-         '• Hash all evidence\n• Maintain access log\n• Use write-blockers\n• Legal hold if needed'),
-        (10.4, 0.3, SURFACE_ALT, 'Lessons-Learned Output',
-         '• What happened / why\n• Detection gap fixed?\n• Playbook updated?\n• Exec summary'),
-    ]
-    for dx, dy, fc, title, body in detail_items:
-        rounded_box(ax, dx, dy, 3.2, 1.6, title, fc, fontsize=9, subtext=body)
+    ax.text(7.0, 0.35,
+            'Evidence handling, communications, severity triage, and executive reporting span every phase.',
+            ha='center', fontsize=9, color=SLATE, style='italic')
 
     plt.title('The NIST Incident Response Lifecycle (SP 800-61r2)',
               fontsize=16, fontweight='bold', pad=14)
