@@ -19,18 +19,6 @@
             <h1
 id="chapter-12-vulnerability-management-automation-and-incident-response">Chapter
 12: Vulnerability Management, Automation, and Incident Response</h1>
-<p><strong>Aligned SecurityX Objectives:</strong></p>
-<ul>
-<li><strong>4.2:</strong> Given a scenario, analyze vulnerabilities and
-attacks, and recommend solutions to reduce the attack surface.</li>
-<li><strong>3.6:</strong> Given a scenario, use automation to secure the
-enterprise.</li>
-<li><strong>4.4:</strong> Given a scenario, analyze data and artifacts
-in support of incident response activities.</li>
-</ul>
-<p><strong>Practice-Based Question (PBQ):</strong> <a
-href="https://brendanpshea.github.io/securityx/problems/ch12-alice-ir-automation.html">Alice
-Liddell Automates Incident Response at Wonderland Logistics</a></p>
 <p><strong>Learning Outcomes:</strong></p>
 <ul>
 <li><strong>Analyze</strong> common vulnerabilities and implement
@@ -1210,6 +1198,177 @@ services, relying on password reuse.</li>
 produced after incident closure that records root causes, timeline, and
 remediation assignments.</li>
 </ul>
+<h3 id="practice-based-question">Practice-Based Question</h3>
+<div class="pbq-promo">
+<img src="../assets/images/pbq_badge.svg" alt="" class="pbq-promo-badge">
+<div>
+<p class="pbq-promo-kicker">
+Apply The Chapter
+</p>
+<p class="pbq-promo-title">
+<a href="https://brendanpshea.github.io/securityx/problems/ch12-alice-ir-automation.html">Alice
+Liddell Automates Incident Response at Wonderland Logistics</a>
+</p>
+<p class="pbq-promo-text">
+Work this PBQ after the review to apply the chapter’s concepts in
+scenario form.
+</p>
+</div>
+</div>
+<h3 id="synthesis-activities">Synthesis Activities</h3>
+<p>These are open-ended activities meant to extend the chapter beyond
+what a search engine — or a chatbot — can answer on its own. Each works
+individually or in a group; the goal is the conversation, the debate, or
+the artifact, not a paper about it. Activities marked with <em>No one to
+interview?</em> or <em>Studying alone?</em> sidebars include AI-based
+alternatives — used here as a sparring partner, role-player, or
+facilitator, not as a source.</p>
+<h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
+hour)</em></h4>
+<p>Talk to someone who actually does incident response, vulnerability
+management, or SOC work — an IR consultant, SOC analyst, vulnerability
+manager, detection engineer, or anyone who has been on call when
+something went wrong. A few questions worth asking, in roughly this
+order:</p>
+<ul>
+<li>Walk me through the last incident you handled from page to
+post-mortem — what was the first signal, and how long until you trusted
+it?</li>
+<li>How do you decide what to patch first when scanners return ten
+thousand findings?</li>
+<li>Where has automation actually saved you time, and where has it
+created new problems?</li>
+<li>Tell me about a containment decision that was harder than it should
+have been. What made it hard?</li>
+<li>What’s one thing the IR textbooks or playbook templates get
+wrong?</li>
+</ul>
+<p>Listen for the gap between the lifecycle as taught (preparation →
+detection → containment → eradication → recovery → post-incident) and
+the lifecycle as lived. That gap is the chapter.</p>
+<blockquote>
+<p><em>No one to interview?</em> Run the conversation with a chatbot in
+role. A prompt that works: <em>“You are a senior incident responder with
+ten years of experience at a managed detection and response firm. You
+have worked everything from ransomware at hospitals to insider data
+theft at law firms. I’m interviewing you for a class. Answer in
+character. When I ask something a real responder would push back on as
+too broad or too theoretical, push back. When I ask about something
+you’d realistically not know, say so.”</em> The rehearsal exposes which
+of your questions go somewhere before you spend them on a real
+person.</p>
+</blockquote>
+<h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
+<p>Pick the position you find <em>least</em> sympathetic and argue it as
+well as you can:</p>
+<ul>
+<li>A mature SOAR platform should auto-contain confirmed malicious
+activity — isolating hosts, disabling accounts, blocking IPs — without
+waiting for a human. The cost of waiting is greater than the cost of
+occasional false positives.</li>
+<li>Automated containment crosses a line. A human analyst must approve
+every containment action that affects production, because the
+operational and legal consequences of a wrong call are larger than any
+speed benefit.</li>
+<li>The whole framing is wrong. The hard problem isn’t who pulls the
+trigger — it’s that detection is too noisy to trust either way. Until
+detections are tuned, neither auto-containment nor human review will
+save you.</li>
+</ul>
+<p>The exercise only works if you defend the position you don’t already
+hold. In class, assign positions and go live; the surprise of having to
+think on your feet is the point.</p>
+<blockquote>
+<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
+attack it from the opposite position. A prompt that produces real
+sparring: <em>“Take the opposite position from the argument below and
+attack it as aggressively as a senior SOC director who deeply disagrees.
+Use specific examples — real ransomware incidents, real false-positive
+horror stories. Don’t be polite. After each of my replies,
+escalate.”</em> The goal isn’t to beat the model. It’s to find out which
+parts of your case fold under pressure.</p>
+</blockquote>
+<h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
+min)</em></h4>
+<p>Find an incident, CVE, or IR-community controversy from the last six
+months. Good hunting grounds: the CISA Known Exploited Vulnerabilities
+(KEV) catalog at <a
+href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">cisa.gov/known-exploited-vulnerabilities-catalog</a>,
+CISA advisories, Microsoft Threat Intelligence and Google TAG reports,
+the SANS Internet Storm Center, and ransomware-tracking sites that
+aggregate leak-site activity. Be ready to explain to a classmate, in two
+minutes, what happened (or what’s in dispute), which phase of the IR
+lifecycle was decisive, and what defenders are doing differently as a
+result. Bring two primary sources you’d point them to if they wanted to
+read further.</p>
+<h4 id="lab-artifact-score-a-real-vulnerability-20-min">Lab Artifact:
+Score a Real Vulnerability <em>(20 min)</em></h4>
+<p>Vulnerability scoring is one of the few places in security where you
+can take a paragraph of plain English and convert it into a structured
+artifact — a CVSS vector — that other tools can act on. In this activity
+you will do that conversion yourself, then check your work against the
+official scoring.</p>
+<ol type="1">
+<li>Open the CISA Known Exploited Vulnerabilities catalog at <a
+href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog">cisa.gov/known-exploited-vulnerabilities-catalog</a>
+and pick a CVE added within the last three months. KEV is the right
+starting point because every entry has confirmed in-the-wild
+exploitation — these are real, not theoretical.</li>
+<li>Read the NVD entry for that CVE at <a
+href="https://nvd.nist.gov">nvd.nist.gov</a>, but <strong>scroll past
+the published CVSS vector</strong>. Read only the description.</li>
+<li>Open the FIRST CVSS v3.1 calculator at <a
+href="https://www.first.org/cvss/calculator/3.1">first.org/cvss/calculator/3.1</a>
+and score the vulnerability yourself from the description alone — Attack
+Vector, Attack Complexity, Privileges Required, User Interaction, Scope,
+and the C/I/A impact metrics.</li>
+<li>Now reveal the NVD-published vector and compare. Where did you
+differ, and which metric was the closest call? Read the CVE description
+again with the gap in mind — is the description ambiguous, or did you
+misread?</li>
+<li>Then answer: what <strong>CWE</strong> weakness class does this
+vulnerability fall into? Find one architectural mitigation from this
+chapter that would neutralize the whole class, not just this specific
+CVE.</li>
+</ol>
+<p><strong>Safety:</strong> This activity is read-only. Do not download
+proof-of-concept exploit code from links in NVD references; reading
+about a CVE is not the same as running its PoC, and the latter can be
+live malware.</p>
+<h4 id="walk-an-ir-tabletop-2-hours">Walk an IR Tabletop <em>(2+
+hours)</em></h4>
+<p>Pick one scenario and walk through it phase by phase, naming what you
+would do, what evidence you would collect, who you would call, and what
+would have to be true <em>in advance</em> for the response to actually
+work:</p>
+<ul>
+<li>It’s Saturday at 2 a.m. The CFO’s laptop displays a ransomware note.
+The on-call analyst sees three other endpoints flagged in EDR within the
+last hour, all in the finance org.</li>
+<li>A vendor advisory drops at 4 p.m. on a Friday: a CVE in the VPN
+appliance your company uses is being actively exploited. Your scanner
+says you have eleven of them facing the internet.</li>
+<li>The helpdesk forwards three near-identical phishing emails that
+arrived this morning, “from the CEO,” asking finance staff to confirm
+wire details. One of them appears to have been clicked.</li>
+</ul>
+<p>The point of a tabletop is to find what’s missing — the call tree
+nobody updated, the runbook that assumes a tool you don’t have, the
+backup nobody has tested restoring from. Write down every gap you
+surface. <em>If you are studying with others, take turns playing the
+incident commander while the rest of the group raises complications;
+rotate per phase so everyone has to make a hard call.</em></p>
+<blockquote>
+<p><em>No group to run the tabletop?</em> Ask a chatbot to facilitate. A
+prompt that works: <em>“You are facilitating a tabletop exercise. I am
+the incident commander. Walk me through the scenario below one phase at
+a time. After my decisions in each phase, inject one realistic
+complication a real incident would throw at me — a stakeholder calling,
+a tool going down, a piece of evidence contradicting an earlier
+assumption. Don’t let me skip steps.”</em> The model is bad at being a
+responder. It is pretty good at being an annoying facilitator, which is
+what a tabletop needs.</p>
+</blockquote>
 <hr />
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"

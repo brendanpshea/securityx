@@ -311,6 +311,72 @@ blockquote ol {
 .callout-example .callout-title { color: var(--example-border); }
 .callout-quick-check .callout-title { color: var(--quick-check-border); }
 
+.pbq-promo {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin: 1.5rem 0 2rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(167, 139, 250, 0.12));
+  border: 1px solid rgba(6, 182, 212, 0.28);
+}
+
+.pbq-promo img,
+.pbq-promo-badge {
+  width: 88px;
+  min-width: 88px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.pbq-promo p {
+  margin: 0;
+}
+
+.pbq-promo-kicker {
+  color: var(--accent-cyan);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pbq-promo-title {
+  margin-top: 0.2rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.pbq-promo-title a {
+  color: var(--text-primary);
+}
+
+.pbq-promo-title a:hover {
+  color: #fff;
+}
+
+.pbq-promo-text {
+  margin-top: 0.35rem;
+  color: var(--text-secondary);
+  font-size: 0.96rem;
+}
+
+@media (max-width: 640px) {
+  .pbq-promo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pbq-promo img,
+  .pbq-promo-badge {
+    width: 76px;
+    min-width: 76px;
+  }
+}
+
 /* Navigation / Header */
 header {
   padding: 2rem 0;
