@@ -153,8 +153,21 @@ def build_problem(path: Path) -> dict:
     return data
 
 
+def problem_order(p: dict) -> int:
+    """Within a chapter, Design PBQs come before Diagnostic ones.
+
+    An explicit integer ``order`` in the JSON always wins; otherwise the
+    ``-incident`` id suffix marks a Diagnostic (rank 1) and everything
+    else is treated as the Design PBQ (rank 0). New variants should set
+    ``order`` explicitly rather than relying on the id suffix.
+    """
+    if "order" in p:
+        return p["order"]
+    return 1 if "-incident" in p["id"] else 0
+
+
 def build_index(problems: list[dict]):
-    problems = sorted(problems, key=lambda p: (p["chapter"], p["id"]))
+    problems = sorted(problems, key=lambda p: (p["chapter"], problem_order(p), p["id"]))
     items = "\n".join(
         f'<li><a href="{html.escape(p["id"])}.html">'
         f'<span class="ch-tag">Ch {p["chapter"]}</span> {html.escape(p["title"])}'

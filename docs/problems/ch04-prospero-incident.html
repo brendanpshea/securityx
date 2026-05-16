@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prospero Reviews the Milan Island Breach (Diagnostic) - SecurityX PBQ</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
+        </header>
+        <main id="main">
+            <p class="problem-chapter">Chapter 4</p>
+            <h1>Prospero Reviews the Milan Island Breach (Diagnostic)</h1>
+
+            <section class="problem-context"><p>Six months after Prospero's Zero Trust redesign, the SASE rollout is the program's success story. 98% of applications sit behind ZTNA. The board dashboard is green. The auditors who had flagged the old castle-and-moat design signed off.</p>
+<p>The 2% was a legacy ERP — <em>Sycorax Financials</em> — that could not speak SAML and could not be refactored before its vendor's end-of-support date. Rather than delay the whole migration, Prospero's team kept it reachable over a slimmed-down legacy VPN as a 'temporary exception, 90 days max.' That was eleven months ago.</p>
+<p>A contractor laptop in São Paulo was compromised through a malicious browser extension. The attacker found the legacy VPN client still installed, connected, and reached Sycorax — and from Sycorax, the customer billing database. 2.1 million billing records left over four days. The ZTNA logs show nothing, because none of it went through ZTNA.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Post-incident report — Milan Island Telecom, Sycorax breach.</strong> &nbsp; <em>Author: Prospero, Network Architect. Status: draft for board and regulator notification. Do not forward.</em></p>
+<h3>How it happened</h3>
+<ul>
+<li><strong>Day 0</strong> Contractor laptop (São Paulo, unmanaged) compromised via a malicious browser extension. Endpoint posture: unknown — the device never enrolled because the contractor only ever needed the legacy VPN.</li>
+<li><strong>Day 0</strong> Attacker finds the legacy VPN client still installed and configured. Authenticates with the contractor's cached VPN credentials. No posture check, no re-authentication, no device-trust evaluation.</li>
+<li><strong>Day 1</strong> From the VPN's network position, attacker reaches <code>sycorax-erp01</code>. Sycorax sits on the original flat /16 — microsegmentation was applied to the new ZTNA-fronted workloads, never to the legacy segment.</li>
+<li><strong>Day 1–4</strong> Lateral move from Sycorax to <code>billing-db-prod</code>. 2,143,910 records exfiltrated in nightly batches.</li>
+<li><strong>Day 6</strong> Detected when a batch job's egress volume tripped a network bandwidth alert — not a security control.</li>
+</ul>
+<h3>Contributing failures</h3>
+<ul>
+<li>Sycorax was kept reachable over a legacy VPN as a 90-day exception. Eleven months later it was still there, still flat, still trusted-by-network-location.</li>
+<li>The PDP was healthy and evaluating policy correctly — for every app that had a PEP in front of it. Sycorax had none; its requests never reached the PDP at all.</li>
+<li>The legacy VPN authenticated the contractor once, at connect time, and never re-evaluated identity, device, or context for the rest of the multi-day session.</li>
+<li>Microsegmentation was deployed for the new workloads. The legacy /16 — where Sycorax and the billing DB both lived — was never broken up. East-west movement between them was unrestricted.</li>
+<li>The 2.1M-record export left without a DLP alert. Sycorax's exports carried no classification labels; the label-driven DLP rules had nothing to match on.</li>
+<li>The board dashboard reported '98% of applications behind ZTNA.' The 2% was the entire breach path. Nobody was reporting on the assets the 2% could reach.</li>
+</ul></section>
+            <section class="problem-prompt"><p>For each contributing failure in Prospero's report, name the Zero Trust principle or control that failed.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch04-prospero-incident">
+                <p>Keeping Sycorax reachable over a legacy VPN as an open-ended 'temporary exception' did not just defer work — it preserved exactly the thing Zero Trust exists to eliminate: an <strong><span class="cloze-blank" data-blank="exception_antipattern"></span></strong> where being on the right network segment is treated as proof of trust.</p>
+<p>The Policy Decision Point was healthy and evaluating policy correctly. It made no difference here because Sycorax had no <strong><span class="cloze-blank" data-blank="pep_gap"></span></strong> in front of it — the component that intercepts a request and forces it through the PDP before the resource is reached. With no enforcement point, there was no decision to make.</p>
+<p>The legacy VPN authenticated the contractor once at connect time and never again. This is the failure of <strong><span class="cloze-blank" data-blank="auth_gap"></span></strong> — the Zero Trust principle that every request is re-evaluated against identity, device posture, and context, not granted for the life of a session.</p>
+<p>The attacker moved freely from Sycorax to the billing database because the legacy /16 was never broken up. Microsegmentation was deployed for the new workloads only; this is an <strong><span class="cloze-blank" data-blank="segmentation_gap"></span></strong> that left the highest-value data reachable from the one segment that had been left flat.</p>
+<p>The 2.1-million-record export triggered no DLP alert because Sycorax's files carried no <strong><span class="cloze-blank" data-blank="dlp_gap"></span></strong>. Label-driven DLP can only match content that has been tagged; unlabeled legacy exports pass straight through.</p>
+<p>Finally, the '98% behind ZTNA' headline is a vanity coverage number. The metric that would have surfaced this risk before it became a breach is <strong><span class="cloze-blank" data-blank="metric_gap"></span></strong> — a measure weighted by which crown-jewel assets remain reachable outside the Zero Trust path, not by the percentage of apps that are inside it.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch04-prospero-incident", "blanks": {"exception_antipattern": {"answer": "implicit trust zone", "distractors": ["microsegment", "industrial DMZ", "honeynet", "bastion host"], "explanation": "An implicit trust zone is a network region where being present is treated as authorization \u2014 precisely the castle-and-moat assumption Zero Trust is built to remove. Keeping Sycorax behind a legacy VPN recreated one. A microsegment, DMZ, or bastion host are deliberate engineered constructs; none of them describe an open-ended 'trust because you're on the VPN' exception."}, "pep_gap": {"answer": "Policy Enforcement Point (PEP)", "distractors": ["Policy Decision Point (PDP)", "Identity Provider (IdP)", "Certificate Authority (CA)", "reverse DNS record"], "explanation": "The PEP sits in the data path, intercepts the request, and forces it through the PDP for an allow/deny decision. A perfectly healthy PDP is irrelevant to any resource that has no PEP in front of it \u2014 the request simply never reaches the decision engine. Sycorax had a PDP available and no PEP, so it was effectively outside Zero Trust entirely."}, "auth_gap": {"answer": "continuous authorization", "distractors": ["MFA fatigue mitigation", "scheduled password rotation", "SSO federation", "certificate pinning"], "explanation": "Continuous authorization is the core Zero Trust principle that every request is re-evaluated against identity, device posture, and context \u2014 not authorized once and trusted for the session's duration. The legacy VPN's connect-time-only authentication is exactly the session-based model Zero Trust replaces; a four-day window with no re-evaluation is the consequence."}, "segmentation_gap": {"answer": "incomplete microsegmentation (legacy segment never divided)", "distractors": ["VLAN ID exhaustion", "asymmetric routing", "NAT traversal failure", "MTU mismatch"], "explanation": "Microsegmentation limits east-west movement by giving each workload its own policy boundary. Applying it only to new workloads while leaving the legacy /16 flat means a compromise of anything on that segment can reach everything else on it \u2014 here, Sycorax to the billing DB. The distractors are networking faults, not segmentation-coverage failures."}, "dlp_gap": {"answer": "classification label (data was untagged)", "distractors": ["TLS interception certificate", "expired certificate revocation list", "ASN registration", "MAC address randomization"], "explanation": "Label-driven DLP matches content by its classification tag. The chapter's design called for assigning a sensitivity label to customer data at creation; legacy Sycorax exports were never labeled, so the DLP rules had nothing to match and 2.1M records left silently. The distractors are unrelated transport- or network-layer artifacts."}, "metric_gap": {"answer": "risk-weighted coverage of crown-jewel assets", "distractors": ["uptime service-level agreement", "help-desk ticket volume", "mean time to provision an account", "employee Net Promoter Score"], "explanation": "'98% of apps behind ZTNA' is a vanity coverage metric: it averages away the 2% that mattered. A control-effectiveness metric weighted by which sensitive assets remain reachable outside the Zero Trust path would have shown the billing database as exposed via Sycorax from day one. This is the same vanity-vs-effectiveness distinction the design PBQ's final blank established."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>

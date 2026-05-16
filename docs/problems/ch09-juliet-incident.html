@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juliet Reviews the Imaging-Department Ransomware (Diagnostic) - SecurityX PBQ</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
+        </header>
+        <main id="main">
+            <p class="problem-chapter">Chapter 9</p>
+            <h1>Juliet Reviews the Imaging-Department Ransomware (Diagnostic)</h1>
+
+            <section class="problem-context"><p>Six months after Verona Health's BYOD program went live, the headline numbers are good: 3,800 personal devices enrolled in containerized management, conditional access blocking non-compliant devices at the managed-app sign-in, FIDO2 rolled out for the EHR mobile app. The CISO stopped flinching when the board asked about phones.</p>
+<p>Then, on a Sunday night, every workstation in the radiology department encrypts itself. The ransom note names Verona Health. The imaging archive — including studies mid-read — is down. Elective procedures are cancelled for nine days.</p>
+<p>The investigation finds two doors. The first was a BYOD door nobody thought was still open. The second was the legacy enclave the program had explicitly fenced off — fenced off correctly, then quietly un-fenced by someone trying to be helpful.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Post-incident report — radiology ransomware, INC-2026-309.</strong> &nbsp; <em>Author: J. Capulet, Awareness &amp; BYOD lead. Status: draft for board, OCR breach counsel, and the imaging vendor. Do not forward.</em></p>
+<h3>Reconstructed chain</h3>
+<ul>
+<li><strong>Day −9</strong> A radiologist signs into the EHR through the <strong>vendor web portal in a personal phone browser</strong>, not the managed containerized app. The portal was never placed behind conditional access — only the managed app was. Credentials phished two weeks earlier are replayed successfully. FIDO2 is enforced on the managed app; the web portal still accepts a password.</li>
+<li><strong>Day −9 → −2</strong> Attacker uses the EHR foothold to reach the clinical network and stage tooling.</li>
+<li><strong>Day −2</strong> A biomedical-engineering vendor technician, doing scheduled calibration on the Windows 7 MRI workstation, <strong>unplugs it from the isolated enclave VLAN and patches it into a general clinical wall port</strong> 'to pull a calibration file faster.' No request, no approval, no rollback note. The box is now flat with the clinical network.</li>
+<li><strong>Day −1</strong> Attacker reaches the now-reachable MRI workstation. It has no EDR (Windows 7, unsupported). The attacker extracts NTLM hashes and Kerberos tickets from LSASS memory and moves laterally to the imaging file servers.</li>
+<li><strong>Day 0</strong> Ransomware detonates across radiology.</li>
+<li><strong>Day 0 → +3</strong> IR cannot produce an authoritative list of imaging-adjacent hosts; the CMDB was last reconciled 16 months ago. Scoping is done by walking the floor.</li>
+</ul>
+<h3>Contributing failures</h3>
+<ul>
+<li>Conditional access and FIDO2 were enforced on the managed app only. The EHR vendor web portal — reachable from any browser — was never brought under either control.</li>
+<li>The Windows 7 enclave's protection was <em>network isolation</em>. A vendor tech defeated it with a patch cable and no change process.</li>
+<li>The unsupported host had no behavioral endpoint protection; the credential theft from memory went unseen.</li>
+<li>IR could not scope the blast radius because the asset inventory was not current.</li>
+</ul></section>
+            <section class="problem-prompt"><p>For each contributing failure in Juliet's report, name the specific control or process that failed.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch09-juliet-incident">
+                <p>The radiologist reached the EHR through the vendor web portal in a personal browser — a path that was never placed behind conditional access or containerization. A control enforced on the managed app but not on every path to the same data is, in effect, an <strong><span class="cloze-blank" data-blank="byod_bypass"></span></strong>: the protected path was optional because an unprotected one existed beside it.</p>
+<p>That same web portal still accepted a replayed phished password because <strong><span class="cloze-blank" data-blank="auth_gap"></span></strong> was rolled out on the managed app but never extended to the portal. Phishing-resistant authentication only resists phishing on the paths where it is actually required.</p>
+<p>The Windows 7 MRI workstation was only ever defensible because of <strong><span class="cloze-blank" data-blank="enclave_bypass"></span></strong> — an isolated VLAN with default-deny egress. A biomedical vendor technician collapsed that entire justification with a patch cable.</p>
+<p>That re-cabling happened with no request, no approval, and no rollback plan. This is a failure of <strong><span class="cloze-blank" data-blank="change_gap"></span></strong> — the discipline that would have forced the move through review and caught that it eliminated the enclave.</p>
+<p>On the now-reachable, unsupported host, the attacker extracted NTLM hashes and Kerberos tickets from LSASS memory. This MITRE ATT&amp;CK technique is <strong><span class="cloze-blank" data-blank="cred_dump"></span></strong>, and it succeeded silently because Windows 7 could run no behavioral endpoint agent to see it.</p>
+<p>Finally, IR could not produce an authoritative list of imaging-adjacent hosts and scoped the blast radius by walking the floor. This is the failure of the <strong><span class="cloze-blank" data-blank="asset_gap"></span></strong> — the same stale inventory the design plan had already flagged, never remediated, now on the critical path during an active ransomware response.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch09-juliet-incident", "blanks": {"byod_bypass": {"answer": "unmanaged access path (control not applied to every path)", "distractors": ["selective wipe", "wireless intrusion detection (WIDS)", "per-SSID VLAN segmentation", "DKIM signing"], "explanation": "Conditional access and app containerization only protect the paths they are actually enforced on. Leaving the EHR vendor web portal reachable from any unmanaged browser meant the protected managed-app path was effectively optional \u2014 the attacker simply used the door that had no lock. The distractors are real chapter controls but none of them name 'a protected control with an unprotected path beside it.'"}, "auth_gap": {"answer": "FIDO2 / phishing-resistant passwordless authentication", "distractors": ["SMS one-time passcodes", "a CAPTCHA challenge", "a password-complexity policy", "knowledge-based security questions"], "explanation": "FIDO2/WebAuthn is phishing-resistant because the device-bound private key never leaves the device and a replayed password is useless. But it only protects the surfaces where it is required; the web portal still accepting a password is the gap. SMS OTP, CAPTCHA, complexity rules, and security questions are all phishable or bypassable and would not have stopped a credential replay."}, "enclave_bypass": {"answer": "network isolation / segmentation (the enclave's core compensating control)", "distractors": ["data loss prevention (DLP)", "multi-factor authentication", "DNSSEC validation", "wireless IDS"], "explanation": "An unpatchable Windows 7 host is only defensible when it is network-isolated with default-deny egress \u2014 that isolation is the load-bearing compensating control. Patching it into a general clinical VLAN removed the one protection the entire risk acceptance depended on. The distractors operate at other layers and were never what made the enclave safe."}, "change_gap": {"answer": "change management", "distractors": ["incident response", "data classification", "vulnerability scanning", "security-awareness training"], "explanation": "Moving a host from an isolated enclave VLAN to a general clinical port is a change to a safety-critical control. Formal change management \u2014 request, impact assessment, approval, scheduled window, rollback plan \u2014 exists precisely to catch that this 'quick' re-cabling eliminated the enclave. None of the distractors would have intercepted an undocumented patch-cable move."}, "cred_dump": {"answer": "credential dumping from LSASS (MITRE T1003)", "distractors": ["SQL injection", "DNS amplification", "indirect prompt injection", "TLS downgrade"], "explanation": "Extracting NTLM hashes and Kerberos tickets from LSASS memory is MITRE ATT&CK T1003, credential dumping \u2014 the canonical post-foothold technique on Windows. Credential Guard, LSASS protection, and EDR detections defend against it; an unsupported Windows 7 host can run none of them, which is why the enclave isolation was the only thing standing between this host and the network. The distractors are unrelated attack classes from other chapters."}, "asset_gap": {"answer": "CMDB (current asset inventory)", "distractors": ["SIEM log retention window", "software bill of materials (SBOM)", "DMARC aggregate report", "external penetration-test report"], "explanation": "During an active ransomware response, the ability to enumerate every imaging-adjacent host determines how fast and how completely you can contain. A CMDB reconciled 16 months ago forced IR to scope by walking the floor \u2014 exactly the failure the design plan had already identified and which was never remediated. SBOMs, DMARC reports, SIEM retention, and pen-test reports do not answer 'which hosts are in blast radius right now.'"}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emma Reviews the Churchill Aftermath (Diagnostic) - SecurityX PBQ</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/problem.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="container">
+        <header>
+            <a href="./index.html" class="back-link">&larr; All PBQs</a>
+        </header>
+        <main id="main">
+            <p class="problem-chapter">Chapter 5</p>
+            <h1>Emma Reviews the Churchill Aftermath (Diagnostic)</h1>
+
+            <section class="problem-context"><p>The Friday hostile offboarding went as well as a 4:55 p.m. fire drill can go. Emma disabled Frank Churchill's account at the IdP within eight minutes of the HR call. Federated logout cascaded across Salesforce, ServiceNow, GitHub, and Snowflake. The ticket was closed Friday night. Emma went home.</p>
+<p>Forty-three days later, Highbury's source-control team notices an unexpected force-push to a release branch from an automation account, originating from a residential IP in a city no Highbury employee lives in. The commit backdoors the build. Forensics traces it back to Frank.</p>
+<p>The offboarding was <em>mostly</em> done. The IdP kill switch did exactly what it was designed to do — for the things it covered. The incident is entirely in what it did not cover, and in the parts of the process that depended on a tired person remembering to do them manually at 5 p.m. on a Friday.</p></section>
+            <section class="problem-artifact artifact-rca" aria-label="Supporting artifact"><p><strong>Post-incident report — unauthorized access, ex-employee F. Churchill.</strong> &nbsp; <em>Author: E. Woodhouse, IAM Specialist. Status: draft for legal and the board. Do not forward.</em></p>
+<h3>What we now know</h3>
+<ul>
+<li><strong>Offboarding day</strong> IdP account disabled at 17:03. Federated apps (Salesforce, ServiceNow, GitHub-SSO, Snowflake) correctly rejected new logins thereafter.</li>
+<li><strong>Offboarding day</strong> SSH public key removed from 20 of 22 production hosts. The runbook was a manual checklist; two hosts in the <code>eng-prod</code> cluster were on a maintenance reboot and got skipped. Nobody re-ran the checklist.</li>
+<li><strong>Offboarding day</strong> The three un-federated LOCAL accounts (legacy-billing, bug-tracker-19, timesheet-old) were never touched. They were not on anyone's list because they were never in the IdP to begin with.</li>
+<li><strong>Offboarding day</strong> The deploy-pipeline API token (<code>no_expiry</code>, scope <code>prod/*</code>) was not rotated. It was nobody's explicit step.</li>
+<li><strong>Day +43</strong> Frank authenticates to <code>github-enterprise</code> <em>not</em> through SSO but with the still-valid deploy-pipeline token, force-pushes a backdoored commit to a release branch. Source IP: residential, out of state.</li>
+<li><strong>Day +51</strong> Legal requests a complete, time-correlated record of every system Frank could touch after termination, and every action taken on his accounts. Emma cannot produce one: access logs live on each system separately and were never centralized.</li>
+</ul>
+<h3>Contributing failures</h3>
+<ul>
+<li>The IdP kill switch covered federated apps only. Three local accounts and one long-lived token were entirely outside its reach.</li>
+<li>The long-lived API token survived the IdP disable because federation never governed it; it required explicit rotation that no step owned.</li>
+<li>SSH key removal was a manual checklist with no completeness guarantee; 2 of 22 hosts were silently missed.</li>
+<li>There was no centralized, tamper-evident record from which a defensible post-termination timeline could be reconstructed for legal.</li>
+</ul></section>
+            <section class="problem-prompt"><p>For each contributing failure in Emma's report, name the specific identity-and-access control that failed.</p></section>
+
+            <form id="cloze-form" class="problem-body" data-problem-id="ch05-emma-incident">
+                <p>The three un-federated LOCAL accounts that were never disabled — invisible to the IdP kill switch because they were never in the IdP — are a textbook failure of <strong><span class="cloze-blank" data-blank="local_account_gap"></span></strong> in the identity lifecycle.</p>
+<p>The deploy-pipeline API token survived the IdP disable because federation never governed it in the first place. Killing it required an explicit <strong><span class="cloze-blank" data-blank="token_persistence"></span></strong> step that no part of the process owned — the single action that would have rendered the token Frank later used inert.</p>
+<p>SSH keys were removed from 20 of 22 hosts because the offboarding ran as a manual checklist with no completeness guarantee. The standard that makes create/disable/delete atomic and verifiable across every connected system — eliminating the silently-skipped host — is <strong><span class="cloze-blank" data-blank="manual_process"></span></strong>.</p>
+<p>Even on the two hosts where the orphaned key remained, the residual access was unbrokered standing credential. Routing all privileged access through a <strong><span class="cloze-blank" data-blank="privileged_gap"></span></strong> would have meant there was no standing credential for an orphaned key to ride, because access is issued just-in-time and recorded per session.</p>
+<p>When Legal asked for a defensible, time-correlated record of everything Frank could touch and everything done to his accounts, Emma could not produce one. This is a failure of <strong><span class="cloze-blank" data-blank="audit_gap"></span></strong> — the single source from which an unbroken post-termination timeline is reconstructed.</p>
+<p>The root pattern across all of it: a federated IdP gives you one fast kill switch, but only for federated identities. The lesson Emma takes to the board is that everything outside federation — local accounts, long-lived tokens, cached material, orphaned keys — needs its own deprovisioning guarantee, ideally automated through <strong><span class="cloze-blank" data-blank="provisioning_fix"></span></strong> rather than a 5 p.m. Friday checklist.</p>
+                <div class="problem-actions">
+                    <button type="submit" class="btn btn-primary" id="btn-submit">Check answers</button>
+                    <button type="button" class="btn btn-ghost" id="btn-reset">Reset</button>
+                    <span id="score-readout" class="score-readout" role="status" aria-live="polite" aria-atomic="true"></span>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script id="problem-data" type="application/json">{"id": "ch05-emma-incident", "blanks": {"local_account_gap": {"answer": "deprovisioning", "distractors": ["authentication", "authorization", "attestation", "encryption"], "explanation": "The identity lifecycle is provisioning \u2192 modification \u2192 deprovisioning. Accounts that survive a termination \u2014 here, three un-federated local accounts that were never on any offboarding list \u2014 are the canonical deprovisioning failure. The distractors are other IAM functions that were not what broke."}, "token_persistence": {"answer": "secret rotation / revocation", "distractors": ["secret hashing", "secret salting", "Base64 encoding of the secret", "secret compression"], "explanation": "A long-lived API token is not governed by the IdP session that issued the human's login. Disabling the IdP account does nothing to it. The only thing that neutralizes a compromised or orphaned long-lived secret is rotation/revocation \u2014 invalidating the old value. Hashing, salting, encoding, and compression are storage transformations, not revocation."}, "manual_process": {"answer": "SCIM (automated provisioning/deprovisioning)", "distractors": ["SAML", "OAuth 2.0", "RADIUS", "Kerberos"], "explanation": "SCIM automates create/update/delete of accounts across connected systems, so a deprovisioning action is atomic and verifiable rather than a human checklist that can silently skip two rebooting hosts. SAML and OAuth handle authentication/authorization; RADIUS and Kerberos are authentication protocols \u2014 none of them guarantee lifecycle completeness."}, "privileged_gap": {"answer": "PAM (privileged access management)", "distractors": ["MDM (mobile device management)", "DLP gateway", "WAF", "CASB"], "explanation": "PAM brokers privileged sessions and issues just-in-time, short-lived credentials rather than leaving standing keys on hosts. With PAM, an orphaned authorized_keys entry has nothing to ride: there is no persistent credential and every privileged session is recorded. MDM, DLP, WAF, and CASB operate on entirely different layers."}, "audit_gap": {"answer": "centralized audit trail / access logging", "distractors": ["code-coverage report", "application performance counters", "CI/CD build artifacts", "marketing analytics"], "explanation": "A legally defensible post-termination timeline requires a centralized, time-correlated, tamper-evident record of who did what, when, and from where. Per-system logs that were never aggregated cannot be stitched into that timeline after the fact. The distractors are operational telemetry with no forensic-record value here."}, "provisioning_fix": {"answer": "automated identity lifecycle (SCIM-driven joiner/mover/leaver)", "distractors": ["a longer manual offboarding checklist", "a second approver on the same manual checklist", "quarterly access recertification only", "disabling federation entirely"], "explanation": "The structural fix is to drive joiner/mover/leaver events automatically through SCIM so that 'leaver' deterministically reaches every connected system \u2014 including the ones outside the IdP \u2014 rather than depending on a person remembering steps at 5 p.m. on a Friday. A longer or double-checked manual list still depends on human completeness; quarterly recertification is too slow for a hostile termination; killing federation removes the one thing that did work."}}}</script>
+    <script src="../assets/js/problem.js"></script>
+</body>
+</html>
