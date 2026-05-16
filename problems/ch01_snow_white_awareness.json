@@ -6,7 +6,7 @@
   "artifact_title": "Excerpt — Awareness Program Draft (mixed tiers)",
   "artifact_md": "1. *Seven Dwarfs Mining is committed to protecting employee and customer information from unauthorized disclosure or loss. Senior management endorses this commitment.*\n2. *All employees must complete security-awareness training within 30 days of hire and annually thereafter. All employee passwords must be a minimum of 14 characters and rotated every 90 days.*\n3. *Recommended: Use a passphrase of four or more random words rather than a complex random string — it is easier to recall and mathematically harder to crack.*\n4. *Help Desk — Resetting a locked account:* (a) verify employee identity via callback to the number stored in HR; (b) in Active Directory, right-click the user → Reset Password; (c) force password change at next logon; (d) log the reset in the ITSM ticket.",
   "prompt_md": "Help Snow White classify each line of the draft and finish her program plan by selecting the correct option for each blank. Click **Check answers** when you are done.",
-  "body_md": "Looking at the draft excerpt above:\n\nLine 1 — the board-endorsed intent statement — belongs in a **{{intent_doc}}**. Line 2 — the mandatory, measurable requirements about training cadence and password length — belongs in a **{{mandatory_doc}}**. Line 3 — the *recommended* passphrase tip — belongs in a **{{optional_doc}}**. Line 4 — the help desk's exact click-by-click reset steps — belongs in a **{{stepwise_doc}}**.\n\nWith the documentation split correctly, Snow White moves on to the program itself. To measure whether awareness is improving, she will track the **{{primary_metric}}** on monthly simulated phishing campaigns. Because the audit committee cares about IT governance maturity, she will align her control objectives to **{{framework}}** rather than the alternative service-management framework. Finally, to make sure responsibility for incident response is unambiguous across Doc, Grumpy, and Snow White herself, she will document roles using a **{{responsibility_tool}}**.",
+  "body_md": "Looking at the draft excerpt above:\n\nLine 1 — the board-endorsed intent statement — belongs in a **{{intent_doc}}**. Line 2 — the mandatory, measurable requirements about training cadence and password length — belongs in a **{{mandatory_doc}}**. Line 3 — the *recommended* passphrase tip — belongs in a **{{optional_doc}}**. Line 4 — the help desk's exact click-by-click reset steps — belongs in a **{{stepwise_doc}}**.\n\nWith the documentation split correctly, Snow White moves on to the program itself. To measure how often employees still fall for the monthly phishing simulations, she will track the **{{primary_metric}}**. Because the audit committee cares about IT governance maturity, she will align her control objectives to **{{framework}}** rather than the alternative service-management framework. Finally, to make sure responsibility for incident response is unambiguous across Doc, Grumpy, and Snow White herself, she will document roles using a **{{responsibility_tool}}**.",
   "blanks": {
     "intent_doc": {
       "answer": "Policy",
@@ -29,14 +29,14 @@
       "explanation": "Line 4 is an ordered, click-by-click set of instructions tied to a specific tool (Active Directory). Procedures live closest to the technology and are rewritten whenever the tool changes."
     },
     "primary_metric": {
-      "answer": "click-through rate on simulated phishing",
+      "answer": "phishing click rate",
       "distractors": [
-        "mean time to detect (MTTD)",
-        "annualized loss expectancy (ALE)",
-        "patch latency",
-        "false-positive rate of the SIEM"
+        "report rate of suspicious messages",
+        "median time to report a phish",
+        "repeat-click rate among prior clickers",
+        "training completion rate"
       ],
-      "explanation": "Click-through rate on simulated phishing is the standard KPI for awareness programs — it directly measures the behavior the program is trying to change."
+      "explanation": "Phishing click rate is the clearest measure of user susceptibility in a simulated campaign. Report rate and time-to-report matter too, but they measure reporting behavior rather than who still falls for the lure."
     },
     "framework": {
       "answer": "COBIT",

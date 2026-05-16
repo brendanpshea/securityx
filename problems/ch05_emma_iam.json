@@ -39,14 +39,14 @@
       "explanation": "A compromised or orphaned long-lived secret must be rotated immediately — the old value revoked and any service that needs continued access reissued a new credential."
     },
     "secret_practice": {
-      "answer": "short-lived, automatically rotated credentials",
+      "answer": "ephemeral, auto-rotated credentials",
       "distractors": [
-        "shared service-account passwords",
-        "passwords printed and stored in a safe",
-        "permanent API keys committed to source control",
-        "static credentials emailed to each engineer"
+        "vaulted credentials rotated quarterly",
+        "dual-control break-glass credentials",
+        "human-owned API credentials with annual rotation",
+        "shared service credentials rotated at offboarding"
       ],
-      "explanation": "Modern secrets management issues short-lived credentials (minutes-to-hours) and rotates automatically, so that a leaked or orphaned secret has a tightly bounded blast radius."
+      "explanation": "The best answer is to stop issuing long-lived human-owned secrets at all. Ephemeral credentials with automatic rotation sharply reduce the blast radius of leaks and make offboarding far less brittle."
     },
     "ssh_location": {
       "answer": "authorized_keys file",
@@ -89,14 +89,14 @@
       "explanation": "SCIM is the standard for automating create/update/delete of user accounts across SaaS apps. SAML/OIDC handle authentication; SCIM handles the lifecycle plumbing."
     },
     "audit_artifact": {
-      "answer": "access logs / audit trail",
+      "answer": "centralized access audit trail",
       "distractors": [
-        "performance counters",
-        "marketing analytics",
-        "build artifacts",
-        "code coverage reports"
+        "termination checklist",
+        "change ticket history",
+        "system inventory snapshot",
+        "HR case log"
       ],
-      "explanation": "Access logs and audit trails (who, what, when, from where) are the legally defensible record that revocation actually occurred at a specific time."
+      "explanation": "Legal needs a time-correlated record of who accessed what and when across the IdP, PAM, and source repo. A centralized access audit trail provides that; the other records are useful context but not the authoritative access evidence."
     }
   }
 }

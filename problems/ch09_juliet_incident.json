@@ -9,14 +9,14 @@
   "body_md": "The radiologist reached the EHR through the vendor web portal in a personal browser — a path that was never placed behind conditional access or containerization. A control enforced on the managed app but not on every path to the same data is, in effect, an **{{byod_bypass}}**: the protected path was optional because an unprotected one existed beside it.\n\nThat same web portal still accepted a replayed phished password because **{{auth_gap}}** was rolled out on the managed app but never extended to the portal. Phishing-resistant authentication only resists phishing on the paths where it is actually required.\n\nThe Windows 7 MRI workstation was only ever defensible because of **{{enclave_bypass}}** — an isolated VLAN with default-deny egress. A biomedical vendor technician collapsed that entire justification with a patch cable.\n\nThat re-cabling happened with no request, no approval, and no rollback plan. This is a failure of **{{change_gap}}** — the discipline that would have forced the move through review and caught that it eliminated the enclave.\n\nOn the now-reachable, unsupported host, the attacker extracted NTLM hashes and Kerberos tickets from LSASS memory. This MITRE ATT&CK technique is **{{cred_dump}}**, and it succeeded silently because Windows 7 could run no behavioral endpoint agent to see it.\n\nFinally, IR could not produce an authoritative list of imaging-adjacent hosts and scoped the blast radius by walking the floor. This is the failure of the **{{asset_gap}}** — the same stale inventory the design plan had already flagged, never remediated, now on the critical path during an active ransomware response.",
   "blanks": {
     "byod_bypass": {
-      "answer": "unmanaged access path (control not applied to every path)",
+      "answer": "coverage gap from an unmanaged alternate access path",
       "distractors": [
-        "selective wipe",
-        "wireless intrusion detection (WIDS)",
-        "per-SSID VLAN segmentation",
-        "DKIM signing"
+        "FIDO2 cryptographic failure",
+        "selective wipe failure",
+        "wireless segmentation failure",
+        "IdP outage"
       ],
-      "explanation": "Conditional access and app containerization only protect the paths they are actually enforced on. Leaving the EHR vendor web portal reachable from any unmanaged browser meant the protected managed-app path was effectively optional — the attacker simply used the door that had no lock. The distractors are real chapter controls but none of them name 'a protected control with an unprotected path beside it.'"
+      "explanation": "The managed container was protected, but the same data remained reachable through an unmanaged browser path. That is a control-coverage gap: the protection existed, but not across every route to the resource."
     },
     "auth_gap": {
       "answer": "FIDO2 / phishing-resistant passwordless authentication",

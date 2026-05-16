@@ -30,14 +30,14 @@
       "explanation": "Container security pipelines scan images for vulnerabilities and use admission controllers (e.g., OPA Gatekeeper) to block non-compliant images from being deployed."
     },
     "pod_identity": {
-      "answer": "workload identity (e.g., IRSA)",
+      "answer": "per-pod workload identity (e.g., IRSA)",
       "distractors": [
-        "shared root credentials",
-        "hard-coded API keys in env vars",
-        "cluster-wide service account",
-        "the kubelet's own credentials"
+        "namespace-scoped service account",
+        "node instance profile",
+        "sidecar credential broker without IAM binding",
+        "static access key mounted as a secret"
       ],
-      "explanation": "Per-pod workload identity (IAM Roles for Service Accounts on EKS, Workload Identity on GKE) gives each pod just the permissions it needs — far better than sharing node credentials with every workload on the host."
+      "explanation": "Workload identity binds cloud permissions to the pod itself instead of letting every workload inherit node-level credentials. The other options either broaden access or add plumbing without giving the pod a distinct cloud identity."
     },
     "principle": {
       "answer": "least privilege",

@@ -19,14 +19,14 @@
       "explanation": "The identity lifecycle is provisioning → modification → deprovisioning. Accounts that survive a termination — here, three un-federated local accounts that were never on any offboarding list — are the canonical deprovisioning failure. The distractors are other IAM functions that were not what broke."
     },
     "token_persistence": {
-      "answer": "secret rotation / revocation",
+      "answer": "token revocation or rotation",
       "distractors": [
-        "secret hashing",
-        "secret salting",
-        "Base64 encoding of the secret",
-        "secret compression"
+        "shorter token TTL on future issues",
+        "scope review only",
+        "API gateway logging",
+        "hashing the token at rest"
       ],
-      "explanation": "A long-lived API token is not governed by the IdP session that issued the human's login. Disabling the IdP account does nothing to it. The only thing that neutralizes a compromised or orphaned long-lived secret is rotation/revocation — invalidating the old value. Hashing, salting, encoding, and compression are storage transformations, not revocation."
+      "explanation": "Once a long-lived token exists, the only step that actually neutralizes it is revocation or rotation. Shorter TTLs help future issuance, but they do not kill the already-valid token Frank used."
     },
     "manual_process": {
       "answer": "SCIM (automated provisioning/deprovisioning)",

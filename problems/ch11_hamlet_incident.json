@@ -39,14 +39,14 @@
       "explanation": "Detection-as-code is the practice of treating every rule like application code: in version control, reviewed, *tested against historical data, with its false-positive rate measured continuously*. A rule with a 64% FPR is not a 'noisy rule' — it is a rule the program should have tuned, gated, or retired. Without the FPR-tracked lifecycle, the rule kept firing and analysts kept dismissing it, which is functionally the same as not having the detection at all."
     },
     "intel_failure": {
-      "answer": "enriched and correlated to telemetry via the TIP",
+      "answer": "enriched and correlated to relevant telemetry in the TIP",
       "distractors": [
-        "published in STIX format",
-        "transported via TAXII",
-        "deduplicated against commercial feeds",
-        "manually printed for the SOC manager"
+        "serialized into STIX objects",
+        "transported over TAXII",
+        "deduplicated by source feed alone",
+        "archived in the feed repository"
       ],
-      "explanation": "STIX and TAXII describe the *data model* and *transport* — both were working; the bulletin arrived and was readable. What was missing was the curated platform layer (the TIP) that scores indicators by fidelity, ages them, enriches each alert with the relevant intel, and correlates IOCs against SIEM telemetry. Without that enrichment step, the bulletin sat in the raw feed and the SOC analyst working the related Sigma alert had no idea it existed."
+      "explanation": "The bulletin already arrived in the right transport and data model. What was missing was the TIP step that enriches alerts with the intel and correlates the indicators against live telemetry so analysts can act on them."
     },
     "telemetry_gap": {
       "answer": "normalization (OCSF / ECS)",

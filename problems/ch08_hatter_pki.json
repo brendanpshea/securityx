@@ -21,12 +21,12 @@
     "acme": {
       "answer": "ACME",
       "distractors": [
-        "SCEP-on-Telnet",
-        "FTP",
-        "SNMPv1",
-        "Kerberos AS-REQ"
+        "EST",
+        "SCEP",
+        "CMP",
+        "manual CSR/email workflow"
       ],
-      "explanation": "ACME (Automated Certificate Management Environment) is the Let's Encrypt-pioneered standard for automated certificate issuance and renewal, now widely supported."
+      "explanation": "ACME is the web-TLS automation protocol that continuously issues and renews certificates with minimal human intervention. EST, SCEP, and CMP are certificate-enrollment protocols used in other environments but are not the standard fit for internet-facing TLS renewal at scale."
     },
     "san": {
       "answer": "SAN",
@@ -121,12 +121,12 @@
     "pqc_kem": {
       "answer": "ML-KEM",
       "distractors": [
-        "RSA-1024",
-        "MD5",
-        "DES",
-        "RC4"
+        "ML-DSA",
+        "SLH-DSA",
+        "X25519",
+        "RSA-3072"
       ],
-      "explanation": "ML-KEM (formerly CRYSTALS-Kyber) is NIST's standardized post-quantum key encapsulation mechanism, deployed in hybrid TLS by Chrome, Cloudflare, and others."
+      "explanation": "ML-KEM is NIST's standardized post-quantum key encapsulation mechanism. ML-DSA and SLH-DSA are post-quantum signature algorithms, while X25519 and RSA-3072 are classical algorithms."
     },
     "hybrid": {
       "answer": "hybrid",

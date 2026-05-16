@@ -29,14 +29,14 @@
       "explanation": "A runbook is the manual procedure an analyst follows when human judgment is required — and the chapter explicitly contrasts it with a playbook (which automates the routine). For accounts under HR investigation or legal hold, the right response is escalation to a runbook that requires HR/legal sign-off *before* any automated lockout, precisely so the response doesn't destroy the underlying case."
     },
     "automation_blast_radius": {
-      "answer": "playbook scoping / guardrails (e.g., do-not-fire conditions on flagged accounts)",
+      "answer": "playbook scoping guardrails",
       "distractors": [
-        "increased automation coverage across more alerts",
-        "moving the playbook from staging into production faster",
-        "lowering the severity threshold for credential-stuffing alerts",
-        "running the playbook on a more powerful SOAR host"
+        "faster execution on the SOAR platform",
+        "lower alert thresholds for credential stuffing",
+        "broader automation coverage across more accounts",
+        "additional password-reset steps"
       ],
-      "explanation": "Effective SOAR design includes conditional guardrails: this playbook does not fire on accounts under legal hold, active HR investigation, or any account in a configurable 'human-in-the-loop' watchlist. Without scoping, the blast radius of every automation grows with every flag a separate process raises on the same account. The distractors all *expand* the automation; they do not bound it."
+      "explanation": "The missing control was not more automation but boundaries on where automation can act. High-sensitivity accounts need do-not-fire conditions and escalation gates so routine playbooks do not destroy evidence."
     },
     "coc_failure": {
       "answer": "chain of custody",
