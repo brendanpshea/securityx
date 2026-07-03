@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -c \"import random; random.seed\\(7\\); seq=[random.choice\\(['T','F']\\) for _ in range\\(20\\)]; print\\(' '.join\\(f'{i+1}:{v}' for i,v in enumerate\\(seq\\)\\)\\); print\\('T count:', seq.count\\('T'\\), 'F count:', seq.count\\('F'\\)\\)\")"
+      "Bash(python -c \"import random; random.seed\\(7\\); seq=[random.choice\\(['T','F']\\) for _ in range\\(20\\)]; print\\(' '.join\\(f'{i+1}:{v}' for i,v in enumerate\\(seq\\)\\)\\); print\\('T count:', seq.count\\('T'\\), 'F count:', seq.count\\('F'\\)\\)\")",
+      "Bash(python \"C:\\\\Users\\\\brend\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-brend-OneDrive-Documents-Github-securityx\\\\c0b563d3-e7c9-4040-84de-e0e730e4ebcc\\\\scratchpad\\\\build_glossaries.py\")"
     ]
   }
 }
