@@ -50,16 +50,15 @@ broken.</p>
 <p>This chapter focuses on those operational decisions. We start with
 <strong>Public Key Infrastructure (PKI)</strong> — the global trust
 system that lets a browser in Boston accept that a server in Singapore
-really belongs to the bank it claims to be. From there, we move into the
-day-to-day applications of cryptography: protecting data at rest, in
-transit, and in use; sanitizing data when its useful life is over; and
-choosing between centralized and decentralized key management. We then
-look at advanced techniques — envelope encryption, forward secrecy,
-homomorphic encryption — that solve problems traditional cryptography
-cannot. Finally, we confront the long-shadowed threat of <strong>quantum
+really belongs to the bank it claims to be. Next come the day-to-day
+applications of cryptography: protecting data at rest, in transit, and
+in use, sanitizing data when its useful life is over, and managing keys.
+We then look at advanced techniques — envelope encryption, forward
+secrecy, homomorphic encryption — that solve problems traditional
+cryptography cannot. Finally, we confront the threat of <strong>quantum
 computing</strong> and the migration to <strong>post-quantum
 cryptography</strong> that organizations are beginning today, even
-though the threat is years away.</p>
+though the threat is still years away.</p>
 <p>The goal is not to make you a cryptographer. The goal is to make you
 the kind of architect who knows when to call one — and who can recognize
 a dangerous design before it ships.</p>
@@ -104,18 +103,16 @@ request for a certificate for <code>bank.example.com</code> actually
 comes from someone authorized to represent that domain. The CA only
 signs certificates that the RA has approved.</li>
 </ul>
-<p>The lifecycle of a certificate runs through several stages. A
-subscriber generates a key pair and a <strong>Certificate Signing
-Request (CSR)</strong> containing the public key and identity
-information. The CSR is submitted to the RA, which performs
-<strong>domain validation</strong> (DV), <strong>organization
-validation</strong> (OV), or <strong>extended validation</strong> (EV)
-depending on the certificate class. Once validated, the issuing CA signs
-the certificate and publishes it. The certificate is installed on the
-subscriber’s system and presented to relying parties during normal
-operation. Toward the end of its validity period, the subscriber
-<strong>renews</strong> the certificate; if the private key is
-compromised before then, the certificate is
+<p>A certificate’s lifecycle runs through several stages. A subscriber
+generates a key pair and a <strong>Certificate Signing Request
+(CSR)</strong> containing the public key and identity information. The
+RA performs <strong>domain validation</strong> (DV),
+<strong>organization validation</strong> (OV), or <strong>extended
+validation</strong> (EV) depending on the certificate class, and the
+issuing CA then signs the certificate. The subscriber installs it and
+presents it to relying parties during normal operation. Toward the end
+of its validity period the subscriber <strong>renews</strong> it; if the
+private key is compromised first, the certificate is
 <strong>revoked</strong>.</p>
 <p><img src="../assets/images/ch08_pki_lifecycle.png"
 alt="The end-to-end lifecycle of a digital certificate. Issuance flows through the registration authority and issuing CA up to the offline root. Use occurs through TLS handshakes. Validation — performed every time the certificate is presented — checks the trust chain, signature, validity dates, subject match, and revocation status." />
@@ -130,9 +127,9 @@ status.</em></p>
 <ol type="1">
 <li><strong>Recall.</strong> What do the root CA, intermediate CA, and
 registration authority each do in a well-designed PKI?</li>
-<li><strong>Discriminate.</strong> A request containing a public key and
-identity information is submitted for approval before a certificate is
-issued. What is that object called?</li>
+<li><strong>Discriminate.</strong> A subscriber sends a CA a file
+containing its public key and identity claims, signed with the matching
+private key. Is that file a CSR, a certificate, or a CRL?</li>
 <li><strong>Apply.</strong> An enterprise keeps its root CA online and
 uses it to issue daily leaf certificates directly. Name two design
 problems with that choice and the safer structure the chapter
@@ -148,13 +145,16 @@ recommends.</li>
 <strong>intermediate CA</strong> handles day-to-day issuance, and the
 <strong>RA</strong> performs identity vetting before issuance.</li>
 <li><strong>A Certificate Signing Request (CSR).</strong> It carries the
-subscriber’s public key and identity claims to the issuance
-workflow.</li>
-<li><strong>The root is overexposed</strong> and <strong>a compromise
-would endanger the entire hierarchy immediately</strong>. The safer
-design is an <strong>offline root signing one or more
-intermediates</strong>, with the RA approving requests before those
-intermediates issue leaf certs.</li>
+subscriber’s public key and identity claims to the issuance workflow. A
+<em>certificate</em> is what the CA returns (signed by the CA), and a
+<em>CRL</em> is a list of revoked serial numbers.</li>
+<li><strong>The root’s private key is exposed to network
+attack</strong>, and <strong>a compromise would invalidate every
+certificate beneath it</strong>. Because a root cannot simply be
+revoked, recovery means pushing a new trust anchor to every relying
+party’s trust store. The safer design is an <strong>offline root signing
+one or more intermediates</strong>, with the RA approving requests
+before those intermediates issue leaf certs.</li>
 </ol>
 </details>
 <h3 id="certificate-extensions-templates-and-ocsp-stapling">Certificate
@@ -178,7 +178,8 @@ a CA. A leaf certificate that omits this flag (or sets it to
 downstream.</li>
 <li><strong>Authority Information Access (AIA)</strong> and <strong>CRL
 Distribution Points (CDP)</strong> — URLs where relying parties can find
-the issuer’s certificate and revocation information, respectively.</li>
+the issuer’s certificate and revocation information (CRLs and OCSP, both
+explained below), respectively.</li>
 </ul>
 <p>In an enterprise PKI, certificates are typically issued from
 <strong>templates</strong> that pre-define these extensions for a given
@@ -213,60 +214,45 @@ CT Precertificate SCTs:
 (<code>CA:FALSE</code>), it is restricted to <em>server</em>
 authentication only (the EKU forbids using it to sign code or
 authenticate a client), it has a <em>short</em> lifetime (90 days), it
-carries <em>both</em> CRL and OCSP revocation pointers, and it has been
-<em>logged</em> in Certificate Transparency. Every one of those
+carries revocation pointers (a CRL distribution point and, in this
+enterprise example, an OCSP responder), and it has been <em>logged</em>
+in Certificate Transparency (covered below). Every one of those
 properties is a control — and any one of them missing should make a
 relying party suspicious.</p>
 </blockquote>
-<p>Revocation is the achilles heel of classical PKI. The original
+<p>Revocation is the Achilles’ heel of classical PKI. The original
 mechanism, <strong>Certificate Revocation Lists (CRLs)</strong>, is a
 signed list of revoked serial numbers that grows over time and must be
-downloaded by every relying party. The next-generation answer, the
-<strong>Online Certificate Status Protocol (OCSP)</strong>, lets a
-client query the CA in real time for the status of a single certificate
-— but doing so leaks browsing data to the CA and adds round-trip
-latency. <strong>OCSP stapling</strong> fixes both problems: the
-<em>server</em> periodically fetches a signed OCSP response from its CA
-and “staples” it to the TLS handshake, so the client gets fresh
-revocation information without contacting the CA at all.</p>
+downloaded by relying parties. The <strong>Online Certificate Status
+Protocol (OCSP)</strong> lets a client query the CA in real time for the
+status of a single certificate — but doing so leaks browsing data to the
+CA and adds round-trip latency. <strong>OCSP stapling</strong> fixes
+both problems: the <em>server</em> periodically fetches a signed OCSP
+response from its CA and “staples” it to the TLS handshake, so the
+client gets fresh revocation information without contacting the CA at
+all.</p>
+<p>The public web, however, is moving away from live OCSP. The
+CA/Browser Forum made OCSP optional and CRLs mandatory for publicly
+trusted TLS CAs in 2024 <span class="citation"
+data-cites="cabf-sc063-2023">(<a href="#ref-cabf-sc063-2023"
+role="doc-biblioref">CA/Browser Forum 2023</a>)</span>, and Let’s
+Encrypt shut down its OCSP responders in August 2025 <span
+class="citation" data-cites="letsencrypt-ocsp-2025">(<a
+href="#ref-letsencrypt-ocsp-2025" role="doc-biblioref">Let’s Encrypt
+2025b</a>)</span>. Browsers instead check revocation data they download
+in bulk — Chrome’s CRLSets and Firefox’s CRLite — avoiding the privacy
+leak and the latency. OCSP and stapling remain common in enterprise PKIs
+and on the exam, but CRLs and short lifetimes are the direction of
+travel.</p>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> Revocation is the part of PKI that
 breaks under stress. Browsers historically “soft-fail” on OCSP errors —
 if the OCSP responder is unreachable, the connection still proceeds. The
-combination of OCSP stapling plus short-lived certificates (90 days,
-typical of Let’s Encrypt) is the modern solution: when certificates
-expire quickly, revocation matters less because the window of abuse is
-naturally bounded.</p>
+practical answer is to make revocation matter less: short-lived
+certificates (the window of abuse is naturally bounded), stapling where
+OCSP is still used, and automation so that replacing a certificate is
+routine rather than an emergency.</p>
 </blockquote>
-<blockquote class="callout-quick-check">
-<p><strong class="callout-title">Quick Check 8.2</strong></p>
-<ol type="1">
-<li><strong>Recall.</strong> Which certificate field controls hostname
-validity, and what public mechanism lets domain owners detect
-unauthorized certificate issuance?</li>
-<li><strong>Discriminate.</strong> A certificate issued for TLS web
-server authentication is used to sign software. Which extension should
-have prevented that misuse?</li>
-<li><strong>Apply.</strong> Browsers often soft-fail when an OCSP
-responder is unavailable. What two operational practices from the
-section reduce the practical pain of revocation?</li>
-</ol>
-</blockquote>
-<details>
-<summary>
-<strong>Answers — Quick Check 8.2</strong>
-</summary>
-<ol type="1">
-<li><strong>Subject Alternative Name (SAN)</strong> controls hostname
-validity, and <strong>Certificate Transparency (CT)</strong> lets domain
-owners detect rogue issuance after the fact.</li>
-<li><strong>Extended Key Usage (EKU).</strong> It constrains what the
-certificate may legitimately be used for.</li>
-<li><strong>OCSP stapling and short-lived certificates.</strong>
-Stapling avoids direct client-to-CA checks, and short lifetimes
-naturally limit the abuse window even when revocation is imperfect.</li>
-</ol>
-</details>
 <h3 id="certificate-deployment-and-integration-approaches">Certificate
 Deployment and Integration Approaches</h3>
 <p>Modern PKI is rarely managed by hand. <strong>Automated Certificate
@@ -287,20 +273,35 @@ short-lived identity certificate issued by an internal CA.</li>
 <li><strong>Certificate pinning.</strong> A client hard-codes the
 expected certificate (or its public key hash) and refuses any other.
 Pinning protects against rogue CAs but creates serious operational risk
-if keys must be rotated unexpectedly — pinning has been retired from
-public web browsers in favor of <strong>Certificate
-Transparency</strong> logs.</li>
+if keys must be rotated unexpectedly — browsers removed web-based
+pinning (HTTP Public Key Pinning) years ago in favor of
+<strong>Certificate Transparency</strong> logs, though mobile apps and
+internal services still pin.</li>
 <li><strong>Certificate Transparency (CT).</strong> A public,
-append-only log of every certificate issued by a participating CA.
-Modern browsers require that publicly trusted certificates appear in CT
-logs, making it possible to detect unauthorized issuance after the
-fact.</li>
+append-only log of every certificate issued by a participating CA. Major
+browsers require valid CT proof for publicly trusted certificates,
+making it possible to detect unauthorized issuance after the fact.</li>
 </ul>
+<p>Shrinking lifetimes make automation a necessity. Under CA/Browser
+Forum Ballot SC-081, the maximum lifetime of a publicly trusted TLS
+certificate fell from 398 to <strong>200 days</strong> for certificates
+issued on or after 15 March 2026, drops to <strong>100 days</strong> on
+15 March 2027, and reaches <strong>47 days</strong> on 15 March 2029;
+the reuse period for domain validation shrinks to 10 days by 2029 <span
+class="citation" data-cites="cabf-sc081-2025">(<a
+href="#ref-cabf-sc081-2025" role="doc-biblioref">CA/Browser Forum
+2025b</a>)</span>. Let’s Encrypt, which issues 90-day certificates
+today, plans to reach 45 days by 2028 <span class="citation"
+data-cites="letsencrypt-45day-2025">(<a
+href="#ref-letsencrypt-45day-2025" role="doc-biblioref">Let’s Encrypt
+2025a</a>)</span>. Private CAs set their own limits.</p>
 <table>
 <caption>Table 8.1: Common digital certificate types and their typical
-use. Lifetimes have trended dramatically downward across the industry —
-public TLS certificates may not exceed 398 days under current CA/Browser
-Forum rules, and shorter is better.</caption>
+use. “Public cap” is the CA/Browser Forum maximum for publicly trusted
+TLS certificates (200 days now, 100 days from March 2027, 47 days from
+March 2029 <span class="citation" data-cites="cabf-sc081-2025">(<a
+href="#ref-cabf-sc081-2025" role="doc-biblioref">CA/Browser Forum
+2025b</a>)</span>).</caption>
 <colgroup>
 <col style="width: 25%" />
 <col style="width: 25%" />
@@ -320,38 +321,43 @@ Forum rules, and shorter is better.</caption>
 <th scope="row" style="text-align: left;">Domain Validated (DV)</th>
 <td style="text-align: left;">Proof of domain control only</td>
 <td style="text-align: left;">Most public websites</td>
-<td style="text-align: left;">90 days – 1 year</td>
+<td style="text-align: left;">Public cap (200 days in 2026); 90 days
+common with ACME</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Organization Validated (OV)</th>
 <td style="text-align: left;">Domain control + organization vetting</td>
 <td style="text-align: left;">Corporate sites, B2B portals</td>
-<td style="text-align: left;">1 year</td>
+<td style="text-align: left;">Public cap (200 days in 2026)</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Extended Validation (EV)</th>
 <td style="text-align: left;">Full legal entity verification</td>
-<td style="text-align: left;">Banks, high-trust commerce</td>
-<td style="text-align: left;">1 year</td>
+<td style="text-align: left;">Banks, high-trust commerce (browsers no
+longer show a special EV indicator)</td>
+<td style="text-align: left;">Public cap (200 days in 2026)</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Wildcard (<code>*.example.com</code>)</th>
 <td style="text-align: left;">DV/OV; covers any single label</td>
 <td style="text-align: left;">Multi-subdomain deployments</td>
-<td style="text-align: left;">1 year</td>
+<td style="text-align: left;">Public cap (200 days in 2026)</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Code Signing</th>
-<td style="text-align: left;">Publisher identity, often
-hardware-bound</td>
+<td style="text-align: left;">Publisher identity, hardware-bound
+keys</td>
 <td style="text-align: left;">Software distribution</td>
-<td style="text-align: left;">1–3 years</td>
+<td style="text-align: left;">Up to 460 days (public CAs, since March
+2026) <span class="citation" data-cites="cabf-csc31-2025">(<a
+href="#ref-cabf-csc31-2025" role="doc-biblioref">CA/Browser Forum
+2025a</a>)</span></td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Client / Smart Card</th>
 <td style="text-align: left;">Identity proofing of a person</td>
 <td style="text-align: left;">Workforce authentication</td>
-<td style="text-align: left;">1–3 years</td>
+<td style="text-align: left;">Set by policy; often 1–3 years</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Internal / Private CA</th>
@@ -361,6 +367,36 @@ hardware-bound</td>
 </tr>
 </tbody>
 </table>
+<blockquote class="callout-quick-check">
+<p><strong class="callout-title">Quick Check 8.2</strong></p>
+<ol type="1">
+<li><strong>Recall.</strong> Which certificate field controls hostname
+validity, and what public mechanism lets domain owners detect
+unauthorized certificate issuance?</li>
+<li><strong>Discriminate.</strong> A certificate issued for TLS web
+server authentication is used to sign software. Which extension should
+have prevented that misuse?</li>
+<li><strong>Apply.</strong> Browsers often soft-fail when an OCSP
+responder is unavailable. What two operational practices from this
+section reduce the practical pain of revocation?</li>
+</ol>
+</blockquote>
+<details>
+<summary>
+<strong>Answers — Quick Check 8.2</strong>
+</summary>
+<ol type="1">
+<li><strong>Subject Alternative Name (SAN)</strong> controls hostname
+validity, and <strong>Certificate Transparency (CT)</strong> lets domain
+owners detect rogue issuance after the fact.</li>
+<li><strong>Extended Key Usage (EKU).</strong> It constrains what the
+certificate may legitimately be used for.</li>
+<li><strong>Short-lived certificates and OCSP stapling</strong> (backed
+by ACME automation). Short lifetimes naturally limit the abuse window
+even when revocation is imperfect, and stapling avoids direct
+client-to-CA checks where OCSP is still used.</li>
+</ol>
+</details>
 <hr />
 <h2 id="how-do-we-apply-cryptography-in-the-real-world">How Do We Apply
 Cryptography in the Real World?</h2>
@@ -385,21 +421,23 @@ attacker who has compromised the running operating system, because the
 OS already has the keys mounted.</p>
 <p><strong>Data in transit</strong> moves over networks. The dominant
 control is <strong>TLS</strong> for general traffic,
-<strong>IPsec</strong> for VPN tunnels, <strong>SSH</strong> for
-administrative sessions, and <strong>S/MIME</strong> or
-<strong>PGP</strong> for email at rest in inboxes (a hybrid case). TLS
-combines asymmetric cryptography (for authentication and key exchange)
-with symmetric cryptography (for bulk data) so that you get the trust
+<strong>IPsec</strong> (or TLS-based VPNs) for <strong>encrypted
+tunnels</strong> between sites and remote users, <strong>SSH</strong>
+for administrative sessions, and <strong>S/MIME</strong> or
+<strong>PGP</strong> for end-to-end protected email. TLS combines
+asymmetric cryptography (for authentication and key exchange) with
+symmetric cryptography (for bulk data) so that you get the trust
 properties of public-key crypto with the speed of symmetric crypto.</p>
 <p><strong>Data in use</strong> is the hardest phase. Once data is
 decrypted into RAM to be processed, anyone with privileged access to
 that process — a malicious admin, a kernel-level attacker, a hostile
 cloud insider — can read it. Three classes of solution have emerged:</p>
 <ul>
-<li><strong>Confidential computing</strong> uses CPU features (Intel
-SGX, AMD SEV-SNP, ARM CCA, AWS Nitro Enclaves) to create <strong>trusted
-execution environments (TEEs)</strong> whose memory is encrypted and
-inaccessible even to the host operating system or hypervisor.</li>
+<li><strong>Confidential computing</strong> uses hardware features
+(Intel SGX and TDX, AMD SEV-SNP, Arm CCA, AWS Nitro Enclaves) to create
+<strong>trusted execution environments (TEEs)</strong> whose memory is
+isolated, and on most of these platforms encrypted, so that even the
+host operating system or hypervisor cannot read it.</li>
 <li><strong>Homomorphic encryption</strong> allows computation on
 ciphertext without decrypting it (covered in detail later in this
 chapter).</li>
@@ -438,7 +476,7 @@ symmetric crypto for the bulk of the work.</caption>
 <tr>
 <th scope="row" style="text-align: left;">Typical algorithms</th>
 <td style="text-align: left;">AES, ChaCha20</td>
-<td style="text-align: left;">RSA, ECDSA, Ed25519, EdDSA</td>
+<td style="text-align: left;">RSA, ECDH/ECDSA, Ed25519</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Strength of “good” key</th>
@@ -454,7 +492,8 @@ signatures</td>
 <tr>
 <th scope="row" style="text-align: left;">Key distribution problem</th>
 <td style="text-align: left;">Hard — requires a secure channel</td>
-<td style="text-align: left;">Solved — public keys are public</td>
+<td style="text-align: left;">Eased — public keys can be shared openly,
+but must be authenticated (that is what PKI is for)</td>
 </tr>
 </tbody>
 </table>
@@ -462,18 +501,19 @@ signatures</td>
 Email, Non-Repudiation, and Privacy Use Cases</h3>
 <p>Email security uses two overlapping tools. <strong>S/MIME</strong>
 binds email signing and encryption to X.509 certificates issued by an
-enterprise PKI; it integrates well with Outlook and other corporate
-clients but does not work without the PKI behind it. <strong>PGP /
-OpenPGP</strong> uses a decentralized <strong>web of trust</strong> in
-which users sign each other’s keys directly; it predates corporate PKI
-and survives in security-conscious communities and software
-distribution.</p>
+enterprise or public CA; it integrates well with Outlook and other
+corporate clients but does not work without the PKI behind it.
+<strong>PGP / OpenPGP</strong> uses a decentralized <strong>web of
+trust</strong> in which users sign each other’s keys directly; it
+predates corporate PKI and survives in security-conscious communities
+and software distribution.</p>
 <p>Both achieve <strong>non-repudiation</strong> through digital
 signatures: a message signed with a private key cannot plausibly be
 denied by the key’s owner, because no one else could have produced the
-signature. Non-repudiation is what gives digital signatures legal weight
-in many jurisdictions for contracts, audit logs, and software
-releases.</p>
+signature — <em>provided</em> the key was under the owner’s sole control
+(which is why signing keys live in HSMs and smart cards).
+Non-repudiation is what gives digital signatures legal weight in many
+jurisdictions for contracts, audit logs, and software releases.</p>
 <h3 id="data-sanitization-anonymization-and-tokenization">Data
 Sanitization, Anonymization, and Tokenization</h3>
 <p>When data outlives its useful life — or needs to be analyzed without
@@ -481,10 +521,17 @@ exposing the underlying subjects — cryptography offers several
 techniques to shrink or eliminate the sensitive surface.</p>
 <ul>
 <li><strong>Data sanitization</strong> deliberately destroys data so
-that recovery is infeasible. Methods include overwriting (multi-pass for
-magnetic media; a single pass is sufficient for modern SSDs and
-effectively wiped when the SED’s media key is rotated), degaussing (for
-magnetic media only), and physical destruction.</li>
+that recovery is infeasible. NIST groups methods into <em>clear</em>
+(overwriting), <em>purge</em> (a drive’s secure-erase command,
+cryptographic erase, or degaussing), and <em>destroy</em> (shredding or
+incineration) <span class="citation"
+data-cites="nist-sp80088r2-2025">(<a href="#ref-nist-sp80088r2-2025"
+role="doc-biblioref">National Institute of Standards and Technology
+2025b</a>)</span>. One overwrite pass is enough for modern magnetic
+drives, but overwriting is unreliable on SSDs, where wear-leveling and
+spare cells hide data from the operating system; use the drive’s
+sanitize command, cryptographic erase, or physical destruction.
+Degaussing works on magnetic media only.</li>
 <li><strong>Cryptographic erasure</strong> destroys the <em>key</em>
 under which data was encrypted, rendering the ciphertext permanently
 unrecoverable. This is the dominant sanitization technique for cloud
@@ -501,7 +548,8 @@ mapping table.</li>
 numbers, SSNs) with non-sensitive <strong>tokens</strong> that have no
 mathematical relationship to the original. The mapping is held in a
 dedicated token vault. Tokenization is extensively used in PCI DSS
-environments because it removes downstream systems from PCI scope.</li>
+environments because it can take downstream systems that only see tokens
+out of PCI scope.</li>
 <li><strong>Data masking</strong> displays partial or fake values (for
 example, <code>****-****-****-1234</code>) to users who do not need the
 underlying data. Masking is a presentation-layer control, not a
@@ -517,10 +565,13 @@ Cryptography offers better alternatives:</p>
 certificate (often on a smart card or hardware token) to prove identity.
 Common in government, defense, and high-security enterprises.</li>
 <li><strong>Passwordless authentication</strong> typically means
-<strong>FIDO2 / WebAuthn</strong>, in which a hardware authenticator
-(YubiKey, Touch ID, Windows Hello) holds a private key and produces a
-signed challenge response. The server stores only the corresponding
-public key, so a server-side breach exposes nothing usable.</li>
+<strong>FIDO2 / WebAuthn</strong> (consumer-facing versions are branded
+<em>passkeys</em>), in which an authenticator (a YubiKey, Touch ID,
+Windows Hello) holds a private key and produces a signed challenge
+response that is bound to the website’s real origin. The server stores
+only the corresponding public key, so a server-side breach exposes
+nothing usable, and a look-alike phishing site cannot relay the
+response.</li>
 <li><strong>Mutual TLS (mTLS)</strong> authenticates both parties of a
 connection by certificate. Standard in service-mesh architectures and
 increasingly common for high-value APIs.</li>
@@ -569,44 +620,37 @@ because both sides authenticate with certificates.</li>
 <p>The Mad Hatter, lead cryptographer at <em>Teatime Tech</em>, takes a
 frantic call at 3:17 a.m. The company’s flagship payments API — the one
 Fortune 500 customers depend on for real-time settlement — has been
-refusing connections for forty-five minutes. Customer support phones are
-lit up. Two account executives have already been paged by their largest
-client, who is threatening to invoke the contractual SLA penalty
+refusing connections for forty-five minutes. Support phones are lit up,
+and the largest client is threatening to invoke the SLA penalty
 clause.</p>
 <p>The on-call engineer has spent the first thirty minutes hunting
 through application logs, then the load balancer, then DNS. Nothing is
-wrong. The pods are healthy, the database is responsive, the
-certificates on the edge servers — checked twice — are within their
-validity windows. He escalates to the Hatter not because he expects
-cryptography to be the answer, but because he is out of ideas.</p>
-<p>The Hatter pulls up
+wrong. The pods are healthy, the database is responsive, and the
+certificates on the edge servers are within their validity windows. He
+escalates to the Hatter because he is out of ideas, not because he
+expects cryptography to be the answer.</p>
+<p>The Hatter runs
 <code>openssl s_client -connect api.teatime.example:443 -showcerts</code>
-from his laptop and exhales the moment the output appears. The leaf
-certificate is fine. The root in every modern trust store is fine. The
-link in the middle — the <em>intermediate CA</em> that the company has
-been issuing from for nine years — quietly expired at midnight. It still
-works in the company’s internal trust store (which was loaded once and
-never refreshed), which is why staging tests passed. It does not work
-for any modern client validating the chain end-to-end.</p>
-<p>The fix itself takes forty seconds: the public CA had already
-cross-signed a replacement intermediate two years earlier and published
-it. The Hatter pushes a new chain bundle to the load balancer, the
-engineer reloads the TLS configuration, and the API comes back online.
-The accountants and the lawyers spend the next two weeks haggling over
-how much of the SLA penalty was avoidable.</p>
-<p>The post-mortem produces three permanent policy changes. First, every
-certificate in the company’s hierarchy — leaves, intermediates, internal
-CAs, code-signing certificates, and the offline root — is registered in
-an automated expiration tracker that emails <em>and</em> pages at 90,
-60, 30, 14, 7, and 3 days out, with the on-call rotation owning the
-response. Second, intermediate-CA renewals are now treated as production
-deployments: change-controlled, dry-run in staging, and tested against a
-matrix of client trust stores before promotion. Third, the company
-adopts ACME-based automation for every public-facing leaf certificate so
-that the <em>human</em> attention budget can be spent on the few things
-that really require humans — root and intermediate ceremonies — rather
-than on routine renewals that will inevitably be forgotten in nine
-years’ time.</p>
+from his laptop and exhales. The leaf certificate is fine. The root in
+every modern trust store is fine. The link in the middle — the
+<em>intermediate CA</em> that the company has been issuing from for nine
+years — quietly expired at 2:32 a.m. Staging passed its tests only
+because it pins the old intermediate as a trust anchor and never checks
+its expiry.</p>
+<p>The fix takes forty seconds: the public CA had cross-signed a
+replacement intermediate two years earlier. The Hatter pushes a new
+chain bundle to the load balancer, the engineer reloads the TLS
+configuration, and the API comes back online. The lawyers spend the next
+two weeks haggling over the SLA penalty.</p>
+<p>The post-mortem produces three permanent changes. First, every
+certificate in the hierarchy — leaves, intermediates, internal CAs,
+code-signing certificates, and the offline root — goes into an automated
+expiration tracker that emails <em>and</em> pages well ahead of expiry.
+Second, intermediate-CA renewals become change-controlled production
+deployments, dry-run in staging and tested against a matrix of client
+trust stores. Third, every public-facing leaf certificate moves to ACME
+automation, so human attention is spent on the few things that truly
+need humans — root and intermediate ceremonies.</p>
 <p>The lesson the Hatter writes into the runbook on his way out the door
 at 6 a.m.: <em>certificates in the middle of a chain are exactly as
 critical as certificates at the edge — and far more often
@@ -618,19 +662,19 @@ Signing, Digital Signatures, and Software Provenance</h3>
 <strong>authentication</strong> (the signer is who they claim),
 <strong>integrity</strong> (the data has not been modified), and
 <strong>non-repudiation</strong> (the signer cannot deny having signed).
-The mechanics are simple in outline: hash the data, encrypt the hash
-with the signer’s private key, and let anyone verify by decrypting the
-signature with the public key and comparing hashes.</p>
+The mechanics are simple in outline: hash the data, sign the hash with
+the signer’s private key (often loosely described as “encrypting the
+hash”), and let anyone verify with the matching public key that the
+signature fits a freshly computed hash.</p>
 <p>Software provenance extends this idea to supply chains.
-<strong>Sigstore</strong> and the related <strong>Cosign</strong> tool
-sign container images and other artifacts using short-lived certificates
-issued through OIDC identities, with all signatures published to a
-public transparency log. <strong>In-toto</strong> attestations describe
-each step of a build pipeline and produce a verifiable record that a
-final artifact was produced from specific source code through specific
-build steps. Software Bill of Materials (SBOM) signing rounds out the
-picture: not only do we know what is in our software, we have
-cryptographic evidence of who put it there.</p>
+<strong>Sigstore</strong> and its <strong>Cosign</strong> tool sign
+container images and other artifacts using short-lived certificates tied
+to OIDC identities, with signatures published to a public transparency
+log. <strong>In-toto</strong> attestations record each step of a build
+pipeline, giving a verifiable record that an artifact came from specific
+source code through specific build steps. Signed Software Bills of
+Materials (SBOMs) add cryptographic evidence of who put each component
+there.</p>
 <h3 id="centralized-vs.-decentralized-key-management">Centralized
 vs. Decentralized Key Management</h3>
 <p>Where do the keys actually live?</p>
@@ -653,11 +697,20 @@ end-user authentication and device-bound keys.</p>
 <h3
 id="cryptographic-erase-obfuscation-serialization-and-lightweight-cryptography">Cryptographic
 Erase, Obfuscation, Serialization, and Lightweight Cryptography</h3>
-<p>A handful of additional concepts fill out the practical toolkit:</p>
+<p>Cryptographic erase was covered above. A handful of additional
+concepts fill out the practical toolkit:</p>
 <ul>
-<li><strong>Cryptographic erase</strong> (already discussed) is the act
-of destroying a key to render the corresponding ciphertext
-unrecoverable.</li>
+<li><strong>Hashing</strong> maps data of any size to a fixed-length
+digest that cannot practically be reversed and changes completely if one
+input bit changes. Hashes provide integrity checks, are the first step
+of every digital signature, and (with salting and key stretching) store
+passwords. Use SHA-256, SHA-3, or stronger; MD5 and SHA-1 are
+collision-broken and unsuitable for new security uses.</li>
+<li><strong>A one-time pad (OTP)</strong> XORs the message with a truly
+random key that is as long as the message, used once, and kept secret.
+It offers provably perfect secrecy, but distributing and never reusing
+such keys is impractical, and a reused pad leaks the XOR of the two
+plaintexts. AES and ChaCha20 are the practical substitutes.</li>
 <li><strong>Obfuscation</strong> scrambles data or code in a way that is
 difficult — but not provably impossible — to reverse. Obfuscation is
 <em>not</em> cryptography. It raises the cost of analysis but offers no
@@ -668,8 +721,17 @@ encoded so they can travel between systems without ambiguity.</li>
 <li><strong>Lightweight cryptography</strong> is designed for
 constrained devices — IoT sensors, smart cards, RFID tags — that cannot
 afford the CPU, memory, or power budget of AES on a modern server. NIST
-has standardized <strong>Ascon</strong> as the recommended lightweight
-authenticated cipher.</li>
+standardized the <strong>Ascon</strong> family (authenticated encryption
+and hashing) for this purpose in SP 800-232 <span class="citation"
+data-cites="nist-sp800232-2025">(<a href="#ref-nist-sp800232-2025"
+role="doc-biblioref">National Institute of Standards and Technology
+2025a</a>)</span>.</li>
+<li><strong>Legal, regulatory, and resource considerations</strong>
+shape every choice above. HIPAA and GDPR breach rules treat properly
+encrypted data more leniently, PCI DSS requires stored card numbers to
+be unreadable, and US federal systems require FIPS 140-3 validated
+modules. Battery, CPU, latency, and bandwidth limits push toward
+lightweight algorithms and hardware acceleration.</li>
 </ul>
 <hr />
 <h2 id="what-are-advanced-cryptographic-concepts">What Are Advanced
@@ -708,8 +770,7 @@ KMS returns <em>two</em> values: a 256-bit plaintext DEK (used
 immediately) and the same DEK wrapped under the KEK (an encrypted blob a
 few hundred bytes long).</li>
 <li>The application uses the plaintext DEK with AES-256-GCM to encrypt
-the 5 GB object locally. This is fast — AES-NI on a modern CPU runs at
-multiple GB/s.</li>
+the 5 GB object locally, which is fast on AES-NI hardware.</li>
 <li>The application <strong>zeroes out the plaintext DEK in
 memory</strong> as soon as encryption finishes. The wrapped DEK is
 stored as object metadata next to the ciphertext.</li>
@@ -720,7 +781,7 @@ DEK again.</li>
 </ol>
 <p>Three properties fall out of this design: the long-lived KEK never
 leaves the HSM, KEK rotation requires only re-wrapping the small DEKs
-(not re-encrypting petabytes), and revoking the KEK cryptographically
+(not re-encrypting petabytes), and destroying the KEK cryptographically
 erases every object encrypted under it. This is exactly how AWS S3
 SSE-KMS, Azure Storage CMK, and GCP CMEK all work under the hood.</p>
 </blockquote>
@@ -730,49 +791,56 @@ ChaCha20-Poly1305 — that provide both confidentiality <em>and</em>
 integrity in a single primitive. Older patterns of “encrypt then MAC” or
 “MAC then encrypt” gave rise to a long history of subtle vulnerabilities
 (padding oracles, EtM/MtE confusion); AEAD eliminates those classes of
-bug by design and should be the default for any new system.</p>
+bug by design and should be the default for any new system; avoid ECB
+and unauthenticated CBC or CTR. AEAD is not foolproof, though: reusing a
+nonce with the same key under AES-GCM destroys both confidentiality and
+integrity, so let a vetted library manage nonces.</p>
 <p><strong>Hardware acceleration</strong> matters at scale. AES-NI
-instructions on x86 CPUs make AES-GCM essentially free (often faster
-than memcpy on the same data). On ARM, the ARMv8 Cryptography Extension
-performs the same role. Choosing an algorithm without hardware
-acceleration on your target platform can cost an order of magnitude in
-throughput.</p>
+instructions on x86 CPUs let AES-GCM run at several gigabytes per second
+per core, and the ARMv8 Cryptography Extension does the same on ARM.
+Choosing an algorithm without hardware acceleration on your target
+platform can cost an order of magnitude in throughput, which is why
+ChaCha20-Poly1305 is favored on low-end devices that lack AES
+instructions.</p>
 <h3 id="key-stretching-key-splitting-and-forward-secrecy">Key
 Stretching, Key Splitting, and Forward Secrecy</h3>
 <ul>
-<li><strong>Key stretching</strong> turns a low-entropy secret (a
-password) into a high-entropy key by deliberately slowing down the
-derivation. <strong>PBKDF2</strong>, <strong>bcrypt</strong>,
-<strong>scrypt</strong>, and <strong>Argon2</strong> all do this;
-<strong>Argon2id</strong> is the current OWASP recommendation <span
-class="citation" data-cites="owasp-password-storage-2026">(<a
+<li><strong>Key stretching</strong> makes every guess at a low-entropy
+secret (a password) expensive by deliberately slowing down the
+derivation of a key or hash from it. It does not add entropy, so a weak
+password is still weak, only slower to crack. <strong>PBKDF2</strong>,
+<strong>bcrypt</strong>, <strong>scrypt</strong>, and
+<strong>Argon2</strong> all do this; <strong>Argon2id</strong> is the
+first choice in the current OWASP guidance <span class="citation"
+data-cites="owasp-password-storage-2026">(<a
 href="#ref-owasp-password-storage-2026" role="doc-biblioref">OWASP Cheat
 Sheet Series Team, n.d.</a>)</span>. A well-tuned key-stretching
-function makes brute force prohibitively expensive.</li>
+function, combined with a unique random <strong>salt</strong> per
+password, makes bulk brute force prohibitively expensive.</li>
 </ul>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
 <p><em>Tuning Argon2id for a login server</em></p>
-<p>The OWASP password-storage cheat sheet recommends, for a server that
-should verify a single login in roughly 0.5 seconds on commodity
-hardware, parameters along these lines <span class="citation"
+<p>The OWASP password-storage cheat sheet lists several equivalent
+<em>minimum</em> Argon2id configurations (trading memory against
+iterations). One of them is <span class="citation"
 data-cites="owasp-password-storage-2026">(<a
 href="#ref-owasp-password-storage-2026" role="doc-biblioref">OWASP Cheat
 Sheet Series Team, n.d.</a>)</span>:</p>
 <pre><code>Algorithm: Argon2id
-Memory cost (m): 19 MiB    (large enough to defeat ASIC parallelism)
+Memory cost (m): 19 MiB    (minimum; raise it if your servers can afford it)
 Time cost (t):   2 iterations
 Parallelism (p): 1 lane
 Salt:            16 random bytes per password (stored alongside the hash)
 Output length:   32 bytes</code></pre>
-<p>The same parameters that take 0.5 seconds on the login server also
-force the attacker to pay a high per-guess memory cost — because
-Argon2id’s memory-hard design defeats the massive parallelism that
-turned earlier KDFs (MD5, SHA-1, raw SHA-256) into trivial
-password-cracking targets. For strong randomly generated passwords, that
-pushes offline cracking beyond practical current hardware budgets.</p>
-<p>The opposite mistake — storing passwords as a fast hash like SHA-256
-— has produced almost every major credential dump in the last decade.
+<p>These are floors, not targets: tune upward until one verification
+takes as much time and memory as your login latency and server capacity
+allow. Argon2id’s memory-hard design forces the attacker to pay for RAM
+on every guess, which blunts the massive GPU and ASIC parallelism that
+made fast hashes (MD5, SHA-1, raw SHA-256) trivial to crack at billions
+of guesses per second.</p>
+<p>The opposite mistake — storing passwords as a single fast hash like
+SHA-256 — has made countless stolen credential databases easy to crack.
 Speed is the enemy here, not the goal.</p>
 </blockquote>
 <ul>
@@ -785,8 +853,9 @@ high-value cryptocurrency wallets are protected.</li>
 Secrecy, PFS) means that compromise of a long-term key does not
 compromise past sessions. It is achieved by exchanging fresh ephemeral
 keys for each session — typically through ephemeral Diffie-Hellman
-((EC)DHE). TLS 1.3 makes forward secrecy mandatory by removing the
-non-PFS RSA key-exchange option entirely <span class="citation"
+((EC)DHE). TLS 1.3 makes forward secrecy standard for certificate-based
+handshakes by removing the static RSA and static Diffie-Hellman
+key-exchange options entirely <span class="citation"
 data-cites="rfc8446-2018">(<a href="#ref-rfc8446-2018"
 role="doc-biblioref">Rescorla 2018</a>)</span>.</li>
 </ul>
@@ -805,14 +874,16 @@ Trade-Offs</h3>
 <p><strong>Homomorphic encryption (HE)</strong> allows computation on
 ciphertext such that the decrypted result equals the result of the same
 computation on the plaintext. <strong>Partially homomorphic</strong>
-schemes support a single operation (RSA, for instance, is homomorphic
-with respect to multiplication). <strong>Fully homomorphic encryption
-(FHE)</strong> supports both addition and multiplication and therefore —
-in principle — arbitrary computation. FHE is an active area of
-standardization (Microsoft SEAL, Google FHE Transpiler, OpenFHE) but
-currently runs many orders of magnitude slower than plaintext
-computation, limiting its practical use to narrow workloads such as
-private machine-learning inference or encrypted database queries.</p>
+schemes support a single operation (textbook, unpadded RSA, for
+instance, is homomorphic with respect to multiplication; real-world
+padded RSA is not). <strong>Fully homomorphic encryption (FHE)</strong>
+supports both addition and multiplication and therefore — in principle —
+arbitrary computation. FHE is an active area of research and
+standardization, with open-source libraries such as OpenFHE and
+Microsoft SEAL, but it still runs orders of magnitude slower than
+plaintext computation, limiting its practical use to narrow workloads
+such as private machine-learning inference or encrypted database
+queries.</p>
 <p><strong>Secure multiparty computation (SMPC)</strong> lets multiple
 parties jointly compute a function over their private inputs without
 revealing those inputs to each other. SMPC is used in privacy-preserving
@@ -826,84 +897,81 @@ hash, creating a chain that cannot be altered without invalidating every
 subsequent entry. Public blockchains add distributed consensus to remove
 the need for a trusted writer; permissioned ledgers keep the trust model
 traditional but use the same chained-hash structure for audit integrity.
-Immutable database services (AWS QLDB, for example) apply the same idea
-inside a managed product.</p>
+Managed ledger databases (Azure SQL Database ledger tables, for example)
+apply the same idea inside a product. Amazon QLDB, once the standard
+example, was retired by AWS in July 2025 <span class="citation"
+data-cites="aws-qldb-eol-2025">(<a href="#ref-aws-qldb-eol-2025"
+role="doc-biblioref">Amazon Web Services, n.d.</a>)</span> — a reminder
+to design for portability.</p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong></p>
 <p><em>DigiNotar (2011): How a Single CA Failure Reshaped the Trust
 Model</em></p>
-<p>In June 2011, attackers — later assessed by Fox-IT investigators to
-be aligned with Iranian state interests — gained access to the issuing
-infrastructure of the Dutch certificate authority
-<strong>DigiNotar</strong>. Over several weeks, they used that access to
-produce more than five hundred fraudulent certificates for high-value
-domains: <code>*.google.com</code>, <code>*.yahoo.com</code>,
-<code>*.skype.com</code>, addresses for the CIA and Mossad, and Tor
-hidden-service routers. Many of these certificates were technically
-valid: signed by a root that every major browser shipped in its trust
-store <span class="citation" data-cites="foxit-diginotar-2011">(<a
-href="#ref-foxit-diginotar-2011" role="doc-biblioref">Fox-IT
-2011</a>)</span>.</p>
+<p>In June 2011, attackers gained access to the issuing infrastructure
+of the Dutch certificate authority <strong>DigiNotar</strong>. Over
+several weeks, they used that access to produce hundreds of fraudulent
+certificates for high-value domains: <code>*.google.com</code>,
+<code>*.yahoo.com</code>, <code>*.skype.com</code>, and names tied to
+the CIA, Mossad, and the Tor Project. Many of these certificates were
+technically valid: signed by a root that every major browser shipped in
+its trust store <span class="citation"
+data-cites="foxit-diginotar-2011">(<a href="#ref-foxit-diginotar-2011"
+role="doc-biblioref">Fox-IT 2011</a>)</span>.</p>
 <p>The bogus <code>*.google.com</code> certificate was used in a real
-attack. Iranian Internet service providers — most likely with state
-cooperation — performed a man-in-the-middle interception of HTTPS
-traffic from approximately 300,000 users connecting to Gmail. Each
-user’s browser saw a “valid” certificate, no warning, and a working
-session. The attackers had read access to email, contact lists, and the
-session cookies needed to impersonate those users on later visits <span
-class="citation" data-cites="foxit-diginotar-2011">(<a
-href="#ref-foxit-diginotar-2011" role="doc-biblioref">Fox-IT
-2011</a>)</span>.</p>
-<p>The attack was detected almost by accident. A single user in Iran,
-running a Chromium build that included Google’s experimental
-certificate-pinning enforcement, saw a warning that the certificate did
-not match the pinned key. He posted to a Google support forum. Within
-hours, Google’s security team had a sample of the rogue certificate.
-Within days, every major browser vendor had pushed an emergency update
-revoking trust in DigiNotar <span class="citation"
+attack. Someone with control over Iranian networks intercepted HTTPS
+traffic to Gmail from at least 300,000 unique IP addresses, nearly all
+in Iran. Each user’s browser saw a “valid” certificate, no warning, and
+a working session, while the attackers read email and stole session
+cookies. Fox-IT’s report did not name a state sponsor, and the intruder,
+who publicly claimed responsibility as a lone hacker, was never
+conclusively identified <span class="citation"
 data-cites="foxit-diginotar-2011">(<a href="#ref-foxit-diginotar-2011"
 role="doc-biblioref">Fox-IT 2011</a>)</span>.</p>
-<p>The forensic investigation that followed was devastating. DigiNotar’s
-logs were incomplete. The attackers had moved laterally from a
-public-facing web server into the CA’s signing systems through a Windows
-network with weak segmentation, no multi-factor authentication on
-administrative accounts, and antivirus that was years out of date. Worst
-of all, DigiNotar could not produce a complete list of every certificate
-the attackers had issued. The auditors estimated 531 fraudulent
-certificates; the company itself could not confirm the number. When you
-cannot tell trustworthy issuance from fraudulent issuance, <em>all</em>
-of your issuance must be presumed compromised <span class="citation"
-data-cites="foxit-diginotar-2011">(<a href="#ref-foxit-diginotar-2011"
-role="doc-biblioref">Fox-IT 2011</a>)</span>.</p>
-<p>The Dutch government — which used DigiNotar to sign certificates for
-its tax authority, judiciary, and emergency services — moved its entire
-infrastructure off DigiNotar in a forty-eight hour scramble. The browser
-vendors completed the global revocation. DigiNotar filed for bankruptcy
-on September 20, 2011, less than three months after the breach <span
-class="citation" data-cites="foxit-diginotar-2011">(<a
+<p>Outsiders discovered the attack almost by accident. (DigiNotar itself
+had noticed the intrusion on July 19, revoked some rogue certificates,
+and told no one.) A user in Iran running Chrome, which shipped with
+pinned keys for Google’s sites, saw a warning that the certificate did
+not match the pinned key and posted to a Google support forum. Within
+hours, Google had a sample of the rogue certificate. Within days, every
+major browser vendor had pushed an emergency update removing trust in
+DigiNotar <span class="citation" data-cites="foxit-diginotar-2011">(<a
 href="#ref-foxit-diginotar-2011" role="doc-biblioref">Fox-IT
 2011</a>)</span>.</p>
+<p>The forensic investigation was devastating. The attackers had moved
+from a public-facing web server into the CA’s signing systems across a
+poorly segmented network where all CA servers shared one Windows domain,
+with weak administrator passwords, unpatched software, out-of-date
+antivirus, and poor logging. DigiNotar could not produce a complete list
+of what the attackers had issued: Fox-IT identified 531 fraudulent
+certificates but could not rule out others. When you cannot tell
+trustworthy issuance from fraudulent issuance, <em>all</em> of your
+issuance must be presumed compromised <span class="citation"
+data-cites="foxit-diginotar-2011">(<a href="#ref-foxit-diginotar-2011"
+role="doc-biblioref">Fox-IT 2011</a>)</span>.</p>
+<p>The Dutch government, whose e-government services relied on DigiNotar
+certificates, took control of the company and began replacing them.
+DigiNotar was declared bankrupt on September 20, 2011, less than three
+months after the breach.</p>
 <p>Two structural consequences shaped modern PKI:</p>
 <ol type="1">
 <li><strong>Certificate Transparency (CT)</strong> was developed and
 standardized as RFC 6962 (2013). CT requires that publicly trusted
 certificates be submitted to public, append-only logs. Domain owners can
 monitor those logs and detect unauthorized issuance against their
-domains within hours. Modern browsers refuse certificates that lack CT
-signatures <span class="citation" data-cites="rfc6962-2013">(<a
-href="#ref-rfc6962-2013" role="doc-biblioref">Laurie et al.
-2013</a>)</span>.</li>
+domains within hours. Major browsers now reject publicly trusted
+certificates that lack proof of CT logging <span class="citation"
+data-cites="rfc6962-2013">(<a href="#ref-rfc6962-2013"
+role="doc-biblioref">Laurie et al. 2013</a>)</span>.</li>
 <li><strong>CA agility and accountability</strong> became more
-enforceable. The CA/Browser Forum tightened audit expectations, browsers
-became more willing to distrust CAs whose operational controls fell
-short, and certificate lifetimes steadily shortened to limit the blast
-radius of future compromises.</li>
+enforceable. The CA/Browser Forum tightened audit expectations, and
+browsers became more willing to distrust CAs whose operational controls
+fell short. Certificate lifetimes have since shortened steadily,
+limiting the blast radius of any future compromise.</li>
 </ol>
-<p>DigiNotar is the case the entire modern web learned from. Every
-architectural choice in this chapter — short-lived certificates,
-transparency logs, automated issuance, hardware-protected roots,
-granular revocation — exists in part because of what happened in those
-few weeks of 2011.</p>
+<p>DigiNotar is the case the modern web learned from. Short-lived
+certificates, transparency logs, automated issuance, and
+hardware-protected roots all exist in part because of those few weeks in
+2011.</p>
 </blockquote>
 <h3 id="performance-trade-offs">Performance Trade-Offs</h3>
 <p>Cryptography is not free, and good architects budget for it. A
@@ -911,23 +979,28 @@ handful of rules of thumb:</p>
 <ul>
 <li>AEAD with hardware acceleration is fast enough to run on every
 record without measurable overhead.</li>
-<li>RSA-2048 signatures are roughly 100× slower than ECDSA on the same
-hardware; ECDSA is roughly 2× slower than Ed25519. Choose accordingly
-when signing many small artifacts.</li>
+<li>Signing and verifying cost different amounts. On a typical server
+core, RSA-2048 signing is roughly ten times slower than ECDSA P-256 or
+Ed25519 signing, but RSA verification is several times <em>faster</em>
+than either. Choose accordingly: RSA suits “sign rarely, verify often,”
+while elliptic curves suit servers that sign constantly and devices with
+small keys.</li>
 <li>Key derivation functions are <em>deliberately</em> slow. Run them on
 the verifier (login servers), not in hot paths.</li>
 <li>TLS 1.3 reduced handshake latency by a full round trip versus 1.2;
 for high-fanout services, that improvement is worth a migration on its
 own.</li>
+<li>Post-quantum algorithms trade size for safety (see the next
+section), so budget for larger handshakes and certificate chains.</li>
 </ul>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 8.4</strong></p>
 <ol type="1">
 <li><strong>Recall.</strong> In envelope encryption, what do the DEK and
 KEK each do?</li>
-<li><strong>Discriminate.</strong> Which control protects weak passwords
-against offline guessing, and which control protects past TLS sessions
-if the server’s long-term private key is stolen?</li>
+<li><strong>Discriminate.</strong> Which control makes offline password
+guessing expensive for an attacker, and which control protects past TLS
+sessions if the server’s long-term private key is stolen?</li>
 <li><strong>Apply.</strong> Several banks want to compute a shared
 fraud-detection result without revealing their raw customer data to one
 another. Which advanced technique from the chapter fits best, and why is
@@ -942,8 +1015,8 @@ ordinary encryption at rest not enough?</li>
 <li>The <strong>DEK</strong> encrypts the data itself. The
 <strong>KEK</strong> lives in the KMS or HSM and <strong>wraps the
 DEK</strong>.</li>
-<li><strong>Key stretching</strong> with something like Argon2id
-protects weak passwords against offline guessing. <strong>Forward
+<li><strong>Key stretching</strong> with something like Argon2id (plus a
+unique salt) makes each offline guess slow and costly. <strong>Forward
 secrecy</strong> protects past TLS sessions when a long-term key is
 later compromised.</li>
 <li>The best fit is <strong>secure multiparty computation
@@ -962,20 +1035,21 @@ and the discrete logarithm problem (the basis for Diffie-Hellman and
 elliptic curve cryptography). A sufficiently powerful <strong>quantum
 computer</strong> running <strong>Shor’s algorithm</strong> can solve
 both problems in polynomial time — meaning that today’s RSA-2048 and
-ECDSA-P256 keys would be trivially breakable against an adversary with a
-cryptographically relevant quantum computer (CRQC).</p>
+ECDSA-P256 keys could be broken by an adversary with a cryptographically
+relevant quantum computer (CRQC).</p>
 <p>Symmetric cryptography is in better shape. <strong>Grover’s
 algorithm</strong> offers a quadratic speedup against brute force, which
 roughly halves the effective security of a symmetric key. AES-256 — used
 at full strength — provides 128 bits of post-quantum security, which is
 still considered comfortable. The practical implication is to prefer
-256-bit symmetric keys and 384-bit hash outputs going forward.</p>
+256-bit symmetric keys and SHA-384 or stronger hashes going forward.</p>
 <h3 id="post-quantum-cryptography-pqc">Post-Quantum Cryptography
 (PQC)</h3>
 <p><strong>Post-quantum cryptography (PQC)</strong> is a class of
 public-key algorithms believed to be resistant to attacks by both
 classical and quantum computers. After a multi-year competition, NIST
-finalized its first three PQC standards in 2024 <span class="citation"
+finalized its first three PQC standards in August 2024 <span
+class="citation"
 data-cites="nist-fips203-2024 nist-fips204-2024 nist-fips205-2024">(<a
 href="#ref-nist-fips203-2024" role="doc-biblioref">National Institute of
 Standards and Technology 2024b</a>, <a href="#ref-nist-fips204-2024"
@@ -993,11 +1067,28 @@ signature scheme. Slower and producing larger signatures, but
 conservative — its security rests only on the strength of hash
 functions, with no number-theoretic assumptions.</li>
 </ul>
-<p>Real deployments are starting to appear. Google Chrome and Cloudflare
-have rolled out <strong>hybrid</strong> TLS key exchange that combines
-X25519 (classical) with ML-KEM (post-quantum) in the same handshake —
-protected against both today’s adversaries and a future quantum one.
-Apple’s iMessage shipped a similar hybrid scheme called PQ3 in 2024.</p>
+<p>Two more are in the pipeline: <strong>HQC</strong>, a code-based KEM
+that NIST selected in March 2025 as a backup to ML-KEM <span
+class="citation" data-cites="nist-hqc-2025">(<a
+href="#ref-nist-hqc-2025" role="doc-biblioref">National Institute of
+Standards and Technology 2025c</a>)</span>, and <strong>FN-DSA</strong>
+(from FALCON, planned as FIPS 206), a compact lattice signature. As of
+this writing neither was final, so ML-KEM, ML-DSA, and SLH-DSA are the
+standards to deploy.</p>
+<p>The trade-off against Diffie-Hellman and elliptic-curve cryptography
+is size. An X25519 public key is 32 bytes; an ML-KEM-768 public key is
+1,184 bytes. An ECDSA P-256 signature is 64 bytes; an ML-DSA-65
+signature is 3,309 bytes. Bigger keys and signatures mean bigger
+handshakes and certificate chains, which is why moving key exchange is
+easier than moving certificates.</p>
+<p>Deployment is already under way. Major browsers and CDNs now
+negotiate <strong>hybrid</strong> TLS 1.3 key exchange by default,
+combining X25519 (classical) with ML-KEM-768 (post-quantum) in one
+handshake (the group is named X25519MLKEM768). The session stays
+protected if either algorithm is broken. OpenSSL 3.5 (April 2025) added
+ML-KEM, ML-DSA, and SLH-DSA, and Apple’s iMessage has used a hybrid
+scheme called PQ3 since 2024. Post-quantum <em>signatures</em> in public
+web certificates lag behind, largely because of their size.</p>
 <h3 id="resistance-to-decryption-attacks">Resistance to Decryption
 Attacks</h3>
 <p>The reason PQC migration matters <em>now</em>, even though no CRQC
@@ -1017,14 +1108,27 @@ cryptography is everywhere and rarely centrally tracked.</li>
 <li><strong>Cryptographic agility.</strong> Refactor systems so the
 cryptographic algorithm is configurable, not hard-coded. Without
 agility, a future migration becomes another decade-long rewrite.</li>
-<li><strong>Hybrid first.</strong> Deploy hybrid (classical + PQC) where
-the standards exist. This buys protection against
-harvest-now-decrypt-later without staking everything on the new
-algorithms before they have been deeply analyzed.</li>
+<li><strong>Hybrid first, key exchange first.</strong> Deploy hybrid
+(classical + PQC) key exchange where the standards exist. This counters
+harvest-now-decrypt-later, which targets confidentiality, without
+staking everything on young algorithms. Signatures follow, but start
+early on long-lived roots, firmware, and code-signing keys.</li>
 <li><strong>Pure PQC where it makes sense.</strong> For internal
 protocols, code signing chains, and any system you fully control, begin
 moving to pure PQC as platform support arrives.</li>
 </ol>
+<p>Governments have attached dates. NIST’s transition plan (IR 8547)
+deprecates quantum-vulnerable public-key algorithms such as RSA, ECDSA,
+and Diffie-Hellman after 2030 and disallows them after 2035 <span
+class="citation" data-cites="nist-ir8547-2024">(<a
+href="#ref-nist-ir8547-2024" role="doc-biblioref">Moody et al.
+2024</a>)</span>. The NSA’s CNSA 2.0 requires new national security
+system acquisitions to be quantum-resistant from 2027, with exclusive
+use phased in by product category through the early 2030s <span
+class="citation" data-cites="nsa-cnsa2-2024">(<a
+href="#ref-nsa-cnsa2-2024" role="doc-biblioref">National Security Agency
+2024</a>)</span>. Vendors and auditors will follow those dates even if
+you are not bound by them, so treat 2030 as your planning horizon.</p>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong> If your organization signs a
 software release today with a classical RSA-4096 key, and that signed
@@ -1044,19 +1148,18 @@ forced migration arrives, not after.</p>
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
 <p>Cryptography is the silent infrastructure of the modern internet. PKI
-is what makes that infrastructure trustworthy at a global scale — and
-the operational discipline of running a PKI (key ceremonies,
-intermediate rotation, revocation that actually works, transparency
-logs) matters more, in practice, than the choice of underlying
-algorithm. Inside the enterprise, cryptography organizes the protection
-of data through its full lifecycle: at rest, in transit, in use, and
-finally in destruction. Advanced techniques — envelope encryption,
-forward secrecy, homomorphic encryption — solve problems classical
-primitives cannot, and the migration to post-quantum cryptography is the
-next decade’s defining cryptographic project. The practitioner’s job is
-not to invent new algorithms; it is to choose the right ones, deploy
-them correctly, manage their keys responsibly, and plan for the day they
-need to be replaced.</p>
+makes that infrastructure trustworthy at global scale, and the
+operational discipline of running one (key ceremonies, intermediate
+rotation, automated renewal, revocation that works, transparency logs)
+matters more, in practice, than the choice of algorithm. Inside the
+enterprise, cryptography protects data through its full lifecycle: at
+rest, in transit, in use, and finally in destruction. Advanced
+techniques — envelope encryption, forward secrecy, homomorphic
+encryption — solve problems classical primitives cannot, and the
+migration to post-quantum cryptography is the next decade’s defining
+cryptographic project. The practitioner’s job is to choose the right
+algorithms, deploy them correctly, manage their keys responsibly, and
+plan for the day they must be replaced.</p>
 <h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
 <li><strong>Public Key Infrastructure (PKI):</strong> The combination of
@@ -1128,16 +1231,32 @@ data.</li>
 artifacts to provide authenticity, integrity, and non-repudiation.</li>
 <li><strong>Non-Repudiation:</strong> Cryptographic property that
 prevents a signer from credibly denying a signature.</li>
+<li><strong>Hashing:</strong> One-way mapping of data to a fixed-length
+digest, used for integrity checks, signatures, and (with salting and key
+stretching) password storage.</li>
+<li><strong>One-Time Pad:</strong> Encryption with a truly random,
+message-length key used exactly once; provides perfect secrecy but is
+impractical to distribute.</li>
+<li><strong>Obfuscation:</strong> Making data or code hard to understand
+or reverse without any mathematical guarantee; not a substitute for
+encryption.</li>
+<li><strong>Lightweight Cryptography:</strong> Algorithms (such as
+NIST’s Ascon family) designed for constrained devices with limited CPU,
+memory, and power.</li>
+<li><strong>Data Sanitization:</strong> Deliberately destroying data so
+recovery is infeasible (clear, purge, or destroy; cryptographic erase
+for encrypted media).</li>
 <li><strong>FIDO2 / WebAuthn:</strong> Standards for passwordless,
-phishing-resistant authentication using device-bound key pairs.</li>
+phishing-resistant authentication using authenticator-held key pairs
+(marketed to consumers as passkeys).</li>
 <li><strong>Homomorphic Encryption (HE):</strong> Encryption that allows
 computation directly on ciphertext.</li>
 <li><strong>Secure Multiparty Computation (SMPC):</strong> Joint
 computation across multiple parties that preserves the privacy of each
 party’s input.</li>
-<li><strong>Confidential Computing / TEE:</strong> CPU-backed
-environment in which memory is encrypted and inaccessible to the host OS
-or hypervisor.</li>
+<li><strong>Confidential Computing / TEE:</strong> Hardware-backed
+environment whose memory is isolated (and typically encrypted) from the
+host OS or hypervisor.</li>
 <li><strong>Post-Quantum Cryptography (PQC):</strong> Public-key
 algorithms designed to resist attack by quantum computers (ML-KEM,
 ML-DSA, SLH-DSA).</li>
@@ -1254,7 +1373,8 @@ min)</em></h4>
 months. Good hunting grounds: NIST’s Post-Quantum Cryptography
 standardization milestones (ML-KEM, ML-DSA, SLH-DSA implementation
 guidance), browser-vendor announcements about CA trust changes (Apple,
-Google, Mozilla, Microsoft root program changes), Certificate
+Google, Mozilla, Microsoft root program changes), CA/Browser Forum
+changes to certificate lifetimes and revocation, Certificate
 Transparency log incidents, recent TLS or PKI outages caused by expired
 or revoked certificates, and disclosures involving HSM or cloud KMS
 vulnerabilities. Be ready to explain to a classmate, in two minutes,
@@ -1271,15 +1391,17 @@ to end and verify it against public Certificate Transparency logs.</p>
 <ol type="1">
 <li>Pick a public HTTPS site you care about — your bank, your school, a
 major SaaS application you use. Visit it in your browser.</li>
-<li>Open the certificate viewer. In Chrome or Edge: click the padlock in
-the address bar, then “Connection is secure,” then “Certificate is
-valid.” In Firefox: click the padlock, “Connection secure,” “More
-information,” “View Certificate.”</li>
+<li>Open the certificate viewer. In Chrome or Edge: click the
+site-information icon at the left of the address bar (it may look like a
+padlock or a settings slider), then “Connection is secure,” then
+“Certificate is valid.” In Firefox: click the padlock, “Connection
+secure,” “More information,” “View Certificate.”</li>
 <li>Identify, for the leaf (site) certificate: the
 <strong>subject</strong> (CN, SAN list), the <strong>issuer</strong>,
-the <strong>validity period</strong> (from / to), the <strong>signature
-algorithm</strong>, the <strong>public key algorithm and size</strong>,
-and the <strong>key usage / extended key usage</strong> extensions.</li>
+the <strong>validity period</strong> (from / to — how many days is
+that?), the <strong>signature algorithm</strong>, the <strong>public key
+algorithm and size</strong>, and the <strong>key usage / extended key
+usage</strong> extensions.</li>
 <li>Walk up the chain to the root. Identify each intermediate and root
 CA. Which root CA does your browser ultimately anchor trust in?</li>
 <li>Now go to <a href="https://crt.sh">crt.sh</a> and search for the
@@ -1325,6 +1447,26 @@ architecture has to be designed.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-aws-qldb-eol-2025" class="csl-entry" role="listitem">
+Amazon Web Services. n.d. <em>Migrate an Amazon QLDB Ledger to Amazon
+Aurora PostgreSQL</em>. Accessed October 29, 2026. <a
+href="https://aws.amazon.com/blogs/database/migrate-an-amazon-qldb-ledger-to-amazon-aurora-postgresql/">https://aws.amazon.com/blogs/database/migrate-an-amazon-qldb-ledger-to-amazon-aurora-postgresql/</a>.
+</div>
+<div id="ref-cabf-sc063-2023" class="csl-entry" role="listitem">
+CA/Browser Forum. 2023. <em>Ballot SC-063v4: Make OCSP Optional, Require
+CRLs, and Incentivize Automation</em>. <a
+href="https://cabforum.org/2023/07/14/ballot-sc063v4-make-ocsp-optional-require-crls-and-incentivize-automation">https://cabforum.org/2023/07/14/ballot-sc063v4-make-ocsp-optional-require-crls-and-incentivize-automation</a>.
+</div>
+<div id="ref-cabf-csc31-2025" class="csl-entry" role="listitem">
+CA/Browser Forum. 2025a. <em>Ballot CSC-31: Maximum Validity
+Reduction</em>. <a
+href="https://cabforum.org/2025/11/17/ballot-csc-31-maximum-validity-reduction">https://cabforum.org/2025/11/17/ballot-csc-31-maximum-validity-reduction</a>.
+</div>
+<div id="ref-cabf-sc081-2025" class="csl-entry" role="listitem">
+CA/Browser Forum. 2025b. <em>Ballot SC-081v3: Introduce Schedule of
+Reducing Validity and Data Reuse Periods</em>. <a
+href="https://cabforum.org/2025/04/11/ballot-sc081v3-introduce-schedule-of-reducing-validity-and-data-reuse-periods/">https://cabforum.org/2025/04/11/ballot-sc081v3-introduce-schedule-of-reducing-validity-and-data-reuse-periods/</a>.
+</div>
 <div id="ref-foxit-diginotar-2011" class="csl-entry" role="listitem">
 Fox-IT. 2011. <em>Interim Report: DigiNotar Certificate Authority Breach
 <span>“Operation Black Tulip”</span></em>. <span>Fox-IT</span>. <a
@@ -1335,6 +1477,22 @@ Laurie, Ben, Adam Langley, and Emery Kasper. 2013. <em>Certificate
 Transparency</em>. RFC 6962. <span>Internet Engineering Task
 Force</span>. <a
 href="https://doi.org/10.17487/RFC6962">https://doi.org/10.17487/RFC6962</a>.
+</div>
+<div id="ref-letsencrypt-45day-2025" class="csl-entry" role="listitem">
+Let’s Encrypt. 2025a. <em>Decreasing Certificate Lifetimes to 45
+Days</em>. <a
+href="https://letsencrypt.org/2025/12/02/from-90-to-45">https://letsencrypt.org/2025/12/02/from-90-to-45</a>.
+</div>
+<div id="ref-letsencrypt-ocsp-2025" class="csl-entry" role="listitem">
+Let’s Encrypt. 2025b. <em>OCSP Service Has Reached End of Life</em>. <a
+href="https://letsencrypt.org/2025/08/06/ocsp-service-has-reached-end-of-life">https://letsencrypt.org/2025/08/06/ocsp-service-has-reached-end-of-life</a>.
+</div>
+<div id="ref-nist-ir8547-2024" class="csl-entry" role="listitem">
+Moody, Dustin, Ray Perlner, Andrew Regenscheid, Angela Robinson, and
+David Cooper. 2024. <em>Transition to Post-Quantum Cryptography
+Standards</em>. NIST IR 8547. <span>National Institute of Standards and
+Technology</span>. <a
+href="https://csrc.nist.gov/pubs/ir/8547/ipd">https://csrc.nist.gov/pubs/ir/8547/ipd</a>.
 </div>
 <div id="ref-nist-fips204-2024" class="csl-entry" role="listitem">
 National Institute of Standards and Technology. 2024a.
@@ -1353,6 +1511,28 @@ National Institute of Standards and Technology. 2024c. <em>Stateless
 Hash-Based Digital Signature Standard</em>. FIPS 205. <span>National
 Institute of Standards and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.FIPS.205">https://doi.org/10.6028/NIST.FIPS.205</a>.
+</div>
+<div id="ref-nist-sp800232-2025" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2025a. <em>Ascon-Based
+Lightweight Cryptography Standards for Constrained Devices</em>. NIST SP
+800-232. <span>National Institute of Standards and Technology</span>. <a
+href="https://csrc.nist.gov/pubs/sp/800/232/final">https://csrc.nist.gov/pubs/sp/800/232/final</a>.
+</div>
+<div id="ref-nist-sp80088r2-2025" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2025b. <em>Guidelines
+for Media Sanitization</em>. NIST SP 800-88 Rev. 2. <span>National
+Institute of Standards and Technology</span>. <a
+href="https://csrc.nist.gov/pubs/sp/800/88/r2/final">https://csrc.nist.gov/pubs/sp/800/88/r2/final</a>.
+</div>
+<div id="ref-nist-hqc-2025" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2025c. <em>NIST Selects
+HQC as Fifth Algorithm for Post-Quantum Encryption</em>. <a
+href="https://www.nist.gov/news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-post-quantum-encryption">https://www.nist.gov/news-events/news/2025/03/nist-selects-hqc-fifth-algorithm-post-quantum-encryption</a>.
+</div>
+<div id="ref-nsa-cnsa2-2024" class="csl-entry" role="listitem">
+National Security Agency. 2024. <em>Commercial National Security
+Algorithm Suite 2.0 and Quantum Computing FAQ</em>. <a
+href="https://media.defense.gov/2022/Sep/07/2003071836/-1/-1/0/CSI_CNSA_2.0_FAQ_.PDF">https://media.defense.gov/2022/Sep/07/2003071836/-1/-1/0/CSI_CNSA_2.0_FAQ_.PDF</a>.
 </div>
 <div id="ref-owasp-password-storage-2026" class="csl-entry"
 role="listitem">

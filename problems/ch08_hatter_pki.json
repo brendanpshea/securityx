@@ -4,16 +4,16 @@
   "title": "The Mad Hatter Rebuilds Teatime Tech's PKI",
   "context_md": "After the 3:17 a.m. outage caused by a quietly expired intermediate CA, the Mad Hatter — Lead Cryptographer at *Teatime Tech* — has been given a clean slate to redesign the company's cryptographic posture from the ground up.\n\nHis remit covers four fronts. First, a proper PKI hierarchy with monitored renewals, automated issuance for the customer-facing tier, and revocation that actually works under load. Second, end-to-end data protection across rest, transit, and use, including a sane key-management story for several petabytes of customer data sitting in an object store. Third, modernization of the company's authentication: passwords are out, hardware-backed keys are in, and service-to-service traffic inside the platform must mutually authenticate. Fourth — and most strategically — the Hatter has been asked by the board to begin a multi-year migration toward post-quantum cryptography for any data that must remain confidential beyond 2035.\n\nA respected national news outlet recently ran a profile on the DigiNotar collapse from 2011, and the Hatter's CEO has read it twice. The CEO would prefer not to be the next case study.",
   "artifact_kind": "rca",
-  "artifact_md": "**Post-mortem — TLS outage, 2026-04-22 03:17 UTC.** &nbsp; *Author: M. Hatter, on-call. Status: draft, not yet circulated. Do not forward.*\n\n### What happened\n\nAt 03:17 UTC every customer-facing TLS endpoint started returning `SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE`. The intermediate CA cert had expired 90 minutes earlier; no monitor existed on the intermediate itself — only on the leaf certs that it signed. Restoration took ~5 hours including a manual re-issuance ceremony nobody had walked through since 2023.\n\n### Contributing conditions\n\n- **Root CA posture.** The root signing key still lives on the issuance system, 24/7. Same blast radius as any production server; not what 'root' is supposed to mean.\n- **Renewals.** Manual every 90 days via emailed CSRs. Three were missed in the last year. We have been 'going to automate this' since 2023.\n- **Revocation path.** Every TLS client hits the CA's OCSP responder directly on each new connection. Adds ~200 ms. CA outage = our outage.\n- **Legacy CN reliance.** Two production certs still validate only via the Common Name field — the SAN extension is empty. Modern browsers will reject these the moment the legacy CN grace window closes (Chrome 130+).\n- **Bulk object encryption.** AES-256-CBC with no integrity tag. Last pen test flagged padding-oracle exposure on the decrypt API; the report is six months old and nobody has prioritized it.\n\n### Next\n\nPKI redesign kicks off Monday. CEO has read the DigiNotar profile in *The Atlantic* twice and wants a plan, not a post-mortem.",
+  "artifact_md": "**Post-mortem — TLS outage, 2026-04-22 03:17 UTC.** &nbsp; *Author: M. Hatter, on-call. Status: draft, not yet circulated. Do not forward.*\n\n### What happened\n\nAt 03:17 UTC the intermediate CA cert expired, and every customer-facing TLS endpoint started returning `SEC_ERROR_EXPIRED_ISSUER_CERTIFICATE`. No monitor existed on the intermediate itself — only on the leaf certs that it signed. Restoration required a manual re-issuance ceremony nobody had walked through since 2023.\n\n### Contributing conditions\n\n- **Root CA posture.** The root signing key still lives on the issuance system, 24/7. Same blast radius as any production server; not what 'root' is supposed to mean.\n- **Renewals.** Manual every 90 days via emailed CSRs. Three were missed in the last year. We have been 'going to automate this' since 2023.\n- **Revocation path.** Every TLS client hits the CA's OCSP responder directly on each new connection. Adds ~200 ms. CA outage = our outage.\n- **Legacy CN reliance.** Two production certs name their hostname only in the Common Name field — the SAN extension is empty. Modern browsers ignore CN entirely, so only a few legacy clients still accept these.\n- **Bulk object encryption.** AES-256-CBC with no integrity tag. Last pen test flagged padding-oracle exposure on the decrypt API; the report is six months old and nobody has prioritized it.\n\n### Next\n\nPKI redesign kicks off Monday. CEO has read the DigiNotar profile in *The Atlantic* twice and wants a plan, not a post-mortem.",
   "prompt_md": "Use the post-mortem to map each contributing condition to the Mad Hatter's redesign control, then click **Check answers**.",
-  "body_md": "The *Root CA posture* condition is closed by moving the signing key into an HSM in a physically secured vault and bringing it online only for ceremonies — the **{{root_posture}}** root CA. Day-to-day issuance flows through an intermediate so a future intermediate compromise stays contained.\n\nThe *Renewals* condition is automated away by adopting the **{{acme}}** protocol for issuance and renewal. The *Legacy CN reliance* condition is closed by requiring all valid hostnames in the **{{san}}** extension, since modern browsers ignore the Common Name field entirely. To detect rogue or accidental issuance against Teatime Tech domains by *any* CA in the world, the Hatter enables monitoring of public **{{ct}}** logs.\n\nThe *Revocation path* condition is fixed by **{{stapling}}** — the server fetches a fresh signed OCSP response periodically and attaches it to the TLS handshake, so clients never call the CA directly.\n\nFor petabyte-scale customer data in object storage, the Hatter implements **{{envelope}}** encryption: a per-object DEK encrypts the object, and a KEK held in the HSM wraps the DEK. The *Bulk object encryption* condition is closed by replacing CBC with AES-256 in **{{aead}}** mode, which provides confidentiality and integrity in a single primitive — eliminating the padding-oracle class entirely.\n\nWhen a customer terminates their contract, instead of attempting to overwrite media in a multi-tenant store, Teatime Tech will simply destroy the customer's KEK. This is **{{crypto_erase}}** — the only practical sanitization technique in shared cloud storage.\n\nFor authentication, employees are migrating from passwords to hardware authenticators implementing the **{{fido}}** standard, where the device holds a private key and the server stores only the public key — so a credential database breach yields nothing replayable. Service-to-service traffic inside the platform uses **{{mtls}}**, with each workload identified by a short-lived certificate from an internal CA.\n\nThe board's quantum mandate drives the final piece. The Hatter knows that an adversary can record encrypted traffic today and decrypt it years later once a quantum computer arrives — the **{{harvest}}** threat model. To address this for long-confidentiality data, he deploys a TLS configuration that combines classical X25519 with the NIST-standardized post-quantum key encapsulation algorithm **{{pqc_kem}}** in a **{{hybrid}}** key exchange, so the session is protected against both today's adversaries and a future quantum one. The TLS version selected is 1.3, in part because **{{pfs}}** is mandatory in 1.3 — every session uses ephemeral key shares so that compromise of a long-term key cannot retroactively decrypt past traffic.",
+  "body_md": "The *Root CA posture* condition is closed by moving the signing key into an HSM in a physically secured vault and bringing it online only for ceremonies — the **{{root_posture}}** root CA. Day-to-day issuance flows through an intermediate so a future intermediate compromise stays contained.\n\nThe *Renewals* condition is automated away by adopting the **{{acme}}** protocol for issuance and renewal. The *Legacy CN reliance* condition is closed by requiring all valid hostnames in the **{{san}}** extension, since modern browsers ignore the Common Name field entirely. To detect rogue or accidental issuance against Teatime Tech domains by *any* CA in the world, the Hatter enables monitoring of public **{{ct}}** logs.\n\nThe *Revocation path* condition is fixed by **{{stapling}}** — the server fetches a fresh signed OCSP response periodically and attaches it to the TLS handshake, so clients never call the CA directly.\n\nFor petabyte-scale customer data in object storage, the Hatter implements **{{kek_dek}}** encryption: a per-object DEK encrypts the object, and a KEK held in the HSM wraps the DEK. The *Bulk object encryption* condition is closed by replacing CBC with AES-256 in **{{aead}}** mode, which provides confidentiality and integrity in a single primitive — eliminating the padding-oracle class entirely.\n\nWhen a customer terminates their contract, instead of attempting to overwrite media in a multi-tenant store, Teatime Tech will simply destroy the customer's KEK. This is **{{crypto_erase}}** — the practical sanitization technique in shared cloud storage.\n\nFor authentication, employees are migrating from passwords to hardware authenticators implementing the **{{fido}}** standard, where the device holds a private key and the server stores only the public key — so a credential database breach yields nothing replayable. Service-to-service traffic inside the platform uses **{{mtls}}**, with each workload identified by a short-lived certificate from an internal CA.\n\nThe board's quantum mandate drives the final piece. The Hatter knows that an adversary can record encrypted traffic today and decrypt it years later once a quantum computer arrives — the **{{harvest}}** threat model. To address this for long-confidentiality data, he deploys a TLS configuration that combines classical X25519 with the NIST-standardized post-quantum key encapsulation algorithm **{{pqc_kem}}** in a **{{kex_mode}}** key exchange, so the session is protected against both today's adversaries and a future quantum one. The TLS version selected is 1.3, in part because **{{pfs}}** is mandatory in 1.3 — every session uses ephemeral key shares so that compromise of a long-term key cannot retroactively decrypt past traffic.",
   "blanks": {
     "root_posture": {
       "answer": "offline",
       "distractors": [
         "always-online",
-        "shared-tenant",
-        "self-service",
+        "cross-signed",
+        "federated",
         "publicly reachable"
       ],
       "explanation": "Root CAs are kept offline in physical vaults and brought online only for the rare ceremony of signing a new intermediate. Compromise of a root destroys the entire hierarchy."
@@ -24,27 +24,27 @@
         "EST",
         "SCEP",
         "CMP",
-        "manual CSR/email workflow"
+        "CMC"
       ],
-      "explanation": "ACME is the web-TLS automation protocol that continuously issues and renews certificates with minimal human intervention. EST, SCEP, and CMP are certificate-enrollment protocols used in other environments but are not the standard fit for internet-facing TLS renewal at scale."
+      "explanation": "ACME is the web-TLS automation protocol that continuously issues and renews certificates with minimal human intervention. EST, SCEP, CMP, and CMC are certificate-enrollment protocols used in other environments (devices, enterprise PKI) but are not the standard fit for internet-facing TLS renewal at scale."
     },
     "san": {
       "answer": "SAN",
       "distractors": [
-        "Common Name (CN)",
-        "Issuer DN",
-        "Organizational Unit (OU)",
-        "Serial Number"
+        "EKU",
+        "AIA",
+        "CDP",
+        "SCT"
       ],
-      "explanation": "Modern browsers ignore the CN field entirely and require all valid hostnames to appear in the SAN extension."
+      "explanation": "Modern browsers ignore the Common Name (CN) field entirely and require every valid hostname to appear in the Subject Alternative Name (SAN) extension. EKU limits what a certificate may be used for, AIA and CDP point to the issuer's certificate and revocation data, and SCTs are Certificate Transparency receipts."
     },
     "ct": {
       "answer": "Certificate Transparency",
       "distractors": [
-        "DNS zone transfer",
-        "BGP looking-glass",
-        "RIPE WHOIS",
-        "TLS session ticket"
+        "Certificate Revocation",
+        "Certificate Pinning",
+        "Certificate Enrollment",
+        "DNSSEC Validation"
       ],
       "explanation": "Certificate Transparency logs are public, append-only records of issued certificates that allow domain owners to detect unauthorized issuance after the fact — a direct response to the DigiNotar incident."
     },
@@ -56,9 +56,9 @@
         "DNSSEC anchoring",
         "TLS False Start"
       ],
-      "explanation": "OCSP stapling lets the server fetch a fresh OCSP response and attach it to the handshake, avoiding the privacy and latency cost of clients calling the CA directly."
+      "explanation": "OCSP stapling lets the server fetch a fresh OCSP response and attach it to the handshake, avoiding the privacy and latency cost of clients calling the CA directly. (Public CAs are moving toward CRL-based revocation and short-lived certificates, but stapling remains the standard fix for clients that query an OCSP responder on every connection.)"
     },
-    "envelope": {
+    "kek_dek": {
       "answer": "envelope",
       "distractors": [
         "rotational",
@@ -72,11 +72,11 @@
       "answer": "GCM",
       "distractors": [
         "ECB",
-        "CBC without MAC",
-        "OFB",
-        "RC4"
+        "CTR",
+        "XTS",
+        "OFB"
       ],
-      "explanation": "AES-GCM is an AEAD mode providing confidentiality and integrity in one primitive. ECB and unauthenticated CBC are exactly the modes that produced years of padding-oracle and malleability bugs."
+      "explanation": "AES-GCM is an AEAD mode providing confidentiality and integrity in one primitive. CBC without a MAC is what caused the padding-oracle exposure, and the other options are unauthenticated modes: ECB leaks patterns, CTR and OFB produce ciphertext an attacker can flip bit by bit without detection, and XTS is designed for disk sectors, not authenticated messages."
     },
     "crypto_erase": {
       "answer": "cryptographic erasure",
@@ -86,7 +86,7 @@
         "single-pass overwrite",
         "data masking"
       ],
-      "explanation": "In shared cloud storage the customer cannot physically destroy media; destroying the encryption key renders the ciphertext permanently unrecoverable, which is cryptographic erasure."
+      "explanation": "In shared cloud storage the customer cannot physically destroy media; destroying the encryption key renders the ciphertext permanently unrecoverable, which is cryptographic erasure. Degaussing and shredding need physical access to the media, a single-pass overwrite cannot reach every replica, and masking only hides values on screen."
     },
     "fido": {
       "answer": "FIDO2 / WebAuthn",
@@ -101,12 +101,12 @@
     "mtls": {
       "answer": "mTLS",
       "distractors": [
-        "anonymous TLS",
-        "plaintext HTTP",
-        "shared-secret HMAC over UDP",
-        "WEP"
+        "one-way TLS",
+        "HTTP Basic auth over TLS",
+        "OAuth bearer tokens",
+        "IPsec with a pre-shared key"
       ],
-      "explanation": "mTLS authenticates both sides of a connection by certificate. With a service-mesh-issued short-lived workload identity, it is the standard for east-west authentication in modern platforms."
+      "explanation": "mTLS authenticates both sides of a connection by certificate. With a service-mesh-issued short-lived workload identity, it is the standard for east-west authentication in modern platforms. One-way TLS authenticates only the server, and Basic auth, bearer tokens, and pre-shared keys are not certificate-based workload identities."
     },
     "harvest": {
       "answer": "harvest-now-decrypt-later",
@@ -128,15 +128,15 @@
       ],
       "explanation": "ML-KEM is NIST's standardized post-quantum key encapsulation mechanism. ML-DSA and SLH-DSA are post-quantum signature algorithms, while X25519 and RSA-3072 are classical algorithms."
     },
-    "hybrid": {
+    "kex_mode": {
       "answer": "hybrid",
       "distractors": [
-        "pure classical",
         "pure post-quantum",
-        "plaintext fallback",
-        "downgraded"
+        "classical-only",
+        "static-RSA",
+        "pre-shared-key"
       ],
-      "explanation": "Hybrid key exchange combines a classical algorithm (X25519) with a PQC algorithm (ML-KEM) so the session is protected against both today's adversaries and a future quantum one — without staking everything on the new algorithm before it has been deeply analyzed."
+      "explanation": "A hybrid key exchange combines a classical algorithm (X25519) with a PQC algorithm (ML-KEM), so the session stays protected if either is broken — without staking everything on the new algorithm before it has been deeply analyzed. Classical-only offers no quantum protection, and pure post-quantum bets everything on newer algorithms."
     },
     "pfs": {
       "answer": "forward secrecy",

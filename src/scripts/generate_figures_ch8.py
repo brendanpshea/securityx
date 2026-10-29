@@ -37,10 +37,14 @@ def rounded_box(ax, x, y, w, h, text, fc, ec='white', text_color=TEXT_LIGHT,
                 color=text_color, fontsize=fontsize, fontweight='bold')
 
 
-def arrow(ax, start, end, color=SLATE, style='-|>', lw=2.0, ms=16, ls='-'):
+def arrow(ax, start, end, color=SLATE, style='-|>', lw=2.0, ms=16, ls='-',
+          rad=None):
+    kwargs = {}
+    if rad is not None:
+        kwargs['connectionstyle'] = f'arc3,rad={rad}'
     ax.add_patch(FancyArrowPatch(start, end, arrowstyle=style,
                                  mutation_scale=ms, lw=lw, color=color,
-                                 linestyle=ls))
+                                 linestyle=ls, **kwargs))
 
 
 def create_pki_lifecycle():
@@ -70,9 +74,13 @@ def create_pki_lifecycle():
     ax.text(3.0, 8.15, 'CSR', ha='center', fontsize=8.5, color=DARK)
     arrow(ax, (5.7, 7.9), (6.3, 7.9))
     ax.text(6.0, 8.15, 'verify', ha='center', fontsize=8.5, color=DARK)
-    arrow(ax, (8.7, 7.9), (9.3, 7.9), color=ROSE, ls='--', lw=1.6)
+    # The root CA signs the issuing CA's certificate (arrow points root -> issuing CA)
+    arrow(ax, (9.3, 7.9), (8.7, 7.9), color=ROSE, ls='--', lw=1.6)
     ax.text(9.0, 8.15, 'signs', ha='center', fontsize=8.5, color=DARK)
-    arrow(ax, (11.7, 7.9), (12.0, 7.9))
+    # The issuing CA publishes revocation status (CRL / OCSP) to the repository
+    arrow(ax, (7.9, 7.4), (13.1, 7.4), lw=1.5, ms=14, rad=0.25)
+    ax.text(10.5, 6.45, 'publishes CRL / OCSP status', ha='center',
+            fontsize=8.5, color=DARK)
 
     # Curved arrow returning the signed cert to the subscriber
     arrow(ax, (7.5, 7.4), (1.5, 7.4), color=EMERALD, lw=1.5,
@@ -108,7 +116,7 @@ def create_pki_lifecycle():
          'NotBefore / NotAfter\ndates are current',
          AMBER),
         ('4. Subject / SAN',
-         'Hostname matches\nCN or SAN entry',
+         'Hostname matches a\nSAN entry (CN ignored)',
          EMERALD),
         ('5. Revocation',
          'CRL / OCSP /\nOCSP Stapling',
