@@ -2,31 +2,31 @@
   "id": "ch06-frankenstein-hardware",
   "chapter": 6,
   "title": "Victor Frankenstein Audits an IoT Insulin Pump",
-  "context_md": "Victor Frankenstein, Bio-Tech Security Engineer at *Geneva Labs*, is leading the security audit for a next-generation networked insulin pump before FDA submission. The device runs custom firmware on an ARM SoC, communicates over Bluetooth Low Energy with a clinician's tablet, and pulls signed firmware updates from Geneva's CI/CD pipeline.\n\nThree concerns dominate Victor's review. First, the development team built the firmware-signing key into the build server's environment variables — Victor wants the key generation, storage, and signing operations all to happen inside dedicated tamper-resistant hardware. Second, an attacker with brief physical access to the pump should not be able to swap in a malicious firmware image; the device must verify firmware integrity before each boot, and the boot chain itself must be measured so a remote attestation server can detect tampering after the fact. Third, the company's CI/CD pipeline must catch vulnerable open-source dependencies *and* produce a machine-readable inventory that hospitals can ingest into their own vulnerability programs — particularly relevant after the Log4Shell scramble two years ago.\n\nVictor also has to plan for the day this pump model reaches end-of-life, and he must defend against a known class of attacks where a small device is wedged between a USB port and a peripheral to silently capture data.",
+  "context_md": "Victor Frankenstein, Bio-Tech Security Engineer at *Geneva Labs*, is leading the security audit for a next-generation networked insulin pump before FDA submission. Because the pump is software-controlled and connected, it is a \"cyber device\" under section 524B of the FD&C Act: the submission must show reasonable cybersecurity assurance, a plan for handling vulnerabilities after launch, and a list of every commercial, open-source, and off-the-shelf software component in the device. The pump runs custom firmware on an ARM SoC, communicates over Bluetooth Low Energy with a clinician's tablet, and pulls signed firmware updates from Geneva's CI/CD pipeline.\n\nThree concerns dominate Victor's review. First, the development team built the firmware-signing key into the build server's environment variables — Victor wants key generation, storage, and signing to happen inside shared, tamper-resistant hardware that every build runner can call for signatures. Second, an attacker with brief physical access to the pump should not be able to swap in a malicious firmware image; the device must verify firmware integrity before each boot, and the boot chain itself must be measured so a remote attestation server can detect tampering after the fact. Third, the company's CI/CD pipeline must catch vulnerable open-source dependencies *and* produce a machine-readable inventory that hospitals can ingest into their own vulnerability programs — a need the Log4Shell scramble of 2021 made obvious.\n\nVictor also has to plan for the day this pump model reaches end-of-life, and he must defend against a known class of attacks where a small device is wedged between a USB port and a peripheral to silently capture data.",
   "artifact_kind": "checklist",
   "artifact_md": "```\nPump v2.0-rc3  pre-FDA hardware assurance review\nReviewer: V. Frankenstein   Date: 2026-05-10   Sign-off withheld.\n──────────────────────────────────────────────────────────────\n[FAIL]  CR-01  Firmware-signing private key stored in build-server\n               env var ($PUMP_SIGN_KEY). The same OS that runs\n               npm install reads the production signing key.\n\n[FAIL]  CR-02  No per-stage signature verification at boot.\n               No boot-stage measurement to platform registers.\n               (Remote attestation impossible until both are fixed.)\n\n[GAP]   CR-03  CI pipeline produces no machine-readable component\n               inventory. No scanner inspects open-source\n               dependencies. Post-Log4Shell guidance ignored.\n\n[GAP]   CR-04  Source-tree static analysis: not run.\n               BLE runtime test rig: not yet built (QA committed Q3).\n\n[FAIL]  CR-05  Charging dock has exposed USB-A ports. No covers.\n               No clinician warning in the ops manual.\n\n[GAP]   CR-06  Published end-of-support date for v2: TBD.\n               Hospitals cannot plan refresh budgets.\n```",
   "prompt_md": "Map each `[FAIL]` / `[GAP]` line to the correct control, then click **Check answers**.",
-  "body_md": "**CR-01** is closed by moving all signing into an **{{key_hardware}}** — a dedicated, tamper-resistant device whose private keys never leave the boundary in plaintext. **CR-02** is closed by shipping each pump with a **{{platform_module}}** that stores boot-stage hashes in tamper-evident registers.\n\nWith the platform module in place, the boot process must verify the cryptographic signature on each stage before executing it: this is **{{boot_a}}**. To additionally record what was actually loaded so a remote server can later confirm the device booted clean firmware, Victor will enable **{{boot_b}}**, which extends measurements into the module's PCRs.\n\n**CR-03** is closed by adding **{{sca_tool}}** to the pipeline to flag vulnerable open-source components, plus a **{{inventory}}** published alongside each release so hospitals can match component versions against future CVEs without reverse-engineering the firmware.\n\n**CR-04** is closed in two halves: **{{static_test}}** against the source tree before the binary is built, and **{{dynamic_test}}** against the running firmware in the BLE rig.\n\n**CR-06** is closed with a published **{{eol_plan}}** so hospitals know exactly when security updates will stop. **CR-05** is mitigated by warning clinicians about **{{usb_attack}}** — the class of attack where a thin malicious device is wedged in line with a legitimate USB port — and requiring port covers on the dock.",
+  "body_md": "**CR-01** is closed by keeping the signing key in shared, dedicated key-protection hardware: the **{{key_hardware}}**. Key generation, storage, and signing all happen inside its tamper-resistant boundary, and the private key never leaves it in plaintext. **CR-02** is closed by shipping each pump with a per-device chip, the **{{platform_module}}**, that stores boot-stage hashes in registers that can only be extended, never overwritten.\n\nWith the platform module in place, the boot process must verify the cryptographic signature on each stage before executing it: this is **{{boot_a}}**. To additionally record what was actually loaded so a remote server can later confirm the device booted clean firmware, Victor will enable **{{boot_b}}**, which extends measurements into the module's PCRs.\n\n**CR-03** is closed by adding **{{sca_tool}}** to the pipeline to flag vulnerable open-source components, plus a **{{inventory}}** published alongside each release so hospitals can match component versions against future CVEs without reverse-engineering the firmware.\n\n**CR-04** is closed in two halves: **{{static_test}}** against the source tree before the binary is built, and **{{dynamic_test}}** against the running firmware in the BLE rig.\n\n**CR-06** is closed with a published **{{eol_plan}}** so hospitals know exactly when security updates will stop. **CR-05** is mitigated by warning clinicians about **{{usb_attack}}** — the class of attack where a thin malicious device is wedged in line with a legitimate USB port — and requiring port covers on the dock.",
   "blanks": {
     "key_hardware": {
       "answer": "HSM",
       "distractors": [
-        "TPM (Trusted Platform Module)",
-        "USB flash drive",
-        "smart card reader",
-        "GPU"
+        "TPM",
+        "SED",
+        "IOMMU",
+        "BMC"
       ],
-      "explanation": "HSMs are network-attached or PCIe tamper-resistant key vaults purpose-built for high-volume signing operations such as a CI/CD pipeline. TPMs are bound to a single host platform — wrong scale for a build server."
+      "explanation": "An HSM is a tamper-resistant, network- or PCIe-attached key vault built for high-volume signing: the pipeline sends data in and gets a signature back, so the key never touches a build host. A TPM is bound to a single platform, so build runners could not share it. A SED only encrypts data at rest, an IOMMU restricts device memory access and stores no keys, and a BMC is a server management controller, not a key vault."
     },
     "platform_module": {
       "answer": "TPM",
       "distractors": [
-        "HSM (Hardware Security Module)",
+        "HSM",
+        "SED",
         "EEPROM",
-        "Self-Encrypting Drive (SED)",
-        "MicroSD card"
+        "IOMMU"
       ],
-      "explanation": "TPMs (or vTPMs in virtualized contexts) provide per-device measured-boot storage (PCRs) and attestation keys — the right primitive for an embedded device, not the build server."
+      "explanation": "A TPM (or an equivalent embedded secure element) gives each device PCRs for boot measurement and keys for attestation. An HSM is shared infrastructure, not something built into a pump; a SED encrypts storage but measures nothing; plain EEPROM holds data with no protected measurement registers; and an IOMMU only restricts device memory access."
     },
     "boot_a": {
       "answer": "Secure Boot",
@@ -36,7 +36,7 @@
         "Network Boot (PXE)",
         "Recovery Boot"
       ],
-      "explanation": "Secure Boot verifies signatures on each boot stage and refuses to execute unsigned/altered code. It is enforcement, not just measurement."
+      "explanation": "Secure Boot verifies the signature on each boot stage and refuses to execute unsigned or altered code. It is enforcement. Measured Boot only records what ran, cold boot is a memory attack, PXE loads an OS over the network, and recovery boot is a repair mode, none of which blocks a tampered image."
     },
     "boot_b": {
       "answer": "Measured Boot",
@@ -46,7 +46,7 @@
         "Network Boot (PXE)",
         "Recovery Boot"
       ],
-      "explanation": "Measured Boot records hashes of each loaded component into TPM PCRs, enabling later remote attestation. Secure Boot enforces; Measured Boot evidences."
+      "explanation": "Measured Boot records hashes of each loaded component into TPM PCRs, enabling later remote attestation. Secure Boot enforces signatures but leaves no evidence a remote verifier can check; warm, PXE, and recovery boots are just ways of starting the device."
     },
     "sca_tool": {
       "answer": "SCA",
@@ -54,19 +54,19 @@
         "SAST",
         "DAST",
         "RASP",
-        "Fuzzing"
+        "IAST"
       ],
-      "explanation": "SCA inventories open-source dependencies and matches them against vulnerability databases — exactly the Log4Shell-era control gap."
+      "explanation": "SCA inventories open-source dependencies and matches them against vulnerability databases, exactly the Log4Shell-era gap. SAST examines code your own team wrote, DAST attacks a running application, and IAST and RASP watch runtime behavior; none of them check third-party components against CVE data."
     },
     "inventory": {
       "answer": "SBOM",
       "distractors": [
-        "CVE list",
-        "CMDB extract",
-        "code coverage report",
-        "build manifest"
+        "CMDB",
+        "CVE",
+        "CVSS",
+        "SCAP"
       ],
-      "explanation": "An SBOM is the machine-readable component inventory (formats: SPDX, CycloneDX) that downstream operators ingest to track exposure."
+      "explanation": "An SBOM is the machine-readable list of every component and version in a product (in SPDX or CycloneDX format) that downstream operators ingest to track exposure. A CMDB tracks an organization's own assets, a CVE identifies one flaw, CVSS scores severity, and SCAP automates configuration checks; none of them lists what is inside a release."
     },
     "static_test": {
       "answer": "SAST",
@@ -76,7 +76,7 @@
         "IAST",
         "Penetration testing"
       ],
-      "explanation": "SAST analyzes source or bytecode without executing it — ideal for catching insecure patterns early in the pipeline."
+      "explanation": "SAST analyzes source code or bytecode without executing it, which makes it ideal for catching insecure patterns before the binary is built. DAST, IAST, RASP, and penetration testing all need running code."
     },
     "dynamic_test": {
       "answer": "DAST",
@@ -86,7 +86,7 @@
         "Linting",
         "Code review"
       ],
-      "explanation": "DAST exercises the running system from the outside — the right tool for finding runtime auth/authorization flaws on the BLE attack surface."
+      "explanation": "DAST exercises the running system from the outside, the right tool for finding runtime authentication and authorization flaws on the BLE attack surface. SAST, linting, and code review examine code without running it, and SCA inventories dependencies."
     },
     "eol_plan": {
       "answer": "EOL schedule",
@@ -96,7 +96,7 @@
         "depreciation table",
         "warranty card"
       ],
-      "explanation": "Documented EOL/supportability schedules are required so operators (hospitals, in this case) can plan replacements before security updates cease."
+      "explanation": "A documented EOL schedule tells operators (hospitals, here) when security updates will stop so they can plan replacements. A marketing roadmap or feature backlog says what will be added, a depreciation table is an accounting schedule, and a warranty card covers defects rather than security patches."
     },
     "usb_attack": {
       "answer": "shimming",
@@ -106,7 +106,7 @@
         "cold-boot attack",
         "rowhammer"
       ],
-      "explanation": "Shimming is the class of attack where a thin malicious device is inserted in line with a port (USB, card reader) to capture data transparently. EMI/EMP and cold-boot/rowhammer target other layers."
+      "explanation": "Shimming is the attack class where a thin malicious device is inserted in line with a port (USB, card reader) to capture data transparently. EMI and EMP are electromagnetic attacks, and cold-boot and rowhammer attacks target memory."
     }
   }
 }

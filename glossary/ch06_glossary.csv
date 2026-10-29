@@ -18,6 +18,7 @@
 "HSM","Hardware Security Module -- a tamper-resistant appliance for enterprise cryptographic operations and master key protection."
 "vTPM","Virtual Trusted Platform Module -- a hypervisor-provided software implementation of a TPM for virtual machines."
 "Secure Enclave","A CPU-protected memory region that is isolated even from the operating system and hypervisor."
+"Security Coprocessor","A separate, dedicated processor with its own protected memory and firmware that performs key handling and other sensitive operations away from the main CPU."
 "SED","Self-Encrypting Drive -- a storage device that implements encryption in its own firmware and controller."
 "Secure Boot","A UEFI feature that verifies the cryptographic signature of each boot component before executing it."
 "Measured Boot","A process that records cryptographic hashes of each boot component into TPM PCRs for remote attestation."
