@@ -44,22 +44,21 @@ and trust abuses.</li>
 about <em>who</em> the controls are protecting things from — and, just
 as importantly, <em>who they are letting in</em>. Identity has quietly
 become the most important security boundary in the modern enterprise.
-Firewalls still matter. Network segmentation still matters. But when a
-contractor logs in from a coffee shop, when a microservice calls a
-payment API, or when an administrator pushes a Terraform change to
-production, the question that decides whether the action is safe is not
-“where did this packet come from?” It is “who is this subject, and are
-they allowed to do this right now?”</p>
+Firewalls and segmentation still matter, but when a contractor logs in
+from a coffee shop, when a microservice calls a payment API, or when an
+administrator pushes a Terraform change to production, the question that
+decides whether the action is safe is not “where did this packet come
+from?” It is “who is this subject, and are they allowed to do this right
+now?”</p>
 <p>That is why <strong>Identity and Access Management (IAM)</strong> has
 moved from a back-office HR-adjacent function to one of the most
 consequential disciplines in security architecture. A well-designed IAM
 program decides who exists, what they may do, how strongly they must
-prove themselves, when their privilege should be reviewed or revoked,
-and what evidence the organization keeps when something goes wrong. A
-poorly designed program produces dormant admin accounts that linger for
-years after an employee resigns, shared credentials buried in shell
-scripts, federation trusts that nobody fully understands, and audit logs
-that cannot answer the basic question “who did this?”</p>
+prove themselves, when their privilege is reviewed or revoked, and what
+evidence is kept when something goes wrong. A poorly designed one
+produces dormant admin accounts that outlive their owners, shared
+credentials buried in shell scripts, federation trusts nobody fully
+understands, and audit logs that cannot answer “who did this?”</p>
 <p>Identity must be engineered end to end. That means provisioning and
 deprovisioning workflows, access control models such as RBAC, ABAC, MAC,
 and DAC, federation and single sign-on protocols including SAML, OAuth
@@ -76,22 +75,16 @@ becomes a marketing slide <span class="citation"
 data-cites="nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
 href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
 2020</a>; <a href="#ref-nist-sp800-63-4-2025"
-role="doc-biblioref">Temoshok et al. 2025</a>)</span>. In this chapter
-we walk through the identity lifecycle, compare access control models,
-explore how to lock down high-privilege accounts, examine how attackers
-actually abuse identity systems, and finish by troubleshooting the
-authentication failures that fill the average security analyst’s ticket
-queue.</p>
+role="doc-biblioref">Temoshok et al. 2025</a>)</span>.</p>
 <hr />
 <h2 id="how-do-we-manage-the-identity-lifecycle">How Do We Manage the
 Identity Lifecycle?</h2>
-<p>Every identity in your environment has a beginning, a middle, and an
-end. The middle is usually long, quiet, and uneventful. The beginning
-and the end are where most security incidents quietly originate. An
-account that was provisioned with too much privilege on day one will
-keep that privilege for years. An account that was not deprovisioned on
-someone’s last day may quietly be used months later by an attacker who
-bought stolen credentials on a forum.</p>
+<p>Every identity has a beginning, a middle, and an end. The middle is
+long and uneventful; the beginning and the end are where most incidents
+originate. An account provisioned with too much privilege on day one
+keeps it for years. An account not deprovisioned on someone’s last day
+may be used months later by an attacker who bought the stolen
+credentials on a forum.</p>
 <p>The <strong>identity lifecycle</strong> describes the full journey of
 an identity from creation to retirement: request, approval, credential
 issuance, role assignment, periodic review, modification, suspension,
@@ -104,18 +97,18 @@ and Self-Provisioning</h3>
 in the first place?</em> In a small organization, this might be the IT
 lead handing out a temporary password over the phone. In an enterprise,
 it is a workflow that begins in HR, flows into an identity governance
-platform, and ends with an automated account creation in Active
-Directory, an identity provider, several SaaS applications, and possibly
-a hardware token.</p>
+platform, and ends with automated account creation in Active Directory,
+an identity provider, SaaS applications, and possibly a hardware
+token.</p>
 <p>Modern environments increasingly use
 <strong>self-provisioning</strong> patterns. A new hire receives an
 enrollment link, registers their device, sets up MFA, and proves
 identity through a one-time code sent to the manager or HR system.
 <strong>Identity proofing</strong> — verifying that the human behind the
 credential is actually the intended person — is sometimes layered in
-through document verification, video calls, or knowledge-based
-questions. These steps matter because every weak point in initial
-enrollment becomes a weak point that lingers for the entire
+through document verification, a selfie compared against the ID photo,
+or a live video call with a trained agent. These steps matter because
+every weak point in initial enrollment lingers for the entire
 lifecycle.</p>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> An account is never more vulnerable to
@@ -136,7 +129,12 @@ management platform. When HR marks someone as hired, the identity
 governance system creates accounts in the directory and downstream
 applications. When HR marks someone as terminated, the same system
 disables accounts, revokes tokens, and removes group memberships —
-ideally in minutes, not days.</p>
+ideally in minutes, not days. The standard plumbing for this is
+<strong>SCIM</strong> (System for Cross-domain Identity Management), a
+REST/JSON protocol that lets an identity platform create, update, and
+disable accounts inside connected SaaS apps automatically. SCIM handles
+the account’s lifecycle; it complements SSO, which handles only
+sign-in.</p>
 <p>The opposite, and unfortunately common, pattern is <strong>manual
 provisioning by ticket</strong>. A new hire’s manager files individual
 requests for each application. A leaving employee’s access is removed
@@ -157,17 +155,17 @@ that each direct report still needs each privilege.</li>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> Cinderella joins Glass Slipper Tech as a
 backend systems administrator. Her joiner workflow grants the baseline
-“Engineering” role: email, Slack, GitHub, the staging AWS account, and a
-development Jira project. Six months later she transfers to the Payments
-team. The mover workflow adds her to the “Payments-Engineer” role
-(PCI-scoped staging, payments code repo, the on-call rotation) — and
-<em>removes</em> her access to the original team’s repository and Jira
-project. Two years later she resigns. The leaver workflow, triggered by
-HR marking her terminated, disables her IdP account within minutes; SCIM
-propagates the disable to every federated SaaS app; her PAM vault
-entries are revoked; and after a 30-day legal-hold retention window, the
-account is deleted. At no point did anyone file a ticket asking for the
-old access to be removed — the lifecycle did it automatically.</p>
+“Engineering” role: email, Slack, GitHub, and the staging AWS account.
+Six months later she transfers to the Payments team. The mover workflow
+adds the “Payments-Engineer” role (PCI-scoped staging, the payments code
+repo, the on-call rotation) — and <em>removes</em> her access to the
+original team’s repository. Two years later she resigns. The leaver
+workflow, triggered by HR marking her terminated, disables her IdP
+account within minutes; SCIM propagates the disable to every federated
+SaaS app; her PAM vault entries are revoked; and after a 30-day
+retention window, the account is deleted. At no point did anyone file a
+ticket asking for the old access to be removed — the lifecycle did it
+automatically.</p>
 </blockquote>
 <h3
 id="subject-access-control-users-processes-devices-and-services">Subject
@@ -185,34 +183,39 @@ phones.</li>
 <li><strong>Services</strong> — microservices, APIs, cloud workloads, AI
 agents.</li>
 </ul>
-<p>Each of these subject types needs an identity, a credential of some
-kind, and a defined relationship with the resources it accesses. Service
-identities in particular are an enormous attack surface because they
-often hold long-lived credentials, run with broad privilege, and are
-rarely reviewed. A compromised service account can do far more damage
-than a compromised user account because it operates silently and almost
-never triggers user-behavior alerts.</p>
+<p>Each subject type needs an identity, a credential, and a defined
+relationship with the resources it accesses. Service identities are an
+enormous attack surface because they often hold long-lived credentials,
+run with broad privilege, and are rarely reviewed. A compromised service
+account can do more damage than a compromised user account because it
+operates silently and almost never triggers user-behavior alerts.</p>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong> If your organization rotates user
-passwords every 90 days but cannot tell you when the service account
-behind the nightly database export last had its password changed, your
-IAM program has a blind spot the size of the data warehouse.</p>
+<p><strong class="callout-title">Warning</strong> Many organizations police human passwords
+closely yet cannot say when the service account behind the nightly
+database export last had its secret changed, or who still knows it. NIST
+says to stop forcing routine password changes for <em>people</em> <span
+class="citation" data-cites="nist-sp800-63b-2025">(<a
+href="#ref-nist-sp800-63b-2025" role="doc-biblioref">National Institute
+of Standards and Technology 2025</a>)</span>, but machine secrets are
+the opposite case: no human needs to memorize them, so they should be
+vaulted and rotated automatically. A blind spot there is the size of the
+data warehouse.</p>
 </blockquote>
 <h3
 id="federation-identity-providers-service-providers-and-sso">Federation,
 Identity Providers, Service Providers, and SSO</h3>
 <p>In a small environment, every application can hold its own user
-database. In an enterprise, that approach is unworkable. Hundreds of
-applications, each with its own credentials, would mean hundreds of
-password resets, hundreds of inconsistent MFA configurations, and
-hundreds of places to forget to deprovision.</p>
+database. In an enterprise, that is unworkable: hundreds of applications
+would mean hundreds of password resets, inconsistent MFA configurations,
+and places to forget to deprovision.</p>
 <p><strong>Federation</strong> solves this by separating <em>who you
 are</em> from <em>what you can use</em>. An <strong>Identity Provider
 (IdP)</strong> — such as Microsoft Entra ID, Okta, Google Workspace, or
 Ping Identity — owns the authentication event. A <strong>Service
 Provider (SP)</strong> — the application the user actually wants to use
-— trusts the IdP’s signed assertion that the user is who they say they
-are. The SP never sees the user’s password.</p>
+(OIDC and NIST call it a <em>relying party</em>) — trusts the IdP’s
+signed assertion that the user is who they say they are. The SP never
+sees the user’s password.</p>
 <p><strong>Single Sign-On (SSO)</strong> is the user-facing experience
 that federation enables: log in once at the IdP, and subsequent
 applications recognize the session without prompting again. The two
@@ -220,70 +223,69 @@ dominant federation protocol families are:</p>
 <ul>
 <li><strong>SAML 2.0</strong> — XML-based assertions, widely used by
 enterprise SaaS and legacy applications.</li>
-<li><strong>OAuth 2.0 / OpenID Connect (OIDC)</strong> — JSON /
-JWT-based, dominant in modern web and mobile applications. OAuth handles
-authorization (delegated access); OIDC layers authentication on
-top.</li>
+<li><strong>OAuth 2.0 / OpenID Connect (OIDC)</strong> — JSON-based,
+using signed <strong>JSON Web Tokens (JWTs)</strong>, dominant in modern
+web and mobile applications. OAuth handles authorization (delegated
+access); OIDC layers authentication on top.</li>
 </ul>
 <p>The architectural payoff of federation is enormous. Deprovisioning
 becomes a single act at the IdP rather than a scavenger hunt across
 dozens of apps. MFA policy is enforced once and applies everywhere.
 Conditional access — discussed later in this chapter — becomes possible
-because every application sees the same enriched identity context.</p>
+because the IdP can evaluate the same device, location, and risk signals
+on every sign-in.</p>
 <p><img src="../assets/images/ch05_sso_workflow.png"
-alt="A federated SSO exchange. The user authenticates once at the Identity Provider, which issues a signed assertion or token that the Service Provider validates without ever seeing the user’s password." />
+alt="A federated SSO exchange. The user authenticates once at the Identity Provider, which issues a signed assertion or token, delivered through the browser, that the Service Provider validates without ever seeing the user’s password." />
 <em>Figure 5.1: A federated SSO exchange. The user authenticates once at
-the Identity Provider, which issues a signed assertion or token that the
-Service Provider validates without ever seeing the user’s
-password.</em></p>
+the Identity Provider, which issues a signed assertion or token,
+delivered through the browser, that the Service Provider validates
+without ever seeing the user’s password.</em></p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong> <strong>Emma Woodhouse and the
 Offboarding Crisis at Highbury Networks</strong></p>
 <p>Emma Woodhouse had spent her first six months as the new IAM
-Specialist at Highbury Networks tidying up what her predecessor had left
+Specialist at Highbury Networks tidying up what her predecessor left
 behind. Highbury was a fast-growing analytics firm with about 1,400
-employees, dozens of contractors, and roughly 180 SaaS applications
-acquired through a decade of departmental purchases. Provisioning was
-reasonably automated for Microsoft 365 and the core CRM, but the rest of
-the SaaS portfolio was a patchwork of manual requests and shared admin
-consoles.</p>
+employees and roughly 180 SaaS applications bought through a decade of
+departmental purchases. Provisioning was reasonably automated for
+Microsoft 365 and the core CRM, but the rest was a patchwork of manual
+requests and shared admin consoles.</p>
 <p>The crisis began on a Friday afternoon. A senior data analyst named
-Moriarty had been terminated for cause that morning. HR processed the
-offboarding ticket immediately, and Emma’s automation disabled
-Moriarty’s account in Microsoft Entra ID within fifteen minutes. By all
-appearances, the offboarding was clean.</p>
-<p>Then, at 7:42 PM, Highbury’s SOC paged Emma. Moriarty’s email account
+Wickham had been terminated for cause that morning. Emma’s automation
+disabled Wickham’s account in Microsoft Entra ID within fifteen minutes.
+By all appearances, the offboarding was clean.</p>
+<p>Then, at 7:42 PM, Highbury’s SOC paged Emma. Wickham’s email account
 had been disabled, but two other systems were still showing active
 sessions associated with him: a marketing analytics SaaS that had been
 onboarded by the marketing team three years earlier without going
-through IT, and a third-party data vendor’s portal where Moriarty had
+through IT, and a third-party data vendor’s portal where Wickham had
 been a designated power user. Neither was federated to Entra ID. Both
 used local credentials. Both had been used to download customer data
-after Moriarty’s termination.</p>
-<p>The incident did not result in a major breach — Highbury’s DLP caught
-the second download attempt and the legal team recovered the data — but
-it was a wake-up call. Emma spent the following quarter executing what
-she called the “federate or retire” project. Every SaaS application in
-the company had to either be brought under Entra ID’s SSO umbrella, with
+after Wickham’s termination.</p>
+<p>Highbury’s DLP caught the second download attempt and the legal team
+recovered the data, but it was a wake-up call. Emma spent the following
+quarter on what she called the “federate or retire” project. Every SaaS
+application had to either come under Entra ID’s SSO umbrella, with
 deprovisioning tied to the HR feed, or be formally retired. Where an
-application could not support SAML or OIDC, Emma worked with vendors to
-enable SCIM-based provisioning so that account disable would happen
+application supported SCIM but not SSO, Emma worked with the vendor to
+enable SCIM provisioning so that an account disable would happen
 automatically.</p>
 <p>Eighteen months later, Highbury could disable a departing employee’s
 access across the entire SaaS portfolio in under five minutes. The
-incident with Moriarty was the last time the company learned about an
+incident with Wickham was the last time the company learned about an
 unfederated application from its SOC instead of from its inventory.</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 5.1</strong></p>
 <ol type="1">
 <li><strong>Recall.</strong> What is privilege creep?</li>
-<li><strong>Discriminate.</strong> In federation, which side
-authenticates the user and which side consumes the signed assertion or
-token: the IdP or the SP?</li>
-<li><strong>Apply.</strong> Moriarty was terminated, but two unfederated
-SaaS apps still allowed access. What program did Emma launch to fix that
-class of problem?</li>
+<li><strong>Discriminate.</strong> Emma’s project used both SSO (SAML or
+OIDC) and SCIM. Which one proves who the user is at sign-in, and which
+one creates and disables the account inside the app?</li>
+<li><strong>Apply.</strong> A contractor’s access is disabled at the
+IdP, yet she can still open a vendor portal that uses its own local
+passwords. Which lifecycle step failed, and what two fixes would Emma
+apply?</li>
 </ol>
 </blockquote>
 <details>
@@ -294,11 +296,15 @@ class of problem?</li>
 <li><strong>Privilege creep</strong> is the gradual buildup of
 unnecessary access over time, especially when role changes only add
 privileges and never remove them.</li>
-<li>The <strong>IdP</strong> authenticates the user and issues the
-assertion or token; the <strong>SP</strong> consumes it to grant
-application access.</li>
-<li><strong>Federate or retire.</strong> Emma pushed every app under SSO
-and HR-driven deprovisioning, using SCIM where needed.</li>
+<li><strong>SAML or OIDC</strong> handle authentication (the IdP proves
+identity; the SP consumes the signed assertion or token).
+<strong>SCIM</strong> handles the account lifecycle inside the app.
+Disabling the IdP account stops new SSO sign-ins, but only SCIM (or
+manual cleanup) removes the app’s own account.</li>
+<li><strong>Deprovisioning</strong> failed, because the portal sat
+outside federation. Emma would <strong>federate the app (SSO) or retire
+it</strong>, and enable <strong>SCIM</strong> so an HR-driven disable
+reaches the app automatically.</li>
 </ol>
 </details>
 <hr />
@@ -313,7 +319,8 @@ millions of resources.</p>
 flexibility, simplicity against expressiveness, and administrative
 effort against precision. Mature environments combine several of
 them.</p>
-<h3 id="rbac-abac-mac-and-dac">RBAC, ABAC, MAC, and DAC</h3>
+<h3 id="rbac-rule-based-abac-mac-and-dac">RBAC, Rule-Based, ABAC, MAC,
+and DAC</h3>
 <p><strong>Role-Based Access Control (RBAC)</strong> assigns privileges
 to <em>roles</em> rather than individual users. Users inherit privileges
 by being assigned to one or more roles. RBAC is the workhorse of
@@ -345,15 +352,22 @@ permissions and Windows NTFS access control lists are familiar examples.
 DAC is flexible and intuitive but produces inconsistent enforcement and
 is easy for users to misconfigure (everyone has shared a folder “with
 the whole company” at some point).</p>
+<p><strong>Rule-based access control</strong> applies a fixed set of
+administrator-defined rules to <em>every</em> request, whatever the
+subject’s role or ownership: a firewall ACL, a router that accepts SSH
+only from the admin subnet, or a rule that blocks all payroll logins
+after 7 PM. It is consistent and easy to automate, but it ignores who is
+asking. Watch the acronym: “RBAC” means <em>role</em>-based, so
+rule-based is always spelled out.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> Consider how each model handles the same
-request at Geneva Labs: <em>“Allow Dr. Moriartyenstein to read patient
+request at Geneva Labs: <em>“Allow Dr. Frankenstein to read patient
 record #4471.”</em></p>
 <ul>
 <li><strong>DAC:</strong> Whoever created the record (perhaps the
-admitting nurse) added Dr. Moriartyenstein to its ACL. If the nurse
-forgot, he cannot read it — even though clinically he should.</li>
-<li><strong>RBAC:</strong> Dr. Moriartyenstein has the role “Attending
+admitting nurse) added Dr. Frankenstein to its ACL. If the nurse forgot,
+he cannot read it — even though clinically he should.</li>
+<li><strong>RBAC:</strong> Dr. Frankenstein has the role “Attending
 Physician — Cardiology.” Anyone with that role can read any cardiology
 patient record. Simple, but the nephrology consult he also needs is
 invisible to him.</li>
@@ -368,8 +382,7 @@ override the label themselves.</li>
 </ul>
 </blockquote>
 <table>
-<caption>Table 5.1: Comparing the Four Major Access Control
-Models.</caption>
+<caption>Table 5.1: Comparing the Major Access Control Models.</caption>
 <colgroup>
 <col style="width: 20%" />
 <col style="width: 20%" />
@@ -422,13 +435,22 @@ environments</td>
 <td style="text-align: left;">File systems, shared drives, collaboration
 tools</td>
 </tr>
+<tr>
+<th scope="row" style="text-align: left;"><strong>Rule-based</strong></th>
+<td style="text-align: left;">Fixed rules applied to every request</td>
+<td style="text-align: left;">Consistent, easy to automate</td>
+<td style="text-align: left;">Ignores subject identity; rules pile up
+and conflict</td>
+<td style="text-align: left;">Firewall and router ACLs, time-of-day
+logon restrictions</td>
+</tr>
 </tbody>
 </table>
 <h3 id="policy-decision-and-enforcement-points">Policy Decision and
 Enforcement Points</h3>
 <p>Modern IAM architectures separate the <em>decision</em> about whether
 to grant access from the <em>enforcement</em> of that decision. Two
-terms describe this split:</p>
+terms, first met in Chapter 4, describe this split:</p>
 <ul>
 <li><strong>Policy Decision Point (PDP):</strong> The component that
 evaluates the policy and returns a decision (permit, deny, or sometimes
@@ -437,12 +459,12 @@ evaluates the policy and returns a decision (permit, deny, or sometimes
 actually allows or blocks the action — typically a gateway, proxy,
 application middleware, or operating system kernel.</li>
 </ul>
-<p>The reason this matters architecturally is consistency. When dozens
-of applications each implement their own access logic, policy drifts.
-When they all consult a centralized PDP, policy changes apply everywhere
-at once. This is the foundation of Zero Trust enforcement: a single
-policy engine evaluating context-rich requests, and many enforcement
-points in front of resources.</p>
+<p>The payoff is consistency. When dozens of applications each implement
+their own access logic, policy drifts; when they all consult a
+centralized PDP, a policy change applies everywhere at once. This is the
+foundation of Zero Trust enforcement: one policy engine evaluating
+context-rich requests, and many enforcement points in front of
+resources.</p>
 <h3 id="conditional-access-and-context-based-controls">Conditional
 Access and Context-Based Controls</h3>
 <p><strong>Conditional access</strong> is ABAC dressed for the cloud.
@@ -461,14 +483,13 @@ in their working time zone.</em></li>
 corporate ERP from a hotel Wi-Fi network on a Saturday evening. The
 conditional access engine evaluates the request: the user is in a
 permitted role (✓), but the device is unmanaged (✗), the location is
-outside the usual country (✗), and the time falls outside business hours
+outside the usual country (✗), and the time is outside business hours
 (✗). Rather than allow or deny outright, the policy issues an
-<strong>obligation</strong>: grant access only after the user completes
-a step-up FIDO2 challenge AND restrict the session to read-only for two
-hours. The same user, on the same laptop, on Monday morning at the
-office, would have been signed in silently with no extra prompt. Same
-identity, same resource, completely different access decision — driven
-by context.</p>
+<strong>obligation</strong>: grant access only after a step-up FIDO2
+challenge AND restrict the session to read-only for two hours. On Monday
+morning at the office, the same user would have been signed in silently.
+Same identity, same resource, different decision — driven by
+context.</p>
 </blockquote>
 <p>Conditional access policies typically combine several signals:
 <strong>user-to-device binding</strong> (this credential is tied to this
@@ -482,6 +503,13 @@ data-cites="nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
 href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
 2020</a>; <a href="#ref-nist-sp800-63-4-2025"
 role="doc-biblioref">Temoshok et al. 2025</a>)</span>.</p>
+<p>Much conditional access troubleshooting is about configuration. Test
+a new policy in <strong>report-only mode</strong> first, so the logs
+show who <em>would</em> have been blocked. Exclude one or two monitored
+<strong>break-glass</strong> emergency accounts, so a bad rule cannot
+lock out every administrator. And because VPNs and proxies distort
+apparent location, treat location as a risk signal rather than the only
+gate.</p>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong> A contractor needs access to one
 application, from one specific laptop, only during business hours, only
@@ -499,63 +527,106 @@ a healthy TPM, and is running the corporate EDR agent. A workload may
 attest that it was signed by an approved CI/CD pipeline. Attestation
 moves the access decision from “I trust your password” to “I trust the
 cryptographic evidence about your environment.”</p>
+<p><strong>Multifactor authentication (MFA)</strong> requires proof from
+at least two <em>different</em> categories: something you know
+(password, PIN), something you have (security key, phone, smart card),
+or something you are (biometric). Two passwords are still one factor.
+Strength varies widely: SMS codes and push approvals can be phished or
+abused, while <strong>FIDO2/WebAuthn</strong> credentials, marketed as
+<strong>passkeys</strong>, are <em>phishing-resistant</em> because the
+browser signs a challenge with a private key bound to the real site’s
+domain, so a look-alike site gets nothing usable. A
+<strong>device-bound</strong> passkey keeps its key in hardware where it
+cannot be exported; a <strong>syncable</strong> passkey is backed up
+through a cloud keychain for convenience (Chapter 8 returns to
+passwordless design).</p>
+<p>NIST SP 800-63-4 grades authentication strength in three
+<strong>authenticator assurance levels (AAL1 to AAL3)</strong>. It
+accepts syncable passkeys at AAL2 (where verifiers must also offer a
+phishing-resistant option), but AAL3 requires a non-exportable,
+phishing-resistant authenticator, so syncable passkeys do not qualify
+there <span class="citation" data-cites="nist-sp800-63b-2025">(<a
+href="#ref-nist-sp800-63b-2025" role="doc-biblioref">National Institute
+of Standards and Technology 2025</a>)</span>. Its password rules are
+equally specific:</p>
+<ul>
+<li><strong>Length over complexity:</strong> at least 15 characters when
+a password is the only factor (8 when it is part of MFA), and accept 64
+or more.</li>
+<li><strong>No composition rules and no periodic changes:</strong> do
+not require symbols or capitals, and change a password only when
+compromise is suspected.</li>
+<li><strong>Blocklist screening:</strong> check every new password
+against a list of common or breached values.</li>
+</ul>
 <p><strong>Biometric authentication</strong> uses physical or behavioral
-characteristics — fingerprints, face geometry, iris patterns, voice,
-typing rhythm — as part of an authentication flow. In current NIST
-guidance, biometrics are not treated as standalone authenticators; they
-are used to activate or strengthen another factor, and phishing
-resistance depends on the surrounding protocol rather than on the
-biometric by itself <span class="citation"
+characteristics — fingerprints, face geometry, iris patterns, typing
+rhythm — as part of an authentication flow. NIST SP 800-63B-4 allows
+biometrics only together with a physical authenticator (the phone or key
+is “something you have”; the biometric merely unlocks it), requires a
+non-biometric alternative, prefers matching on the user’s own device,
+and does not permit voice comparison <span class="citation"
 data-cites="nist-sp800-63b-2025">(<a href="#ref-nist-sp800-63b-2025"
 role="doc-biblioref">National Institute of Standards and Technology
-2025</a>)</span>. They still have unique architectural concerns:</p>
+2025</a>)</span>. Biometrics also raise their own architectural
+concerns:</p>
 <ul>
-<li><strong>Templates, not images.</strong> The biometric system stores
-a mathematical representation, not the raw image. Architects must ensure
-the template is stored as a one-way transformation that cannot be
-reversed back into a fingerprint or face.</li>
+<li><strong>Templates, not images.</strong> The system stores a
+mathematical representation, not the raw image. Treat templates as
+sensitive personal data, encrypt them, and prefer on-device matching so
+there is no central database of faces or fingerprints to breach.</li>
 <li><strong>FAR and FRR trade-offs.</strong> The <strong>False Accept
 Rate (FAR)</strong> is how often the system wrongly accepts an imposter;
 the <strong>False Reject Rate (FRR)</strong> is how often it wrongly
-rejects a legitimate user. Lowering one usually raises the other. The
-threshold must be tuned to the sensitivity of the resource.</li>
-<li><strong>You cannot reissue a fingerprint.</strong> If a biometric
-template is leaked, the user’s biometric is compromised forever. This is
-why biometrics are best used as one factor among several, never as a
-sole secret.</li>
+rejects a legitimate user (NIST calls them the false match and false
+non-match rates). Lowering one usually raises the other; the point where
+they are equal is the <strong>crossover error rate (CER)</strong>, a
+common way to compare systems. Tune the threshold to the sensitivity of
+the resource.</li>
+<li><strong>Biometrics are not secrets.</strong> A face can be
+photographed and a fingerprint lifted from a glass, and you cannot issue
+a new finger if a template leaks. That is why biometrics serve as one
+factor among several, backed by <strong>presentation attack detection
+(PAD)</strong>, or liveness checks, to catch photos and masks.</li>
 </ul>
 <p><img src="../assets/images/ch05_biometric_flow.png"
 alt="The biometric authentication pipeline — capture, feature extraction, template comparison, threshold scoring, and the final accept/reject decision." />
 <em>Figure 5.2: The biometric authentication pipeline — capture, feature
 extraction, template comparison, threshold scoring, and the final
 accept/reject decision.</em></p>
-<p><strong>Identity proofing</strong> is the process of confirming, at
-enrollment, that the human behind a credential is who they claim to be.
-NIST’s current digital identity guidance defines increasing levels of
-proofing — from self-asserted, through remote document verification, up
-to in-person verification with government-issued ID <span
+<p>Recall that identity proofing happens at enrollment, and NIST grades
+it. SP 800-63-4, finalized in 2025, defines three <strong>identity
+assurance levels (IALs)</strong>. IAL1 requires collecting identity
+evidence, validating it, and verifying that the applicant owns it. IAL2
+requires stronger or additional evidence and more rigorous verification
+(for example, an automated selfie-to-ID comparison) and can still be
+done remotely. IAL3 requires on-site, attended proofing with a trained
+agent. The same suite grades federation transactions in three
+<strong>federation assurance levels (FALs)</strong> <span
 class="citation" data-cites="nist-sp800-63-4-2025">(<a
 href="#ref-nist-sp800-63-4-2025" role="doc-biblioref">Temoshok et al.
-2025</a>)</span>. Architects choose the proofing level based on the
-sensitivity of what the identity will eventually be allowed to do.</p>
+2025</a>)</span>. Architects choose the level based on the sensitivity
+of what the identity will eventually be allowed to do.</p>
 <h3 id="physical-and-logical-access-control">Physical and Logical Access
 Control</h3>
 <p>A complete IAM program covers both <strong>physical access control
 systems</strong> — badges, turnstiles, mantraps, biometric door readers
 — and <strong>logical access control systems</strong> — directories,
-identity providers, application authorization. Increasingly, the two are
-converging. The same identity that opens the data center door may also
-unlock the jump host that manages the servers inside it. When physical
-and logical IAM are unified, one revocation event removes both the badge
-and the network access. When they are separate, the badge office and the
-helpdesk often disagree about who still works at the company.</p>
+identity providers, application authorization. The two are converging:
+the identity that opens the data center door may also unlock the jump
+host for the servers inside. When physical and logical IAM are unified,
+one revocation event removes both the badge and the network access. When
+they are separate, the badge office and the helpdesk often disagree
+about who still works at the company.</p>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 5.2</strong></p>
 <ol type="1">
 <li><strong>Recall.</strong> What does a PDP do, and what does a PEP
 do?</li>
-<li><strong>Discriminate.</strong> If a file owner manually decides who
-else can read a folder, is that DAC or MAC?</li>
+<li><strong>Discriminate.</strong> (a) A file owner manually decides who
+else can read a folder. (b) A system rule blocks every account from a
+server outside 8 AM to 6 PM, regardless of role or ownership. Which is
+DAC and which is rule-based?</li>
 <li><strong>Apply.</strong> A contractor needs one application, from one
 laptop, only during business hours, only inside one country. Which model
 from the chapter expresses that cleanly, and which signals should it
@@ -569,8 +640,9 @@ use?</li>
 <ol type="1">
 <li>The <strong>PDP</strong> evaluates policy and returns the decision;
 the <strong>PEP</strong> enforces that decision.</li>
-<li><strong>DAC.</strong> The owner is exercising discretion over the
-resource.</li>
+<li><strong>(a) is DAC</strong>, because the owner exercises discretion
+over the resource. <strong>(b) is rule-based</strong>, because a fixed
+rule applies to everyone no matter who they are.</li>
 <li><strong>ABAC or conditional access.</strong> It should evaluate
 signals like user-to-device binding, geography, time, and device
 trust.</li>
@@ -593,13 +665,16 @@ without giving them standing admin privilege?” A well-designed PAM
 solution provides:</p>
 <ul>
 <li><strong>Vaulted credentials.</strong> Privileged passwords are
-stored in a hardened vault, never given directly to humans. Users check
-out access for a defined window and the password is rotated
-automatically afterward.</li>
+stored in a hardened vault. Users check out access for a defined window
+(or the session broker injects the credential without the user ever
+seeing it), and the password is rotated automatically afterward.</li>
 <li><strong>Just-in-time elevation.</strong> Standing membership in
 admin groups is replaced with on-demand elevation that expires
 automatically — often called <strong>just-enough access (JEA)</strong>
-combined with <strong>just-in-time (JIT) access</strong>.</li>
+combined with <strong>just-in-time (JIT) access</strong>. Cloud
+platforms build this in: Microsoft Entra Privileged Identity Management,
+for example, makes admin roles <em>eligible</em> rather than permanent
+and activates them for a limited time, with approval.</li>
 <li><strong>Session brokering and recording.</strong> Privileged
 sessions go through a jump host or session broker that records
 keystrokes, screen activity, and commands for audit.</li>
@@ -611,7 +686,10 @@ with phishing-resistant MFA and dedicated admin workstations is
 non-negotiable <span class="citation"
 data-cites="nist-sp800-63b-2025">(<a href="#ref-nist-sp800-63b-2025"
 role="doc-biblioref">National Institute of Standards and Technology
-2025</a>)</span>.</li>
+2025</a>)</span>. <strong>Endpoint privilege management (EPM)</strong>
+applies the same least-privilege idea on the workstation itself: remove
+permanent local administrator rights and elevate only specific approved
+applications or tasks on demand, with logging (Chapter 9).</li>
 </ul>
 <p>A common pattern in mature organizations is the <strong>tiered
 administration model</strong>: Tier 0 contains identity infrastructure
@@ -650,22 +728,33 @@ talk to a PostgreSQL database. The insecure pattern: a
 checked into git. The mature pattern: at startup, the service
 authenticates to HashiCorp Vault using its Kubernetes service-account
 token. Vault verifies the pod’s identity with the cluster, confirms a
-policy that allows this workload to read
-<code>secret/payments/db</code>, and returns a <em>dynamically
-generated</em> database credential that is valid for 60 minutes. After
-60 minutes the credential expires automatically; if the pod is still
-running it requests a fresh one. If an attacker dumps memory from one
-pod, they get a credential that dies within the hour — and Vault’s audit
-log records exactly which pod, on which node, fetched which secret,
-when.</p>
+policy that lets this workload read
+<code>database/creds/payments</code>, and returns a <em>dynamically
+generated</em> database credential valid for 60 minutes. When it
+expires, the running pod requests a fresh one. An attacker who dumps one
+pod’s memory gets a credential that dies within the hour, and Vault’s
+audit log records exactly which pod fetched which secret, and when.</p>
 </blockquote>
 <p><strong>Rotation</strong> matters because the longer a secret lives,
-the more places it has been copied to and the more hands have seen it.
-Best practice is to rotate routinely <em>and</em> to rotate immediately
-after any suspected exposure. This applies equally to passwords, tokens,
-certificates, and keys. Crucially, the rotation process itself must be
-automated — a manual “rotate every 90 days” policy that depends on a
-human running a checklist will fail under operational pressure.</p>
+the more places it has been copied and the more hands have seen it. For
+machine secrets (API keys, database credentials, signing keys,
+service-account passwords), best practice is automated routine rotation
+— or, better, short-lived dynamic credentials like the Vault example —
+plus immediate rotation after any suspected exposure. Human passwords
+are the exception: calendar-based changes just teach users predictable
+tweaks (<code>Password1!</code> becomes <code>Password2!</code>), so
+change a person’s password when compromise is suspected, as the NIST
+rules above say. Public TLS certificate lifetimes are also shrinking
+under CA/Browser Forum rules, so certificate renewal must be automated
+too (Chapter 8). A manual “rotate every 90 days” checklist for machine
+secrets will fail under operational pressure.</p>
+<p><strong>Deletion</strong> is the other half of the lifecycle. Revoke
+and then actually remove secrets nobody needs: unused API keys and OAuth
+tokens, certificates for decommissioned servers, old secret versions a
+vault keeps after rotation, and the keys and tokens of departed
+employees or retired systems. When a key protects data that must
+disappear, destroying the key (cryptographic erase, Chapter 8) can be
+enough.</p>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> Hardcoded secrets in source code
 repositories are one of the most common root causes of cloud breaches.
@@ -693,43 +782,52 @@ justification for every entry.</p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong> <strong>SolarWinds and the Golden SAML
 Attack</strong></p>
-<p>The 2020 SolarWinds compromise is one of the most-studied supply
-chain attacks in modern history, but for this chapter the most relevant
-detail is what attackers did <em>after</em> gaining a foothold. Once
-inside affected environments, the threat actor — later attributed to a
-Russian state-sponsored group — pivoted toward the identity layer <span
-class="citation" data-cites="mandiant-sunburst-2020">(<a
+<p>The 2020 SolarWinds compromise, in which attackers slipped a
+malicious update into SolarWinds’ Orion network-management software, is
+one of the most-studied supply chain attacks in modern history. For this
+chapter the most relevant detail is what the attackers did
+<em>after</em> gaining a foothold. Once inside selected victims, the
+threat actor — attributed by the U.S. government to Russia’s Foreign
+Intelligence Service (SVR) — pivoted toward the identity layer <span
+class="citation"
+data-cites="mandiant-sunburst-2020 cisa-svr-solarwinds-2021">(<a
 href="#ref-mandiant-sunburst-2020" role="doc-biblioref">Mandiant
-2020</a>)</span>.</p>
-<p>The technique that became known as <strong>Golden SAML</strong>
-worked like this. In a federated environment, the on-premises Active
-Directory Federation Services (AD FS) server signs SAML assertions using
-a private token-signing certificate. If an attacker can read that
-signing certificate from the AD FS server’s memory or configuration
-store, they can mint their own SAML assertions for any user, with any
-claims they like, including assertions that bypass MFA because the SAML
-response asserts that MFA was already performed. Service providers —
-including major cloud platforms — would accept those forged assertions
-as legitimate, because the cryptographic signature verified <span
-class="citation" data-cites="mandiant-golden-saml-2021">(<a
+2020</a>; <a href="#ref-cisa-svr-solarwinds-2021"
+role="doc-biblioref">Cybersecurity and Infrastructure Security Agency
+2021</a>)</span>.</p>
+<p>The technique, named <strong>Golden SAML</strong> by CyberArk
+researchers in 2017 and used in this campaign, worked like this. In a
+federated environment, the on-premises Active Directory Federation
+Services (AD FS) server signs SAML assertions using a private
+token-signing certificate. An attacker with administrative access to
+that server could export the signing certificate and its private key,
+then mint SAML assertions for any user, with any claims they liked,
+including claims saying MFA had already been performed. Service
+providers — including Microsoft 365 — accepted the forged assertions as
+legitimate, because the signature verified <span class="citation"
+data-cites="mandiant-golden-saml-2021">(<a
 href="#ref-mandiant-golden-saml-2021" role="doc-biblioref">Mandiant
 2021</a>)</span>.</p>
-<p>Attackers used this technique to access cloud email and document
-repositories belonging to government agencies and large enterprises. The
-breach was not detected by the cloud providers, because from their
-perspective every login looked normal. It was detected, eventually, by
-behavioral anomalies and threat intelligence sharing <span
+<p>The forged assertions gave the attackers access to victims’ cloud
+email and documents. The IdP never saw a password check, MFA prompt, or
+sign-in, because the attacker never talked to it, and at the service
+provider every login looked valid. The telling sign was a sign-in at the
+SP with <em>no matching authentication event at the IdP</em>, which only
+defenders who collected logs from both sides could spot <span
 class="citation" data-cites="mandiant-golden-saml-2021">(<a
 href="#ref-mandiant-golden-saml-2021" role="doc-biblioref">Mandiant
 2021</a>)</span>.</p>
 <p>The architectural lessons are sharp. Federation servers and their
 signing certificates are Tier 0 assets and must be protected as fiercely
-as domain controllers. Token-signing keys should live in HSMs where the
-private material cannot be extracted. Cloud IAM trust policies should be
-reviewed for unexpected SAML issuers. And identity logs from both the
-IdP and the SP should be centralized so that a forged assertion at the
-IdP can be cross-checked against unusual access at the SP. Federation is
-enormously powerful — but it concentrates trust in a small number of
+as domain controllers. Token-signing keys should live in
+<strong>hardware security modules (HSMs)</strong>, tamper-resistant
+devices that use a private key without ever exposing it. Cloud IAM trust
+policies should be reviewed for unexpected SAML issuers. Identity logs
+from both the IdP and the SP should be centralized so a forged assertion
+can be cross-checked against unusual access at the SP. And after a
+suspected theft, the signing certificate must be rotated, twice in quick
+succession, so tokens signed with the old key stop working. Federation
+is enormously powerful — but it concentrates trust in a small number of
 cryptographic secrets, and those secrets must be defended
 accordingly.</p>
 </blockquote>
@@ -741,8 +839,8 @@ replace?</li>
 <li><strong>Discriminate.</strong> If an attacker steals the AD FS
 token-signing certificate, is that mainly a password problem or a
 federation trust problem?</li>
-<li><strong>Apply.</strong> What two protective steps does the chapter
-recommend for limiting Golden SAML-style damage?</li>
+<li><strong>Apply.</strong> Name two protective steps the chapter
+recommends for limiting Golden SAML-style damage.</li>
 </ol>
 </blockquote>
 <details>
@@ -754,51 +852,47 @@ recommend for limiting Golden SAML-style damage?</li>
 temporary, time-limited elevation.</li>
 <li><strong>A federation trust problem.</strong> The attacker can forge
 SAML assertions that service providers will accept as real.</li>
-<li><strong>Protect the signing key in an HSM and centralize IdP and SP
-logging.</strong> That hardens the secret and improves detection when
-assertions look valid but behavior does not.</li>
+<li><strong>Any two of:</strong> treat federation servers as Tier 0;
+keep the signing key in an HSM; review cloud trust policies for
+unexpected SAML issuers; centralize IdP and SP logs so a forged
+assertion shows up as an SP sign-in with no IdP event; rotate the
+signing certificate after a suspected theft.</li>
 </ol>
 </details>
 <hr />
 <h2 id="how-do-identity-attacks-actually-unfold">How Do Identity Attacks
 Actually Unfold?</h2>
-<p>IAM is not only a configuration problem. It is also an attack
-surface. When threat actors compromise an enterprise, they often do not
-begin and end with a broken login page. They abuse identity stores,
-federation relationships, tokens, enrollment workflows, administrative
-paths, and endpoint trust signals. That is why identity troubleshooting
-and threat-actor TTPs overlap so heavily in real environments.</p>
-<p>The key architectural point is that many “identity incidents” are not
-pure authentication failures. They are attack paths that <em>use</em>
-identity as the mechanism of persistence, escalation, or lateral
-movement. If an analyst sees repeated lockouts, impossible-travel
-alerts, unexpected MFA registrations, or administrative actions from a
-legitimate service account, the question is not only “which
-configuration is wrong?” It may also be “which attack pattern is being
-expressed through the identity system?”</p>
+<p>IAM is not only a configuration problem; it is also an attack
+surface. Threat actors abuse identity stores, federation relationships,
+tokens, enrollment workflows, and administrative paths, which is why
+identity troubleshooting and threat-actor TTPs overlap so heavily.</p>
+<p>Many “identity incidents” are not pure authentication failures; they
+are attack paths that <em>use</em> identity for persistence, escalation,
+or lateral movement. If an analyst sees repeated lockouts,
+impossible-travel alerts, unexpected MFA registrations, or
+administrative actions from a legitimate service account, the question
+is not only “which configuration is wrong?” It may also be “which attack
+pattern is being expressed through the identity system?”</p>
 <h3
 id="privilege-escalation-credential-dumping-and-token-abuse">Privilege
 Escalation, Credential Dumping, and Token Abuse</h3>
 <p>The most obvious IAM-relevant TTP is <strong>privilege
 escalation</strong>. Attackers who land on a low-privilege workstation
 often move quickly to steal hashes, Kerberos tickets, browser tokens,
-cached credentials, or local administrator secrets. The goal is not
-simply to authenticate once. The goal is to become a more powerful
-subject in the environment.</p>
-<p><strong>Credential dumping</strong> is therefore an identity problem
-as much as an endpoint problem. LSASS memory scraping, browser-session
-theft, token export from cloud command-line tooling, theft of password
-vault contents, and replay of cached credentials all convert one
-foothold into wider access. In federated environments, the equivalent
-may be theft of refresh tokens, signing keys, or service-account
-secrets. In cloud environments, it may be abuse of instance metadata
-services or workload identities to obtain access tokens that were never
-meant for a human operator.</p>
-<p>The defender’s job is not to memorize every offensive tool. It is to
-recognize the architectural weak spots that make the abuse possible:
-excessive standing privilege, reusable secrets, weak session binding,
-insufficient token revocation, poor service-account hygiene, and missing
-audit trails around privileged credential use.</p>
+cached credentials, or local administrator secrets. The goal is not to
+authenticate once but to become a more powerful subject.</p>
+<p><strong>Credential dumping</strong> is an identity problem as much as
+an endpoint problem. LSASS memory scraping, browser-session theft, token
+export from cloud command-line tools, password-vault theft, and replay
+of cached credentials all convert one foothold into wider access. In
+federated environments, the equivalent may be theft of refresh tokens,
+signing keys, or service-account secrets. In cloud environments, it may
+be abuse of instance metadata services or workload identities to obtain
+access tokens that were never meant for a human operator.</p>
+<p>The defender’s job is to recognize the architectural weak spots that
+make abuse possible: excessive standing privilege, reusable secrets,
+weak session binding, poor token revocation, weak service-account
+hygiene, and missing audit trails for privileged credential use.</p>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> Identity compromise often looks like a
 sequence rather than a single event: credential access, privilege
@@ -815,25 +909,23 @@ problems expressed through legitimate administration paths. A threat
 actor who obtains a valid admin token may use PowerShell remoting,
 remote management APIs, scheduled tasks, CI/CD runners, or cloud
 automation roles to execute actions that appear operationally normal.
-This is why defenders must understand not just whether an action
-succeeded, but whether the <em>subject, path, and context</em> make
-sense.</p>
+Defenders must ask not just whether an action succeeded, but whether the
+<em>subject, path, and context</em> make sense.</p>
 <p><strong>Lateral movement</strong> is frequently identity-enabled. A
 captured Kerberos ticket enables access to another service. A reused
 local administrator password enables pass-the-hash. An over-permissioned
-SaaS integration lets an attacker pivot from collaboration tooling into
-document repositories or identity administration consoles. In hybrid
-environments, lateral movement may cross trust domains: from on-prem
-Active Directory to cloud federation, from a VPN-connected endpoint into
-privileged infrastructure, or from a compromised automation secret into
-multiple cloud subscriptions.</p>
+SaaS integration lets an attacker pivot from collaboration tools into
+document repositories or identity consoles. In hybrid environments,
+movement may cross trust domains, from on-prem Active Directory to cloud
+federation, or from a compromised automation secret into multiple cloud
+subscriptions.</p>
 <p><strong>Defensive evasion</strong> in identity systems usually looks
 boring, which is why it works. Attackers disable logging on a connector,
 register their own MFA device, add a second OAuth consent, create a
 backdoor federation trust, or deliberately operate through existing
 admin tools so the activity blends into normal change traffic. These
-quiet forms of abuse are exactly what make identity-centric incidents
-difficult to diagnose.</p>
+quiet forms of abuse make identity-centric incidents hard to
+diagnose.</p>
 <h3
 id="injections-and-trust-boundary-manipulation-in-identity-workflows">Injections
 and Trust Boundary Manipulation in Identity Workflows</h3>
@@ -845,12 +937,11 @@ provisioning abuse, malicious claims insertion through a compromised
 identity broker, or redirect and consent manipulation that causes a
 legitimate identity flow to produce an illegitimate outcome.</p>
 <p>These failures are dangerous because they exploit systems defenders
-are conditioned to trust. A malformed input into a helpdesk
-password-reset workflow may not look like malware. A poisoned claim in a
-federated assertion may still be cryptographically valid if it was
-generated by a compromised issuer. A provisioning connector that writes
-the wrong group membership may look like an ordinary synchronization
-event until the downstream privilege becomes visible.</p>
+are conditioned to trust. A poisoned claim in a federated assertion may
+still be cryptographically valid if a compromised issuer generated it,
+and a connector that writes the wrong group membership may look like an
+ordinary synchronization event until the downstream privilege becomes
+visible.</p>
 <table>
 <caption>Table 5.2: Common IAM-centric TTPs, their usual objectives, and
 the signals defenders should prioritize.</caption>
@@ -925,14 +1016,11 @@ validation failures, SCIM or IdP admin changes</td>
 </tr>
 </tbody>
 </table>
-<p>The important distinction is that identity gives these TTPs their
-meaning. The same activity can later be revisited from different
-operational angles. Endpoint and infrastructure chapters can treat it as
-host abuse. Threat-hunting chapters can treat it as a detection pattern.
-Incident-response chapters can treat it as evidence to reconstruct. But
-the trust relationships, credential paths, and authorization failures
-that make the activity dangerous are fundamentally identity
-problems.</p>
+<p>Later chapters revisit the same activity from other angles — host
+abuse in Chapter 9, detection patterns in Chapter 11, evidence to
+reconstruct in Chapter 12 — but the trust relationships, credential
+paths, and authorization failures that make it dangerous are
+fundamentally identity problems.</p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong> <strong>Hamlet Spots an Identity Attack
 at Denmark Cyber Defense</strong></p>
@@ -946,37 +1034,35 @@ from a different server, requested new OAuth consent, and been followed
 minutes later by a burst of privileged group lookups and remote
 administrative activity.</p>
 <p>None of the individual events looked spectacular. The login
-succeeded. The consent grant appeared valid. The remote commands were
-executed through approved tooling. But taken together, the sequence
-formed a recognizable pattern: compromised service credentials,
-privilege expansion, unauthorized execution through legitimate admin
-paths, and defensive evasion through trusted infrastructure.</p>
+succeeded, the consent grant appeared valid, and the remote commands ran
+through approved tooling. Taken together, though, they formed a
+recognizable pattern: compromised service credentials, privilege
+expansion, unauthorized execution through legitimate admin paths, and
+defensive evasion through trusted infrastructure.</p>
 <p>Hamlet pivoted through the logs and found the missing detail. An
 attacker had abused a provisioning connector with broader rights than it
 needed, then used that foothold to request additional tokens and
 enumerate privileged roles. Because the activity traveled through
-expected systems, the first-line alerts treated it as routine
+expected systems, first-line alerts treated it as routine
 administration. What exposed it was the TTP sequence, not any single
-spectacular indicator.</p>
+indicator.</p>
 <p>The response focused on identity first. The connector secret was
 rotated, its permissions were reduced, all recently issued tokens were
 revoked, and the team added detections for management-plane logins from
 nonstandard hosts, abnormal consent grants, and privileged directory
-reads by service principals. The lesson was not merely that attackers
-steal credentials. It was that identity telemetry becomes far more
-useful when defenders look for sequences of behavior instead of isolated
-misconfigurations.</p>
+reads by service principals. The lesson: identity telemetry becomes far
+more useful when defenders look for sequences of behavior instead of
+isolated misconfigurations.</p>
 </blockquote>
 <hr />
 <h2 id="how-do-we-troubleshoot-authentication-failures">How Do We
 Troubleshoot Authentication Failures?</h2>
 <p>A surprising amount of an IAM engineer’s life is spent diagnosing
-authentication failures. A user cannot log in. An automation account
-suddenly stops working. A new SaaS integration loops endlessly between
-the IdP and the SP. A wireless client refuses to associate. The
-protocols involved are interoperable in theory and finicky in practice,
-and effective troubleshooting depends on understanding what each
-protocol actually does.</p>
+authentication failures: a user cannot log in, an automation account
+suddenly stops working, a SaaS integration loops endlessly between the
+IdP and the SP, a wireless client refuses to associate. These protocols
+are interoperable in theory and finicky in practice, so troubleshooting
+depends on understanding what each one actually does.</p>
 <h3 id="saml-oauth-and-openid-connect">SAML, OAuth, and OpenID
 Connect</h3>
 <p>These three protocols dominate modern federation. They are related
@@ -1014,8 +1100,8 @@ entity IDs, broken signature validation</td>
 <th scope="row" style="text-align: left;"><strong>OAuth 2.0</strong></th>
 <td style="text-align: left;">Delegated authorization</td>
 <td style="text-align: left;">Opaque or JWT access token</td>
-<td style="text-align: left;">API access, “Sign in with…”
-delegation</td>
+<td style="text-align: left;">API access, letting an app act on a user’s
+data (e.g., read a calendar)</td>
 <td style="text-align: left;">Wrong scopes, expired tokens, redirect URI
 mismatch, refresh token revoked</td>
 </tr>
@@ -1031,42 +1117,49 @@ rotation, audience claim mismatch</td>
 </tbody>
 </table>
 <p><strong>SAML troubleshooting</strong> almost always comes down to one
-of four issues: (1) the IdP and SP disagree on the entity ID or the
-assertion consumer URL, (2) the SAML response signature does not
-validate because the SP has the wrong IdP certificate or the certificate
-has expired, (3) clock skew between IdP and SP causes the assertion to
-be considered “not yet valid” or “expired,” or (4) the user’s attributes
-in the assertion do not match what the SP expects (e.g., the SP keys on
-email but the IdP sends UPN). A SAML tracer browser extension that
-captures the actual assertion is usually the fastest diagnostic
-tool.</p>
+of four issues: (1) the IdP and SP disagree on the entity ID or
+assertion consumer URL, (2) the signature does not validate because the
+SP has the wrong or an expired IdP certificate, (3) clock skew makes the
+assertion “not yet valid” or “expired,” or (4) the attributes in the
+assertion do not match what the SP expects (e.g., the SP keys on email
+but the IdP sends UPN). A SAML tracer browser extension that captures
+the actual assertion is usually the fastest diagnostic tool.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> A new SaaS app rolls out and every user
-sees “SAML response invalid” on first login. The IAM engineer captures
-the assertion with a SAML tracer and finds two things: the assertion’s
-<code>NotBefore</code> is <code>14:02:11Z</code> and the SP’s clock
-reads <code>13:59:48Z</code> — a 2-minute and 23-second skew that puts
-the assertion in the SP’s “future.” Worse, the assertion’s
+sees “SAML response invalid.” The IAM engineer captures the assertion
+with a SAML tracer and finds two problems. First, the assertion’s
+<code>NotBefore</code> is <code>14:02:11Z</code> but the SP’s clock
+reads <code>13:59:48Z</code> — a 2-minute, 23-second skew that puts the
+assertion in the SP’s “future.” Second, the assertion’s
 <code>&lt;Audience&gt;</code> is
-<code>https://app.vendor.com/saml</code> but the SP was registered with
-the IdP as <code>https://app.vendor.com/saml/</code>. Two fixes — sync
-the SP host to NTP, and remove the trailing slash from the IdP’s
-audience configuration — and the entire user base can log in. Both
-errors produced the same generic “invalid response” message; only the
-captured assertion told the real story.</p>
+<code>https://app.vendor.com/saml/</code> but the SP’s own entity ID is
+<code>https://app.vendor.com/saml</code>. Two fixes — sync the SP host
+to NTP, and remove the trailing slash from the audience configured at
+the IdP — and the entire user base can log in. Both errors produced the
+same generic “invalid response” message; only the captured assertion
+told the real story.</p>
 </blockquote>
 <p><strong>OAuth and OIDC troubleshooting</strong> has its own
 characteristic problems. Redirect URI mismatches — even a trailing slash
-— will block the flow entirely. Scopes that the client requests but the
-authorization server has not granted will produce subtle authorization
-failures rather than authentication errors. The <strong>JWKS</strong>
-endpoint that the SP uses to fetch the IdP’s public signing keys must be
-reachable and the keys must rotate gracefully; a stale JWKS cache after
-a key rotation will cause every token to fail validation
-simultaneously.</p>
+— will block the flow entirely, and that strictness is deliberate: exact
+matching stops an attacker from steering authorization codes to a URL
+they control. Scopes that the client requests but the authorization
+server has not granted will produce subtle authorization failures rather
+than authentication errors. The <strong>JWKS</strong> endpoint that the
+SP uses to fetch the IdP’s public signing keys must be reachable and the
+keys must rotate gracefully; a stale JWKS cache after a key rotation
+will cause every token to fail validation simultaneously. Current best
+practice, such as requiring <strong>PKCE</strong> (Proof Key for Code
+Exchange, which ties an authorization code to the client that requested
+it) and dropping the implicit grant, is being consolidated into OAuth
+2.1, which as of this writing is still an IETF draft rather than a
+published standard <span class="citation"
+data-cites="ietf-oauth21-draft-2026">(<a
+href="#ref-ietf-oauth21-draft-2026" role="doc-biblioref">Hardt et al.
+2026</a>)</span>. OAuth 2.0 and OIDC remain the deployed protocols.</p>
 <h3 id="kerberos-eap-802.1x-and-sae">Kerberos, EAP, 802.1X, and SAE</h3>
-<p>Older but still ubiquitous protocols handle authentication on
-internal networks and Wi-Fi.</p>
+<p>A different set of protocols handles authentication on internal
+networks and Wi-Fi.</p>
 <p><strong>Kerberos</strong> authenticates users and services in Windows
 domains and Unix realms via ticket-granting tickets and service tickets.
 It depends critically on time synchronization (typically a five-minute
@@ -1080,49 +1173,56 @@ framework for transporting authentication exchanges, most commonly over
 <strong>802.1X</strong> for wired and wireless network access. The
 supplicant on the endpoint, the authenticator on the switch or AP, and
 the authentication server (usually RADIUS) must all agree on the EAP
-method (EAP-TLS, PEAP, EAP-TTLS) and the certificates involved. EAP-TLS
-failures are typically certificate problems: the client’s cert is
-expired, was issued by an untrusted CA, or its CRL/OCSP check fails.</p>
+method and the certificates involved. EAP-TLS authenticates both sides
+with certificates and is the strongest; PEAP and EAP-TTLS authenticate
+the server with a certificate and the user with a credential inside a
+tunnel. EAP-TLS failures are typically certificate problems: the
+client’s cert is expired, was issued by an untrusted CA, or its CRL/OCSP
+check fails.</p>
 <p><strong>Simultaneous Authentication of Equals (SAE)</strong> is the
-handshake used in WPA3 personal networks, replacing the older WPA2
-four-way handshake. SAE resists offline dictionary attacks and provides
-forward secrecy. Troubleshooting SAE issues usually involves client
-compatibility — older devices may not support WPA3 at all, and some
-“WPA3 transition mode” configurations have shipped with bugs that cause
-intermittent association failures.</p>
+password-based key exchange used in WPA3 personal networks, replacing
+WPA2’s pre-shared-key (PSK) method; a four-way handshake still follows
+to set up the session keys. SAE resists offline dictionary attacks and
+provides forward secrecy. Troubleshooting SAE issues usually involves
+client compatibility — older devices may not support WPA3 at all, and
+some “WPA3 transition mode” configurations have shipped with bugs that
+cause intermittent association failures.</p>
 <h3 id="biometric-and-mfa-anomalies">Biometric and MFA Anomalies</h3>
 <p>When MFA fails, the temptation is to disable it for the user “just
-for now.” This is exactly what attackers exploit through <strong>MFA
+for now.” Attackers exploit impatience too, through <strong>MFA
 fatigue</strong> attacks, where they trigger repeated push notifications
 until the user finally taps Approve to make them stop. The mature
-response is not to disable MFA but to use number matching, push approval
-with location and application context, or to require step-up via a
-phishing-resistant factor such as a FIDO2 security key <span
+response is not to disable MFA but to use number matching and push
+prompts that show the location and application, and to require step-up
+via a phishing-resistant factor such as a FIDO2 security key <span
 class="citation" data-cites="nist-sp800-63b-2025">(<a
 href="#ref-nist-sp800-63b-2025" role="doc-biblioref">National Institute
 of Standards and Technology 2025</a>)</span>.</p>
 <p>Biometric anomalies are usually environmental: a fingerprint sensor
 fails after a screen replacement; face recognition refuses to enroll
-under unusual lighting; voice authentication degrades after the user
-catches a cold. A robust IAM program offers a <strong>fallback
-authentication path</strong> that is itself strongly authenticated —
-typically a hardware token combined with a brief identity verification —
-rather than letting the helpdesk reset MFA on a phone call.</p>
+under unusual lighting; a reader struggles with dry or worn fingertips.
+A robust IAM program offers a <strong>fallback authentication
+path</strong> that is itself strongly authenticated — typically a
+hardware token combined with a brief identity verification — rather than
+letting the helpdesk reset MFA on a phone call.</p>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong> The single most common authentication
-failure investigation in modern enterprises is “user clicked an Approve
-push notification they should not have approved.” MFA push approval
-without context is barely better than no MFA at all. Conditional access
-policies that show the location, the app, and a number-matching code are
-an architectural fix, not a user-training problem.</p>
+<p><strong class="callout-title">Warning</strong> A frequent identity incident is “user
+clicked an Approve push notification they should not have approved.” A
+bare push approval is easy to abuse. Number matching and context
+(location, app) are architectural mitigations rather than user-training
+problems, but they are not phishing-resistant: an attacker’s proxy page
+can relay the real sign-in prompt, number and all, and the user still
+approves it. Only phishing-resistant authenticators such as FIDO2 keys
+and passkeys close that gap.</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 5.4</strong></p>
 <ol type="1">
 <li><strong>Recall.</strong> What three things does Kerberos depend on
 working correctly?</li>
-<li><strong>Discriminate.</strong> A redirect URI mismatch or stale JWKS
-cache points to which protocol family: OAuth/OIDC or Kerberos?</li>
+<li><strong>Discriminate.</strong> A user’s SAML login fails with
+“assertion not yet valid,” while their OIDC login to another app works.
+Is the likelier cause clock skew or a stale JWKS cache?</li>
 <li><strong>Apply.</strong> A user keeps approving MFA pushes they did
 not initiate just to make the prompts stop. What fix does the chapter
 recommend instead of disabling MFA?</li>
@@ -1135,11 +1235,12 @@ recommend instead of disabling MFA?</li>
 <ol type="1">
 <li><strong>Time synchronization, DNS resolution, and correct
 SPNs.</strong></li>
-<li><strong>OAuth/OIDC.</strong> Those are classic token and
-redirect-flow problems, not Kerberos ticketing problems.</li>
-<li>Use <strong>number matching or context-rich prompts</strong>, and
-when possible step up to a <strong>phishing-resistant factor</strong>
-like FIDO2.</li>
+<li><strong>Clock skew.</strong> “Not yet valid” means the assertion’s
+time window and the SP’s clock disagree. A stale JWKS cache instead
+breaks <em>signature validation</em> for OIDC tokens.</li>
+<li>Use <strong>number matching and context-rich prompts</strong> as
+mitigations, and step up to a <strong>phishing-resistant factor</strong>
+like FIDO2 where possible.</li>
 </ol>
 </details>
 <hr />
@@ -1147,48 +1248,55 @@ like FIDO2.</li>
 Conclusion</h2>
 <p>In this chapter we examined identity as the connective tissue of
 modern security architecture. We started with the identity lifecycle —
-the journey from joiner through mover to leaver — and saw why
-automation, authoritative HR feeds, and federation are the difference
-between an IAM program that scales and one that quietly accumulates
-risk. We compared the four major access control models — RBAC, ABAC,
-MAC, and DAC — and looked at how policy decision points and policy
-enforcement points let architects centralize policy without centralizing
-every application.</p>
-<p>We walked through conditional access, attestation, biometrics, and
-identity proofing as the modern signals that turn authentication from a
-one-time event into a context-aware decision. We then dedicated focused
-attention to high-privilege accounts: PAM platforms, just-in-time
-elevation, session brokering, secrets management, automated rotation,
-and the painful lesson of Golden SAML — that federation concentrates
-trust in a small number of cryptographic secrets that must be defended
-like the crown jewels they are. We also examined the common attack paths
-that abuse IAM directly: credential dumping, privilege escalation,
-unauthorized execution through legitimate admin paths, lateral movement
-across trust boundaries, defensive evasion inside identity systems, and
-injection against identity workflows. Finally, we worked through the
-practical reality of authentication troubleshooting across SAML, OAuth,
-OIDC, Kerberos, EAP, 802.1X, SAE, and the everyday MFA and biometric
-failures that fill an analyst’s queue.</p>
+joiner, mover, leaver — and saw why automation, authoritative HR feeds,
+and federation separate an IAM program that scales from one that quietly
+accumulates risk. We compared the major access control models — RBAC,
+rule-based, ABAC, MAC, and DAC — and looked at how policy decision
+points and policy enforcement points let architects centralize policy
+without centralizing every application.</p>
+<p>We walked through conditional access, attestation, MFA and passkeys,
+biometrics, and identity proofing as the modern signals that turn
+authentication from a one-time event into a context-aware decision. We
+then dedicated focused attention to high-privilege accounts: PAM
+platforms, just-in-time elevation, session brokering, secrets
+management, rotation and deletion, and the painful lesson of Golden SAML
+— that federation concentrates trust in a small number of cryptographic
+secrets that must be defended like the crown jewels they are. We also
+examined the attack paths that abuse IAM directly — credential dumping,
+privilege escalation, unauthorized execution, lateral movement,
+defensive evasion, and injection — and finished with authentication
+troubleshooting across SAML, OAuth, OIDC, Kerberos, EAP, 802.1X, SAE,
+and the everyday MFA and biometric failures that fill an analyst’s
+queue.</p>
 <p>The thread connecting all of this is precision. Identity is where
 Zero Trust either becomes operational or remains a slogan. The
-architect’s job is to make sure that every subject — human or machine —
-has exactly the access it needs, no more, only when it needs it, only
-when the context justifies it, and only with strong enough evidence of
-who they are.</p>
+architect’s job is to ensure every subject — human or machine — has
+exactly the access it needs, only when it needs it, only when the
+context justifies it, and only with strong enough evidence of who it
+is.</p>
 <h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
 <li><strong>Identity Lifecycle:</strong> The full sequence of an
 identity’s existence from creation through retirement.</li>
 <li><strong>Provisioning / Deprovisioning:</strong> Granting and
 revoking access in a controlled, auditable workflow.</li>
+<li><strong>SCIM:</strong> System for Cross-domain Identity Management,
+a protocol that automates creating, updating, and disabling accounts in
+connected apps.</li>
 <li><strong>Identity Proofing:</strong> Verifying that a person
 enrolling a credential is actually who they claim to be.</li>
+<li><strong>Assurance Levels (IAL/AAL/FAL):</strong> NIST’s three-step
+grades for identity proofing, authentication strength, and federation
+strength.</li>
 <li><strong>Privilege Creep:</strong> Gradual accumulation of excessive
 privileges over time as a subject’s role changes.</li>
 <li><strong>Identity Provider (IdP):</strong> The system that
 authenticates a user and issues signed assertions or tokens.</li>
 <li><strong>Service Provider (SP):</strong> The application that
 consumes assertions or tokens from the IdP.</li>
+<li><strong>Federation:</strong> A trust arrangement in which
+applications accept signed assertions or tokens from an external
+identity provider instead of keeping their own credentials.</li>
 <li><strong>Single Sign-On (SSO):</strong> The pattern of authenticating
 once and accessing many federated applications.</li>
 <li><strong>SAML 2.0:</strong> XML-based federation protocol for
@@ -1205,6 +1313,8 @@ subject, object, action, and environment.</li>
 control with no user discretion.</li>
 <li><strong>DAC:</strong> Resource-owner-controlled access
 decisions.</li>
+<li><strong>Rule-Based Access Control:</strong> Administrator-defined
+rules applied to every request regardless of the subject’s role.</li>
 <li><strong>Policy Decision Point (PDP):</strong> The component that
 evaluates access policies.</li>
 <li><strong>Policy Enforcement Point (PEP):</strong> The component that
@@ -1213,14 +1323,23 @@ enforces the PDP’s decision.</li>
 that combine signals like device posture, location, and time.</li>
 <li><strong>Attestation:</strong> Cryptographic evidence that a device
 or workload is in a trustworthy state.</li>
+<li><strong>Multifactor Authentication (MFA):</strong> Proof from at
+least two different factor categories: something you know, have, or
+are.</li>
+<li><strong>Passkey (FIDO2/WebAuthn):</strong> A phishing-resistant
+public-key credential bound to a site’s domain; it may be device-bound
+or syncable.</li>
 <li><strong>False Accept Rate (FAR) / False Reject Rate (FRR):</strong>
 The two error rates that biometric systems trade off.</li>
 <li><strong>Privileged Access Management (PAM):</strong> Platform for
 vaulting, brokering, and auditing privileged sessions.</li>
 <li><strong>Just-in-Time (JIT) Access:</strong> Temporary, time-limited
 elevation of privilege rather than standing membership.</li>
-<li><strong>Secrets Management:</strong> Centralized, audited storage
-and rotation of machine credentials.</li>
+<li><strong>Endpoint Privilege Management (EPM):</strong> Removing
+standing local admin rights and elevating specific applications or tasks
+on demand.</li>
+<li><strong>Secrets Management:</strong> Centralized, audited storage,
+rotation, and deletion of machine credentials.</li>
 <li><strong>Golden SAML:</strong> Attack technique using a stolen
 token-signing key to forge SAML assertions.</li>
 <li><strong>Credential Dumping:</strong> Theft of reusable credentials,
@@ -1232,12 +1351,18 @@ material to pivot to additional systems or trust zones.</li>
 <li><strong>Defensive Evasion:</strong> Actions taken to reduce
 visibility, suppress logging, or blend into legitimate
 administration.</li>
+<li><strong>Unauthorized Execution:</strong> Running code or commands
+through valid credentials or admin paths without authorization.</li>
+<li><strong>Injection:</strong> Manipulating an identity query, claim,
+or workflow input so a trusted system produces an unintended
+outcome.</li>
 <li><strong>Kerberos:</strong> Ticket-based authentication protocol for
 Windows domains and Unix realms.</li>
 <li><strong>802.1X / EAP:</strong> Framework for port-based network
 authentication, commonly over Wi-Fi or wired switches.</li>
 <li><strong>SAE:</strong> Simultaneous Authentication of Equals, the
-WPA3 handshake replacing WPA2’s four-way handshake.</li>
+WPA3 password-based key exchange that replaces WPA2’s pre-shared-key
+method.</li>
 <li><strong>MFA Fatigue:</strong> Attack pattern that triggers repeated
 push prompts until the user approves.</li>
 </ul>
@@ -1349,16 +1474,16 @@ min)</em></h4>
 <p>Find an identity-related incident, regulatory action, or vendor
 controversy from the last six months. Good hunting grounds: CISA
 advisories on identity-system compromises (Okta, Microsoft Entra, Active
-Directory), Krebs on Security, The Record, NIST SP 800-63 revision
-drafts, FIDO Alliance updates on passkey rollout, and EU eIDAS 2.0
-implementation milestones. Be ready to explain to a classmate, in two
-minutes, what happened, what failed at the IAM layer, and what the
-industry response has been. Bring two primary sources you’d point them
-to if they wanted to read further.</p>
+Directory), Krebs on Security, The Record, NIST SP 800-63-4
+implementation guidance, FIDO Alliance updates on passkey rollout, and
+EU eIDAS 2.0 implementation milestones. Be ready to explain to a
+classmate, in two minutes, what happened, what failed at the IAM layer,
+and what the industry response has been. Bring two primary sources you’d
+point them to if they wanted to read further.</p>
 <h4 id="lab-artifact-decode-a-real-jwt-20-min">Lab Artifact: Decode a
 Real JWT <em>(20 min)</em></h4>
 <p>Almost every modern web app you log into hands your browser an OIDC
-ID token or an OAuth access token in JWT form — a base64-encoded
+ID token or an OAuth access token in JWT form — a base64url-encoded
 structure your browser then sends back on every request. In this
 activity you will capture one of your own tokens and reverse-engineer
 what your identity provider is asserting about you.</p>
@@ -1416,6 +1541,17 @@ on paper, where the architecture’s neck is exposed.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-cisa-svr-solarwinds-2021" class="csl-entry"
+role="listitem">
+Cybersecurity and Infrastructure Security Agency. 2021. <em>Russian SVR
+Activities Related to SolarWinds Compromise</em>. <a
+href="https://www.cisa.gov/sites/default/files/CISA_Fact_Sheet-Russian_SVR_Activities_Related_to_SolarWinds_Compromise_508C.pdf">https://www.cisa.gov/sites/default/files/CISA_Fact_Sheet-Russian_SVR_Activities_Related_to_SolarWinds_Compromise_508C.pdf</a>.
+</div>
+<div id="ref-ietf-oauth21-draft-2026" class="csl-entry" role="listitem">
+Hardt, Dick, Aaron Parecki, and Torsten Lodderstedt. 2026. <em>The
+<span>OAuth</span> 2.1 Authorization Framework</em>. <a
+href="https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/">https://datatracker.ietf.org/doc/draft-ietf-oauth-v2-1/</a>.
+</div>
 <div id="ref-mandiant-sunburst-2020" class="csl-entry" role="listitem">
 Mandiant. 2020. <em>Highly Evasive Attacker Leverages SolarWinds Supply
 Chain to Compromise Multiple Global Victims with SUNBURST Backdoor</em>.

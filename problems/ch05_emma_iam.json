@@ -2,41 +2,41 @@
   "id": "ch05-emma-iam-offboarding",
   "chapter": 5,
   "title": "Emma Woodhouse Handles a Hostile Offboarding",
-  "context_md": "Emma Woodhouse, IAM Specialist at *Highbury Networks*, gets a 4:55 p.m. call from HR: a senior systems engineer named Frank Churchill is being terminated for cause, effective immediately. Frank has accounts in roughly forty systems — Highbury's on-prem Active Directory, two cloud tenants, the customer support tool, the source code repository, the secrets vault, and a dozen SaaS apps onboarded over the years through the company's identity provider.\n\nEmma's nightmare: Highbury never finished cleaning up the IAM landscape after last year's acquisition, so some apps still use local accounts that were never wired to the IdP. Frank also held a long-lived API token for the deployment pipeline and has SSH keys cached on at least two laptops.\n\nEmma needs to revoke access cleanly, prevent Frank from re-authenticating with cached credentials, ensure none of his automation accounts continue running with his identity attached, and produce an audit-ready record for legal. She also wants to use this incident to push leadership toward closing the structural gaps — federation coverage, secrets rotation, and a real PAM rollout — before the next termination.",
+  "context_md": "Emma Woodhouse, IAM Specialist at *Highbury Networks*, gets a 4:55 p.m. call from HR: a senior systems engineer named Frank Churchill is being terminated for cause, effective immediately. Frank has accounts in roughly forty systems — Highbury's on-prem Active Directory, two cloud tenants, the customer support tool, the source code repository, the secrets vault, and a dozen SaaS apps onboarded over the years through the company's identity provider.\n\nEmma's nightmare: Highbury never finished cleaning up the IAM landscape after last year's acquisition, so some apps still use local accounts that were never wired to the IdP. Frank also held a long-lived API token for the deployment pipeline and has SSH keys cached on at least two laptops.\n\nEmma needs to revoke access cleanly, prevent Frank from re-authenticating with cached credentials, ensure none of his automation accounts continue running with his identity attached, and produce an audit-ready record for legal. She also wants to use this incident to push leadership toward closing the structural gaps — federation coverage, long-lived credential hygiene, and a real PAM rollout — before the next termination.",
   "artifact_kind": "log",
-  "artifact_md": "```\n$ idp-admin account.export --user fchurchill --include-derived\n  ran 16:54 by ewoodhouse@highbury  ticket: TERM-2099\n──────────────────────────────────────────────────────────────\nAD       fchurchill         federated      groups: eng-prod,\n                                                  secrets-admin\nSAML     salesforce         active         last_login=15:38\nSAML     servicenow         active         last_login=15:12\nSAML     github-enterprise  active         last_login=15:51\n                                            sessions: 3 (browser, cached)\nSAML     snowflake          active         last_login=11:02\nLOCAL    legacy-billing     active         NOT federated\n                                            (2023 acq, never migrated)\nLOCAL    bug-tracker-19     active         NOT federated\nLOCAL    timesheet-old      active         NOT federated\nTOKEN    deploy-pipeline    issued 2023-03  no_expiry  scope: prod/*\nSSH-KEY  authorized_keys    present on 22 hosts (eng-prod cluster)\n──────────────────────────────────────────────────────────────\n10 rows.  Termination effective 17:00 today.  Hostile separation.\n```",
+  "artifact_md": "```\n$ idp-admin account.export --user fchurchill --include-derived\n  ran 16:56 by ewoodhouse@highbury  ticket: TERM-2099\n──────────────────────────────────────────────────────────────\nAD       fchurchill         federated      groups: eng-prod,\n                                                  secrets-admin\nSAML     salesforce         active         last_login=15:38\nSAML     servicenow         active         last_login=15:12\nSAML     github-enterprise  active         last_login=15:51\n                                            sessions: 3 (browser, cached)\nSAML     snowflake          active         last_login=11:02\nLOCAL    legacy-billing     active         NOT federated\n                                            (2023 acq, never migrated)\nLOCAL    bug-tracker-19     active         NOT federated\nLOCAL    timesheet-old      active         NOT federated\nTOKEN    deploy-pipeline    issued 2023-03  no_expiry  scope: prod/*\nSSH-KEY  ed25519 pubkey     present on 22 hosts (eng-prod cluster)\n──────────────────────────────────────────────────────────────\n10 rows.  Termination effective 17:00 today.  Hostile separation.\n```",
   "prompt_md": "Use the export to step through Emma's offboarding playbook, then click **Check answers**.",
-  "body_md": "Emma's first action — driven by the AD row — is to disable Frank's account at the **{{authority}}**, which acts as the single source of truth for every SAML row in the export. This single change effectively kills new sessions because each app trusts assertions issued by that source.\n\nHowever, federated logout does not invalidate the **{{cached_artifact}}** flagged on the GitHub row (`sessions: 3, browser, cached`) — already issued and sitting client-side. To kill those, Emma triggers a global session/token revocation in the IdP and in the SaaS apps that support it.\n\nThe `TOKEN deploy-pipeline` row — `no_expiry, scope: prod/*` — requires an immediate **{{secret_action}}**. Going forward, Highbury should adopt **{{secret_practice}}** so that no human-owned credential lives longer than the human's tenure.\n\nThe `SSH-KEY` row is handled by removing Frank's public key from the **{{ssh_location}}** on every host in the eng-prod cluster. Long-term, Emma will route all SSH access through a **{{pam_tool}}**, which brokers session-by-session credentials and records keystrokes for high-privilege sessions.\n\nThe three `LOCAL` rows — *not federated* — must be disabled manually; this is a textbook failure of **{{lifecycle_gap}}**. To prevent recurrence, Emma will propose **{{provisioning_protocol}}**, the standard for automating provisioning and deprovisioning across SaaS.\n\nFinally, to give legal a defensible timeline of every revocation action, Emma exports the **{{audit_artifact}}** from the IdP, PAM, and source repo.",
+  "body_md": "Emma's first action — driven by the AD row — is to disable Frank's account at the **{{authority}}**, which acts as the single source of truth for every SAML row in the export. This single change effectively kills new sessions because each app trusts assertions issued by that source.\n\nHowever, federated logout does not invalidate the **{{cached_artifact}}** flagged on the GitHub row (`sessions: 3, browser, cached`) — already issued and sitting client-side. To kill those, Emma triggers a global session/token revocation in the IdP and in the SaaS apps that support it.\n\nThe `TOKEN deploy-pipeline` row — `no_expiry, scope: prod/*` — requires an immediate **{{secret_action}}**. Going forward, Highbury should adopt **{{secret_practice}}** so that no human-owned credential lives longer than the human's tenure.\n\nThe `SSH-KEY` row is handled by removing Frank's public key from **{{ssh_location}}** on every host in the eng-prod cluster. Long-term, Emma will route all SSH access through a **{{pam_tool}}**, which brokers session-by-session credentials and records keystrokes for high-privilege sessions.\n\nThe three `LOCAL` rows — *not federated* — must be disabled manually; this is a textbook failure of **{{lifecycle_gap}}**. To prevent recurrence, Emma will propose **{{provisioning_protocol}}**, the standard for automating account creation and removal across SaaS.\n\nFinally, to give legal a defensible timeline of every revocation action, Emma exports the **{{audit_artifact}}** from the IdP, PAM, and source repo.",
   "blanks": {
     "authority": {
       "answer": "IdP",
       "distractors": [
-        "Service Provider (SP)",
-        "Domain Controller's DNS",
-        "Endpoint Detection (EDR) console",
-        "WAF policy editor"
+        "SP",
+        "RADIUS",
+        "SIEM",
+        "CASB"
       ],
-      "explanation": "The IdP is the federated source of truth. Disabling the account there cuts off authentication for every SP that trusts it."
+      "explanation": "The IdP is the federated source of truth: every SAML row trusts assertions it signs, so disabling the account there cuts off new sign-ins to every SP. The SP only consumes assertions, and disabling the account in one SP leaves the others untouched. RADIUS authenticates network access, a SIEM only records events, and a CASB governs cloud-app use; none of them issue the assertions the SaaS apps accept."
     },
     "cached_artifact": {
       "answer": "session tokens",
       "distractors": [
-        "DNS cache entries",
-        "ARP table entries",
-        "TLS certificates",
-        "BIOS firmware"
+        "password hashes",
+        "SAML signing certificates",
+        "group memberships",
+        "DNS cache entries"
       ],
-      "explanation": "Federation revokes the right to obtain *new* tokens but does not invalidate tokens already issued and cached client-side. Global sign-out / token revocation endpoints are needed to kill those."
+      "explanation": "Federation revokes the right to obtain *new* tokens but does not invalidate session tokens already issued and cached client-side (the `sessions: 3, browser, cached` flag). Global sign-out or token revocation endpoints are needed to kill those. Password hashes, signing certificates, group memberships, and DNS cache entries are not what keeps Frank's existing GitHub sessions alive."
     },
     "secret_action": {
       "answer": "rotation",
       "distractors": [
-        "logging",
+        "archival",
         "obfuscation",
-        "hashing",
-        "compression"
+        "encryption at rest",
+        "added logging"
       ],
-      "explanation": "A compromised or orphaned long-lived secret must be rotated immediately — the old value revoked and any service that needs continued access reissued a new credential."
+      "explanation": "A compromised or orphaned long-lived secret must be rotated immediately: the old value is invalidated and any service that still needs access is issued a new credential. Logging helps detect misuse, and encryption at rest or obfuscation protect storage, but none of them stop the existing token from working. Archiving it changes nothing."
     },
     "secret_practice": {
       "answer": "ephemeral, auto-rotated credentials",
@@ -49,24 +49,24 @@
       "explanation": "The best answer is to stop issuing long-lived human-owned secrets at all. Ephemeral credentials with automatic rotation sharply reduce the blast radius of leaks and make offboarding far less brittle."
     },
     "ssh_location": {
-      "answer": "authorized_keys file",
+      "answer": "~/.ssh/authorized_keys",
       "distractors": [
         "/etc/passwd",
-        "/etc/hosts",
-        "known_hosts file",
-        "sudoers file"
+        "/etc/ssh/sshd_config",
+        "~/.ssh/known_hosts",
+        "/etc/sudoers"
       ],
-      "explanation": "A user's accepted public keys live in ~/.ssh/authorized_keys on each server. known_hosts is the *client-side* list of trusted servers — different direction."
+      "explanation": "A user's accepted public keys live in ~/.ssh/authorized_keys on each server. sshd_config only tells the SSH daemon *where* to look for that file, ~/.ssh/known_hosts is the *client-side* list of trusted servers (the opposite direction), /etc/passwd lists accounts, and /etc/sudoers controls privilege elevation."
     },
     "pam_tool": {
       "answer": "PAM",
       "distractors": [
-        "MDM (Mobile Device Management)",
+        "MDM",
         "SIEM",
-        "DLP gateway",
-        "Service mesh"
+        "DLP",
+        "WAF"
       ],
-      "explanation": "PAM brokers privileged sessions, vaults credentials, issues just-in-time access, and records sessions — exactly what Highbury needs for high-risk admin access."
+      "explanation": "PAM (privileged access management) brokers privileged sessions, vaults credentials, issues just-in-time access, and records sessions, exactly what Highbury needs for high-risk admin access. MDM manages mobile devices, a SIEM correlates logs, DLP inspects data movement, and a WAF protects web applications."
     },
     "lifecycle_gap": {
       "answer": "deprovisioning",
@@ -76,7 +76,7 @@
         "auditing",
         "encryption"
       ],
-      "explanation": "Identity lifecycle = provisioning, modification, *deprovisioning*. Apps with un-cleaned local accounts after a termination are a deprovisioning failure."
+      "explanation": "The identity lifecycle runs provisioning, modification, then *deprovisioning*. Local accounts that survive a termination because nobody wired them to the IdP are the canonical deprovisioning failure. Authentication, authorization, auditing, and encryption all worked or were not the control that failed."
     },
     "provisioning_protocol": {
       "answer": "SCIM",
@@ -91,10 +91,10 @@
     "audit_artifact": {
       "answer": "centralized access audit trail",
       "distractors": [
-        "termination checklist",
+        "HR termination checklist",
         "change ticket history",
-        "system inventory snapshot",
-        "HR case log"
+        "asset inventory snapshot",
+        "HR case management log"
       ],
       "explanation": "Legal needs a time-correlated record of who accessed what and when across the IdP, PAM, and source repo. A centralized access audit trail provides that; the other records are useful context but not the authoritative access evidence."
     }

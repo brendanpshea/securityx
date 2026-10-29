@@ -41,33 +41,55 @@ def arrow(ax, start, end, color=SLATE, style='-|>', lw=2.0, ms=16):
 
 
 def create_sso_workflow():
-    fig, ax = plt.subplots(figsize=(14, 7.5))
+    """Browser-based SSO sequence (SAML Web Browser SSO / OIDC authorization code flow).
+
+    The assertion or token travels through the user's browser (front channel); the SP
+    validates it locally against the IdP's published keys and never sees the password.
+    """
+    fig, ax = plt.subplots(figsize=(14, 8.2))
     ax.set_xlim(0, 14)
-    ax.set_ylim(0, 8)
+    ax.set_ylim(0, 9.4)
     ax.axis('off')
 
-    rounded_box(ax, 0.5, 6.3, 2.2, 1.0, 'User / Browser', SURFACE_ALT)
-    rounded_box(ax, 5.7, 6.3, 2.6, 1.0, 'Service Provider\n(Application)', CYAN, text_color=TEXT_DARK, fontsize=10)
-    rounded_box(ax, 11.0, 6.3, 2.6, 1.0, 'Identity Provider\n(IdP)', PURPLE, text_color=TEXT_DARK, fontsize=10)
-
-    steps = [
-        (0.5, 5.3, '1. Request app resource', (2.7, 6.8), (5.7, 6.8), CYAN),
-        (0.5, 4.5, '2. Redirect to IdP with SAML / OIDC request', (5.7, 6.5), (2.7, 6.5), AMBER),
-        (0.5, 3.7, '3. User authenticates (password + MFA)', (1.6, 6.3), (1.6, 5.0), EMERALD),
-        (0.5, 2.9, '4. IdP redirects browser back with signed token / assertion', (11.0, 6.5), (8.3, 6.5), ROSE),
-        (0.5, 2.1, '5. SP validates signature, issues session', (8.3, 6.8), (11.0, 6.8), CYAN),
-        (0.5, 1.3, '6. Subsequent apps reuse the same IdP session (SSO)', None, None, SLATE),
+    xs = {'user': 2.0, 'sp': 7.0, 'idp': 12.0}
+    top, bottom = 8.0, 0.9
+    heads = [
+        ('user', 'User / Browser', SURFACE_ALT, TEXT_LIGHT),
+        ('sp', 'Service Provider\n(Application)', CYAN, TEXT_DARK),
+        ('idp', 'Identity Provider\n(IdP)', PURPLE, TEXT_DARK),
     ]
-    for sx, sy, label, *_ in steps:
-        ax.text(sx, sy, label, fontsize=11, color=DARK, va='center')
+    for key, label, color, tcolor in heads:
+        rounded_box(ax, xs[key] - 1.3, top + 0.15, 2.6, 0.95, label, color, text_color=tcolor, fontsize=10)
+        ax.plot([xs[key], xs[key]], [bottom, top + 0.1], color=SLATE, lw=1.2, ls=(0, (4, 4)), zorder=0)
 
-    arrow(ax, (2.7, 6.85), (5.7, 6.85), color=CYAN)
-    arrow(ax, (5.7, 6.55), (2.7, 6.55), color=AMBER)
-    arrow(ax, (2.7, 6.4), (11.0, 6.4), color=PURPLE, lw=1.4, style='-')
-    arrow(ax, (11.0, 6.7), (8.3, 6.7), color=ROSE)
-    arrow(ax, (8.3, 7.0), (11.0, 7.0), color=EMERALD, lw=1.2, style='-')
+    label_bbox = dict(boxstyle='round,pad=0.25', fc='white', ec='none')
+    steps = [
+        ('user', 'sp', 'left', '1. Request a protected resource', CYAN),
+        ('sp', 'user', 'left', '2. Redirect to the IdP with a SAML AuthnRequest / OIDC authorization request', AMBER),
+        ('user', 'idp', 'left', '3. Follow the redirect; user authenticates at the IdP (password + MFA)', EMERALD),
+        ('idp', 'user', 'left', '4. IdP returns a signed SAML assertion / OIDC code or ID token via the browser', ROSE),
+        ('user', 'sp', 'left', '5. Browser delivers the assertion, code, or token to the SP', ROSE),
+    ]
+    y = 7.35
+    for src, dst, _, label, color in steps:
+        arrow(ax, (xs[src], y), (xs[dst], y), color=color, lw=2.2)
+        ax.text((xs[src] + xs[dst]) / 2, y + 0.2, label, ha='center', va='bottom', fontsize=10.5,
+                color=DARK, bbox=label_bbox, zorder=3)
+        y -= 1.0
 
-    ax.text(7.0, 0.3, 'Trust is established by the IdP signature; the SP never sees the user password.',
+    # Step 6: local validation at the SP (no call back to the IdP)
+    rounded_box(ax, xs['sp'] - 2.3, y - 0.55, 4.6, 0.9,
+                '6. SP validates signature, audience, and expiry', CYAN, text_color=TEXT_DARK, fontsize=10,
+                subtext='SAML: IdP certificate from metadata  |  OIDC: IdP public keys (JWKS)')
+    y -= 1.35
+    arrow(ax, (xs['sp'], y), (xs['user'], y), color=CYAN, lw=2.2)
+    ax.text((xs['sp'] + xs['user']) / 2, y + 0.2, '7. Session created; access granted', ha='center', va='bottom',
+            fontsize=10.5, color=DARK, bbox=label_bbox, zorder=3)
+
+    ax.text(7.0, 0.55, 'Next application: the browser is redirected to the IdP again, and the existing IdP session '
+            'satisfies the request without a new prompt (SSO).', ha='center', fontsize=10, color=DARK)
+    ax.text(7.0, 0.1, 'Trust rests on the IdP signature; the SP never sees the user\'s password. '
+            '(OIDC code flow: the SP also redeems the code with the IdP directly.)',
             ha='center', fontsize=10, color=SLATE, style='italic')
 
     plt.title('Federated Identity and SSO Workflow (SAML / OIDC)', fontsize=16, fontweight='bold', pad=14)
@@ -85,9 +107,9 @@ def create_biometric_flow():
     boxes = [
         (0.3, 2.4, 2.2, 1.2, 'Capture', CYAN, 'Camera, sensor, mic'),
         (3.0, 2.4, 2.2, 1.2, 'Extract Features', PURPLE, 'Minutiae, vectors'),
-        (5.7, 2.4, 2.2, 1.2, 'Compare to Template', EMERALD, 'Stored hash / vector'),
+        (5.7, 2.4, 2.2, 1.2, 'Compare to Template', EMERALD, 'Stored template'),
         (8.4, 2.4, 2.2, 1.2, 'Score vs. Threshold', AMBER, 'FAR / FRR tuning'),
-        (11.1, 2.4, 2.6, 1.2, 'Accept or Reject', ROSE, 'Bind to identity'),
+        (11.1, 2.4, 2.6, 1.2, 'Accept or Reject', ROSE, 'Unlock the authenticator'),
     ]
     for x, y, w, h, text, color, sub in boxes:
         rounded_box(ax, x, y, w, h, text, color, text_color=TEXT_DARK, subtext=sub)
@@ -99,7 +121,7 @@ def create_biometric_flow():
 
     ax.text(7.0, 1.4, 'False Accept Rate (FAR) and False Reject Rate (FRR) trade off at the decision threshold.',
             ha='center', fontsize=10.5, color=DARK)
-    ax.text(7.0, 0.7, 'Templates should be stored as one-way transformations — biometrics cannot be reissued if leaked.',
+    ax.text(7.0, 0.7, 'Templates are sensitive personal data — protect them, and prefer matching on the user\'s own device.',
             ha='center', fontsize=10, color=SLATE, style='italic')
 
     plt.title('Biometric Authentication Process Flow', fontsize=16, fontweight='bold', pad=14)
