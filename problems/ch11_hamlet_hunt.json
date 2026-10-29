@@ -2,31 +2,31 @@
   "id": "ch11-hamlet-threat-hunting",
   "chapter": 11,
   "title": "Hamlet Builds a Threat-Hunting Program at Denmark Cyber Defense",
-  "context_md": "Hamlet, Threat Hunter at *Denmark Cyber Defense*, has been promoted to lead the firm's newly chartered detection-engineering and hunting program. The catalyst was an eleven-night insider incident he identified last quarter through behavioral anomaly scoring — an event that none of the standing detection rules had triggered on. The board read his post-incident write-up and decided the SOC needed to operate proactively, not just reactively.\n\nHamlet inherits a SIEM that ingests roughly 14 billion events per day from endpoints, firewalls, identity, cloud, and email — but whose detection rules were largely copied from the original vendor templates and have not been measured for false-positive rate in years. The SOC analyst queue receives over 500 alerts per shift, most of which get acknowledged without investigation because the analysts simply do not have time. Threat intelligence is being collected from three commercial feeds, two ISAC memberships, and CISA's automated indicator-sharing program, but indicators are being applied directly to the perimeter firewall blocklist with no scoring or aging — and last month a major SaaS provider's IP range got blocked for six hours because of a stale entry.\n\nHamlet's six-month plan must rebuild the data pipeline, modernize detection, formalize threat hunting, and bring threat-intelligence consumption under control.",
+  "context_md": "Hamlet, Threat Hunter at *Denmark Cyber Defense*, has been promoted to lead the firm's newly chartered detection-engineering and hunting program. The catalyst was an eleven-night insider incident he identified last quarter through behavioral anomaly scoring — an event that none of the standing detection rules had triggered on. The board read his post-incident write-up and decided the SOC needed to operate proactively, not just reactively.\n\nHamlet inherits a SIEM that ingests roughly 14 billion events per day from endpoints, firewalls, identity, cloud, and email — but whose detection rules were largely copied from the original vendor templates and have not been measured for false-positive rate in years. The SOC analyst queue receives over 500 alerts per shift, most of which get acknowledged without investigation because the analysts simply do not have time. Threat intelligence is being collected from three commercial feeds, two ISAC memberships, and CISA's automated indicator-sharing program, but indicators are being applied directly to the perimeter firewall blocklist with no scoring or aging — and last month a major CDN provider's IP range got blocked for six hours because of a stale entry.\n\nHamlet's six-month plan must rebuild the data pipeline, modernize detection, formalize threat hunting, and bring threat-intelligence consumption under control.",
   "artifact_kind": "scorecard",
-  "artifact_md": "```\nSOC Program Assessment — Denmark Cyber Defense\nQuarterly review (Q1 2026).  Reviewer: Hamlet, new program lead.\n──────────────────────────────────────────────────────────────\nSIEM ingestion ............ D\n   14 B events/day from ~50 products. Native formats only.\n   Cross-source joins (auth + EDR + cloud) fail in practice.\n\nStorage architecture ...... F\n   One hot index for everything. Query latency for last-week\n   data and last-quarter data is identical (and expensive).\n\nDetection engineering ..... D-\n   Rules copied from vendor templates in 2021.\n   FPR last measured: never. Queue depth ~500 alerts/shift.\n   Auto-ack rate ~74%.\n\nAnomaly detection ......... C-\n   Last quarter's 11-night insider case was caught only by\n   behavioral scoring on a side project. Zero static rules fired.\n\nThreat-intel pipeline ..... F\n   3 commercial + 2 ISAC + CISA AIS pushed direct to FW blocklist.\n   No scoring, no aging, no curation.\n   Cloudflare /22 blocked 6 hrs on 2026-04-17 (stale entry).\n\nExecutive reporting ....... F (?)\n   Headline metric on the board dashboard:\n     'events processed per day.'\n   We are competing with the cafeteria for boardroom attention.\n\n──────────────────────────────────────────────────────────────\nOVERALL .................. in need of a six-month rebuild.\n```",
+  "artifact_md": "```\nSOC Program Assessment — Denmark Cyber Defense\nQuarterly review (Q2 2026).  Reviewer: Hamlet, new program lead.\n──────────────────────────────────────────────────────────────\nSIEM ingestion ............ D\n   14 B events/day from ~50 products. Native formats only.\n   Cross-source joins (auth + EDR + cloud) fail in practice.\n\nStorage architecture ...... F\n   One hot index for everything. Query latency for last-week\n   data and last-quarter data is identical (and expensive).\n\nDetection engineering ..... D-\n   Rules copied from vendor templates in 2021.\n   FPR last measured: never. Queue depth ~500 alerts/shift.\n   Auto-ack rate ~74%.\n\nAnomaly detection ......... C-\n   Last quarter's 11-night insider case was caught only by\n   behavioral scoring on a side project. Zero static rules fired.\n\nThreat-intel pipeline ..... F\n   3 commercial + 2 ISAC + CISA AIS pushed direct to FW blocklist.\n   No scoring, no aging, no curation.\n   Cloudflare /22 blocked 6 hrs on 2026-04-17 (stale entry).\n\nExecutive reporting ....... F (?)\n   Headline metric on the board dashboard:\n     'events processed per day.'\n   We are competing with the cafeteria for boardroom attention.\n\n──────────────────────────────────────────────────────────────\nOVERALL .................. in need of a six-month rebuild.\n```",
   "prompt_md": "Map each scorecard row to Hamlet's program control, then click **Check answers**.",
-  "body_md": "The *SIEM ingestion* row is fixed at the foundation. Hamlet standardizes the **{{schema}}** stage on OCSF so that authentication events from Active Directory, EDR process telemetry, and cloud audit logs can be joined on common user, host, and IP fields.\n\nThe *Storage architecture* row is fixed by reorganizing into **{{tiers}}** — fast SSD for the last fourteen days where active investigation happens, object storage for the rest of the year, and cold archive beyond that.\n\nThe *Detection engineering* row is fixed by adopting a **{{daa}}** workflow in which every rule lives in a Git repository, is reviewed like application code, is tested in staging against historical data, and has its false-positive rate measured weekly. He commits to the open vendor-neutral rule format **{{rulelang}}** so that the team can both consume community rules from SigmaHQ and contribute back.\n\nTo close the gap captured in the *Anomaly detection* row, Hamlet deploys a **{{ueba}}** platform that builds per-user and per-entity baselines and surfaces statistical deviations the static rules would never have anticipated. Particularly powerful is its **{{peer}}** capability, which compares a finance analyst's access patterns against other finance analysts — surfacing access that is technically authorized but anomalous for the role.\n\nHamlet formalizes threat hunting as a structured, **{{hypothesis}}** activity. Each hunt begins with a specific testable claim about how an adversary would behave, draws on existing telemetry, and ends with one of three outcomes: an incident, a new detection rule that operationalizes what was learned, or documented evidence of coverage. To increase signal where the noise is highest, the team also deploys cheap decoy secrets — **{{tokens}}** — in fileshares, developer home directories, and password vaults so that any interaction at all generates a high-confidence alert.\n\nThe *Threat-intel pipeline* row is fixed by inserting a **{{tip}}** between the external feeds and any enforcement point. It deduplicates indicators across feeds, ages them based on first-seen and last-seen dates, scores them by source fidelity, and enriches SIEM alerts with adversary context. Indicators flow downstream to the firewall, DNS resolver, and EDR through the platform's policy — never directly from the raw feed. The data model used to describe each indicator and its relationships to TTPs and campaigns is **{{stix}}**, and the transport that carries those bundles between the platform and external partners is **{{taxii}}**.\n\nThe *Executive reporting* row's vanity headline is replaced on the dashboard with two outcome-oriented numbers: **{{mttd}}** (the average time from initial compromise to detection) and the average time from detection to containment.",
+  "body_md": "The *SIEM ingestion* row is fixed at the foundation. Hamlet standardizes the **{{schema}}** stage — the step that parses every source into one common schema such as OCSF — so that authentication events from Active Directory, EDR process telemetry, and cloud audit logs can be joined on common user, host, and IP fields.\n\nThe *Storage architecture* row is fixed by reorganizing storage into **{{tiers}}** — fast SSD for the last fourteen days where active investigation happens, object storage for the rest of the year, and cold archive beyond that.\n\nThe *Detection engineering* row is fixed by adopting a **{{daa}}** workflow in which every rule lives in a Git repository, is reviewed like application code, is tested in staging against historical data, and has its false-positive rate measured weekly. He commits to the open, vendor-neutral, YAML-based SIEM rule format **{{rulelang}}**, whose rules convert into each SIEM's native query language, so that the team can both consume and contribute community detections.\n\nTo close the gap captured in the *Anomaly detection* row, Hamlet deploys a **{{ueba}}** platform that builds per-user and per-entity baselines and surfaces statistical deviations the static rules would never have anticipated. Particularly powerful is its **{{peer}}** capability, which compares a finance analyst's access patterns against other finance analysts — surfacing access that is technically authorized but anomalous for the role.\n\nHamlet formalizes threat hunting as a structured, **{{hypothesis}}** activity. Each hunt begins with a specific testable claim about how an adversary would behave, draws on existing telemetry, and ends with one of three outcomes: an incident, a new detection rule that operationalizes what was learned, or documented evidence of coverage. To increase signal where the noise is highest, the team also deploys cheap decoy secrets — **{{tokens}}** — in fileshares, developer home directories, and password vaults so that any interaction at all generates a high-confidence alert.\n\nThe *Threat-intel pipeline* row is fixed by inserting a **{{tip}}** between the external feeds and any enforcement point. It deduplicates indicators across feeds, ages them based on first-seen and last-seen dates, scores them by source fidelity, and enriches SIEM alerts with adversary context. Indicators flow downstream to the firewall, DNS resolver, and EDR through the platform's policy — never directly from the raw feed. The data model used to describe each indicator and its relationships to TTPs and campaigns is **{{stix}}**, and the transport that carries those bundles between the platform and external partners is **{{taxii}}**.\n\nThe *Executive reporting* row's vanity headline is replaced on the dashboard with two outcome-oriented numbers: **{{mttd}}** (the average time from initial compromise to detection) and the average time from detection to containment.",
   "blanks": {
     "schema": {
-      "answer": "normalization (OCSF / ECS)",
+      "answer": "normalization",
       "distractors": [
-        "data compression",
-        "encryption-at-rest tier",
-        "log redaction",
-        "retention deletion"
+        "collection and forwarding",
+        "storage and indexing",
+        "alerting and response",
+        "dashboarding"
       ],
-      "explanation": "Normalizing raw logs into a consistent schema — OCSF or ECS — at ingest is what makes cross-source correlation possible. Without it, joining an AD authentication to an EDR process is impractical at scale."
+      "explanation": "Normalization is the pipeline stage that parses raw records into a consistent schema (OCSF or ECS) at ingest, which is what makes cross-source correlation possible. Without it, joining an AD authentication to an EDR process event is impractical at scale. Collection moves the data, storage indexes it, and alerting and dashboards consume it; none of them fixes mismatched field names."
     },
     "tiers": {
       "answer": "hot / warm / cold tiers",
       "distractors": [
-        "a single hot index for everything",
-        "encrypted tape only",
-        "RAM-resident only, no disk",
-        "a write-only blockchain"
+        "a single, larger hot index",
+        "cold archive only",
+        "RAID mirroring of the hot index",
+        "weekly tape backups"
       ],
-      "explanation": "Tiered storage balances query latency against retention cost: recent days on fast indexed storage, months on object storage, archive for long-tail compliance retention."
+      "explanation": "Tiered storage balances query latency against retention cost: recent days on fast indexed storage, months on object storage, archive for long-tail compliance retention. A bigger single hot index keeps the cost problem, cold-only storage makes recent investigations slow, and mirroring or backups add redundancy, not tiering."
     },
     "daa": {
       "answer": "detection-as-code",
@@ -43,20 +43,20 @@
       "distractors": [
         "YARA",
         "Snort",
-        "PowerShell ScriptBlock",
-        "BPF"
+        "Suricata",
+        "Splunk SPL"
       ],
-      "explanation": "Sigma is the vendor-neutral YAML SIEM rule format with converters into specific SIEM query languages (Splunk SPL, KQL, ES|QL). YARA is for file content; Snort/Suricata are for network packets."
+      "explanation": "Sigma is the vendor-neutral YAML SIEM rule format with converters into specific SIEM query languages (Splunk SPL, KQL, ES|QL). YARA matches file content, Snort and Suricata inspect network traffic, and SPL is itself a vendor-specific query language, the opposite of vendor-neutral."
     },
     "ueba": {
       "answer": "UEBA",
       "distractors": [
-        "antivirus",
         "WAF",
-        "DLP gateway",
-        "NAC posture agent"
+        "DLP",
+        "NAC",
+        "IPS"
       ],
-      "explanation": "User and Entity Behavior Analytics build per-entity baselines from historical telemetry and surface statistical deviations — the right tool for the compromised-credential, insider, and post-compromise lateral-movement classes of threat."
+      "explanation": "User and Entity Behavior Analytics build per-entity baselines from historical telemetry and surface statistical deviations — the right tool for the compromised-credential, insider, and post-compromise lateral-movement classes of threat. A WAF, DLP, NAC, or IPS enforces fixed policy or signatures rather than learning each entity's normal."
     },
     "peer": {
       "answer": "peer-group analysis",
@@ -91,10 +91,10 @@
     "tip": {
       "answer": "TIP",
       "distractors": [
-        "WAF appliance",
-        "vulnerability scanner",
-        "endpoint DLP agent",
-        "CMDB"
+        "WAF",
+        "CMDB",
+        "CASB",
+        "IPS"
       ],
       "explanation": "A TIP (MISP, Anomali, ThreatConnect, ThreatQuotient) deduplicates indicators across feeds, ages them, scores them by fidelity, and feeds curated indicators to enforcement points — the missing layer in Denmark Cyber Defense's old setup."
     },

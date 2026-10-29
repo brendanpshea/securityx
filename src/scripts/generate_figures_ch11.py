@@ -142,7 +142,7 @@ def create_honeynet():
                 subtext='Real OS, fake data')
     rounded_box(ax, 8.7, 3.3, 2.4, 1.2, 'Low-interaction\nHoneypot',
                 AMBER, text_color=TEXT_DARK, fontsize=10,
-                subtext='Cowrie / Dionaea')
+                subtext='Dionaea / Honeyd')
     rounded_box(ax, 11.3, 3.3, 2.6, 1.2, 'Decoy Credentials\n+ Honey Tokens',
                 PURPLE, text_color=TEXT_DARK, fontsize=10,
                 subtext='Canary files, fake AWS keys')

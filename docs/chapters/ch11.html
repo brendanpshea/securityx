@@ -52,10 +52,12 @@ application produces logs by default. The hard problem is <em>making
 sense</em> of it: which records are worth an analyst’s attention, which
 alerts are worth waking someone up over, and which gaps in coverage are
 the ones an adversary will exploit. A mature SOC measures itself not by
-the number of events ingested but by mean time to detect (MTTD), mean
-time to respond (MTTR), and how many real incidents it catches versus
-how many escape into the post-incident review of “why did we have
-telemetry but no alert?”</p>
+the number of events ingested but by <strong>mean time to detect
+(MTTD)</strong>, the average time from the start of an intrusion to its
+discovery; by <strong>mean time to respond (MTTR)</strong>, the average
+time from discovery to response; and by how many real incidents it
+catches versus how many escape into the post-incident review of “why did
+we have telemetry but no alert?”</p>
 <p>We start with the <strong>SIEM pipeline</strong> — collection,
 normalization, storage, correlation — because everything in this chapter
 depends on that data plane working. We then move to <strong>behavioral
@@ -68,24 +70,24 @@ the rest of the industry has already learned.</p>
 <hr />
 <h2 id="how-do-we-make-sense-of-security-data">How Do We Make Sense of
 Security Data?</h2>
-<p>A modern enterprise produces tens of billions of log records a day
-across endpoints, network devices, identity systems, cloud services, and
+<p>A large enterprise can produce billions of log records a day across
+endpoints, network devices, identity systems, cloud services, and
 applications. None of that data is useful in raw form. The discipline of
 turning it into signal is <strong>Security Information and Event
 Management (SIEM)</strong> — historically a category of product (Splunk,
-IBM QRadar, Microsoft Sentinel, Elastic Security, Chronicle, Sumo
-Logic), increasingly a pattern that combines a data lake, a detection
-engine, and a workflow layer regardless of vendor.</p>
+IBM QRadar, Microsoft Sentinel, Elastic Security, Google Security
+Operations, Sumo Logic), increasingly a pattern that combines a data
+lake, a detection engine, and a workflow layer regardless of vendor.</p>
 <h3 id="siem-log-aggregation-and-correlation">SIEM Log Aggregation and
 Correlation</h3>
 <p>A SIEM pipeline has five stages, each with its own failure modes.</p>
 <ol type="1">
 <li><strong>Collection.</strong> Agents and forwarders pull or receive
 logs from sources: syslog from network devices, the Windows Event Log
-via WEF, EDR telemetry via vendor APIs, cloud audit logs (AWS
-CloudTrail, Azure Activity Log, GCP Cloud Audit Logs) via streaming,
-application logs via Fluent Bit / Vector / Filebeat, identity provider
-logs via API.</li>
+via Windows Event Forwarding (WEF), EDR telemetry via vendor APIs, cloud
+audit logs (AWS CloudTrail, Azure Activity Log, GCP Cloud Audit Logs)
+via streaming, application logs via Fluent Bit / Vector / Filebeat,
+identity provider logs via API.</li>
 <li><strong>Normalization and enrichment.</strong> Raw records are
 parsed into a consistent schema — increasingly the <strong>Elastic
 Common Schema (ECS)</strong> or the <strong>Open Cybersecurity Schema
@@ -95,14 +97,18 @@ overlap.</li>
 <li><strong>Storage and indexing.</strong> Normalized data is written
 into a searchable store, typically with <strong>hot / warm /
 cold</strong> retention tiers — fast SSD for recent days, slower object
-storage for months-to-years, archive for compliance retention.</li>
+storage for months-to-years, archive for compliance retention. Retention
+length is set by regulation, contract, and investigation needs;
+intrusions can dwell for months, so retention that is too short destroys
+evidence.</li>
 <li><strong>Correlation and detection.</strong> Rules — written in
 vendor-specific languages or the cross-platform <strong>Sigma</strong>
 standard — combine multiple events into higher-level alerts. UEBA models
 flag statistical anomalies the rules would never have anticipated.</li>
 <li><strong>Alerting, dashboards, and response.</strong> Alerts route to
-analysts; dashboards summarize trends; SOAR playbooks (Chapter 12)
-automate response on the most common patterns.</li>
+analysts; dashboards summarize trends; security orchestration,
+automation, and response (SOAR) playbooks (Chapter 12) automate response
+on the most common patterns.</li>
 </ol>
 <p><img src="../assets/images/ch11_siem_pipeline.png"
 alt="The SIEM pipeline flows from heterogeneous sources through collectors and forwarders into a normalization-and-enrichment stage, then into indexed storage, correlation and detection, and finally to alerts, dashboards, and SOAR workflows. Schema discipline at the normalize stage is what makes everything downstream queryable across data sources." />
@@ -116,37 +122,50 @@ data sources.</em></p>
 <p><strong class="callout-title">Example</strong></p>
 <p><em>A Sigma rule detecting suspicious scheduled task
 creation</em></p>
-<p>Sigma is a vendor-neutral detection language that compiles into a
+<p>Sigma is a vendor-neutral detection language that converts into a
 given SIEM’s query syntax. A rule that fires when a Windows scheduled
-task is created by a machine or service account — but not by a
-known-legitimate system process — looks like this:</p>
+task is registered to run a program from a user-writable folder, unless
+the registering account is the approved software-deployment account,
+looks like this:</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Suspicious Scheduled Task Creation</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">status</span><span class="kw">:</span><span class="at"> test</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">logsource</span><span class="kw">:</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">product</span><span class="kw">:</span><span class="at"> windows</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">service</span><span class="kw">:</span><span class="at"> security</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">detection</span><span class="kw">:</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">selection</span><span class="kw">:</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">EventID</span><span class="kw">:</span><span class="at"> </span><span class="dv">4698</span><span class="co">                   # &quot;A scheduled task was created&quot;</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">SubjectUserName|endswith</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;$&#39;</span><span class="co">   # machine/service account</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">filter_legitimate</span><span class="kw">:</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">ParentCommandLine|contains</span><span class="kw">:</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;svchost.exe&#39;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;taskeng.exe&#39;</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> selection and not filter_legitimate</span></span></code></pre></div>
-<p>Event ID 4698 fires whenever a task is registered. The
-<code>SubjectUserName</code> filter narrows to machine or service
-accounts (which end in <code>$</code>); the exception list suppresses
-the legitimate system schedulers. A new scheduled task registered by an
-unexpected account — a pattern common in persistence after initial
-access — triggers the alert.</p>
-<p>Run <code>sigmac -t splunk</code> on this rule and it becomes Splunk
-SPL. Run it with <code>-t sentinel</code> and it becomes KQL for
-Microsoft Sentinel. One rule, any SIEM — and it lives in Git with a
-commit history and ATT&amp;CK annotation (T1053.005) so coverage maps
-stay accurate.</p>
+class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> Scheduled Task Registered from a User-Writable Path</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">status</span><span class="kw">:</span><span class="at"> experimental</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">description</span><span class="kw">:</span><span class="at"> A new scheduled task runs a program from a folder any user can write to</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">logsource</span><span class="kw">:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">product</span><span class="kw">:</span><span class="at"> windows</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">service</span><span class="kw">:</span><span class="at"> security</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">detection</span><span class="kw">:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">selection</span><span class="kw">:</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">EventID</span><span class="kw">:</span><span class="at"> </span><span class="dv">4698</span><span class="co">                   # &quot;A scheduled task was created&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">TaskContent|contains</span><span class="kw">:</span><span class="co">           # the task&#39;s XML, including its action</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;\AppData\&#39;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;\Users\Public\&#39;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="kw">-</span><span class="at"> </span><span class="st">&#39;\Temp\&#39;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">filter_deployment_tool</span><span class="kw">:</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">SubjectUserName</span><span class="kw">:</span><span class="at"> </span><span class="st">&#39;svc-endpoint-mgmt&#39;</span><span class="co">   # known deployment account</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">condition</span><span class="kw">:</span><span class="at"> selection and not filter_deployment_tool</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="fu">falsepositives</span><span class="kw">:</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> Software installers and updaters that register their own tasks</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="fu">level</span><span class="kw">:</span><span class="at"> medium</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="fu">tags</span><span class="kw">:</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> attack.persistence</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> attack.t1053.005</span></span></code></pre></div>
+<p>Event ID 4698 is logged whenever a task is registered, and
+<code>TaskContent</code> holds its definition, including the program it
+runs. Tasks that launch programs from user-writable folders are a common
+persistence pattern after initial access, so the rule flags them while
+the filter suppresses the known-good deployment account. Windows logs
+4698 only if <em>Audit Other Object Access Events</em> is enabled: a
+rule is only as good as the telemetry behind it.</p>
+<p>The <code>sigma-cli</code> tool converts the rule for a chosen
+backend: <code>sigma convert -t splunk -p splunk_windows rule.yml</code>
+produces Splunk SPL, and the <code>kusto</code> backend produces KQL for
+Microsoft Sentinel (the older <code>sigmac</code> converter is retired).
+One rule, any SIEM, kept in Git with a commit history and an ATT&amp;CK
+tag (T1053.005, Scheduled Task) so coverage maps stay accurate.</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 11.1</strong></p>
@@ -185,23 +204,36 @@ will eventually include real attacks. Five disciplines reduce this:</p>
 <ul>
 <li><strong>Tune at the source.</strong> Suppress noisy events at the
 agent or forwarder rather than ingesting and then filtering them — every
-byte that does not need to be stored is cost saved and noise
-removed.</li>
-<li><strong>Stage alerts by severity, asset criticality, and user
-privilege.</strong> An alert on a domain controller from a domain
-admin’s account is not the same priority as the same alert on a
+byte that does not need to be stored is cost saved and noise removed.
+This is <strong>audit log reduction</strong>: trimming logs down to the
+records that matter without dropping anything of detection or forensic
+value.</li>
+<li><strong>Stage alerts by severity and context.</strong> Weigh asset
+criticality and type, user privilege, data classification, impact, and
+residual risk. An alert on a domain controller from a domain admin’s
+account is not the same priority as the same alert on a
 workstation.</li>
 <li><strong>Use detection-as-code.</strong> Detections live in a Git
-repository, get code review, are versioned, and are retired when they
-outlive their usefulness — the same engineering rigor as application
-code.</li>
+repository, get code review, are versioned and tested, and are retired
+when they outlive their usefulness — the same engineering rigor as
+application code.</li>
 <li><strong>Maintain a known-noise allowlist.</strong> Vulnerability
 scanners, internal penetration tests, and developer experiments should
 be enumerable so they do not trip detections.</li>
 <li><strong>Measure false-positive rate (FPR) per detection.</strong> A
-rule with a 95% FPR is doing more harm than good and should be tuned or
-retired.</li>
+<strong>false positive</strong> is an alert on benign activity; a rule
+with a 95% FPR is doing more harm than good and should be tuned or
+retired. A <strong>false negative</strong>, a real attack that raises no
+alert, is the opposite error, and over-aggressive tuning creates
+it.</li>
 </ul>
+<p>Two data-quality problems distort all of this. <strong>Event
+duplication</strong> — the same event arriving through overlapping
+collectors — inflates counts and double-fires correlation rules, so
+deduplicate on a stable event ID. <strong>Non-reporting devices</strong>
+are the reverse: a silent log source produces no alerts, which looks
+like safety. Alert on missing heartbeats, because an alert failure is a
+false negative nobody sees.</p>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> Coverage gaps and noise are two sides of
 the same problem. You cannot tell an analyst to “look harder” past the
@@ -216,8 +248,12 @@ its detective power, but only if the data is parsed correctly and the
 right relationships are modeled. The high-leverage sources for any
 modern SOC:</p>
 <ul>
-<li><strong>Endpoint (EDR).</strong> Process creation, file write,
-registry edit, network connection, syscall pattern.</li>
+<li><strong>Endpoint (EDR) and operating-system logs.</strong> Process
+creation, file write, registry edit, network connection, syscall
+pattern.</li>
+<li><strong>Infrastructure and application logs.</strong> Firewall, VPN,
+proxy, and web-application logs show how traffic moves and how business
+logic is abused.</li>
 <li><strong>DNS.</strong> Query logs from the recursive resolver —
 extraordinarily high signal-to-noise for malware C2.</li>
 <li><strong>Authentication.</strong> Active Directory and
@@ -226,12 +262,24 @@ credential-based attack.</li>
 <li><strong>Cloud control plane.</strong> CloudTrail / Activity Log /
 Audit Logs — captures every API call.</li>
 <li><strong>DLP.</strong> Egress and copy-paste events.</li>
-<li><strong>Vulnerability scan results.</strong> Posture context that
-informs alert prioritization.</li>
+<li><strong>Vulnerability scan results and CVE details.</strong> Posture
+context for prioritization: a CVE’s severity score and known-exploited
+status make an alert on a vulnerable host outrank the same alert
+elsewhere.</li>
+<li><strong>Bug-bounty and disclosure reports.</strong> Outside
+researchers sometimes report weaknesses, or active abuse, before any
+sensor notices.</li>
 <li><strong>Email gateway.</strong> Delivery, signature failure, sandbox
 detonation results.</li>
-<li><strong>Third-party security telemetry.</strong> CASB, CSPM,
-attack-surface management feeds.</li>
+<li><strong>Third-party reports, logs, and telemetry.</strong> CASB,
+CSPM (cloud security posture management) findings, attack-surface
+management feeds, and partner or SaaS-provider logs and breach
+notices.</li>
+<li><strong>Threat-intelligence feeds.</strong> <strong>Indicators of
+compromise (IoCs)</strong> — observable artifacts such as malicious IPs,
+domains, file hashes, and URLs — usually delivered as
+<strong>STIX</strong> (the data model) over <strong>TAXII</strong> (the
+transport), compared in Table 11.1.</li>
 </ul>
 <table>
 <caption>Table 11.1: STIX and TAXII are complementary, not alternatives.
@@ -273,9 +321,10 @@ exchanging threat intelligence</td>
 <tr>
 <th scope="row" style="text-align: left;">Format</th>
 <td style="text-align: left;">JSON objects (indicators, malware,
-campaigns, threat actors, TTPs, sightings)</td>
-<td style="text-align: left;">HTTPS REST API with collections and
-channels</td>
+campaigns, threat actors, attack patterns that describe adversary
+techniques, sightings)</td>
+<td style="text-align: left;">HTTPS REST API built around collections
+(channels are reserved for a future version)</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Typical use</th>
@@ -305,7 +354,7 @@ Reporting, and Security Metrics</h3>
 <p>Dashboards exist for two audiences with very different needs:</p>
 <ul>
 <li><strong>Operational dashboards</strong> (for analysts) show
-real-time alert queues, dwell on open cases, current investigation
+real-time alert queues, the age of open cases, current investigation
 status, and the day-over-day trend on top noisy detections.</li>
 <li><strong>Executive dashboards</strong> (for leadership) show
 longer-horizon metrics: MTTD, MTTR, alert volume by severity, coverage
@@ -379,8 +428,9 @@ statistically significant deviations.</p>
 <h3 id="user-and-entity-behavior-analytics-ueba">User and Entity
 Behavior Analytics (UEBA)</h3>
 <p><strong>User and Entity Behavior Analytics (UEBA)</strong> systems
-build per-entity baselines from historical telemetry and detect
-anomalies against those baselines. Modern UEBA capabilities include:</p>
+(the successor to earlier user-only <em>UBA</em>) build per-entity
+baselines from historical telemetry and detect anomalies against those
+baselines. Modern UEBA capabilities include:</p>
 <ul>
 <li><strong>Per-user feature vectors.</strong> Typical login hours,
 geographies, devices, applications, peer group membership, data-access
@@ -388,6 +438,9 @@ patterns.</li>
 <li><strong>Per-host baselines.</strong> Normal process trees,
 child-process relationships, outbound destinations, scheduled-task
 inventories.</li>
+<li><strong>Network baselines.</strong> Normal flow volumes between
+segments, protocol mix, and external destinations — the raw material for
+beaconing and data-staging detections.</li>
 <li><strong>Peer-group analysis.</strong> A finance analyst accessing
 engineering source control is suspicious not because access is
 impossible — it might be authorized — but because peers in finance do
@@ -433,8 +486,8 @@ the weekly UEBA risk-score report on a Wednesday morning when one entity
 stands out: a developer account belonging to a contractor who has been
 with the firm for nine months. The score is 78 out of 100, up from a
 baseline near 5, accumulated over the past eleven days.</p>
-<p>Hamlet clicks through. The constituent anomalies tell a story when
-read together:</p>
+<p>Hamlet clicks through. The anomalies tell a story when read
+together:</p>
 <ol type="1">
 <li>Eleven nights running, the account has logged into a database
 read-replica at roughly 11:30 p.m. — outside the user’s historical 9
@@ -449,16 +502,15 @@ directory on the developer workstation, and the workstation’s outbound
 HTTPS volume in the half-hour after each query is roughly 4× the user’s
 baseline — but split across multiple destinations including a personal
 cloud storage domain.</li>
-<li>The user has not opened the company chat app or email between 11
-p.m. and 6 a.m. on any of those eleven nights — they are awake and
-active <em>only</em> on the database and the file uploads.</li>
+<li>The user has not opened chat or email between 11 p.m. and 6 a.m. on
+any of those nights — they are active <em>only</em> on the database and
+the uploads.</li>
 </ol>
 <p>No individual event would have tripped a static rule. The database
-access is technically authorized. The hours are unusual but not
-impossible. The data volumes are within ordinary day-to-day variance for
-a developer pulling test data. Even the personal cloud storage upload,
-in isolation, would have produced a low-priority DLP alert that the
-queue routinely dismissed.</p>
+access is authorized, the hours are unusual but not impossible, the
+volumes sit within a developer’s normal variance, and the cloud upload
+alone would have been a low-priority DLP alert that the queue routinely
+dismissed.</p>
 <p><em>Together</em>, the pattern is unmistakable. Hamlet escalates to
 the incident response team, who pull the workstation’s EDR timeline and
 confirm a script that automates the SELECTs and uploads. HR and legal
@@ -467,12 +519,11 @@ investigation. The full extracted volume — about 380,000 customer
 records over the eleven-day window — is recovered from the personal
 cloud storage provider through a preservation-and-disclosure process,
 and not (so far as can be determined) exfiltrated further.</p>
-<p>The post-incident review produces two changes. The UEBA risk-score
-threshold for off-hours database access is lowered for accounts that
-have <em>never</em> historically accessed that database, even when
-access is technically permitted. And a separate DLP rule is added for
-the specific personal-cloud-storage domain involved, since the company
-already used a different provider sanctioned for business use.</p>
+<p>The post-incident review lowers the UEBA risk-score threshold for
+off-hours access to databases an account has <em>never</em> used, even
+when access is permitted, and adds a DLP rule for the personal-cloud
+domain involved, since the company already sanctioned a different
+provider.</p>
 <p>The case is the textbook example of why behavioral analytics matter:
 an attacker — internal or external — who has <em>legitimate access</em>
 is invisible to access-control alone. Only deviation from baseline
@@ -514,8 +565,9 @@ Hunt for Threats?</h2>
 <strong>Threat hunting</strong> assumes the alarms have already failed —
 that some adversary is already inside the environment, evading detection
 — and goes looking for them based on a <em>hypothesis</em> about how
-they would behave. Hunting is what separates a reactive SOC from a
-proactive one.</p>
+they would behave. The yardstick is <strong>dwell time</strong>: how
+long an adversary stays inside before being detected. Hunting is what
+separates a reactive SOC from a proactive one.</p>
 <h3 id="internal-reconnaissance-and-honeypots">Internal Reconnaissance
 and Honeypots</h3>
 <p>A <strong>threat hunt</strong> starts with a hypothesis (“an
@@ -524,16 +576,29 @@ of three outcomes: an incident, a new detection that operationalizes
 what was learned, or a documented coverage confirmation. The hunt itself
 draws on the same telemetry the SIEM already ingests, but interrogated
 by a human asking questions a rule could not.</p>
+<p>Hunters also draw on internal intelligence sources. <strong>Internal
+reconnaissance</strong> means mapping your network the way an intruder
+would (asset inventories, Active Directory enumeration, which hosts can
+reach which), because anything you can discover from inside, an attacker
+on a foothold host can discover too; it also means watching for the
+attacker’s own discovery activity, such as a workstation suddenly
+scanning subnets. An <strong>adversary emulation engagement</strong>
+goes further: a red or purple team re-creates a named threat actor’s
+ATT&amp;CK-mapped techniques, with tools such as MITRE Caldera or Atomic
+Red Team, to test which detections fire. Each miss is a detection gap
+and a ready-made hunt hypothesis. Honeypots, honeynets, and UEBA
+complete the set.</p>
 <p><strong>Honeypots</strong> and <strong>honeynets</strong> are
 deception infrastructure that produce extraordinarily high-fidelity
 signal precisely because there is <em>no legitimate reason</em> for
 anyone to interact with them. A honeypot is a single decoy system; a
 <strong>honeynet</strong> is an isolated network of them.</p>
 <ul>
-<li><strong>Low-interaction honeypots</strong> (Cowrie, Dionaea, Honeyd)
-emulate services with limited functionality. They are easy to deploy,
-hard to compromise meaningfully, and useful for capturing automated
-scanning, credential-stuffing, and worm-style attacks.</li>
+<li><strong>Low-interaction honeypots</strong> (Dionaea, Honeyd, Conpot
+for industrial protocols) emulate services with limited functionality.
+They are easy to deploy, hard to compromise meaningfully, and useful for
+capturing automated scanning, credential-stuffing, and worm-style
+attacks.</li>
 <li><strong>High-interaction honeypots</strong> are real systems with
 real operating systems and applications, instrumented to capture every
 action. They produce richer intelligence about attacker tradecraft, at
@@ -544,7 +609,9 @@ placed in real systems — a “honey” AWS access key in a developer’s home
 directory, a fake admin password in a vault entry, a canary file on a
 fileshare. <em>Any</em> use of these tokens generates a high-confidence
 alert. CanaryTokens.org and similar services have made honey tokens
-extremely cheap to deploy.</li>
+extremely cheap to deploy. Expect a few benign visitors — vulnerability
+scanners and asset-discovery tools will touch decoys too — so allowlist
+those sources and every remaining alert stays meaningful.</li>
 </ul>
 <p><img src="../assets/images/ch11_honeynet.png"
 alt="A honeynet is an isolated VLAN containing decoy systems and tokens, with every interaction logged and alerted. Because no legitimate users have any reason to touch these systems, the signal-to-noise ratio approaches one — every alert is worth investigating." />
@@ -565,12 +632,16 @@ patterns characteristic of BloodHound collection.</li>
 particular sleep-and-jitter pattern would produce regular outbound HTTPS
 connections at predictable intervals. <em>Telemetry:</em> netflow + DNS.
 <em>Test:</em> find hosts whose outbound HTTPS shows strong periodicity
-over the past 30 days.</li>
-<li><em>Hypothesis:</em> an attacker performing Kerberoasting would
-request service tickets for accounts with weak service principal names.
-<em>Telemetry:</em> Windows Event ID 4769. <em>Test:</em> aggregate 4769
-events by requesting account, looking for one account requesting many
-SPNs in a short window.</li>
+over the past 30 days. (RITA, covered below, automates this test over
+Zeek network logs.)</li>
+<li><em>Hypothesis:</em> an attacker performing Kerberoasting
+(ATT&amp;CK T1558.003) would request Kerberos service tickets for many
+user accounts that have service principal names (SPNs), then crack the
+tickets offline. <em>Telemetry:</em> Windows Event ID 4769 (a service
+ticket was requested). <em>Test:</em> aggregate 4769 events by
+requesting account, looking for one account requesting tickets for many
+SPNs in a short window, especially with the older RC4 encryption
+type.</li>
 <li><em>Hypothesis:</em> a malicious browser extension on a developer
 workstation would exfiltrate clipboard contents to an unfamiliar domain.
 <em>Telemetry:</em> DNS + EDR network connection. <em>Test:</em> compare
@@ -578,62 +649,73 @@ developer-workstation DNS query destinations against a known-good
 baseline.</li>
 </ul>
 <p>A hunt that finds something becomes an incident. A hunt that finds
-nothing becomes a new detection rule that will continue to look for the
-same pattern automatically — and a documented record of coverage that
-auditors and leadership can point to.</p>
+nothing still pays off: the query can become a detection rule that keeps
+looking for the same pattern automatically, and the negative result
+becomes a documented record of coverage that auditors and leadership can
+point to.</p>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong></p>
 <p><em>Marriott / Starwood (2014–2018): Four Years of Undetected APT
 Access</em></p>
-<p>In September 2018, Marriott International disclosed that an
-unauthorized party had been inside the reservation database of its
-<strong>Starwood</strong> subsidiary since <strong>2014</strong>. At
-disclosure time, Marriott said the affected database contained
-information on up to approximately <strong>500 million guests</strong>,
-including names, mailing addresses, phone numbers, email addresses,
-passport numbers, Starwood loyalty account information, dates of birth,
-and in some cases payment card data <span class="citation"
-data-cites="marriott-starwood-breach-2018">(<a
+<p>On <strong>30 November 2018</strong>, Marriott International
+disclosed that an unauthorized party had been inside the reservation
+database of its <strong>Starwood</strong> subsidiary since
+<strong>2014</strong>. Marriott’s first estimate was up to approximately
+<strong>500 million guests</strong>; for about 327 million of them the
+exposed data included some combination of names, mailing addresses,
+phone numbers, email addresses, passport numbers, Starwood loyalty
+account information, and dates of birth, and for some guests payment
+card data. Marriott later revised the count to at most about 383 million
+guest records <span class="citation"
+data-cites="marriott-starwood-breach-2018 marriott-10k-2018">(<a
 href="#ref-marriott-starwood-breach-2018" role="doc-biblioref">Marriott
-International 2018</a>)</span>.</p>
-<p>The exposure came to light after Marriott received an alert from an
-internal security tool regarding an attempt to access the Starwood guest
-reservation database in the United States. Pulling on that thread led
-investigators to a longer history of unauthorized access in the Starwood
-network that had persisted since 2014 <span class="citation"
-data-cites="marriott-starwood-breach-2018">(<a
+International 2018</a>; <a href="#ref-marriott-10k-2018"
+role="doc-biblioref">Marriott International, Inc. 2019</a>)</span>.</p>
+<p>The exposure came to light on 8 September 2018, when an internal
+security tool alerted Marriott to an attempt to access the Starwood
+guest reservation database in the United States. Pulling on that thread
+led investigators to a longer history of unauthorized access in the
+Starwood network dating back to 2014 <span class="citation"
+data-cites="marriott-starwood-breach-2018 marriott-10k-2018">(<a
 href="#ref-marriott-starwood-breach-2018" role="doc-biblioref">Marriott
-International 2018</a>)</span>.</p>
+International 2018</a>; <a href="#ref-marriott-10k-2018"
+role="doc-biblioref">Marriott International, Inc. 2019</a>)</span>.</p>
 <p>The detection failures were not exotic. They were the kind of
 multi-year operational drift this chapter has been describing:</p>
 <ul>
-<li><strong>Monitoring gaps on the legacy environment.</strong>
-Starwood’s reservation infrastructure had not been fully integrated with
-Marriott’s SIEM. Telemetry that would have been ordinary for a
-Marriott-managed system was simply absent from the merged organization’s
-view.</li>
-<li><strong>Long dwell times.</strong> Industry estimates at the time
-placed median dwell time for APTs at roughly 100 days. Starwood’s
-intrusion was <em>fifteen times that</em>. With long enough dwell, any
-architecture that depends on perimeter prevention and rare audit will
-fail.</li>
-<li><strong>Acquired-environment blind spots.</strong> The intrusion
-predated Marriott’s 2016 acquisition of Starwood and remained in the
+<li><strong>Monitoring gaps.</strong> When the UK Information
+Commissioner’s Office (ICO) fined Marriott £18.4 million in 2020, it
+found insufficient monitoring of privileged accounts and of databases,
+along with missing server hardening and unencrypted personal data. (The
+penalty covered only the period after the GDPR took effect in May 2018.)
+<span class="citation" data-cites="ico-marriott-penalty-2020">(<a
+href="#ref-ico-marriott-penalty-2020" role="doc-biblioref">UK
+Information Commissioner’s Office 2020</a>)</span></li>
+<li><strong>Long dwell time.</strong> Industry reports at the time put
+the global median dwell time at roughly 100 days. The Starwood intrusion
+lasted about four years, roughly <em>fifteen times that</em>. With long
+enough dwell, any architecture that depends on perimeter prevention and
+rare audit will fail.</li>
+<li><strong>Acquired-environment blind spot.</strong> The intrusion
+predated Marriott’s 2016 acquisition of Starwood and stayed in the
 inherited environment for years, illustrating how acquired platforms can
 sit outside the acquirer’s normal telemetry and hardening processes for
 too long <span class="citation"
-data-cites="marriott-starwood-breach-2018">(<a
-href="#ref-marriott-starwood-breach-2018" role="doc-biblioref">Marriott
-International 2018</a>)</span>.</li>
-<li><strong>Unencrypted PII.</strong> Passport numbers were stored in
-cleartext for a meaningful subset of records. Modern PCI-equivalent
-practice would have used tokenization (Chapter 8) so that even a
-complete database extraction would have yielded surrogate values rather
-than government identifiers.</li>
+data-cites="ico-marriott-penalty-2020">(<a
+href="#ref-ico-marriott-penalty-2020" role="doc-biblioref">UK
+Information Commissioner’s Office 2020</a>)</span>.</li>
+<li><strong>Unencrypted personal data.</strong> Marriott reported about
+5.25 million unencrypted passport numbers among the records <span
+class="citation" data-cites="marriott-10k-2018">(<a
+href="#ref-marriott-10k-2018" role="doc-biblioref">Marriott
+International, Inc. 2019</a>)</span>. Tokenization or field-level
+encryption (Chapter 8) would have meant that even a complete database
+extraction yielded surrogate values rather than government
+identifiers.</li>
 </ul>
-<p>The regulatory and legal consequences were substantial. Marriott
-faced regulatory scrutiny in multiple jurisdictions, extensive
-remediation work, and years of litigation and response costs.</p>
+<p>The consequences were substantial: regulatory scrutiny in multiple
+jurisdictions, including the ICO fine, extensive remediation work, and
+years of litigation and response costs.</p>
 <p>Two structural lessons for security operations come from the Marriott
 / Starwood case:</p>
 <ol type="1">
@@ -685,30 +767,32 @@ Threat Intelligence?</h2>
 build comprehensive defenses on its own observations alone.
 <strong>Threat intelligence</strong> is the practice of collecting,
 refining, and operationalizing information about adversaries — their
-tools, techniques, infrastructure, and targets — and integrating that
-information into the SOC’s detection and response workflows.</p>
+tools, infrastructure, targets, and tactics, techniques, and procedures
+(TTPs), meaning the behaviors they use to reach their goals — and
+integrating that information into the SOC’s detection and response
+workflows.</p>
 <h3 id="external-feeds-osint-and-isacs">External Feeds, OSINT, and
 ISACs</h3>
 <p>Threat intelligence comes from many sources, each with different
 fidelity and licensing:</p>
 <ul>
 <li><strong>Open-source intelligence (OSINT).</strong> Public feeds
-(AbuseIPDB, AlienVault OTX, abuse.ch’s MISP threat feeds, GreyNoise),
-security blogs, vendor reports, and the daily IoCs that appear in CISA
-advisories.</li>
+(AbuseIPDB, AlienVault OTX, now operated by LevelBlue, abuse.ch’s
+URLhaus and ThreatFox, GreyNoise), security blogs, vendor reports, and
+the IoCs that appear in CISA advisories.</li>
 <li><strong>Commercial feeds.</strong> Subscription products from
-Mandiant, Recorded Future, CrowdStrike Falcon Intelligence, Flashpoint,
-Intel 471, and similar vendors. Generally higher fidelity, with curated
-context — at substantial cost.</li>
+vendors such as Mandiant (part of Google), Recorded Future (owned by
+Mastercard), CrowdStrike, Flashpoint, and Intel 471. Generally higher
+fidelity, with curated context — at substantial cost.</li>
 <li><strong>Government and law-enforcement sources.</strong> CISA’s
-automated indicator sharing, FBI / Secret Service notifications, and
-equivalent national-level alerts.</li>
+Automated Indicator Sharing (AIS) program, FBI / Secret Service
+notifications, and equivalent national-level alerts.</li>
 <li><strong>Industry ISACs (Information Sharing and Analysis
 Centers).</strong> Sector-specific sharing communities — FS-ISAC for
 financial services, H-ISAC for healthcare, E-ISAC for electricity,
-Aviation ISAC, MS-ISAC for state and local governments.
-Membership-restricted but extremely valuable because the threats are
-highly relevant.</li>
+Aviation ISAC, MS-ISAC for state, local, tribal, and territorial
+governments. Membership-restricted but extremely valuable because the
+threats are highly relevant.</li>
 <li><strong>Internal intelligence.</strong> The most valuable threat
 intelligence in any environment is generated by <em>that environment’s
 own SOC</em> — IoCs from your incidents, tradecraft from your hunts,
@@ -718,6 +802,21 @@ that watch underground forums for stolen credentials, mentions of the
 organization, leaked data, and access-broker listings naming the
 company.</li>
 </ul>
+<p>Judge each source by its reliability factors: track record,
+freshness, independent corroboration, collection method, and relevance
+to your sector and technology. The Admiralty system rates source
+reliability from A (completely reliable) to F (cannot be judged) and
+information credibility from 1 (confirmed) to 6 (cannot be judged).</p>
+<p><strong>Counterintelligence and operational security (OPSEC)</strong>
+protect your defensive work from the adversary’s attention. Do not
+browse a suspected command-and-control domain from a corporate laptop or
+publish your IoCs mid-response; either can tip off the attacker.
+Investigate from isolated systems, mark what you share with the
+<strong>Traffic Light Protocol (TLP)</strong> (TLP:RED,
+TLP:AMBER+STRICT, TLP:AMBER, TLP:GREEN, TLP:CLEAR), use deception such
+as honeypots and honey tokens to mislead intruders, and monitor the dark
+web passively, since buying stolen data or posing as a buyer carries
+legal and OPSEC risk.</p>
 <h3 id="stix-taxii-and-threat-intelligence-platforms">STIX, TAXII, and
 Threat Intelligence Platforms</h3>
 <p>The plumbing that makes all of this manageable is the combination of
@@ -727,8 +826,8 @@ data-cites="oasis-stix-2-1-2021 oasis-taxii-2-1-2021">(<a
 href="#ref-oasis-stix-2-1-2021" role="doc-biblioref">OASIS Open Cyber
 Threat Intelligence Technical Committee 2021a</a>, <a
 href="#ref-oasis-taxii-2-1-2021" role="doc-biblioref">2021b</a>)</span>.
-A <strong>Threat Intelligence Platform (TIP)</strong> — MISP (open
-source), Anomali, ThreatConnect, ThreatQuotient — sits at the
+A <strong>Threat Intelligence Platform (TIP)</strong> — MISP and OpenCTI
+(open source), Anomali, ThreatConnect, ThreatQuotient — sits at the
 center:</p>
 <ol type="1">
 <li>The TIP pulls STIX bundles from TAXII servers operated by ISACs,
@@ -794,16 +893,24 @@ rules, Sigma rules</td>
 </tr>
 </tbody>
 </table>
+<p>IoCs go stale fast because attackers change IP addresses and file
+hashes cheaply. <strong>Indicators of attack (IoAs)</strong> describe
+<em>behavior and intent</em> — TTPs such as dumping credentials from
+LSASS memory or registering a scheduled task for persistence — and are
+far harder to change. An IoC says “this artifact was seen in an attack”;
+an IoA says “something is <em>doing</em> what attackers do.” Technical
+intelligence is mostly IoCs; the operational and tactical tiers are
+mostly IoAs.</p>
 <h3 id="rule-based-detection-languages-sigma-yara-snort">Rule-Based
 Detection Languages: Sigma, YARA, Snort</h3>
-<p>Three open detection languages dominate community sharing:</p>
+<p>Several open rule languages and tools dominate community sharing:</p>
 <ul>
 <li><strong>Sigma.</strong> A vendor-neutral SIEM rule format. A Sigma
 rule describes a detection in YAML, and converter tooling translates it
 into the underlying query language of whatever SIEM the consumer uses
 (Splunk SPL, KQL, ES|QL, etc.). The SigmaHQ repository ships thousands
-of community-contributed rules covering most MITRE ATT&amp;CK
-techniques.</li>
+of community-contributed rules covering a large share of MITRE
+ATT&amp;CK techniques.</li>
 <li><strong>YARA.</strong> A pattern-matching language for files — used
 to identify malware families by byte sequences, strings, and structural
 patterns in executables. YARA rules drive malware sandboxes, EDR
@@ -844,9 +951,19 @@ review — regardless of the filename or file extension an attacker
 chose.</p>
 </blockquote>
 <ul>
-<li><strong>Snort / Suricata rules.</strong> Network IDS signature
+<li><p><strong>Snort / Suricata rules.</strong> Network IDS signature
 languages, widely used and widely shared via Emerging Threats and Talos
-rule sets.</li>
+rule sets. A rule is a header (action, protocol, source address and
+port, direction arrow, destination address and port) followed by options
+in parentheses:</p>
+<pre><code>alert tcp $HOME_NET any -&gt; $EXTERNAL_NET 4444 (msg:&quot;Outbound connection to a common reverse-shell port&quot;; flow:to_server,established; classtype:trojan-activity; sid:1000001; rev:1;)</code></pre>
+<p><code>$HOME_NET</code> and <code>$EXTERNAL_NET</code> are configured
+variables; <code>sid</code> is the rule’s unique ID (1,000,000 and up is
+for local rules) and <code>rev</code> its revision.</p></li>
+<li><p><strong>RITA (Real Intelligence Threat Analytics).</strong> An
+open-source framework that scores Zeek network logs for behaviors such
+as beaconing, long connections, and DNS tunneling, so it can catch
+command-and-control that no signature has seen.</p></li>
 </ul>
 <p>A well-run detection-engineering program treats these rule libraries
 the way a software team treats open-source dependencies: pulled in,
@@ -879,15 +996,14 @@ either validated or exposed. The SIEM pipeline determines what an
 organization can see; behavioral analytics catch the attacks that
 prevention missed; threat hunting catches the attackers that detection
 missed; and threat intelligence ensures that no SOC has to learn every
-lesson on its own. The discipline that makes all of these work together
-is engineering rigor applied to detection — schemas, version-controlled
-rules, measured false-positive rates, hypothesis-driven hunts, and
-intelligence that is <em>aged and curated</em>, not merely consumed.
-Hamlet’s eleven nights of patient UEBA scoring and Marriott’s four years
-of missed dwell are two sides of the same point: with the right
-telemetry and the right discipline, even patient adversaries are
-eventually detectable; without them, the most ordinary intrusion can run
-for years.</p>
+lesson on its own. The discipline that ties them together is engineering
+rigor applied to detection — schemas, version-controlled rules, measured
+false-positive rates, hypothesis-driven hunts, and intelligence that is
+<em>aged and curated</em>, not merely consumed. Hamlet’s eleven nights
+of UEBA scoring and Marriott’s four years of missed dwell make the same
+point: with the right telemetry and discipline, even patient adversaries
+are detectable; without them, an ordinary intrusion can run for
+years.</p>
 <h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
 <li><strong>SIEM (Security Information and Event Management):</strong>
@@ -948,6 +1064,24 @@ audience and time horizon.</li>
 Respond — primary SOC effectiveness metrics.</li>
 <li><strong>Dwell Time:</strong> Duration from initial compromise to
 detection — the canonical measure of detective shortfall.</li>
+<li><strong>Audit Log Reduction:</strong> Trimming logs to the records
+that matter without dropping forensic evidence.</li>
+<li><strong>False Positive / False Negative:</strong> An alert on benign
+activity / a real attack that raises no alert.</li>
+<li><strong>Event Duplication / Non-Reporting Devices:</strong> An event
+ingested twice / a log source that has gone silent.</li>
+<li><strong>Adversary Emulation:</strong> A red- or purple-team exercise
+that re-creates a real threat actor’s techniques to test
+detections.</li>
+<li><strong>Indicator of Attack (IoA):</strong> Evidence of attacker
+behavior (TTPs) rather than a static artifact such as a hash or IP.</li>
+<li><strong>Traffic Light Protocol (TLP):</strong> Color-coded labels
+limiting how widely a shared report may travel.</li>
+<li><strong>Internal Reconnaissance:</strong> Mapping your own network
+as an intruder would, and watching for attackers doing the same.</li>
+<li><strong>Counterintelligence / OPSEC:</strong> Protecting defensive
+work from adversary attention and using deception against
+intruders.</li>
 </ul>
 <h3 id="practice-based-questions">Practice-Based Questions</h3>
 <div class="pbq-promo">
@@ -978,9 +1112,9 @@ Diagnose The Failure
 Investigates the Insider That Dwelled</a>
 </p>
 <p class="pbq-promo-text">
-Diagnostic PBQ. Four months in, a 13-month insider exfiltration surfaces
+Diagnostic PBQ. Four months in, a year-long insider data theft surfaces
 — and every signal was visible the whole time. Walk backward through
-three missed alerts and name the discipline that would have joined them
+three missed signals and name the discipline that would have joined them
 into one investigation.
 </p>
 </div>
@@ -1033,9 +1167,8 @@ well as you can:</p>
 <ul>
 <li>A modern SOC’s primary investment should be in threat hunting, not
 in alert triage. Reactive detection has been a losing battle for two
-decades; the dwell-time numbers prove it. Reallocate the budget toward
-hypothesis-driven hunts and accept that the alert queue will get worse
-before the metrics get better.</li>
+decades. Reallocate the budget toward hypothesis-driven hunts and accept
+that the alert queue will get worse before the metrics get better.</li>
 <li>Threat hunting is a vanity exercise that consistently fails to
 scale. The work that actually reduces risk is unglamorous: tune the
 detections you have, close the visibility gaps, fix the noisy rules, and
@@ -1084,7 +1217,7 @@ logic, what assumptions about normal behavior.</p>
 href="https://github.com/SigmaHQ/sigma">github.com/SigmaHQ/sigma</a>.
 Browse into <code>rules/</code> and pick a rule that maps to a MITRE
 ATT&amp;CK technique you find interesting — credential dumping, lateral
-movement, defense evasion, persistence. Process-creation rules under
+movement, evading defenses, persistence. Process-creation rules under
 <code>rules/windows/process_creation/</code> are a good place to start
 because they read like English.</li>
 <li>Open the rule’s YAML. Identify, in your own words: the
@@ -1127,9 +1260,9 @@ authenticated from in the last 90 days.</li>
 <li><strong>T1003.001 — LSASS Memory.</strong> A process other than
 known credential management tooling opening a handle to
 <code>lsass.exe</code> with read access.</li>
-<li><strong>T1566.001 — Phishing Link.</strong> A user clicking a URL in
-an email whose link destination domain was registered within the last 7
-days.</li>
+<li><strong>T1566.002 — Spearphishing Link.</strong> A user clicking a
+URL in an email whose link destination domain was registered within the
+last 7 days.</li>
 </ul>
 <p>For your chosen technique, write (in YAML or in plain pseudo-code
 that mirrors Sigma structure):</p>
@@ -1163,6 +1296,11 @@ Marriott International. 2018. <em>Marriott Announces Starwood Guest
 Reservation Database Security Incident</em>. <a
 href="https://news.marriott.com/news/2018/11/30/marriott-announces-starwood-guest-reservation-database-security-incident">https://news.marriott.com/news/2018/11/30/marriott-announces-starwood-guest-reservation-database-security-incident</a>.
 </div>
+<div id="ref-marriott-10k-2018" class="csl-entry" role="listitem">
+Marriott International, Inc. 2019. <em>Form 10-k for the Fiscal Year
+Ended December 31, 2018</em>. <a
+href="https://www.sec.gov/Archives/edgar/data/1048286/000162828019002337/mar-q42018x10k.htm">https://www.sec.gov/Archives/edgar/data/1048286/000162828019002337/mar-q42018x10k.htm</a>.
+</div>
 <div id="ref-oasis-stix-2-1-2021" class="csl-entry" role="listitem">
 OASIS Open Cyber Threat Intelligence Technical Committee. 2021a.
 <em>STIX Version 2.1</em>. <a
@@ -1172,6 +1310,12 @@ href="https://oasis-open.github.io/cti-documentation/stix/intro">https://oasis-o
 OASIS Open Cyber Threat Intelligence Technical Committee. 2021b.
 <em>TAXII Version 2.1</em>. <a
 href="https://oasis-open.github.io/cti-documentation/taxii/intro">https://oasis-open.github.io/cti-documentation/taxii/intro</a>.
+</div>
+<div id="ref-ico-marriott-penalty-2020" class="csl-entry"
+role="listitem">
+UK Information Commissioner’s Office. 2020. <em>Marriott International
+Inc, Monetary Penalty Notice</em>. <a
+href="https://ico.org.uk/media2/migrated/2618524/marriott-international-inc-mpn-20201030.pdf">https://ico.org.uk/media2/migrated/2618524/marriott-international-inc-mpn-20201030.pdf</a>.
 </div>
 </div>
 
