@@ -50,7 +50,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 **Learning Outcomes:**
 1. **Conduct** impact analyses using quantitative and qualitative risk assessment methodologies.
 2. **Formulate** strategies for third-party risk management, including supply chain and vendor risks.
-3. **Evaluate** availability, confidentiality, and integrity risk considerations within business continuity planning.
+3. **Evaluate** availability, confidentiality, integrity, and privacy risk considerations within business continuity planning.
 4. **Design** a crisis management and breach response plan.
 5. **Differentiate** between threat actor characteristics (motivation, resources, capabilities).
 6. **Apply** industry frameworks (MITRE ATT&CK, Cyber Kill Chain, STRIDE) to threat-modeling activities.
@@ -231,10 +231,10 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 2. **Apply** software assurance techniques, including SAST, DAST, IAST, RASP, vulnerability analysis, SCA, SBoMs, and formal methods.
 3. **Design** CI/CD pipelines with coding standards, linting, branch protection, and comprehensive testing.
 4. **Evaluate** supply chain risk management strategies for both software and hardware, including EOL planning.
-5. **Implement** hardware assurance controls, including certification/validation processes and roots of trust (TPMs, HSMs, and vTPMs).
+5. **Implement** hardware assurance controls, including certification and validation processes and roots of trust (TPMs, HSMs, and vTPMs).
 6. **Assess** secure boot, measured boot, virtual hardware controls, host-based encryption, and self-encrypting drives.
 7. **Design** security coprocessor and secure enclave deployments with self-healing and tamper-detection capabilities.
-8. **Evaluate** threat-actor TTPs targeting firmware, memory, buses, and electromagnetic interfaces (including shimming, USB attacks, EMI, and EMP).
+8. **Evaluate** threat-actor TTPs targeting firmware, memory, buses, and electromagnetic interfaces, including shimming, USB attacks, EMI, and EMP.
 
 **Chapter Outline:**
 - **Introduction**
@@ -319,11 +319,11 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
 *Maps to Objectives: 2.4, 3.7, 3.8*
 
 **Learning Outcomes:**
-1. **Architect** a Public Key Infrastructure (PKI).
-2. **Evaluate** the impact of post-quantum cryptography (PQC).
-3. **Analyze** advanced cryptographic concepts, including key stretching, key splitting, and homomorphic encryption.
+1. **Architect** a Public Key Infrastructure (PKI), including certificate authorities, registration authorities, and the certificate lifecycle.
+2. **Evaluate** the impact of post-quantum cryptography (PQC) on existing systems and migration plans.
+3. **Analyze** advanced cryptographic concepts, including key stretching, key splitting, forward secrecy, and homomorphic encryption.
 4. **Apply** cryptographic techniques to secure data at rest, in transit, and in use.
-5. **Implement** envelope encryption and hardware acceleration.
+5. **Implement** envelope encryption and hardware-accelerated cryptographic operations.
 6. **Design** certificate-based, passwordless, and mutual authentication mechanisms.
 7. **Formulate** data sanitization, anonymization, and tokenization strategies.
 8. **Evaluate** the use cases for immutable databases, blockchain, and secure multiparty computation.
@@ -345,7 +345,7 @@ Sections are phrased as questions, subsections are concise, and each chapter inc
   - Centralized vs. Decentralized Key Management
   - Cryptographic Erase, Obfuscation, Serialization, and Lightweight Cryptography
   - *Table:* Symmetric vs. Asymmetric Cryptography Use Cases
-  - *Fictional Case Study:* The Mad Hatter (Lead Cryptographer at Teatime Tech) preventing an outage due to an expired root certificate.
+  - *Fictional Case Study:* The Mad Hatter (Lead Cryptographer at Teatime Tech) resolving an outage caused by an expired intermediate certificate.
 - **What Are Advanced Cryptographic Concepts?**
   - Envelope Encryption, AEAD, and Hardware Acceleration
   - Key Stretching, Key Splitting, and Forward Secrecy
