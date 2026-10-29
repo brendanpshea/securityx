@@ -168,11 +168,13 @@ def create_nist_ir_lifecycle():
         rounded_box(ax, x, y, box_w, box_h, title, fc,
                     text_color=tc, fontsize=12, subtext=sub)
 
-    arrow(ax, (7.25, 6.45), (9.55, 5.55), color=AMBER, lw=2.4, ms=18,
+    arrow(ax, (7.25, 6.45), (9.5, 5.75), color=AMBER, lw=2.4, ms=18,
           connectionstyle='arc3,rad=-0.05')
-    arrow(ax, (9.35, 4.0), (7.8, 2.7), color=ROSE, lw=2.4, ms=18,
+    # Two-headed: Rev. 2 loops between analysis and containment as new
+    # evidence surfaces.
+    arrow(ax, (9.2, 3.9), (7.8, 2.95), color=ROSE, style='<|-|>', lw=2.4, ms=18,
           connectionstyle='arc3,rad=-0.05')
-    arrow(ax, (5.0, 1.65), (3.55, 3.15), color=PURPLE, lw=2.4, ms=18,
+    arrow(ax, (5.0, 1.65), (3.2, 4.0), color=PURPLE, lw=2.4, ms=18,
           connectionstyle='arc3,rad=-0.05')
     arrow(ax, (4.65, 5.15), (5.65, 6.45), color=CYAN, lw=2.4, ms=18,
           connectionstyle='arc3,rad=-0.05')
@@ -183,14 +185,19 @@ def create_nist_ir_lifecycle():
             color=TEXT_LIGHT, fontsize=11, fontweight='bold', zorder=4)
     ax.text(cx, cy - 0.12, 'IR cycle', ha='center', va='center',
             color=TEXT_LIGHT, fontsize=11, fontweight='bold', zorder=4)
-    ax.text(cx, cy - 0.45, 'SP 800-61r2', ha='center', va='center',
-            color=SLATE, fontsize=10, zorder=4)
+    ax.text(cx, cy - 0.45, 'SP 800-61 Rev. 2', ha='center', va='center',
+            color='#cbd5e1', fontsize=10, zorder=4)
+    ax.text(cx, cy - 0.75, '(superseded in 2025)', ha='center', va='center',
+            color='#cbd5e1', fontsize=8, zorder=4)
 
-    ax.text(7.0, 0.35,
+    ax.text(7.0, 0.55,
             'Evidence handling, communications, severity triage, and executive reporting span every phase.',
             ha='center', fontsize=9, color=SLATE, style='italic')
+    ax.text(7.0, 0.15,
+            'NIST SP 800-61 Rev. 3 (April 2025) recasts this cycle around the six CSF 2.0 Functions; see Table 12.3.',
+            ha='center', fontsize=9, color=SLATE, style='italic')
 
-    plt.title('The NIST Incident Response Lifecycle (SP 800-61r2)',
+    plt.title('The Classic Incident Response Lifecycle (NIST SP 800-61 Rev. 2)',
               fontsize=16, fontweight='bold', pad=14)
     plt.tight_layout()
     plt.savefig(os.path.join(IMG_DIR, 'ch12_nist_ir_lifecycle.png'),

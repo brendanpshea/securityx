@@ -46,13 +46,14 @@ cameras. This chapter is about what happens when something still goes
 wrong — and about making “going wrong” as rare and short-lived as
 possible through disciplined vulnerability management and security
 automation.</p>
-<p>Breaches almost never arise from exotic zero-days wielded by elite
-nation-state hackers. The vast majority trace back to a known
-vulnerability that was not patched on time, a misconfiguration that was
-never caught, a phishing email that bypassed a control that had not been
-properly tuned, or an incident that escalated because responders could
-not move fast enough manually. Each of those failure modes has a
-systematic fix, and this chapter covers all of them.</p>
+<p>Most breaches do not require exotic tradecraft. They trace back to a
+known vulnerability that was not patched on time, a misconfiguration
+that was never caught, a phishing email that slipped past a poorly tuned
+control, or an incident that escalated because responders could not move
+fast enough manually. (Zero-day attacks on internet-facing devices do
+happen, so shrinking exposure and detecting quickly both matter.) Each
+failure mode has a systematic fix, and this chapter covers all of
+them.</p>
 <p>We begin with the <strong>vulnerability landscape</strong> — what
 common software weaknesses look like, how they are scored and tracked
 through CVSS and CVE, and how SCAP standards turn vulnerability data
@@ -63,8 +64,8 @@ days of manual analyst work into seconds of orchestrated response.
 Finally, we walk through a widely used <strong>incident response (IR)
 lifecycle</strong> of preparation, detection and analysis, containment,
 eradication, recovery, and post-incident activity while noting that
-current NIST guidance is now published as SP 800-61 Rev. 3 within the
-CSF 2.0 framework <span class="citation"
+NIST’s current guidance, SP 800-61 Rev. 3, reorganizes the same work
+around the CSF 2.0 Functions <span class="citation"
 data-cites="nist-sp800-61r3-2025">(<a href="#ref-nist-sp800-61r3-2025"
 role="doc-biblioref">Nelson et al. 2025</a>)</span>.</p>
 <hr />
@@ -87,9 +88,11 @@ neutralize whole families at once.</p>
 When an application passes untrusted user input directly to an
 interpreter — SQL engine, operating system shell, LDAP directory, XML
 parser — the attacker can cause that interpreter to execute commands the
-developer never intended. The fix is always the same regardless of the
-underlying technology: validate input strictly, use parameterized
-queries or prepared statements, and never construct queries by string
+developer never intended. The fix is the same in principle everywhere:
+keep data separate from code. Apply <strong>input validation</strong>
+(accept only what an allow-list permits), use parameterized queries or
+prepared statements for SQL, call APIs that never invoke a shell for
+operating-system commands, and never build queries by string
 concatenation.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> A login form concatenates the submitted
@@ -128,8 +131,11 @@ making requests on behalf of the attacker — to internal services,
 metadata endpoints (the AWS instance metadata service at
 <code>169.254.169.254</code> is the canonical target), or cloud
 credentials APIs. Defense requires validating and restricting what URLs
-the application is permitted to contact, ideally through an
-allow-list.</p>
+the application is permitted to contact, ideally through an allow-list.
+On AWS, requiring token-based IMDSv2 adds a second barrier <span
+class="citation" data-cites="aws-imdsv2-2019">(<a
+href="#ref-aws-imdsv2-2019" role="doc-biblioref">MacCárthaigh
+2019</a>)</span>.</p>
 <p><strong>Insecure deserialization</strong> occurs when an application
 deserializes data from an untrusted source without validation. Because
 serialization formats (Java’s native serialization, PHP’s
@@ -149,11 +155,13 @@ like address space layout randomization (ASLR), stack canaries, and
 no-execute (NX/DEP) memory pages raise the attacker’s cost
 significantly.</p>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong> The OWASP Top 10 is not just a list of
-bugs — it is a prioritized vulnerability taxonomy organized around
-impact and prevalence. Understanding it means understanding the root
-cause of most web-application breaches, which is why CompTIA SecurityX
-expects you to be able to not only <em>name</em> these classes but
+<p><strong class="callout-title">Key Point</strong> The OWASP Top 10 is a periodically
+updated ranking of the most critical web-application risk categories
+<span class="citation" data-cites="owasp-top10-2025">(<a
+href="#ref-owasp-top10-2025" role="doc-biblioref">OWASP Foundation
+2025</a>)</span>. Categories move between editions (in 2025, for
+example, SSRF was folded into Broken Access Control). CompTIA SecurityX
+expects you to do more than <em>name</em> these classes; you must
 describe the underlying mechanism and the correct architectural control
 for each one.</p>
 </blockquote>
@@ -174,13 +182,23 @@ is to retrieve secrets from a secrets manager (HashiCorp Vault, AWS
 Secrets Manager, Azure Key Vault) at runtime, never to store them in
 code or configuration files.</p>
 <p><strong>Vulnerable dependencies</strong> are the vulnerability class
-that Log4Shell (2021) made impossible to ignore. Modern applications
+that Log4Shell made impossible to ignore: in December 2021, a flaw in
+Apache Log4j, a ubiquitous Java logging library (CVE-2021-44228, CVSS
+10.0), let attackers run code on a server just by getting a crafted
+string written to its logs <span class="citation"
+data-cites="cisa-log4j-guidance-2022">(<a
+href="#ref-cisa-log4j-guidance-2022" role="doc-biblioref">Cybersecurity
+and Infrastructure Security Agency 2022</a>)</span>. Modern applications
 have hundreds of third-party libraries; a critical vulnerability in any
 one of them is a critical vulnerability in every application that ships
 it. A <strong>Software Bill of Materials (SBoM)</strong> — a
-machine-readable inventory of every dependency and its version — is the
-foundation for answering the question “are we affected?” within hours
-rather than weeks.</p>
+machine-readable inventory of every dependency and its version, commonly
+in SPDX or CycloneDX format — is the foundation for answering the
+question “are we affected?” within hours rather than weeks. A
+<strong>Vulnerability Exploitability eXchange (VEX)</strong> statement
+is its companion: a vendor’s declaration of whether a CVE actually
+affects a product (for example, “not affected: the vulnerable code is
+never called”).</p>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> Dependency vulnerabilities are frequently
 discovered in libraries your team has never directly chosen. A
@@ -191,18 +209,36 @@ and OWASP Dependency-Check automate the monitoring and alerting pipeline
 treated as an afterthought.</p>
 </blockquote>
 <table>
-<caption>Table 12.1: Common Software Vulnerabilities and Mitigations. The
-“Primary Control” column lists the </em>architectural* fix — the change
-that eliminates the root cause rather than just detecting an exploit
-after the fact.*</p>
+<caption>Table 12.1: Common Vulnerabilities and Mitigations. The “Primary
+Control” column lists the </em>architectural* fix — the change that
+eliminates the root cause rather than just detecting an exploit after
+the fact.*</p>
+<p><strong>Safe functions and design patterns.</strong> <em>Safe
+functions</em> resist misuse: <strong>memory-safe functions</strong>
+check bounds (<code>snprintf</code> instead of <code>sprintf</code>),
+<strong>atomic functions</strong> finish as one indivisible step so
+nothing can slip in between a check and its use (creating a file with
+<code>O_EXCL</code> rather than testing, then creating), and
+<strong>thread-safe functions</strong> behave correctly when many
+threads call them at once. <em>Security design patterns</em> include
+<strong>least privilege</strong>, <strong>least functionality</strong>
+(disable every service and feature not needed), <strong>defense in
+depth</strong>, and <strong>fail-secure</strong> design (on failure,
+default to a locked, denied state; a <em>fail-safe</em> design instead
+protects people, like an exit door that unlocks when power is lost).
+Supporting practices: <strong>secrets management</strong> with
+<strong>key rotation</strong>, <strong>code signing</strong>,
+<strong>allow listing</strong>, encryption, and <strong>dependency
+management</strong>.</p>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 12.1</strong></p>
 <ol type="1">
 <li><strong>Recall.</strong> What is the primary architectural control
 for SQL injection, XSS, and CSRF?</li>
-<li><strong>Discriminate.</strong> An attacker never sees the victim’s
-session cookie but still causes the victim’s browser to submit a
-state-changing request. What vulnerability class is that?</li>
+<li><strong>Discriminate.</strong> While logged in to their bank, a user
+visits an attacker’s page that silently makes the browser send a
+transfer request to the bank. No attacker script runs on the bank’s
+site. What class is this, and how does it differ from XSS?</li>
 <li><strong>Apply.</strong> A web application both concatenates user
 input into SQL and lets users submit arbitrary URLs that the server
 fetches. Name two root-cause fixes from the chapter.</li>
@@ -216,8 +252,9 @@ fetches. Name two root-cause fixes from the chapter.</li>
 <li><strong>Parameterized queries</strong> fix SQL injection,
 <strong>output encoding</strong> fixes XSS, and <strong>CSRF
 tokens</strong> fix CSRF.</li>
-<li><strong>CSRF.</strong> It abuses the browser’s automatic cookie
-attachment; the attacker does not need to steal the cookie.</li>
+<li><strong>CSRF.</strong> It abuses automatic cookie attachment from
+<em>outside</em> the target site; XSS needs the attacker’s script to run
+<em>inside</em> it.</li>
 <li><strong>Use parameterized queries instead of string
 concatenation</strong> and <strong>restrict server-side fetching to
 validated or allow-listed destinations while blocking internal metadata
@@ -229,25 +266,43 @@ targets</strong>.</li>
 standardized naming system for publicly disclosed vulnerabilities. Every
 CVE entry gets a unique identifier (e.g., CVE-2021-44228, the Log4Shell
 identifier), a brief description, and references to advisories and
-patches. CVE is the vocabulary that lets vendors, defenders, and
-vulnerability scanners all refer to the same flaw unambiguously.</p>
+patches. IDs are assigned by <strong>CVE Numbering Authorities
+(CNAs)</strong>, such as vendors and national CERTs. CVE is the
+vocabulary that lets vendors, defenders, and vulnerability scanners all
+refer to the same flaw unambiguously.</p>
 <p><strong>Common Vulnerability Scoring System (CVSS)</strong> provides
-the standardized <em>severity score</em> for each CVE. CVSS v3.1 (and
-v4.0, which is being adopted) computes a 0–10 numeric score from a set
-of metrics organized into three groups:</p>
+the standardized <em>severity score</em> for each CVE, from 0 to 10 (Low
+0.1–3.9, Medium 4.0–6.9, High 7.0–8.9, Critical 9.0–10.0). CVSS v3.1 is
+still common in scanner output, older records, and exam questions; v4.0
+(November 2023) is the current version <span class="citation"
+data-cites="first-cvss-v4-2023">(<a href="#ref-first-cvss-v4-2023"
+role="doc-biblioref">Forum of Incident Response and Security Teams
+2023</a>)</span>. Metrics are organized into groups:</p>
 <ul>
 <li><strong>Base Score:</strong> Intrinsic characteristics of the
 vulnerability — how it is exploited (network, adjacent, local,
 physical), how complex the attack is, whether privileges or user
 interaction are required, and the impact on confidentiality, integrity,
 and availability.</li>
-<li><strong>Temporal Score:</strong> Time-sensitive factors — whether a
-reliable exploit exists, whether a fix has been issued, and the
-confidence in the vulnerability report.</li>
+<li><strong>Temporal Score (v3.1) / Threat (v4.0):</strong>
+Time-sensitive factors — whether a reliable exploit exists, whether a
+fix has been issued, and the confidence in the report. Version 4.0
+reduces this group to one metric, Exploit Maturity.</li>
 <li><strong>Environmental Score:</strong> Organization-specific
 adjustments — how much a specific asset’s confidentiality, integrity, or
 availability actually matters given its role.</li>
+<li><strong>Supplemental (v4.0 only):</strong> Extra context, such as
+whether exploitation can be automated, that does not change the
+score.</li>
 </ul>
+<p>Version 4.0 also adds an Attack Requirements metric, replaces Scope
+with separate impact ratings for the vulnerable system and any
+subsequent systems, and splits User Interaction into None, Passive, and
+Active. Because Threat and Environmental scoring are optional, the label
+shows what went into a score: <strong>CVSS-B</strong> (base only),
+<strong>CVSS-BT</strong>, <strong>CVSS-BE</strong>, or
+<strong>CVSS-BTE</strong>. Most published scores are CVSS-B, which
+describes the flaw in the abstract, not your risk.</p>
 <table>
 <colgroup>
 <col style="width: 33%" />
@@ -256,7 +311,7 @@ availability actually matters given its role.</li>
 </colgroup>
 <thead>
 <tr>
-<th scope="col" style="text-align: left;">CVSS Metric Group</th>
+<th scope="col" style="text-align: left;">CVSS v3.1 Base Metric</th>
 <th scope="col" style="text-align: left;">Key Dimensions</th>
 <th scope="col" style="text-align: left;">What It Measures</th>
 </tr>
@@ -306,12 +361,12 @@ component?</td>
 </tr>
 </tbody>
 </table>
-<p><em>Table 12.2: Understanding CVSS Scoring Metrics. A
-network-exploitable, low-complexity vulnerability with no privileges
-required and high impact across all three CIA dimensions scores a
-perfect 10.0. CVSS helps prioritize remediation, but the environmental
-score — adjusted for your organization’s context — is often more
-operationally relevant than the base score alone.</caption>
+<p><em>Table 12.2: Understanding CVSS v3.1 Base Metrics. A
+network-exploitable, low-complexity vulnerability that needs no
+privileges or user interaction and has high impact on all three CIA
+dimensions scores 9.8 (10.0 if Scope is Changed). CVSS measures
+severity, not the likelihood of attack, so it is only one input to
+prioritization.</caption>
 <colgroup>
 <col style="width: 33%" />
 <col style="width: 33%" />
@@ -342,15 +397,15 @@ header</td>
 <td style="text-align: left;">CSRF</td>
 <td style="text-align: left;">Forged request using victim’s live
 session</td>
-<td style="text-align: left;">CSRF tokens; SameSite=Strict cookie
-attribute</td>
+<td style="text-align: left;">CSRF tokens; SameSite cookie attribute
+(Lax or Strict)</td>
 </tr>
 <tr>
 <td style="text-align: left;">SSRF</td>
 <td style="text-align: left;">Server fetches attacker-controlled
 URL</td>
 <td style="text-align: left;">URL allow-listing; block internal metadata
-endpoints</td>
+endpoints; require IMDSv2</td>
 </tr>
 <tr>
 <td style="text-align: left;">Insecure Deserialization</td>
@@ -379,17 +434,107 @@ CI/CD</td>
 </tr>
 <tr>
 <td style="text-align: left;">Insecure Configuration</td>
-<td style="text-align: left;">Default creds, open ports, weak
-ciphers</td>
+<td style="text-align: left;">Default creds, open ports</td>
 <td style="text-align: left;">Hardening benchmarks (CIS), config drift
 scanning</td>
 </tr>
+<tr>
+<td style="text-align: left;">Race Condition / TOCTOU</td>
+<td style="text-align: left;">Time of check to time of use: state
+changes between check and use</td>
+<td style="text-align: left;">Atomic operations, locking, thread-safe
+functions</td>
+</tr>
+<tr>
+<td style="text-align: left;">Confused Deputy</td>
+<td style="text-align: left;">Privileged program tricked into using its
+authority for an attacker</td>
+<td style="text-align: left;">Least privilege; authorize the original
+caller</td>
+</tr>
+<tr>
+<td style="text-align: left;">Poisoning</td>
+<td style="text-align: left;">Trusted data corrupted at its source (DNS
+cache, package repo, ML training data)</td>
+<td style="text-align: left;">DNSSEC; signed, pinned packages; data
+validation</td>
+</tr>
+<tr>
+<td style="text-align: left;">Directory Service Misconfiguration</td>
+<td style="text-align: left;">Over-permissive AD/LDAP settings
+(anonymous binds, weak ACLs)</td>
+<td style="text-align: left;">Directory audits; tiered admin model; LDAP
+signing</td>
+</tr>
+<tr>
+<td style="text-align: left;">Deprecated Functions</td>
+<td style="text-align: left;">Unsafe legacy APIs or algorithms
+(<code>gets()</code>, MD5)</td>
+<td style="text-align: left;">Static analysis; modern replacements</td>
+</tr>
+<tr>
+<td style="text-align: left;">End-of-Life Software</td>
+<td style="text-align: left;">Vendor no longer ships patches</td>
+<td style="text-align: left;">Upgrade or retire; isolate and
+compensate</td>
+</tr>
+<tr>
+<td style="text-align: left;">Weak Ciphers</td>
+<td style="text-align: left;">Obsolete algorithms or protocols (RC4,
+3DES, TLS 1.0)</td>
+<td style="text-align: left;">Enforce TLS 1.2+ with modern suites</td>
+</tr>
+<tr>
+<td style="text-align: left;">Implants</td>
+<td style="text-align: left;">Malicious code or hardware planted on a
+system (firmware implants, web shells)</td>
+<td style="text-align: left;">Secure boot; code signing; supply-chain
+vetting</td>
+</tr>
 </tbody>
 </table>
+<p><strong>Prioritizing beyond severity.</strong> Many high-scoring
+flaws are never exploited, while some medium-scoring ones are used in
+real attacks, so defenders pair CVSS with evidence of exploitation:</p>
+<ul>
+<li>The CISA <strong>Known Exploited Vulnerabilities (KEV)
+catalog</strong> lists CVEs with reliable evidence of active
+exploitation. Under Binding Operational Directive 22-01, U.S. federal
+civilian agencies must fix KEV entries by a due date; everyone else can
+treat KEV as a “patch these first” list <span class="citation"
+data-cites="cisa-kev-bod-22-01-2021">(<a
+href="#ref-cisa-kev-bod-22-01-2021" role="doc-biblioref">Cybersecurity
+and Infrastructure Security Agency 2021</a>)</span>.</li>
+<li>The <strong>Exploit Prediction Scoring System (EPSS)</strong>,
+maintained by FIRST, estimates the probability that a CVE will be
+exploited in the wild within 30 days; version 4 arrived in March 2025
+<span class="citation" data-cites="first-epss-2025">(<a
+href="#ref-first-epss-2025" role="doc-biblioref">Forum of Incident
+Response and Security Teams 2025</a>)</span>.</li>
+<li><strong>Stakeholder-Specific Vulnerability Categorization
+(SSVC)</strong> is a decision tree (CISA publishes one) that weighs
+exploitation, technical impact, and mission impact to output Track,
+Track*, Attend, or Act <span class="citation"
+data-cites="cisa-ssvc-2022">(<a href="#ref-cisa-ssvc-2022"
+role="doc-biblioref">Cybersecurity and Infrastructure Security Agency,
+n.d.</a>)</span>.</li>
+<li>Your own context: internet exposure, asset criticality, and
+compensating controls.</li>
+</ul>
+<p>Data sources have limits, too. In April 2026 NIST announced that the
+National Vulnerability Database (NVD), which adds CPE product data and
+scores to CVEs, would prioritize KEV, federal, and critical software, so
+many other CVEs may carry no NVD analysis <span class="citation"
+data-cites="nist-nvd-2026">(<a href="#ref-nist-nvd-2026"
+role="doc-biblioref">National Institute of Standards and Technology
+2026</a>)</span>.</p>
 <p><strong>Security Content Automation Protocol (SCAP)</strong> is a
-NIST-maintained suite of standards that allows vulnerability-scanning
-tools to operate against machine-readable policy specifications rather
-than hand-crafted scripts. The key SCAP components are:</p>
+NIST-maintained suite of standards <span class="citation"
+data-cites="nist-sp800-126r3-2018">(<a href="#ref-nist-sp800-126r3-2018"
+role="doc-biblioref">Waltermire et al. 2018</a>)</span> that allows
+vulnerability-scanning tools to operate against machine-readable policy
+specifications rather than hand-crafted scripts. The key SCAP components
+are:</p>
 <ul>
 <li><strong>CVE</strong> — vulnerability naming (described above).</li>
 <li><strong>CVSS</strong> — severity scoring (described above).</li>
@@ -417,10 +562,9 @@ row.</p>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong> Your vulnerability scanner
 reports 1,400 open findings, but the engineering team says they can
-remediate roughly 50 vulnerabilities per sprint. How would you use CVSS
-base score, temporal score, and environmental score together to produce
-a defensible priority list? What non-CVSS factors — like whether a
-finding is on an internet-facing asset — would you also layer in?</p>
+remediate roughly 50 vulnerabilities per sprint. Which evidence would
+you use to choose the first 50, and how would you explain to a business
+unit why its Critical-scoring finding is not in this sprint?</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 12.2</strong></p>
@@ -430,9 +574,10 @@ to vulnerability management?</li>
 <li><strong>Discriminate.</strong> A scanner ingests a CIS benchmark
 expressed as XML and automatically checks Linux hosts against it. Which
 SCAP components are doing the work?</li>
-<li><strong>Apply.</strong> A scanner reports 1,400 findings, but
-engineering can only fix 50 per sprint. How should the section’s
-prioritization logic rank the queue?</li>
+<li><strong>Apply.</strong> One CVE has a CVSS base score of 9.8, an
+EPSS probability near zero, and no KEV listing. Another scores 6.5 and
+is in KEV. Both affect internet-facing servers. Which do you patch
+first, and why?</li>
 </ol>
 </blockquote>
 <details>
@@ -445,10 +590,10 @@ SCAP provides machine-readable standards that let scanners automate
 identification and compliance checking.</strong></li>
 <li><strong>XCCDF and OVAL.</strong> XCCDF carries the checklist, and
 OVAL carries the machine-readable state checks used to evaluate it.</li>
-<li>Use <strong>CVSS base, temporal, and environmental context
-together</strong>, then layer on practical risk such as <strong>internet
-exposure, exploit availability, and asset criticality</strong>. The
-chapter is clear that raw base score alone is not enough.</li>
+<li><strong>The 6.5 KEV-listed flaw.</strong> KEV confirms active
+exploitation, while the 9.8 shows no sign of it. CVSS measures severity,
+not likelihood, so the 9.8 can wait its turn (but should still be
+scheduled).</li>
 </ol>
 </details>
 <hr />
@@ -476,9 +621,9 @@ automation, CI/CD pipelines, and Docker entrypoints.</p>
 operations — pulling IOC feeds nightly, running compliance checks
 weekly, generating metric dashboards hourly.</li>
 <li><strong>Event-driven triggers</strong> that fire in response to
-conditions — a CloudWatch alarm that invokes a Lambda when an IAM role
-is modified, a webhook from the SIEM that calls a containment endpoint
-when a high-severity alert fires.</li>
+conditions — an AWS EventBridge rule that invokes a Lambda function when
+an IAM role is modified, a webhook from the SIEM that calls a
+containment endpoint when a high-severity alert fires.</li>
 <li><strong>API and SDK integration</strong> that chains multiple tools
 together — a script that queries the SIEM for all hosts that
 communicated with a known-bad IP, then calls the EDR API to isolate each
@@ -488,24 +633,28 @@ one, then opens a ticket in the ITSM with the list and a timestamp.</li>
 <p><strong class="callout-title">Example</strong> A Python script used in incident
 containment:</p>
 <div class="sourceCode" id="cb1"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> boto3, requests</span>
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os, requests</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>SIEM_API <span class="op">=</span> <span class="st">&quot;https://siem.internal/api/alerts&quot;</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>EDR_API  <span class="op">=</span> <span class="st">&quot;https://edr.internal/api/v1/endpoints&quot;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Pull affected hosts from the SIEM alert</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>alert <span class="op">=</span> requests.get(SIEM_API <span class="op">+</span> <span class="st">&quot;/alert-4421&quot;</span>, headers<span class="op">=</span>{<span class="st">&quot;Authorization&quot;</span>: <span class="st">&quot;Bearer &quot;</span> <span class="op">+</span> SIEM_TOKEN}).json()</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>affected_hosts <span class="op">=</span> alert[<span class="st">&quot;affected_hosts&quot;</span>]</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Network-isolate each host via the EDR API</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> host <span class="kw">in</span> affected_hosts:</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> requests.post(EDR_API <span class="op">+</span> <span class="ss">f&quot;/</span><span class="sc">{</span>host<span class="sc">}</span><span class="ss">/isolate&quot;</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                      json<span class="op">=</span>{<span class="st">&quot;reason&quot;</span>: <span class="st">&quot;SOAR auto-contain: alert-4421&quot;</span>},</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>                      headers<span class="op">=</span>{<span class="st">&quot;Authorization&quot;</span>: <span class="st">&quot;Bearer &quot;</span> <span class="op">+</span> EDR_TOKEN})</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Isolated </span><span class="sc">{</span>host<span class="sc">}</span><span class="ss">: HTTP </span><span class="sc">{</span>r<span class="sc">.</span>status_code<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Tokens are injected at runtime by a secrets manager, never written in code</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>SIEM_TOKEN <span class="op">=</span> os.environ[<span class="st">&quot;SIEM_TOKEN&quot;</span>]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>EDR_TOKEN  <span class="op">=</span> os.environ[<span class="st">&quot;EDR_TOKEN&quot;</span>]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Pull affected hosts from the SIEM alert</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>alert <span class="op">=</span> requests.get(SIEM_API <span class="op">+</span> <span class="st">&quot;/alert-4421&quot;</span>, headers<span class="op">=</span>{<span class="st">&quot;Authorization&quot;</span>: <span class="st">&quot;Bearer &quot;</span> <span class="op">+</span> SIEM_TOKEN}, timeout<span class="op">=</span><span class="dv">10</span>).json()</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>affected_hosts <span class="op">=</span> alert[<span class="st">&quot;affected_hosts&quot;</span>]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Network-isolate each host via the EDR API</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> host <span class="kw">in</span> affected_hosts:</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> requests.post(EDR_API <span class="op">+</span> <span class="ss">f&quot;/</span><span class="sc">{</span>host<span class="sc">}</span><span class="ss">/isolate&quot;</span>,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>                      json<span class="op">=</span>{<span class="st">&quot;reason&quot;</span>: <span class="st">&quot;SOAR auto-contain: alert-4421&quot;</span>},</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>                      headers<span class="op">=</span>{<span class="st">&quot;Authorization&quot;</span>: <span class="st">&quot;Bearer &quot;</span> <span class="op">+</span> EDR_TOKEN}, timeout<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Isolated </span><span class="sc">{</span>host<span class="sc">}</span><span class="ss">: HTTP </span><span class="sc">{</span>r<span class="sc">.</span>status_code<span class="sc">}</span><span class="ss">&quot;</span>)</span></code></pre></div>
 <p>This pattern — SIEM alert → enrichment → EDR action — is the core
 loop of nearly every SOAR playbook, whether implemented as a script or a
-no-code workflow.</p>
+no-code workflow. A production version would add the enrichment step,
+error handling, and an approval gate for important hosts.</p>
 </blockquote>
 <h3
 id="infrastructure-as-code-and-configuration-management">Infrastructure
@@ -518,7 +667,7 @@ several advantages over console-managed infrastructure:</p>
 <li><strong>Drift detection.</strong> A CI/CD pipeline can continuously
 compare the declared state against the actual state and alert or
 auto-remediate when they diverge.</li>
-<li><strong>Pre-deployment scanning.</strong> Tools like Checkov, tfsec,
+<li><strong>Pre-deployment scanning.</strong> Tools like Checkov, Trivy,
 and Snyk IaC scan Terraform and CloudFormation files for
 misconfigurations (open security groups, unencrypted storage, public
 bucket ACLs) before they are ever deployed.</li>
@@ -532,23 +681,36 @@ Puppet) apply and enforce desired state on running systems — ensuring
 that every Linux server has the same SSH hardening configuration, that
 every Windows workstation has the same registry security baseline, and
 that deviations are automatically corrected or flagged.</p>
+<p>These tools read <strong>configuration files</strong>:
+<strong>YAML</strong> (Kubernetes manifests, Ansible playbooks, CI/CD
+pipelines), <strong>JSON</strong> (cloud templates, API payloads),
+<strong>XML</strong> (SCAP content, many enterprise tools), and
+<strong>TOML</strong> (Python and Rust project settings). All are plain
+text that can be version-controlled and peer-reviewed, but one misplaced
+indent in YAML can silently attach a setting to the wrong block, so lint
+and schema-validate before deploying.</p>
 <h3 id="soar-playbooks-and-runbooks">SOAR Playbooks and Runbooks</h3>
 <p><strong>Security Orchestration, Automation, and Response
-(SOAR)</strong> platforms (Splunk SOAR, Palo Alto XSOAR, IBM Security
-QRadar SOAR, Microsoft Sentinel Playbooks) provide a workflow engine
-that chains security tool APIs together in response to SIEM alerts. A
-<strong>playbook</strong> is the automated policy logic — “when a
-phishing alert fires, do X, then Y, then Z.” A <strong>runbook</strong>
-is the documented manual procedure that an analyst follows when the
-automation is not sufficient or when a human decision point is
-reached.</p>
+(SOAR)</strong> platforms (Splunk SOAR, Palo Alto Cortex XSOAR, IBM
+Security QRadar SOAR, Microsoft Sentinel playbooks) provide a workflow
+engine that chains security tool APIs together in response to SIEM
+alerts. A <strong>playbook</strong> is the automated policy logic —
+“when a phishing alert fires, do X, then Y, then Z.” A
+<strong>runbook</strong> is the documented manual procedure that an
+analyst follows when the automation is not sufficient or when a human
+decision point is reached. When a playbook acts by itself — isolating a
+host, disabling an account — without waiting for a person, that is
+<strong>auto-containment</strong>.</p>
 <p>The value of a SOAR is compression of the <strong>mean time to
-respond (MTTR)</strong>. Manual triage of a phishing alert — opening the
-email gateway console, extracting headers, checking VirusTotal, querying
-Active Directory for the recipient, quarantining the message,
-documenting the ticket — takes 20–45 minutes per alert. An automated
-SOAR playbook does the same workflow in under 30 seconds, at any hour,
-without fatigue.</p>
+respond (MTTR)</strong>, the average time from detection to containment.
+(Vendors also expand MTTR as mean time to <em>recover</em>,
+<em>remediate</em>, or <em>resolve</em>, so always check the definition
+in use.) Manual triage of a phishing alert — opening the email gateway
+console, extracting headers, checking VirusTotal, querying Active
+Directory for the recipient, quarantining the message, documenting the
+ticket — can take 20–45 minutes per alert. An automated SOAR playbook
+can run the same workflow in well under a minute, at any hour, without
+fatigue.</p>
 <p><img src="../assets/images/ch12_soar_phishing.png"
 alt="A SOAR phishing response playbook. When the email gateway fires a suspicious-message alert, the playbook automatically extracts indicators, checks them against threat intelligence, scores the confidence level, auto-quarantines the message, blocks identified URLs and IPs at the firewall and DNS sinkhole, notifies the reporting user, creates the SIEM incident record, and — if any endpoint made a click or download — isolates it via EDR. Human analyst escalation happens only when the confidence score is below threshold or when the situation requires judgment the playbook cannot provide." />
 <em>Figure 12.1: A SOAR phishing response playbook. When the email
@@ -565,8 +727,10 @@ requires judgment the playbook cannot provide.</em></p>
 Playbooks need version control, testing against historical alert data,
 and regular review as the environment changes. A stale playbook that
 auto-remediates based on outdated logic can be more dangerous than no
-automation at all — especially at the containment and blocking
-stages.</p>
+automation at all — especially at the containment and blocking stages.
+Auto-containment also needs guardrails: scope conditions that exclude
+sensitive accounts, and human approval for high-impact actions such as
+isolating a production server.</p>
 </blockquote>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong> <strong>Alice Liddell Automates
@@ -594,19 +758,18 @@ response action: <code>disable_ad_account(username)</code>,
 called the relevant vendor API and wrote a structured log entry that
 could be attached to the IR ticket automatically.</p>
 <p>She then connected those functions to the SOAR platform as named
-actions, and built a credential-stuffing playbook: when the SIEM fired
-an alert with the tag <code>credential_stuffing_suspected</code>, the
-playbook automatically disabled the flagged account in Active Directory,
-revoked all active Entra sessions, forced a password reset, created an
-incident ticket, and paged the on-call analyst with a pre-populated
-summary. The analyst’s job shifted from four manual steps across three
-consoles to a single acknowledgment decision: “does this alert look
-legitimate, or was it a false positive I should close?”</p>
-<p>During the next credential-stuffing campaign six weeks later, the
-same 20-minute attack window hit eight accounts. All eight were disabled
-automatically within 90 seconds of the SIEM alert firing — before any of
-them could be used to access production systems. Alice’s lesson:
-automation does not replace incident responders. It replaces the
+actions and built a credential-stuffing playbook: when the SIEM fired an
+alert tagged <code>credential_stuffing_suspected</code>, the playbook
+disabled the flagged account in Active Directory, revoked all active
+Entra sessions, forced a password reset, created an incident ticket, and
+paged the on-call analyst with a pre-populated summary. The analyst’s
+job shifted from four manual steps across three consoles to a single
+decision: real alert, or false positive to close?</p>
+<p>During the next credential-stuffing campaign six weeks later,
+attackers hit eight accounts in a 20-minute burst. All eight were
+disabled automatically within 90 seconds of the SIEM alert firing —
+before any of them could be used to access production systems. Alice’s
+lesson: automation does not replace incident responders. It replaces the
 mechanical parts of the job so responders can spend their time on the
 parts that actually require judgment.</p>
 </blockquote>
@@ -616,8 +779,8 @@ parts that actually require judgment.</p>
 <li><strong>Recall.</strong> What is the difference between a SOAR
 playbook and a runbook?</li>
 <li><strong>Discriminate.</strong> A SIEM alert automatically disables
-an AD account, revokes Entra sessions, and opens a ticket. What kind of
-system behavior is that?</li>
+an AD account, revokes Entra sessions, and opens a ticket, with no
+analyst involved. What kind of system behavior is that?</li>
 <li><strong>Apply.</strong> Your containment automation is fast but
 brittle and hard to audit. Name three engineering practices from the
 chapter that make that automation safer.</li>
@@ -631,13 +794,12 @@ chapter that make that automation safer.</li>
 <li>A <strong>playbook</strong> is the automated response logic in the
 SOAR platform, while a <strong>runbook</strong> is the documented manual
 procedure analysts follow when judgment is required.</li>
-<li><strong>A SOAR playbook executing automated response
-actions.</strong></li>
+<li><strong>Auto-containment by a SOAR playbook.</strong> A runbook
+would have an analyst perform those steps.</li>
 <li><strong>Version control, testing against historical alerts, and
 structured logging tied to the incident record</strong> are three key
-practices. The chapter also calls for human confirmation at
-containment-or-beyond stages where a bad decision can hurt
-operations.</li>
+practices. The chapter also calls for scope conditions and human
+approval on high-impact containment actions.</li>
 </ol>
 </details>
 <h3 id="generative-ai-for-security-operations">Generative AI for
@@ -649,10 +811,10 @@ workflow in several practical forms:</p>
 write and debug detection rules (Sigma, KQL, SPL) and response scripts
 faster, lowering the expertise barrier for less experienced team
 members.</li>
-<li><strong>Alert summarization.</strong> AI-powered SIEM integrations
-(Microsoft Copilot for Security, Splunk AI) can produce natural-language
-summaries of multi-event alert chains, saving the analyst five minutes
-of log-reading at triage time.</li>
+<li><strong>Alert summarization.</strong> AI-powered SIEM and SOC
+assistants (such as Microsoft Security Copilot) can produce
+natural-language summaries of multi-event alert chains, saving the
+analyst five minutes of log-reading at triage time.</li>
 <li><strong>Documentation.</strong> Generative AI drafts post-incident
 reports, runbook updates, and briefings from structured IR data,
 dramatically reducing the overhead of documentation.</li>
@@ -661,7 +823,9 @@ dramatically reducing the overhead of documentation.</li>
 number or misidentifies a benign process as malware can cause incorrect
 containment actions. Every AI-suggested action in a security workflow
 should have a human confirmation step at any containment-or-beyond
-stage.</p>
+stage. Treat AI-generated code like code from an unknown contributor:
+review and test it in a lab first, and do not paste secrets or sensitive
+logs into an external AI service unless policy allows it.</p>
 <hr />
 <h2 id="how-do-we-measure-exposure-and-automate-remediation">How Do We
 Measure Exposure and Automate Remediation?</h2>
@@ -671,11 +835,11 @@ misconfigurations, and missing patches. The two dominant deployment
 patterns are:</p>
 <ul>
 <li><strong>Authenticated (credentialed) scanning.</strong> The scanner
-is given read-level credentials to the target — a local administrator on
-Windows, an SSH key on Linux — and reads the installed package list,
-registry settings, and service configurations directly. Credentialed
-scans are dramatically more accurate and complete than unauthenticated
-scans.</li>
+is given a dedicated, least-privilege scan account on the target
+(administrative-equivalent read access on Windows, an SSH key with
+limited sudo on Linux) and reads the installed package list, registry
+settings, and service configurations directly. Credentialed scans are
+dramatically more accurate and complete than unauthenticated scans.</li>
 <li><strong>Unauthenticated (network) scanning.</strong> The scanner
 probes from the network, inferring vulnerability status from service
 banners, TCP responses, and protocol behavior. Useful for discovering
@@ -692,6 +856,23 @@ programs combine scheduled credentialed scans (weekly or daily) with
 agent-based continuous assessment (real-time on every endpoint) for a
 much more current picture.</p>
 </blockquote>
+<p><strong>Reporting and metrics</strong> turn findings into decisions.
+<strong>Dashboards</strong> and other <strong>visualizations</strong>
+should show open findings by severity and asset group, scan coverage,
+mean time to remediate, and findings past their deadline. Trends matter
+more than snapshots: a rising total means findings arrive faster than
+they are fixed.</p>
+<p><strong>Automated patching</strong> closes the loop from finding to
+fix. It must cover every layer: the <strong>operating system</strong>,
+application <strong>software</strong>, the <strong>hypervisor</strong>,
+<strong>firmware</strong>, and the <strong>system images</strong> new
+machines are built from. A safe process patches a pilot group first,
+uses maintenance windows, confirms the result with a follow-up scan, and
+keeps a rollback path. It can run on a schedule or be event-driven, such
+as a pipeline that rebuilds an image when a patched base image is
+published. KEV-listed flaws warrant an out-of-band emergency patch;
+systems that cannot be patched should be isolated with compensating
+controls.</p>
 <p><strong>Containerization in automated security workflows</strong>
 provides another lever. Instead of installing scanning tools directly
 onto production systems, security workflows increasingly run tools as
@@ -706,16 +887,69 @@ Respond to an Active Security Incident?</h2>
 <p><strong>Incident response (IR)</strong> is the organized process of
 detecting, containing, eradicating, and recovering from security
 incidents while preserving evidence and learning from the experience.
-The authoritative U.S. government standard is <strong>NIST Special
-Publication 800-61r2</strong>, which defines a four-phase lifecycle that
-most organizations use as a baseline.</p>
+The classic reference model is the four-phase lifecycle in <strong>NIST
+SP 800-61 Rev. 2</strong> (2012). In April 2025 NIST replaced it with
+<strong>SP 800-61 Rev. 3</strong>, a <strong>CSF 2.0 community
+profile</strong> that maps incident response onto the six Functions of
+the Cybersecurity Framework 2.0: Govern, Identify, and Protect
+(preparation, treated as everyday risk management) and Detect, Respond,
+and Recover (the incident itself), with lessons learned flowing back as
+<em>Improvement</em> <span class="citation"
+data-cites="nist-sp800-61r3-2025 nist-csf-2-2024">(<a
+href="#ref-nist-sp800-61r3-2025" role="doc-biblioref">Nelson et al.
+2025</a>; <a href="#ref-nist-csf-2-2024" role="doc-biblioref">National
+Institute of Standards and Technology 2024</a>)</span>. Most playbooks,
+vendors, and exam questions still use the four-phase model, so this
+section follows it; Table 12.3 shows the mapping.</p>
 <p><img src="../assets/images/ch12_nist_ir_lifecycle.png"
-alt="A commonly used incident-response lifecycle cycles through four phases: Preparation (before incidents occur), Detection and Analysis (identifying and scoping the incident), Containment/Eradication/Recovery (stopping the damage and restoring operations), and Post-Incident Activity (learning from the event). The cycle is deliberately continuous — lessons learned feed directly back into preparation for the next incident." />
-<em>Figure 12.2: A commonly used incident-response lifecycle with four
-phases: Preparation, Detection and Analysis,
-Containment/Eradication/Recovery, and Post-Incident Activity. The cycle
-is deliberately continuous — lessons learned feed directly back into
-preparation for the next incident.</em></p>
+alt="The classic NIST SP 800-61 Rev. 2 incident-response lifecycle cycles through four phases: Preparation (before incidents occur), Detection and Analysis (identifying and scoping the incident), Containment/Eradication/Recovery (stopping the damage and restoring operations), and Post-Incident Activity (learning from the event). A two-way arrow between Detection and Analysis and Containment shows that responders loop back to analysis as containment uncovers new evidence. The cycle is deliberately continuous — lessons learned feed directly back into preparation for the next incident." />
+<em>Figure 12.2: The classic incident-response lifecycle from NIST SP
+800-61 Rev. 2, with four phases: Preparation, Detection and Analysis,
+Containment/Eradication/Recovery, and Post-Incident Activity. Rev. 3
+superseded it in 2025, but it remains the most common way to teach and
+structure IR. Detection/analysis and containment loop back and forth as
+new evidence appears, and the cycle is deliberately continuous — lessons
+learned feed directly back into preparation for the next
+incident.</em></p>
+<table>
+<caption>Table 12.3: Mapping the classic four-phase lifecycle onto NIST SP
+800-61 Rev. 3. The mapping is approximate: Rev. 3 treats incident
+response as an ongoing part of risk management, not a separate four-step
+sequence.</caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" style="text-align: left;">Classic Phase (Rev. 2)</th>
+<th scope="col" style="text-align: left;">Closest Counterpart in Rev. 3 (CSF
+2.0)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row" style="text-align: left;">Preparation</th>
+<td style="text-align: left;">Govern, Identify, Protect</td>
+</tr>
+<tr>
+<th scope="row" style="text-align: left;">Detection and Analysis</th>
+<td style="text-align: left;">Detect (analyze adverse events, declare an
+incident), then Respond (incident analysis)</td>
+</tr>
+<tr>
+<th scope="row" style="text-align: left;">Containment, Eradication, and
+Recovery</th>
+<td style="text-align: left;">Respond (mitigation: contain and
+eradicate), then Recover</td>
+</tr>
+<tr>
+<th scope="row" style="text-align: left;">Post-Incident Activity</th>
+<td style="text-align: left;">Improvement (category ID.IM), which feeds
+lessons into all six Functions</td>
+</tr>
+</tbody>
+</table>
 <h3 id="phase-1-preparation">Phase 1: Preparation</h3>
 <p><strong>Preparation</strong> happens before any incident. An IR
 program that begins at the moment of detection is already too late. Key
@@ -738,19 +972,28 @@ may be the compromised system.</li>
 or forensic kit pre-loaded with write-blockers, bootable forensic media,
 clean storage drives, and documented tool installations on hardened
 analysis workstations.</li>
-<li><strong>Tabletop exercises.</strong> Regular simulated incident
-scenarios run with the IR team, leadership, legal, PR, and any
-regulatory-contact functions. Tabletops surface coordination failures
-before real incidents do.</li>
+<li><strong>Preparedness exercises.</strong> Regular simulated incidents
+run with the IR team, leadership, legal, and PR. A <em>tabletop</em>
+talks through a scenario; a <em>functional exercise</em> has responders
+use their real tools (for example, isolating a test host); a
+<em>full-scale exercise</em> tests people, process, and technology
+together, sometimes with a red or purple team as the attacker. Exercises
+surface coordination failures before real incidents do.</li>
 </ul>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> The legal function must be involved in
 IR planning before any incident. Attorney-client privilege may extend to
 IR reports if legal counsel is part of the investigation. Breach
-notification timelines are regulated (GDPR requires 72-hour notification
-to supervisory authorities; many U.S. states have their own timelines).
-Nobody should be learning those requirements for the first time at 2
-a.m. during an active ransomware attack.</p>
+notification timelines are regulated (for example, GDPR requires
+notifying the supervisory authority within 72 hours of becoming aware of
+a breach that puts individuals at risk; U.S. public companies must file
+a Form 8-K within four business days of determining an incident is
+material <span class="citation"
+data-cites="sec-cyber-disclosure-2023">(<a
+href="#ref-sec-cyber-disclosure-2023" role="doc-biblioref">U.S.
+Securities and Exchange Commission 2023</a>)</span>; many U.S. states
+set their own deadlines). Nobody should be learning those requirements
+for the first time at 2 a.m. during an active ransomware attack.</p>
 </blockquote>
 <h3 id="phase-2-detection-and-analysis">Phase 2: Detection and
 Analysis</h3>
@@ -776,18 +1019,36 @@ environment.</li>
 (IP addresses, domains, file hashes, registry keys, process names) from
 the malware analysis and log correlation to feed the containment and
 blocking steps.</li>
+<li><strong>Reverse engineering.</strong> When a sandbox report is not
+enough, analysts take the sample apart. <em>Static analysis</em>
+examines the file without running it: a <strong>disassembler</strong>
+turns machine code into assembly, and a <strong>decompiler</strong>
+reconstructs readable, C-like source (Ghidra and IDA are common tools).
+Managed-runtime <strong>bytecode</strong> (Java, .NET) decompiles into
+near-original source, far more easily than a native
+<strong>binary</strong>. <em>Dynamic analysis</em> runs the sample under
+a debugger or sandbox.</li>
+<li><strong>Code stylometry and variant matching.</strong>
+Code-similarity measures (fuzzy hashes, shared functions) link a sample
+to known <strong>variants</strong>; <strong>code stylometry</strong>
+studies programming habits to support attribution, but attackers can
+plant false flags, so treat attribution as probabilistic.</li>
+<li><strong>Timeline reconstruction.</strong> Merge events from every
+source into one ordered story: normalize timestamps to UTC, allow for
+clock skew, and work outward from the earliest known malicious event.
+Tools such as Plaso (log2timeline) build a “super timeline.”</li>
 </ul>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> An analyst receives an EDR alert: a
 PowerShell process on a workstation contacted an external IP not seen in
 the network baseline, then wrote a new DLL to <code>%APPDATA%</code>.
-The analyst submits the DLL hash to a sandbox. The sandbox report shows
+The analyst submits the DLL to a sandbox. The sandbox report shows that
 the DLL:</p>
 <ul>
-<li>Queries <code>ipconfig /all</code> (reconnaissance)</li>
+<li>Runs <code>ipconfig /all</code> (reconnaissance)</li>
 <li>Makes an encrypted outbound connection to 198.51.100.47:443</li>
 <li>Attempts to read the LSASS process memory (credential dumping
-attempt — MITRE T1003)</li>
+attempt — MITRE ATT&amp;CK T1003.001)</li>
 <li>Drops a persistence registry key under
 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code></li>
 </ul>
@@ -844,6 +1105,10 @@ fail?</li>
 incident?</li>
 <li>What metrics update (MTTD, MTTR) and what is the trend?</li>
 </ul>
+<p><strong>Root cause analysis (RCA)</strong> asks <em>why</em>, not
+just <em>what</em>. Keep asking “why?” (the “five whys”) until you reach
+a cause you can fix: “an employee clicked a link” is not a root cause;
+“the gateway did not detonate attachments” is.</p>
 <p>The output is a formal <strong>post-incident report (PIR)</strong> —
 also sometimes called an after-action report (AAR) — that documents
 findings and assigns owners to each remediation item.</p>
@@ -877,7 +1142,7 @@ Vulnerability Management and IR</strong></p>
 the most consequential data breaches in U.S. history — 147 million
 consumers’ personal records, including Social Security numbers, birth
 dates, addresses, and driver’s license numbers, were exfiltrated by
-attackers who maintained undetected access for 78 days <span
+attackers who maintained undetected access for 76 days <span
 class="citation"
 data-cites="house-equifax-report-2018 ftc-equifax-settlement-2019">(<a
 href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
@@ -898,36 +1163,35 @@ href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
 Committee on Oversight and Government Reform 2018</a>; <a
 href="#ref-ftc-equifax-settlement-2019" role="doc-biblioref">Federal
 Trade Commission 2019</a>)</span>.</p>
-<p>The breach went undetected for 78 days partly because SSL inspection
-on a load balancer had been disabled — an expired internal certificate
-had broken the inspection capability nine months earlier, and nobody had
-fixed it. As a result, encrypted attacker traffic traversing the network
-was never decrypted and examined. When the SSL inspection was re-enabled
-as part of an unrelated maintenance window in late July, the inspected
-traffic immediately revealed the attack <span class="citation"
+<p>The breach went undetected for 76 days partly because SSL inspection
+on the device monitoring the portal’s traffic was broken — an expired
+certificate had disabled it 19 months earlier, and nobody had fixed it.
+As a result, encrypted attacker traffic traversing the network was never
+decrypted and examined. When the certificate was renewed and SSL
+inspection resumed in late July, the inspected traffic immediately
+revealed the attack <span class="citation"
 data-cites="house-equifax-report-2018">(<a
 href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
 Committee on Oversight and Government Reform 2018</a>)</span>.</p>
-<p>The congressional and regulatory aftermath was scathing. The FTC
-settlement totaled at least $575 million, and the CEO, CIO, and CSO all
-resigned. Congressional investigators and regulators pointed to
-recurring root causes: failure to implement a scanning process that
-would have caught the unpatched server, failure to renew and enforce the
-SSL inspection certificate, an overly flat internal network that allowed
-lateral movement once the portal was compromised, and an
-incident-response process with no effective mechanism for verifying that
-critical patch obligations had actually been met <span class="citation"
+<p>The aftermath was severe. The 2019 settlement with the FTC, the CFPB,
+and U.S. states totaled at least $575 million (up to $700 million if the
+consumer fund fell short), and the CEO, CIO, and chief security officer
+all stepped down. Investigators pointed to recurring root causes:
+scanning that failed to catch the unpatched server, a lapsed inspection
+certificate, a flat internal network that allowed lateral movement, and
+a patch-management process with no way to verify that critical patches
+had actually been applied <span class="citation"
 data-cites="house-equifax-report-2018 ftc-equifax-settlement-2019">(<a
 href="#ref-house-equifax-report-2018" role="doc-biblioref">U.S. House
 Committee on Oversight and Government Reform 2018</a>; <a
 href="#ref-ftc-equifax-settlement-2019" role="doc-biblioref">Federal
 Trade Commission 2019</a>)</span>.</p>
-<p>The Equifax breach remains the canonical case study for vulnerability
-management failure because every one of its root causes — a missed
-patch, an expired certificate, a flat network, and an unverified process
-— is a <em>systematic</em> failure, not a one-off mistake. Each one was
-individually detectable and correctable with the operational controls
-that a mature vulnerability management program provides.</p>
+<p>Equifax remains the canonical case study for vulnerability management
+failure because every root cause — a missed patch, an expired
+certificate, a flat network, and an unverified process — is a
+<em>systematic</em> failure, not a one-off mistake, and each was
+detectable and correctable with the controls a mature program
+provides.</p>
 </blockquote>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong> Equifax had a policy requiring
@@ -955,7 +1219,7 @@ running):</p>
 captures all running processes, their loaded DLLs, decrypted keys and
 credentials in memory, active network connections, and artifacts that
 file-system analysis would never reveal. Tools: WinPmem, DumpIt, Magnet
-RAM Capture. Analysis: Volatility Framework (open source), Rekall.</li>
+RAM Capture. Analysis: Volatility 3 (open source).</li>
 <li><strong>Running process list.</strong> <code>tasklist</code>,
 <code>ps aux</code>, EDR process tree.</li>
 <li><strong>Open network connections.</strong> <code>netstat -an</code>
@@ -974,9 +1238,12 @@ forensic image is hashed (SHA-256) before and after acquisition to
 establish integrity. Analysis tools: Autopsy, FTK (Forensic Toolkit),
 X-Ways.</li>
 <li><strong>File system artifacts.</strong> Deleted file recovery, file
-access timestamps (MACTIME — Modified, Accessed, Changed, Created),
-browser history, registry hives (Windows), shell history
-(Linux/macOS).</li>
+timestamps (MACB times — Modified, Accessed, metadata Changed,
+Born/created), browser history, registry hives (Windows), shell history
+(Linux/macOS). <strong>Data recovery and extraction</strong> matters
+here: deleted files can often be <em>carved</em> from unallocated space,
+though SSD TRIM and full-disk encryption can defeat this — another
+reason to capture RAM (and any keys in it) first.</li>
 <li><strong>Log files.</strong> Windows Event Log (<code>.evtx</code>),
 Linux syslog, application logs — captured as part of the disk image or
 shipped live to the SIEM.</li>
@@ -998,9 +1265,10 @@ clears the network state table.</li>
 <li><strong>Hash and chain-of-custody tag</strong> the volatile
 captures.</li>
 <li><strong>Attach write-blocker</strong> to the storage device.</li>
-<li><strong>Acquire disk image.</strong>
-<code>dd if=/dev/sda of=/evidence/host-disk.img bs=512</code> (or use
-FTK Imager on Windows).</li>
+<li><strong>Acquire disk image.</strong> Behind the write-blocker the
+drive appears as a separate device (here <code>/dev/sdb</code>):
+<code>dd if=/dev/sdb of=/evidence/host-disk.img bs=4M conv=noerror,sync</code>
+(or use FTK Imager on Windows).</li>
 <li><strong>Compute hash.</strong>
 <code>sha256sum /evidence/host-disk.img &gt; host-disk.sha256</code></li>
 <li><strong>Document</strong> start time, analyst name, tool version,
@@ -1034,7 +1302,12 @@ mechanisms.</li>
 documents, images, and email headers. An image taken with a smartphone
 may contain GPS coordinates, device model, and timestamp in its EXIF
 data. A leaked Office document may contain the author’s username,
-organization name, and revision history in its metadata.</p>
+organization name, and revision history in its metadata. An
+<strong>email header</strong> records every server that handled a
+message (the <code>Received</code> lines, read bottom-up) plus SPF,
+DKIM, and DMARC results, which helps expose spoofing. Audio and video
+files carry creation time, device, and encoding details whose
+inconsistencies can show editing or synthesis.</p>
 <p><strong>Cloud workload analysis</strong> is increasingly a forensics
 discipline in its own right. In cloud environments, traditional disk
 acquisition is often replaced by:</p>
@@ -1047,6 +1320,10 @@ control plane — who called what, from which IP, at what time.</li>
 <li><strong>Container forensics.</strong> Docker images can be exported
 and analyzed layer by layer; Kubernetes audit logs record pod and secret
 access events.</li>
+<li><strong>Cloud workload protection platforms (CWPP).</strong> Agents
+on VMs, containers, and serverless functions that scan workloads and
+record runtime process and network activity; for short-lived containers,
+that may be the only host evidence left.</li>
 </ul>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> <strong>Chain of custody</strong> is not
@@ -1115,18 +1392,14 @@ disciplined vulnerability program shrinks the attack surface, automation
 compresses the window between detection and containment, and a
 well-practiced IR program turns each incident into organizational
 learning that makes the next one less likely and less damaging.</p>
-<p>The Equifax case study stands as a reminder that technical
-sophistication is not a substitute for operational discipline. A known
-vulnerability, a missed patch, an expired certificate, and an unverified
-process combined to produce one of the largest data breaches in U.S.
-history. Every one of those failure modes is detectable and correctable
-with the controls covered in this chapter.</p>
-<p>Alice Liddell’s automation program at Wonderland Logistics
-illustrates the other side: automation does not replace human judgment,
-but it compresses the mechanical parts of incident response — the parts
-that are time-critical and fatigue-sensitive — to seconds, freeing
-skilled analysts for the parts of the problem that actually require a
-human mind.</p>
+<p>The Equifax case shows that technical sophistication is no substitute
+for operational discipline: a known vulnerability, a missed patch, an
+expired certificate, and an unverified process combined into one of the
+largest breaches in U.S. history. Alice Liddell’s program at Wonderland
+Logistics shows the other side: automation does not replace human
+judgment, but it compresses the mechanical, time-critical parts of
+response to seconds so skilled analysts can focus on the parts that need
+a human mind.</p>
 <h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
 <li><strong>SQL Injection:</strong> A vulnerability class where
@@ -1144,8 +1417,17 @@ services. Fixed with URL allow-listing.</li>
 <li><strong>CVE (Common Vulnerabilities and Exposures):</strong> The
 standardized naming system for publicly disclosed vulnerabilities.</li>
 <li><strong>CVSS (Common Vulnerability Scoring System):</strong> The
-0–10 severity scoring system for CVEs, comprising base, temporal, and
-environmental metric groups.</li>
+0–10 severity scoring system for CVEs, comprising base, temporal/threat,
+and environmental metric groups (plus supplemental in v4.0).</li>
+<li><strong>CPE (Common Platform Enumeration):</strong> A standardized
+naming scheme for hardware, operating systems, and applications, so
+scanners can precisely identify affected products.</li>
+<li><strong>KEV (Known Exploited Vulnerabilities) Catalog:</strong>
+CISA’s list of CVEs with reliable evidence of active exploitation, used
+as a patch-first list.</li>
+<li><strong>EPSS (Exploit Prediction Scoring System):</strong> A
+FIRST-maintained model estimating the probability that a CVE will be
+exploited in the wild within 30 days.</li>
 <li><strong>SCAP (Security Content Automation Protocol):</strong> NIST
 suite of standards (CVE, CVSS, CPE, OVAL, XCCDF) enabling automated
 vulnerability scanning and compliance assessment.</li>
@@ -1158,6 +1440,9 @@ checklists (e.g., CIS Benchmarks).</li>
 <li><strong>SBoM (Software Bill of Materials):</strong> A
 machine-readable inventory of every component and dependency in a
 software artifact.</li>
+<li><strong>VEX (Vulnerability Exploitability eXchange):</strong> A
+vendor statement of whether a specific CVE actually affects a specific
+product.</li>
 <li><strong>SOAR (Security Orchestration, Automation, and
 Response):</strong> A platform that chains security tool APIs together
 into automated playbooks triggered by SIEM alerts.</li>
@@ -1170,15 +1455,19 @@ reached.</li>
 version-controlled definition of infrastructure (Terraform,
 CloudFormation) enabling drift detection and pre-deployment security
 scanning.</li>
-<li><strong>NIST SP 800-61 Rev. 3:</strong> The current NIST
-incident-response publication, which frames incident-response
-recommendations as a CSF 2.0 community profile.</li>
+<li><strong>NIST SP 800-61 Rev. 3:</strong> NIST’s current
+incident-response publication (April 2025), which superseded the
+four-phase Rev. 2 and frames incident response as a CSF 2.0 community
+profile.</li>
 <li><strong>Order of Volatility:</strong> The principle that evidence
 most likely to disappear first (RAM, network state) must be captured
 before less volatile evidence (disk image, log files).</li>
 <li><strong>Malware Sandbox:</strong> An isolated execution environment
 that detonates suspicious files, captures their behavioral profile, and
 scores maliciousness without risking production systems.</li>
+<li><strong>Reverse Engineering:</strong> Taking a program apart with
+disassemblers, decompilers, and debuggers to learn what it does when no
+source code is available.</li>
 <li><strong>Chain of Custody:</strong> The documented, unbroken record
 of evidence collection, handling, and access that establishes legal
 admissibility of forensic findings.</li>
@@ -1335,20 +1624,25 @@ starting point because every entry has confirmed in-the-wild
 exploitation — these are real, not theoretical.</li>
 <li>Read the NVD entry for that CVE at <a
 href="https://nvd.nist.gov">nvd.nist.gov</a>, but <strong>scroll past
-the published CVSS vector</strong>. Read only the description.</li>
+the published CVSS vector</strong>. Read only the description. (NVD
+prioritizes KEV entries for enrichment, so a KEV pick will usually have
+an NVD score to check against.)</li>
 <li>Open the FIRST CVSS v3.1 calculator at <a
 href="https://www.first.org/cvss/calculator/3.1">first.org/cvss/calculator/3.1</a>
 and score the vulnerability yourself from the description alone — Attack
 Vector, Attack Complexity, Privileges Required, User Interaction, Scope,
-and the C/I/A impact metrics.</li>
-<li>Now reveal the NVD-published vector and compare. Where did you
-differ, and which metric was the closest call? Read the CVE description
-again with the gap in mind — is the description ambiguous, or did you
-misread?</li>
-<li>Then answer: what <strong>CWE</strong> weakness class does this
-vulnerability fall into? Find one architectural mitigation from this
-chapter that would neutralize the whole class, not just this specific
-CVE.</li>
+and the C/I/A impact metrics. (If the record publishes only a v4.0
+vector, use the v4.0 calculator linked from <a
+href="https://www.first.org/cvss/">first.org/cvss</a> instead; v4.0 adds
+Attack Requirements and drops Scope.)</li>
+<li>Now reveal the published vector (NVD’s, or the vendor’s if NVD has
+not analyzed the CVE) and compare. Where did you differ, and which
+metric was the closest call? Read the CVE description again with the gap
+in mind — is the description ambiguous, or did you misread?</li>
+<li>Then answer: what <strong>CWE</strong> (Common Weakness Enumeration)
+weakness class does this vulnerability fall into? Find one architectural
+mitigation from this chapter that would neutralize the whole class, not
+just this specific CVE.</li>
 </ol>
 <p><strong>Safety:</strong> This activity is read-only. Do not download
 proof-of-concept exploit code from links in NVD references; reading
@@ -1392,12 +1686,59 @@ what a tabletop needs.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-cisa-kev-bod-22-01-2021" class="csl-entry" role="listitem">
+Cybersecurity and Infrastructure Security Agency. 2021. <em>Binding
+Operational Directive 22-01: Reducing the Significant Risk of Known
+Exploited Vulnerabilities</em>. <a
+href="https://www.cisa.gov/news-events/directives/bod-22-01-reducing-significant-risk-known-exploited-vulnerabilities">https://www.cisa.gov/news-events/directives/bod-22-01-reducing-significant-risk-known-exploited-vulnerabilities</a>.
+</div>
+<div id="ref-cisa-log4j-guidance-2022" class="csl-entry"
+role="listitem">
+Cybersecurity and Infrastructure Security Agency. 2022. <em>Apache Log4j
+Vulnerability Guidance</em>. <a
+href="https://www.cisa.gov/news-events/news/apache-log4j-vulnerability-guidance">https://www.cisa.gov/news-events/news/apache-log4j-vulnerability-guidance</a>.
+</div>
+<div id="ref-cisa-ssvc-2022" class="csl-entry" role="listitem">
+Cybersecurity and Infrastructure Security Agency. n.d.
+<em>Stakeholder-Specific Vulnerability Categorization (SSVC)</em>.
+Accessed October 29, 2026. <a
+href="https://www.cisa.gov/ssvc">https://www.cisa.gov/ssvc</a>.
+</div>
 <div id="ref-ftc-equifax-settlement-2019" class="csl-entry"
 role="listitem">
 Federal Trade Commission. 2019. <em>Equifax to Pay $575 Million as Part
 of Settlement with FTC, CFPB, and States Related to 2017 Data
 Breach</em>. <a
 href="https://www.ftc.gov/news-events/news/press-releases/2019/07/equifax-pay-575-million-part-settlement-ftc-cfpb-states-related-2017-data-breach">https://www.ftc.gov/news-events/news/press-releases/2019/07/equifax-pay-575-million-part-settlement-ftc-cfpb-states-related-2017-data-breach</a>.
+</div>
+<div id="ref-first-cvss-v4-2023" class="csl-entry" role="listitem">
+Forum of Incident Response and Security Teams. 2023. <em>Common
+Vulnerability Scoring System Version 4.0: Specification Document</em>.
+<span>FIRST</span>. <a
+href="https://www.first.org/cvss/v4.0/specification-document">https://www.first.org/cvss/v4.0/specification-document</a>.
+</div>
+<div id="ref-first-epss-2025" class="csl-entry" role="listitem">
+Forum of Incident Response and Security Teams. 2025. <em>Exploit
+Prediction Scoring System (EPSS)</em>. <a
+href="https://www.first.org/epss/">https://www.first.org/epss/</a>.
+</div>
+<div id="ref-aws-imdsv2-2019" class="csl-entry" role="listitem">
+MacCárthaigh, Colm. 2019. <em>Add Defense in Depth Against Open
+Firewalls, Reverse Proxies, and SSRF Vulnerabilities with Enhancements
+to the EC2 Instance Metadata Service</em>. <span>AWS Security
+Blog</span>. <a
+href="https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/">https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/</a>.
+</div>
+<div id="ref-nist-csf-2-2024" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2024. <em>Cybersecurity
+Framework 2.0</em>. NIST CSWP 29. <span>National Institute of Standards
+and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.CSWP.29">https://doi.org/10.6028/NIST.CSWP.29</a>.
+</div>
+<div id="ref-nist-nvd-2026" class="csl-entry" role="listitem">
+National Institute of Standards and Technology. 2026. <em>NIST Updates
+NVD Operations to Address Record CVE Growth</em>. <a
+href="https://www.nist.gov/news-events/news/2026/04/nist-updates-nvd-operations-address-record-cve-growth">https://www.nist.gov/news-events/news/2026/04/nist-updates-nvd-operations-address-record-cve-growth</a>.
 </div>
 <div id="ref-nist-sp800-61r3-2025" class="csl-entry" role="listitem">
 Nelson, Alexander, Sanjay Rekhi, Murugiah Souppaya, and Karen Scarfone.
@@ -1407,12 +1748,31 @@ Cybersecurity Risk Management: A CSF 2.0 Community Profile</em>. NIST SP
 Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.800-61r3">https://doi.org/10.6028/NIST.SP.800-61r3</a>.
 </div>
+<div id="ref-owasp-top10-2025" class="csl-entry" role="listitem">
+OWASP Foundation. 2025. <em>OWASP Top 10:2025</em>. <a
+href="https://owasp.org/Top10/2025/">https://owasp.org/Top10/2025/</a>.
+</div>
 <div id="ref-house-equifax-report-2018" class="csl-entry"
 role="listitem">
 U.S. House Committee on Oversight and Government Reform. 2018. <em>The
 Equifax Data Breach</em>. <span>U.S. House Committee on Oversight and
 Government Reform</span>. <a
 href="https://www.govinfo.gov/app/details/GOVPUB-Y4_G74_7-PURL-gpo191321">https://www.govinfo.gov/app/details/GOVPUB-Y4_G74_7-PURL-gpo191321</a>.
+</div>
+<div id="ref-sec-cyber-disclosure-2023" class="csl-entry"
+role="listitem">
+U.S. Securities and Exchange Commission. 2023. <em>Cybersecurity Risk
+Management, Strategy, Governance, and Incident Disclosure (Release Nos.
+33-11216; 34-97989)</em>. <a
+href="https://www.sec.gov/files/rules/final/2023/33-11216.pdf">https://www.sec.gov/files/rules/final/2023/33-11216.pdf</a>.
+</div>
+<div id="ref-nist-sp800-126r3-2018" class="csl-entry" role="listitem">
+Waltermire, David, Stephen Quinn, Harold Booth, Karen Scarfone, and
+Dragos Prisaca. 2018. <em>The Technical Specification for the Security
+Content Automation Protocol (SCAP): SCAP Version 1.3</em>. NIST SP
+800-126 Rev. 3. <span>National Institute of Standards and
+Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-126r3">https://doi.org/10.6028/NIST.SP.800-126r3</a>.
 </div>
 </div>
 
