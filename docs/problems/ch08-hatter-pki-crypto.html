@@ -31,7 +31,7 @@
 <li><strong>Root CA posture.</strong> The root signing key still lives on the issuance system, 24/7. Same blast radius as any production server; not what 'root' is supposed to mean.</li>
 <li><strong>Renewals.</strong> Manual every 90 days via emailed CSRs. Three were missed in the last year. We have been 'going to automate this' since 2023.</li>
 <li><strong>Revocation path.</strong> Every TLS client hits the CA's OCSP responder directly on each new connection. Adds ~200 ms. CA outage = our outage.</li>
-<li><strong>Legacy CN reliance.</strong> Two production certs name their hostname only in the Common Name field — the SAN extension is empty. Modern browsers ignore CN entirely, so only a few legacy clients still accept these.</li>
+<li><strong>Legacy CN reliance.</strong> Two production certs name their hostname only in the Common Name field — the certificate extension meant to list valid hostnames is empty. Modern browsers ignore CN entirely, so only a few legacy clients still accept these.</li>
 <li><strong>Bulk object encryption.</strong> AES-256-CBC with no integrity tag. Last pen test flagged padding-oracle exposure on the decrypt API; the report is six months old and nobody has prioritized it.</li>
 </ul>
 <h3>Next</h3>
