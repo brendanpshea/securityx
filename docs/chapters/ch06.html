@@ -1316,124 +1316,91 @@ scenario form.
 </div>
 </div>
 <h3 id="synthesis-activities">Synthesis Activities</h3>
-<p>These are open-ended activities meant to extend the chapter beyond
-what a search engine — or a chatbot — can answer on its own. Each works
-individually or in a group; the goal is the conversation, the debate, or
-the artifact, not a paper about it. Activities marked with <em>No one to
-interview?</em> or <em>Studying alone?</em> sidebars include AI-based
-alternatives — used here as a sparring partner, role-player, or
-facilitator, not as a source.</p>
+<p>These open-ended activities extend the chapter beyond what a search
+engine or chatbot can answer. Each works alone or in a group, and the
+goal is the conversation, debate, or artifact itself. Sidebars show how
+to use a chatbot as a practice partner, never as a source (Chapter 0
+explains how).</p>
 <h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
 hour)</em></h4>
 <p>Talk to someone who works at the lifecycle, supply chain, or hardware
 security layer — an application security engineer, build/release
-engineer, third-party risk officer, firmware engineer, hardware security
-researcher, or product security lead. A few questions worth asking, in
-roughly this order:</p>
+engineer, third-party risk officer, or firmware engineer. Three
+questions worth asking:</p>
 <ul>
-<li>Walk me through what a release looks like in your environment, from
-a developer’s commit to a signed artifact in production. Where are the
-human checkpoints, and where are they purely automated?</li>
+<li>Walk me through a release in your environment, from a developer’s
+commit to a signed artifact in production. Where are the human
+checkpoints, and where is it purely automated?</li>
 <li>What does your software bill of materials actually contain, who
 updates it, and who reads it?</li>
-<li>When did a third-party dependency or vendor most recently make your
-week worse, and what did the response look like?</li>
 <li>What hardware-trust assumption (TPM, secure boot, signed firmware)
-does your environment depend on most heavily, and what would happen if
-that assumption were violated?</li>
-<li>What’s one thing the secure-SDLC literature gets wrong about how
-this work actually gets done?</li>
+does your environment depend on most, and what happens if it is
+violated?</li>
 </ul>
-<p>Listen for the gap between the lifecycle as drawn — requirements,
-design, code, test, deploy, monitor — and the lifecycle as lived, where
-the boundaries blur and the supply chain extends much further than the
-org chart admits.</p>
+<p>Listen for the gap between the lifecycle as drawn and as lived, where
+the supply chain extends further than the org chart admits.</p>
 <blockquote>
-<p><em>No one to interview?</em> Run the conversation with a chatbot in
-role. A prompt that works: <em>“You are the head of product security at
-a mid-sized SaaS company. You own the SDLC, the third-party risk
-program, and the supply chain security program. You have lived through
-one near-miss with a malicious dependency. I’m interviewing you for a
-class. Answer in character. When I ask something a real product security
-lead would not actually know — especially about hardware-level details
-outside their direct work — say so.”</em> The rehearsal exposes which of
-your questions confuse SDLC scope with supply chain scope with hardware
-scope.</p>
+<p><em>No one to interview?</em> Rehearse with a chatbot playing the
+head of product security at a mid-sized SaaS company who has lived
+through a malicious-dependency near-miss. It exposes which questions
+confuse SDLC, supply chain, and hardware scope.</p>
 </blockquote>
 <h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
 <p>Pick the position you find <em>least</em> sympathetic and argue it as
-well as you can:</p>
+well as you can (in class, assign positions and go live):</p>
 <ul>
 <li>Software bills of materials should be legally mandated for every
-commercial software product, with regulatory penalties for inaccuracy.
-Without that mandate, supply chain risk is invisible to the buyers who
-actually carry the downstream impact.</li>
-<li>Mandated SBOMs are compliance theater. They produce documents that
-nobody reads, do not capture the runtime behavior that actually matters,
-and shift attention away from the harder problems of build provenance
-and reproducible builds.</li>
+commercial software product, with penalties for inaccuracy. Without a
+mandate, supply chain risk stays invisible to the buyers who carry the
+downstream impact.</li>
+<li>Mandated SBOMs are compliance theater. They produce documents nobody
+reads, ignore the runtime behavior that matters, and distract from the
+harder problems of build provenance and reproducible builds.</li>
 <li>The whole framing is wrong. Both sides treat the supply chain as a
-documentation problem, when it is really an economics problem:
-open-source maintainers are unpaid, commercial vendors are
-under-incentivized to invest in security, and no amount of documentation
-fixes the underlying asymmetry between who creates risk and who bears
+documentation problem when it is an economics problem: open-source
+maintainers are unpaid, vendors are under-incentivized, and no
+documentation fixes the asymmetry between who creates risk and who bears
 it.</li>
 </ul>
-<p>The exercise only works if you defend the position you don’t already
-hold. In class, assign positions and go live; the surprise of having to
-think on your feet is the point.</p>
 <blockquote>
-<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
-attack it from the opposite position. A prompt that produces real
-sparring: <em>“Take the opposite position from the argument below and
-attack it as aggressively as a senior product security leader who deeply
-disagrees. Cite real supply chain incidents — SolarWinds, Log4Shell, XZ,
-MOVEit, Codecov — and real outcomes of SBOM regulation efforts. Don’t be
-polite. After each of my replies, escalate.”</em> The goal isn’t to beat
-the model. It’s to find out which parts of your case fold under
-pressure.</p>
+<p><em>Studying alone?</em> Have a chatbot attack your argument as a
+senior product security leader, citing real supply chain incidents
+(SolarWinds, Log4Shell, XZ, MOVEit, Codecov) and real outcomes of SBOM
+regulation efforts.</p>
 </blockquote>
 <h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
 min)</em></h4>
 <p>Find a supply chain, SDLC, or hardware security event from the last
-six months. Good hunting grounds: CISA’s Secure by Design pledge and
-progress reports, federal software-security policy changes (OMB’s 2026
-memo on software and hardware security, NIST’s SSDF 1.2 draft),
-advisories on malicious package campaigns in npm/PyPI/RubyGems, OpenSSF
-Scorecard releases, recent post-mortems on dependency compromises,
-advisories on TPM/UEFI/firmware vulnerabilities, and chip-level
-disclosures (Intel, AMD, ARM). Be ready to explain to a classmate, in
-two minutes, what happened, where in the lifecycle the failure occurred
+six months. Good starting points: CISA’s Secure by Design program,
+NIST’s SSDF, and OpenSSF. Be ready to explain to a classmate, in two
+minutes, what happened, where in the lifecycle the failure occurred
 (development, build, distribution, runtime, hardware), and what
-defenders are doing differently as a result. Bring two primary sources
-you’d point them to if they wanted to read further.</p>
+defenders are changing as a result. Bring two primary sources.</p>
 <h4 id="lab-artifact-read-a-real-sbom-20-min">Lab Artifact: Read a Real
 SBOM <em>(20 min)</em></h4>
-<p>A software bill of materials is meant to be machine-readable, but the
-value of being able to read one as a human is that you see what a vendor
-or open-source project actually shipped — including transitive
-dependencies you would not have guessed.</p>
+<p>Reading an SBOM as a human shows what a vendor or project actually
+shipped, including transitive dependencies you would not have
+guessed.</p>
 <ol type="1">
 <li>Go to the OWASP CycloneDX example BOMs repository at <a
 href="https://github.com/CycloneDX/bom-examples">github.com/CycloneDX/bom-examples</a>.
-Browse into the <code>SBOM</code> directory and pick one example project
-to open.</li>
+Browse into the <code>SBOM</code> directory and open one example
+project.</li>
 <li>Open the CycloneDX <code>bom.json</code> (or <code>bom.xml</code>)
-file in the browser. Scan the structure: metadata, components,
-dependencies, and any external references.</li>
-<li>Identify, in your own words: the application that the SBOM is for,
-the <em>direct</em> dependencies it declares (top-level components), at
+in the browser. Scan the structure: metadata, components, dependencies,
+and any external references.</li>
+<li>Identify, in your own words: the application the SBOM covers, the
+<em>direct</em> dependencies it declares (top-level components), at
 least two <em>transitive</em> dependencies (components depended on by
 other components, not by the app itself), and the version pinning
 approach.</li>
-<li>Pick one component you have never heard of. Search the public web
-for what it does and where it comes from. Did the SBOM tell you
-everything you needed to assess that component, or did you have to go
-looking?</li>
-<li>Then answer: if a critical CVE were disclosed in that one component
-tomorrow, what would the SBOM let you do that you could not do without
-it? What is the SBOM still <em>not</em> telling you that you would need
-to know to make a confident response decision?</li>
+<li>Pick one component you have never heard of. Search the web for what
+it does and where it comes from. Did the SBOM tell you everything you
+needed to assess it, or did you have to go looking?</li>
+<li>Answer: if a critical CVE were disclosed in that component tomorrow,
+what would the SBOM let you do that you could not do without it? What is
+it still <em>not</em> telling you that you would need for a confident
+response decision?</li>
 </ol>
 <p><strong>Safety:</strong> Read SBOM files. Do not download, install,
 or execute any of the components they list — an SBOM is documentation,
@@ -1442,46 +1409,36 @@ not a package archive.</p>
 hours)</em></h4>
 <p>Pick one scenario and walk through it phase by phase, naming what you
 would do, what evidence you would collect, who you would call, and what
-would have to be true <em>in advance</em> for the response to actually
-work. The point of a tabletop is to find what is missing — the SBOM that
-doesn’t exist, the build provenance you cannot verify, the firmware
-update channel you cannot trust.</p>
+would have to be true <em>in advance</em> for the response to work. The
+point is to find what is missing — the SBOM that doesn’t exist, the
+build provenance you cannot verify, the firmware update channel you
+cannot trust.</p>
 <ul>
 <li>A widely used open-source package you depend on transitively
-releases a new version. Within hours, security researchers publish that
-the new version contains an obfuscated backdoor inserted by a maintainer
-who has been quietly contributing for two years. Your last production
-build pulled the affected version. Your SBOM tells you which services
-include it; your build system does not yet have provenance
-attestations.</li>
-<li>A vendor pushes a firmware update to a fleet of network appliances
-at your perimeter. Within 24 hours, those appliances begin behaving
-anomalously — establishing outbound connections to addresses neither the
-vendor nor your team can identify. The vendor’s status page is silent.
-The appliances are too critical to power off.</li>
-<li>A CI/CD platform you use announces that an attacker has compromised
-the platform’s signing infrastructure for an unknown period covering at
-least the last 60 days. Every artifact your team built and signed
-through that platform during that window is potentially tampered
-with.</li>
+releases a new version. Within hours, researchers publish that it
+contains an obfuscated backdoor inserted by a maintainer who has quietly
+contributed for two years. Your last production build pulled it. Your
+SBOM tells you which services include it; your build system has no
+provenance attestations yet.</li>
+<li>A vendor pushes a firmware update to network appliances at your
+perimeter. Within 24 hours they begin making outbound connections to
+addresses neither the vendor nor your team can identify. The vendor’s
+status page is silent, and the appliances are too critical to power
+off.</li>
+<li>A CI/CD platform you use announces that an attacker compromised its
+signing infrastructure for an unknown period covering at least the last
+60 days. Every artifact you built and signed there in that window may be
+tampered with.</li>
 </ul>
 <p>Walk: preparation (what should already be true), detection and
 analysis, containment, eradication and recovery, post-incident activity.
 At each phase, identify the lifecycle artifact (SBOM, build provenance,
-attestation, signing key, change record) you would need — and write down
+attestation, signing key, change record) you would need, and write down
 what is missing.</p>
 <blockquote>
-<p><em>No group to run the tabletop?</em> Ask a chatbot to facilitate. A
-prompt that works: <em>“You are facilitating a tabletop exercise focused
-on a supply chain incident. I am the incident commander. Walk me through
-the scenario below one phase at a time. After my decisions in each
-phase, inject one realistic complication a real incident would throw at
-me — a vendor going silent, an SBOM revealing additional affected
-services, evidence contradicting the original attribution. Don’t let me
-skip the supply chain steps that real responders forget.”</em> The model
-is bad at being a responder. It is unusually good at being a facilitator
-who keeps surfacing the supply chain artifacts you forgot to look
-at.</p>
+<p><em>No group?</em> Have a chatbot facilitate this scenario, with you
+as incident commander, and inject a complication after each
+decision.</p>
 </blockquote>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"

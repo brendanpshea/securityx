@@ -1417,49 +1417,35 @@ the impact model itself) that failed.
 </div>
 </div>
 <h3 id="synthesis-activities">Synthesis Activities</h3>
-<p>These are open-ended activities meant to extend the chapter beyond
-what a search engine — or a chatbot — can answer on its own. Each works
-individually or in a group; the goal is the conversation, the debate, or
-the artifact, not a paper about it. Activities marked with <em>No one to
-interview?</em> or <em>Studying alone?</em> sidebars include AI-based
-alternatives — used here as a sparring partner, role-player, or
-facilitator, not as a source.</p>
+<p>These open-ended activities extend the chapter beyond what a search
+engine or chatbot can answer. Each works alone or in a group, and the
+goal is the conversation, debate, or artifact itself. Sidebars show how
+to use a chatbot as a practice partner, never as a source (Chapter 0
+explains how).</p>
 <h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
 hour)</em></h4>
 <p>Talk to someone who actually does risk work — a risk manager, threat
-modeler, GRC director, business continuity manager, internal auditor, or
-cyber-insurance broker. A few questions worth asking, in roughly this
-order:</p>
+modeler, GRC director, or cyber-insurance broker. Three questions worth
+asking:</p>
 <ul>
 <li>How do you decide what goes on the risk register and what gets left
 off?</li>
 <li>Walk me through the last time the business overruled a risk
 recommendation. Why did they overrule it, and were they right in
 hindsight?</li>
-<li>How do you talk about cyber risk to people who don’t think in
-probabilities?</li>
 <li>What is a risk you have learned to live with that would horrify a
 textbook?</li>
-<li>Where does threat modeling actually happen in your software
-development lifecycle, and where does it not happen?</li>
 </ul>
-<p>Listen for the gap between risk on paper — heat maps, ALE
-calculations, frameworks — and the way real decisions get made under
-uncertainty and budget pressure.</p>
+<p>Listen for the gap between risk on paper (heat maps, ALE, frameworks)
+and how decisions get made under uncertainty and budget pressure.</p>
 <blockquote>
-<p><em>No one to interview?</em> Run the conversation with a chatbot in
-role. A prompt that works: <em>“You are the head of enterprise risk at a
-mid-sized regional bank. You have ten years of experience and report to
-the Chief Risk Officer. You have lived through one major incident and
-two near-misses. I’m interviewing you for a class. Answer in character.
-When I ask something a real risk lead would not actually know, say so.
-Push back on questions that are too theoretical.”</em> The rehearsal
-exposes which of your questions are too abstract to provoke a real
-answer.</p>
+<p><em>No one to interview?</em> Rehearse with a chatbot playing the
+head of enterprise risk at a mid-sized regional bank. It exposes which
+of your questions are too abstract to provoke a real answer.</p>
 </blockquote>
 <h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
 <p>Pick the position you find <em>least</em> sympathetic and argue it as
-well as you can:</p>
+well as you can (in class, assign positions and go live):</p>
 <ul>
 <li>Quantitative risk analysis (ALE, FAIR) is the only honest way to
 compare cyber risk against other business risks. Qualitative heat maps
@@ -1471,56 +1457,43 @@ uncertainty when the underlying probabilities cannot be reliably
 estimated.</li>
 <li>The whole framing is wrong. Risk registers and heat maps exist to
 defend security budget to executives, not to make the organization
-safer. The right unit of analysis is the threat model of a specific
-system, not the organization’s “top ten risks.”</li>
+safer. The right unit of analysis is a specific system’s threat model,
+not the organization’s “top ten risks.”</li>
 </ul>
-<p>The exercise only works if you defend the position you don’t already
-hold. In class, assign positions and go live; the surprise of having to
-think on your feet is the point.</p>
 <blockquote>
-<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
-attack it from the opposite position. A prompt that produces real
-sparring: <em>“Take the opposite position from the argument below and
-attack it as aggressively as a senior CRO who deeply disagrees. Cite
-real incidents, real failed risk programs, and real analyst-vs-executive
-dynamics. Don’t be polite. After each of my replies, escalate.”</em> The
-goal isn’t to beat the model. It’s to find out which parts of your case
-fold under pressure.</p>
+<p><em>Studying alone?</em> Have a chatbot attack your argument as a
+senior CRO who deeply disagrees, citing real incidents, failed risk
+programs, and analyst-vs-executive dynamics.</p>
 </blockquote>
 <h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
 min)</em></h4>
-<p>Find a risk-relevant event from the last six months. Good hunting
-grounds: the annual Verizon Data Breach Investigations Report, CISA
-advisories on widely exploited vulnerabilities, ransomware-tracking
-sites that aggregate leak-site activity, FAIR Institute publications,
-NIST SP 800-30 and SP 800-37 updates, and court rulings on negligence or
-duty of care in cybersecurity. Be ready to explain to a classmate, in
-two minutes, what happened, which risk treatment (mitigation,
-transference, avoidance, acceptance) the affected organization had
-implicitly chosen, and what other organizations are reconsidering as a
-result. Bring two primary sources you’d point them to if they wanted to
-read further.</p>
+<p>Find a risk-relevant event from the last six months. Good starting
+points: CISA advisories, NIST SP 800-30 and 800-37 updates, court
+rulings on negligence or duty of care. Be ready to explain to a
+classmate, in two minutes, what happened, which risk treatment
+(mitigation, transference, avoidance, acceptance) the organization had
+implicitly chosen, and what others are reconsidering as a result. Bring
+two primary sources.</p>
 <h4 id="lab-artifact-stride-a-real-feature-20-min">Lab Artifact: STRIDE
 a Real Feature <em>(20 min)</em></h4>
-<p>The hardest part of threat modeling is choosing a small enough target
-to actually finish. In this activity you will STRIDE-decompose a single
-feature of a real public web application — using only its public
-documentation and your own observation.</p>
+<p>The hardest part of threat modeling is choosing a target small enough
+to finish. STRIDE one feature of a real public web application using
+only public documentation and observation.</p>
 <ol type="1">
 <li>Pick a single feature you actually use. Good targets: a “Sign in
 with Google” OAuth flow, GitHub repository sharing with an external
 collaborator, a bank’s “transfer to external account” flow, the
 meeting-link join flow for a video conferencing service.</li>
-<li>From the public documentation and what you can see from outside the
+<li>From public documentation and what you can see from outside the
 system, sketch a simple data flow: actor → trust boundary → component →
-data store. Hand-drawn or in any diagramming tool is fine.</li>
+data store. Hand-drawn or any diagramming tool is fine.</li>
 <li>Walk through STRIDE for that feature. For each letter — Spoofing,
 Tampering, Repudiation, Information Disclosure, Denial of Service,
 Elevation of Privilege — name one plausible threat (or note “not
 applicable here, because…”).</li>
-<li>Pick the three threats you find most credible. For each, name one
-control that already appears to exist and one control that you cannot
-tell from the outside whether it exists.</li>
+<li>Pick the three most credible threats. For each, name one control
+that already appears to exist and one you cannot tell from the outside
+whether it exists.</li>
 </ol>
 <p><strong>Safety:</strong> This activity is based entirely on public
 documentation and observation. Do not probe, scan, or attempt to test
@@ -1530,35 +1503,29 @@ pentesting.</p>
 hours)</em></h4>
 <p>Pick one scenario and walk through it phase by phase, naming what you
 would do, what evidence you would collect, who you would call, and what
-would have to be true <em>in advance</em> for the response to actually
-work. The point of a tabletop is to find what is missing — the call tree
-nobody updated, the runbook that assumes a tool you don’t have, the
-backup nobody has tested restoring from.</p>
+would have to be true <em>in advance</em> for the response to work. The
+point is to find what is missing — the call tree nobody updated, the
+runbook that assumes a tool you don’t have, the backup nobody has tested
+restoring from.</p>
 <ul>
-<li>A ransomware group claims they have your customer database. They
-publish a sample row that contains a real customer’s real data. They
-demand $5 million in 48 hours and threaten to publish the rest.</li>
+<li>A ransomware group claims they have your customer database and
+publishes a sample row containing a real customer’s real data. They
+demand $5 million in 48 hours or threaten to publish the rest.</li>
 <li>Your primary cloud region goes dark at 3 a.m. The provider’s status
 page shows a major incident with no ETA. Your hot-standby in another
 region was last validated six months ago. The CEO wants an update at 4
 a.m.</li>
-<li>An insider with sysadmin access has resigned, given two weeks’
-notice, and your DLP system has flagged that they appear to be copying
-repositories to a personal device. Their last day is Friday.</li>
+<li>A sysadmin has resigned with two weeks’ notice, and your DLP system
+flags what looks like repositories being copied to a personal device.
+Their last day is Friday.</li>
 </ul>
 <p>Walk: preparation (what should already be true), detection and
 analysis, containment, eradication and recovery, post-incident activity.
 At each phase, write down what is missing.</p>
 <blockquote>
-<p><em>No group to run the tabletop?</em> Ask a chatbot to facilitate. A
-prompt that works: <em>“You are facilitating a tabletop exercise. I am
-the incident commander. Walk me through the scenario below one phase at
-a time. After my decisions in each phase, inject one realistic
-complication a real incident would throw at me — a stakeholder calling,
-a tool going down, a piece of evidence contradicting an earlier
-assumption. Don’t let me skip steps.”</em> The model is bad at being a
-responder. It is unusually good at being an annoying facilitator, which
-is what a tabletop needs.</p>
+<p><em>No group?</em> Have a chatbot facilitate this scenario, with you
+as incident commander, and inject a complication after each
+decision.</p>
 </blockquote>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"

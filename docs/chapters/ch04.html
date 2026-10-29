@@ -1283,20 +1283,17 @@ and name the Zero Trust principle that failed at each step.
 </div>
 </div>
 <h3 id="synthesis-activities">Synthesis Activities</h3>
-<p>These are open-ended activities meant to extend the chapter beyond
-what a search engine — or a chatbot — can answer on its own. Each works
-individually or in a group; the goal is the conversation, the debate, or
-the artifact, not a paper about it. Activities marked with <em>No one to
-interview?</em> or <em>Studying alone?</em> sidebars include AI-based
-alternatives — used here as a sparring partner, role-player, or
-facilitator, not as a source.</p>
+<p>These open-ended activities extend the chapter beyond what a search
+engine or chatbot can answer. Each works alone or in a group, and the
+goal is the conversation, debate, or artifact itself. Sidebars show how
+to use a chatbot as a practice partner, never as a source (Chapter 0
+explains how).</p>
 <h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
 hour)</em></h4>
 <p>Talk to someone who designs or operates security architecture in
 production — a security architect, network architect, zero trust
-engineer, SASE/ZTNA operations lead, or platform security engineer at
-your school, employer, or a willing local organization. A few questions
-worth asking, in roughly this order:</p>
+engineer, or SASE/ZTNA operations lead at your school, employer, or a
+willing local organization. Three questions worth asking:</p>
 <ul>
 <li>Walk me through how a new internal application gets onboarded — what
 does its network exposure actually look like by the time it’s in
@@ -1305,84 +1302,61 @@ production?</li>
 what does the marketing version get wrong?</li>
 <li>Where in your architecture does the perimeter actually still exist,
 and where has it genuinely dissolved?</li>
-<li>What’s a control you would love to remove if you could justify it to
-the auditors, and why?</li>
-<li>What architectural decision do you regret, and what would you do
-differently if you could rebuild from scratch?</li>
 </ul>
-<p>Listen for the gap between zero trust as a slide deck and as
-day-to-day engineering, where ideology meets vendor contracts and
-ten-year-old applications nobody wants to touch.</p>
+<p>Listen for the gap between zero trust on slides and in engineering,
+where ideology meets vendor contracts and ten-year-old applications
+nobody wants to touch.</p>
 <blockquote>
-<p><em>No one to interview?</em> Run the conversation with a chatbot in
-role. A prompt that works: <em>“You are a principal security architect
-at a 10,000-person company four years into a zero trust transformation,
-responsible for segmentation, ZTNA rollout, and conditional access. I’m
-interviewing you for a class. Answer in character, push back on
-questions that treat zero trust as a product, and say so when I ask
-something a real architect would not know.”</em> The rehearsal exposes
-questions that conflate buzzwords with engineering.</p>
+<p><em>No one to interview?</em> Rehearse with a chatbot playing a
+principal security architect four years into a zero trust
+transformation. The rehearsal exposes questions that conflate buzzwords
+with engineering.</p>
 </blockquote>
 <h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
 <p>Pick the position you find <em>least</em> sympathetic and argue it as
-well as you can:</p>
+well as you can (in class, assign positions and go live):</p>
 <ul>
-<li>Zero trust is a complete replacement for perimeter security. Any
-continued investment in firewalls, DMZs, or network segmentation is
-wasted money that should be redirected to identity-aware proxies,
-conditional access, and device posture.</li>
+<li>Zero trust is a complete replacement for perimeter security. Money
+still going to firewalls, DMZs, and network segmentation is wasted;
+redirect it to identity-aware proxies, conditional access, and device
+posture.</li>
 <li>Zero trust complements the perimeter rather than replacing it.
-Defense-in-depth requires both: a strong perimeter buys time and stops
-noise, while identity-aware controls handle the cases where the
-perimeter is bypassed.</li>
-<li>“Zero trust” is mostly a rebranding of controls that already existed
-(mutual TLS, least privilege, microsegmentation, NAC). The question that
-matters — <em>how do you make a twenty-year-old enterprise look like
-Google’s BeyondCorp paper?</em> — has no good answer for most
-organizations, so treating zero trust as an achievable target sets
-programs up to fail.</li>
+Defense-in-depth needs both: a strong perimeter buys time and stops
+noise, while identity-aware controls handle the cases where it is
+bypassed.</li>
+<li>“Zero trust” mostly rebrands existing controls (mutual TLS, least
+privilege, microsegmentation, NAC). The question that matters — <em>how
+do you make a twenty-year-old enterprise look like Google’s BeyondCorp
+paper?</em> — has no good answer for most organizations, so treating
+zero trust as an achievable target sets programs up to fail.</li>
 </ul>
-<p>The exercise only works if you defend the position you don’t already
-hold. In class, assign positions and go live; the surprise of having to
-think on your feet is the point.</p>
 <blockquote>
-<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
-attack it from the opposite position. A prompt that produces real
-sparring: <em>“Take the opposite position from the argument below and
-attack it as aggressively as a senior network architect who deeply
-disagrees. Cite real zero trust deployments that failed or stalled, real
-perimeter breaches, real ZTNA vendor controversies. Don’t be polite.
-After each of my replies, escalate.”</em> The goal isn’t to beat the
-model. It’s to find out which parts of your case fold under
-pressure.</p>
+<p><em>Studying alone?</em> Have a chatbot attack your argument as a
+senior network architect, citing real zero trust deployments that failed
+or stalled, real perimeter breaches, and real ZTNA vendor
+controversies.</p>
 </blockquote>
 <h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
 min)</em></h4>
 <p>Find an architecture, zero trust, or network-security event from the
-last six months. Good hunting grounds: CISA Zero Trust Maturity Model
-updates, NIST zero trust guidance (SP 800-207 and its companion practice
-guide, SP 1800-35), advisories on ZTNA or SASE vendor vulnerabilities
-(Ivanti, Fortinet, Palo Alto, Cisco), agency progress against the
-federal zero trust strategy in OMB M-22-09, and post-mortems on breaches
-that bypassed nominally “zero trust” architectures. Be ready to explain
-to a classmate, in two minutes, what happened, which zero trust pillar
+last six months. Good starting points: CISA’s Zero Trust Maturity Model,
+NIST SP 800-207 and SP 1800-35, and OMB M-22-09. Be ready to explain to
+a classmate, in two minutes, what happened, which zero trust pillar
 (identity, device, network, application, data) was decisive, and what
-other organizations are reconsidering as a result. Bring two primary
-sources you’d point them to if they wanted to read further.</p>
+others are changing as a result. Bring two primary sources.</p>
 <h4 id="lab-artifact-read-a-sites-security-headers-20-min">Lab Artifact:
 Read a Site’s Security Headers <em>(20 min)</em></h4>
-<p>HTTP response headers are one of the most visible pieces of an
-application’s defense-in-depth posture — and one of the easiest to read
-from outside. In this activity you will compare the header posture of
-three real sites and learn to read what each header is buying.</p>
+<p>HTTP response headers are one of the easiest windows into an
+application’s defense-in-depth posture. You will compare three real
+sites and learn what each header buys.</p>
 <ol type="1">
 <li>Pick three sites at different maturity levels. Good choices: a major
 bank, a federal government site (anything under <code>.gov</code>), and
 a small e-commerce site you have used. Pick sites you have a reason to
 visit, not random targets.</li>
-<li>For each site, open it in your browser, then open DevTools (F12), go
-to the <em>Network</em> tab, and reload. Click the top-level HTML
-request and look at the <em>Response Headers</em>. Note the values of:
+<li>For each site, open DevTools (F12), go to the <em>Network</em> tab,
+and reload. Click the top-level HTML request and look at the
+<em>Response Headers</em>. Note the values of:
 <code>Content-Security-Policy</code>,
 <code>Strict-Transport-Security</code>, <code>X-Frame-Options</code> (or
 the <code>frame-ancestors</code> directive of CSP),
@@ -1401,25 +1375,24 @@ vulnerabilities.</p>
 <h4 id="model-a-local-system-2-hours">Model a Local System <em>(2+
 hours)</em></h4>
 <p>Pick a system you actually use — your school’s SSO portal, your
-employer’s VPN or ZTNA gateway, a SaaS application you have
-administrative access to — and sketch its zero trust posture from what
-you can observe.</p>
-<p>For each of the five CISA zero trust pillars from the chapter,
-document what you can tell from outside:</p>
+employer’s VPN or ZTNA gateway, a SaaS application you administer — and
+sketch its zero trust posture from what you can observe. For each of the
+five CISA zero trust pillars from the chapter, document what you can
+tell from outside:</p>
 <ul>
 <li><strong>Identity.</strong> What identity provider authenticates you?
-Is MFA required? Are there conditional access signals (device, location,
-time) visible in error messages or login prompts?</li>
+Is MFA required? Do error messages or login prompts reveal conditional
+access signals (device, location, time)?</li>
 <li><strong>Device.</strong> Does the system check device posture
 (managed vs. unmanaged, compliant vs. not)? How can you tell?</li>
 <li><strong>Network.</strong> Is access gated by network location? What
-does an access attempt from an unusual location look like?</li>
-<li><strong>Application.</strong> Is the application reachable directly,
-or only through an identity-aware proxy? What does the URL structure
-tell you?</li>
-<li><strong>Data.</strong> What can a successful login actually see, and
-is there visible labeling, redaction, or step-up authentication for
-sensitive operations?</li>
+does an attempt from an unusual location look like?</li>
+<li><strong>Application.</strong> Is it reachable directly, or only
+through an identity-aware proxy? What does the URL structure tell
+you?</li>
+<li><strong>Data.</strong> What can a successful login see? Is there
+visible labeling, redaction, or step-up authentication for sensitive
+operations?</li>
 </ul>
 <p>Then name the pillar you have the lowest confidence in. <em>Do not
 test, probe, or attempt to bypass anything.</em> The deliverable is a

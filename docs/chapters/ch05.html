@@ -1402,19 +1402,17 @@ identify everything federation did not cover.
 </div>
 </div>
 <h3 id="synthesis-activities">Synthesis Activities</h3>
-<p>These are open-ended activities meant to extend the chapter beyond
-what a search engine — or a chatbot — can answer on its own. Each works
-individually or in a group; the goal is the conversation, the debate, or
-the artifact, not a paper about it. Activities marked with <em>No one to
-interview?</em> or <em>Studying alone?</em> sidebars include AI-based
-alternatives — used here as a sparring partner, role-player, or
-facilitator, not as a source.</p>
+<p>These open-ended activities extend the chapter beyond what a search
+engine or chatbot can answer. Each works alone or in a group, and the
+goal is the conversation, debate, or artifact itself. Sidebars show how
+to use a chatbot as a practice partner, never as a source (Chapter 0
+explains how).</p>
 <h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
 hour)</em></h4>
 <p>Talk to someone who actually does this work — an IAM admin, identity
 architect, IT helpdesk lead, or compliance officer at your school,
-employer, or a willing local organization. A few questions worth asking,
-in roughly this order:</p>
+employer, or a willing local organization. Three questions worth
+asking:</p>
 <ul>
 <li>Walk me through what happens when a new employee starts on Monday —
 every system that has to know about them by end of day.</li>
@@ -1422,71 +1420,49 @@ every system that has to know about them by end of day.</li>
 environment, and why hasn’t it been fixed?</li>
 <li>When was the last time you had to revoke access in a hurry, and what
 made it hard?</li>
-<li>What tool or capability do you wish you had?</li>
-<li>What’s one thing the textbooks or certs get wrong about this
-work?</li>
 </ul>
 <p>Follow up on whatever surprises you. The point is to hear the work in
 someone’s own words.</p>
 <blockquote>
-<p><em>No one to interview?</em> Run the conversation with a chatbot in
-role. A prompt that works: <em>“You are a senior IAM architect with
-twelve years of experience at a 5,000-person logistics company. I’m
-interviewing you for a class. Answer in character. Push back on
-questions that are too broad, and when I ask about something you’d
-realistically not know, say so.”</em> You won’t be hearing what a real
-engineer thinks — the model doesn’t know — but you’ll get a credible
-rehearsal, and you’ll find out which of your questions are too vague
-before they would have been wasted on a real person.</p>
+<p><em>No one to interview?</em> Rehearse with a chatbot playing a
+senior IAM architect at a 5,000-person logistics company. The rehearsal
+shows which of your questions are too vague to spend on a real
+person.</p>
 </blockquote>
 <h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
 <p>Pick the position you find <em>least</em> sympathetic and argue it as
-well as you can:</p>
+well as you can (in class, assign positions and go live):</p>
 <ul>
 <li>Federation should be mandatory for every business application, no
 exceptions. The risk of unfederated apps drifting out of HR-driven
 deprovisioning outweighs every other concern.</li>
-<li>Federation slows down fast-moving teams and concentrates risk in one
+<li>Federation slows fast-moving teams and concentrates risk in one
 identity provider whose outage halts the entire company. A pragmatic IAM
 program lives with some unfederated applications and offsets them with
 strong manual offboarding.</li>
-<li>SSO and federation build a surveillance dossier that no individual
-employee meaningfully consented to. The convenience to administrators
-comes at a real cost to employee privacy that the security field
-consistently understates.</li>
+<li>SSO and federation build a surveillance dossier no employee
+meaningfully consented to. The convenience to administrators carries a
+real privacy cost that the security field consistently understates.</li>
 </ul>
-<p>The exercise only works if you defend the position you don’t already
-hold. In class, assign positions and go live; the surprise of having to
-think on your feet is the point.</p>
 <blockquote>
-<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
-attack it from the opposite position. A prompt that produces real
-sparring: <em>“Take the opposite position from the argument below and
-attack it as aggressively as a senior security architect who deeply
-disagrees. Cite real federation outages, real breaches that exploited
-unfederated apps, real privacy concerns about SSO logging. Don’t be
-polite. After each of my replies, escalate.”</em> The goal isn’t to beat
-the model. It’s to find out which parts of your case fold under
-pressure.</p>
+<p><em>Studying alone?</em> Have a chatbot attack your argument as a
+senior security architect, citing real federation outages, real breaches
+that exploited unfederated apps, and real privacy concerns about SSO
+logging.</p>
 </blockquote>
 <h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
 min)</em></h4>
 <p>Find an identity-related incident, regulatory action, or vendor
-controversy from the last six months. Good hunting grounds: CISA
-advisories on identity-system compromises (Okta, Microsoft Entra, Active
-Directory), Krebs on Security, The Record, NIST SP 800-63-4
-implementation guidance, FIDO Alliance updates on passkey rollout, and
-EU eIDAS 2.0 implementation milestones. Be ready to explain to a
-classmate, in two minutes, what happened, what failed at the IAM layer,
-and what the industry response has been. Bring two primary sources you’d
-point them to if they wanted to read further.</p>
+controversy from the last six months. Good starting points: CISA
+advisories on identity-system compromises, NIST SP 800-63-4, and FIDO
+Alliance passkey updates. Be ready to explain to a classmate, in two
+minutes, what happened, which identity control failed, and what others
+are changing as a result. Bring two primary sources.</p>
 <h4 id="lab-artifact-decode-a-real-jwt-20-min">Lab Artifact: Decode a
 Real JWT <em>(20 min)</em></h4>
-<p>Almost every modern web app you log into hands your browser an OIDC
-ID token or an OAuth access token in JWT form — a base64url-encoded
-structure your browser then sends back on every request. In this
-activity you will capture one of your own tokens and reverse-engineer
-what your identity provider is asserting about you.</p>
+<p>Web apps hand your browser OIDC ID tokens or OAuth access tokens as
+JWTs. Capture one of your own and reverse-engineer what your identity
+provider asserts about you.</p>
 <ol type="1">
 <li>Log into a service that uses OIDC. Google, Microsoft, GitHub, or any
 site where you click “Sign in with Google/Microsoft/GitHub” will
@@ -1495,7 +1471,7 @@ work.</li>
 <em>Application</em> or <em>Storage</em> tab, and look under
 <em>Cookies</em> or <em>Local Storage</em> for a long string starting
 with <code>eyJ</code>. You can also watch the <em>Network</em> tab
-during login and find a request whose response body or
+during login for a request whose response body or
 <code>Authorization</code> header contains a JWT.</li>
 <li>Paste that string into <a href="https://jwt.io">jwt.io</a>. The site
 decodes the header and payload locally in your browser — it does not
@@ -1516,10 +1492,8 @@ that isn’t yours. Use a personal test account if you’re unsure.</p>
 <h4 id="map-a-trust-boundary-2-hours">Map a Trust Boundary <em>(2+
 hours)</em></h4>
 <p>Federation concentrates trust into a small number of cryptographic
-relationships. In this activity you will diagram those relationships
-explicitly for a real or representative system, and identify where you
-have the least confidence in the trust assumptions.</p>
-<p>Pick one system to model:</p>
+relationships. Diagram them explicitly for one system and identify where
+you have the least confidence in the trust assumptions:</p>
 <ul>
 <li>The “Sign in with Google/Microsoft/Apple” flow for a SaaS
 application you actually use.</li>
@@ -1528,16 +1502,15 @@ downstream applications.</li>
 <li>A hypothetical RBAC + ABAC hybrid for a small healthcare clinic with
 EHR, HR, billing, and a patient-facing portal.</li>
 </ul>
-<p>Draw the system: identity provider, service providers, attribute
-sources, policy decision points, policy enforcement points, and every
-signing key, certificate, or shared secret that makes the trust work.
-Mark each trust boundary explicitly. For each boundary, answer: what
-crosses it, what control validates what crosses, who controls the key
-material, and what would happen if that key were stolen? Identify the
-boundary where the consequences of compromise would be largest — that is
-the “Tier 0” relationship the architecture depends on.</p>
-<p>The point is not to design a perfect system; it is to be able to see,
-on paper, where the architecture’s neck is exposed.</p>
+<p>Draw the identity provider, service providers, attribute sources,
+policy decision points, policy enforcement points, and every signing
+key, certificate, or shared secret that makes the trust work. Mark each
+trust boundary. For each, answer: what crosses it, what control
+validates what crosses, who controls the key material, and what happens
+if that key is stolen? The boundary where compromise would do the most
+damage is the “Tier 0” relationship the architecture depends on.</p>
+<p>The point is not to design a perfect system; it is to see, on paper,
+where the architecture’s neck is exposed.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">

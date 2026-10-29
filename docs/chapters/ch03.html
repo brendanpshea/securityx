@@ -1302,19 +1302,16 @@ scenario form.
 </div>
 </div>
 <h3 id="synthesis-activities">Synthesis Activities</h3>
-<p>These are open-ended activities meant to extend the chapter beyond
-what a search engine — or a chatbot — can answer on its own. Each works
-individually or in a group; the goal is the conversation, the debate, or
-the artifact, not a paper about it. Activities marked with <em>No one to
-interview?</em> or <em>Studying alone?</em> sidebars include AI-based
-alternatives — used here as a sparring partner, role-player, or
-facilitator, not as a source.</p>
+<p>These open-ended activities extend the chapter beyond what a search
+engine or chatbot can answer. Each works alone or in a group, and the
+goal is the conversation, debate, or artifact itself. Sidebars show how
+to use a chatbot as a practice partner, never as a source (Chapter 0
+explains how).</p>
 <h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
 hour)</em></h4>
 <p>Talk to someone who actually works with AI in production — a machine
-learning engineer, AI red-teamer, AI governance lead, MLOps engineer,
-data scientist deploying models in a regulated environment, or AI ethics
-officer. A few questions worth asking, in roughly this order:</p>
+learning engineer, AI red-teamer, AI governance lead, or MLOps engineer.
+Three questions worth asking:</p>
 <ul>
 <li>Walk me through the most surprising failure mode you have seen in an
 AI system in production.</li>
@@ -1322,29 +1319,18 @@ AI system in production.</li>
 in any framework or textbook yet?</li>
 <li>How do you decide what data is and is not safe to send to a
 third-party model?</li>
-<li>What is the difference between an AI red team and a regular pentest
-in your work?</li>
-<li>What is one thing the AI threat literature gets wrong, or
-oversimplifies?</li>
 </ul>
-<p>Listen for the gap between the threats as catalogued (OWASP LLM Top
-10, NIST AI RMF) and the threats that actually wake people up at
-night.</p>
+<p>Listen for the gap between the catalogued threats (OWASP LLM Top 10,
+NIST AI RMF) and the ones that wake people up at night.</p>
 <blockquote>
-<p><em>No one to interview?</em> Run the conversation with a chatbot in
-role. A prompt that works: <em>“You are a senior AI security engineer at
-a large enterprise. You have spent the last three years building
-guardrails around LLM features in production and have run two AI
-red-team engagements. I’m interviewing you for a class. Answer in
-character. When I ask something a real practitioner would not actually
-know, say so. Push back on questions that are too theoretical or that
-confuse model risk with application risk.”</em> The rehearsal exposes
-which of your questions are too vague — and helps you notice when you’re
-conflating two different problems.</p>
+<p><em>No one to interview?</em> Rehearse with a chatbot playing a
+senior AI security engineer who has run two AI red-team engagements. It
+exposes vague questions, and where you conflate model risk with
+application risk.</p>
 </blockquote>
 <h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
 <p>Pick the position you find <em>least</em> sympathetic and argue it as
-well as you can:</p>
+well as you can (in class, assign positions and go live):</p>
 <ul>
 <li>Organizations should ban public AI chatbots entirely and permit only
 tenant-isolated enterprise AI. The data-leakage risk from public models
@@ -1352,49 +1338,32 @@ is unrecoverable once it happens.</li>
 <li>A ban produces shadow IT. The only workable answer is a sanctioned
 tool, a clear AUP, and the assumption that employees will mostly comply
 because the sanctioned tool is good enough.</li>
-<li>The whole framing is technology-first and misses the real risk. AI
-is replacing human judgment in places where the failure mode is
-invisible until it is catastrophic. The policy question is not “which
-tool” but “which decisions should never be delegated to a model in the
-first place.”</li>
+<li>The whole framing is technology-first and misses the real risk: AI
+is replacing human judgment where the failure mode is invisible until it
+is catastrophic. The question is not “which tool” but “which decisions
+should never be delegated to a model.”</li>
 </ul>
-<p>The exercise only works if you defend the position you don’t already
-hold. In class, assign positions and go live; the surprise of having to
-think on your feet is the point.</p>
 <blockquote>
-<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
-attack it from the opposite position. A prompt that produces real
-sparring: <em>“Take the opposite position from the argument below and
-attack it as aggressively as a senior CISO who deeply disagrees. Cite
-real AI incidents — data leaks, prompt-injection incidents, model misuse
-cases. Don’t be polite. After each of my replies, escalate.”</em> The
-goal isn’t to beat the model — and there is something genuinely useful
-about using an AI to argue against your AI-policy position. It is a
-real-time check on whether your case survives contact with the
-technology it’s about.</p>
+<p><em>Studying alone?</em> Have a chatbot attack your argument as a
+senior CISO who deeply disagrees, citing real AI incidents: data leaks,
+prompt-injection incidents, model misuse cases.</p>
 </blockquote>
 <h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
 min)</em></h4>
 <p>Find an AI-security or AI-governance event from the last six months.
-Good hunting grounds: the OWASP Top 10 for LLM Applications updates, the
-AI Incident Database at <a
-href="https://www.aiincidentdatabase.org/">aiincidentdatabase.org</a>,
-NIST AI RMF profile releases, EU AI Act enforcement and high-risk system
-designations, vendor security disclosures from OpenAI, Anthropic, and
-Google, and FBI/IC3 reports on AI-enabled fraud and deepfake business
-email compromise. Be ready to explain to a classmate, in two minutes,
-what happened, which OWASP LLM Top 10 category (or which AI RMF
-function) it maps to, and what other organizations are doing differently
-as a result. Bring two primary sources you’d point them to if they
-wanted to read further.</p>
+Good starting points: the <a
+href="https://www.aiincidentdatabase.org/">AI Incident Database</a>,
+OWASP LLM Top 10 updates, NIST AI RMF releases. Be ready to explain to a
+classmate, in two minutes, what happened, which OWASP LLM Top 10
+category (or AI RMF function) it maps to, and what others are changing
+as a result. Bring two primary sources.</p>
 <h4
 id="lab-artifact-map-an-owasp-llm-top-10-entry-to-a-real-incident-20-min">Lab
 Artifact: Map an OWASP LLM Top 10 Entry to a Real Incident <em>(20
 min)</em></h4>
-<p>The OWASP Top 10 for LLM Applications is a structured catalog of
-vulnerability classes. The AI Incident Database is a structured catalog
-of real-world AI failures. Connecting one to the other forces you to
-translate abstract categories into concrete failure modes.</p>
+<p>The OWASP Top 10 for LLM Applications catalogs vulnerability classes;
+the AI Incident Database catalogs real-world AI failures. Connecting
+them translates abstract categories into concrete failure modes.</p>
 <ol type="1">
 <li>Go to the OWASP Top 10 for LLM Applications at <a
 href="https://genai.owasp.org/llm-top-10/">genai.owasp.org/llm-top-10/</a>
@@ -1405,10 +1374,10 @@ scenarios.</li>
 <li>Find one real-world incident or peer-reviewed research paper that
 exemplifies the entry. Good sources: the AI Incident Database, vendor
 security blogs (OpenAI, Anthropic, Google, Microsoft), arXiv preprints,
-and reputable trade press coverage.</li>
-<li>Write a short paragraph that identifies: the attack vector in plain
-language, the data flow that made the vulnerability exploitable, and one
-control from this chapter (semantic firewall, output filtering,
+and reputable trade press.</li>
+<li>Write a short paragraph that identifies the attack vector in plain
+language, the data flow that made the vulnerability exploitable, and the
+one control from this chapter (semantic firewall, output filtering,
 privilege separation, sandboxing, AUP, RAG hygiene) that would most
 reduce impact.</li>
 </ol>
@@ -1418,31 +1387,30 @@ AI system you do not own and have explicit permission to test.</p>
 <h4 id="map-a-trust-boundary-2-hours">Map a Trust Boundary <em>(2+
 hours)</em></h4>
 <p>For an AI-integrated system, draw the trust boundaries explicitly.
-For each boundary, name what crosses it, what controls validate what
-crosses, and what would happen if those controls failed.</p>
-<p>Pick one system to model:</p>
+For each boundary, name what crosses it, what controls validate it, and
+what would happen if those controls failed. Pick one system to
+model:</p>
 <ul>
 <li>A “company knowledge assistant” built on RAG that ingests SharePoint
-documents, GitHub issues, and email threads, and answers employee
+documents, GitHub issues, and email threads and answers employee
 questions through a chat interface.</li>
 <li>A code-completion assistant that reads your private repositories and
 suggests completions inline in the IDE.</li>
-<li>A customer-support chatbot that has API access to back-end systems
-and can issue refunds, change account details, or open tickets on behalf
-of a customer.</li>
+<li>A customer-support chatbot with API access to back-end systems that
+can issue refunds, change account details, or open tickets on a
+customer’s behalf.</li>
 <li>A legal-research assistant that ingests case law and internal
 contracts and produces draft briefs.</li>
 </ul>
-<p>Draw the system: each component, each data store, each external
-service, and the lines that connect them. Mark every line where the
-trust level changes — user input crossing into model input, model output
-crossing into rendered HTML, retrieved context crossing into the prompt,
-model output crossing into a privileged action. For each boundary, write
-down: what control exists there today, what an attacker would need to do
-to bypass it, and where you are least comfortable with the level of
+<p>Draw each component, data store, external service, and the lines
+connecting them. Mark every line where the trust level changes — user
+input into model input, model output into rendered HTML, retrieved
+context into the prompt, model output into a privileged action. For each
+boundary, write down what control exists today, what an attacker would
+need to bypass it, and where you are least comfortable with the
 validation.</p>
-<p>The point is to surface the boundary where you have the least
-confidence — because that’s where the next AI incident in your org is
+<p>The point is to find the boundary where you have the least
+confidence, because that’s where the next AI incident in your org is
 most likely to originate.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
