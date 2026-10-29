@@ -61,7 +61,7 @@ def create_raci_matrix():
     columns = ["Task", "CISO", "SOC Analyst", "System Admin", "Legal Counsel", "PR Team"]
     cell_text = [
         ["Declare Security Incident", "A/R", "I", "I", "C", "I"],
-        ["Contain the Breach", "A", "R", "R", "I", "I"],
+        ["Contain the Breach", "A", "R", "R", "C", "I"],
         ["Analyze Malware", "A", "R", "I", "I", "I"],
         ["Notify Regulators", "A", "I", "I", "R", "C"],
         ["Issue Press Release", "A", "I", "I", "C", "R"]

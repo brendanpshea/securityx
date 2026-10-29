@@ -4,7 +4,7 @@
   "title": "Snow White Builds an Awareness Program",
   "context_md": "Snow White has just been promoted to **GRC Analyst** at *Seven Dwarfs Mining*, a 400-person mining and refining company headquartered in the Black Forest. Last quarter, Grumpy clicked a link in an email claiming to be from the Queen's Royal Bank, exposing payroll data for the entire mining crew. The CEO, Doc, has asked Snow White to stand up a formal security awareness program before the next audit.\n\nA junior analyst has handed Snow White a draft document mixing several governance tiers together in one file. Before Snow White can finalize the program, she has to split this draft into the correct document types — and pick the right metrics, framework, and ownership tool for the program itself.\n\nThe audit committee has signaled they care most about IT process maturity rather than ITSM service delivery.",
   "artifact_title": "Excerpt — Awareness Program Draft (mixed tiers)",
-  "artifact_md": "1. *Seven Dwarfs Mining is committed to protecting employee and customer information from unauthorized disclosure or loss. Senior management endorses this commitment.*\n2. *All employees must complete security-awareness training within 30 days of hire and annually thereafter. All employee passwords must be a minimum of 14 characters and rotated every 90 days.*\n3. *Recommended: Use a passphrase of four or more random words rather than a complex random string — it is easier to recall and mathematically harder to crack.*\n4. *Help Desk — Resetting a locked account:* (a) verify employee identity via callback to the number stored in HR; (b) in Active Directory, right-click the user → Reset Password; (c) force password change at next logon; (d) log the reset in the ITSM ticket.",
+  "artifact_md": "1. *Seven Dwarfs Mining is committed to protecting employee and customer information from unauthorized disclosure or loss. Senior management endorses this commitment.*\n2. *All employees must complete security-awareness training within 30 days of hire and annually thereafter. Passwords must be at least 15 characters long and are changed only on evidence of compromise.*\n3. *Recommended: Use a passphrase of four or more random words rather than a short string of symbols — it is easier to recall and long enough to clear the minimum.*\n4. *Help Desk — Resetting a locked account:* (a) verify employee identity via callback to the number stored in HR; (b) in Active Directory, right-click the user → Reset Password; (c) force password change at next logon; (d) log the reset in the ITSM ticket.",
   "prompt_md": "Help Snow White classify each line of the draft and finish her program plan by selecting the correct option for each blank. Click **Check answers** when you are done.",
   "body_md": "Looking at the draft excerpt above:\n\nLine 1 — the board-endorsed intent statement — belongs in a **{{intent_doc}}**. Line 2 — the mandatory, measurable requirements about training cadence and password length — belongs in a **{{mandatory_doc}}**. Line 3 — the *recommended* passphrase tip — belongs in a **{{optional_doc}}**. Line 4 — the help desk's exact click-by-click reset steps — belongs in a **{{stepwise_doc}}**.\n\nWith the documentation split correctly, Snow White moves on to the program itself. To measure how often employees still fall for the monthly phishing simulations, she will track the **{{primary_metric}}**. Because the audit committee cares about IT governance maturity, she will align her control objectives to **{{framework}}** rather than the alternative service-management framework. Finally, to make sure responsibility for incident response is unambiguous across Doc, Grumpy, and Snow White herself, she will document roles using a **{{responsibility_tool}}**.",
   "blanks": {
@@ -16,16 +16,16 @@
     "mandatory_doc": {
       "answer": "Standard",
       "distractors": ["Policy", "Procedure", "Guideline", "Framework"],
-      "explanation": "Line 2 is mandatory *and* measurable (30 days, 14 characters, 90 days) — the hallmark of a Standard. A Policy would say 'employees must be trained' without naming the numbers."
+      "explanation": "Line 2 is mandatory *and* measurable (30 days, 15 characters) — the hallmark of a Standard. A Policy would say 'employees must be trained' without naming the numbers."
     },
     "optional_doc": {
       "answer": "Guideline",
       "distractors": ["Policy", "Standard", "Procedure", "Regulation"],
-      "explanation": "Line 3 opens with 'Recommended' — the word that signals a Guideline. Employees may use a different method as long as the Standard's 14-character minimum is still met."
+      "explanation": "Line 3 opens with 'Recommended' — the word that signals a Guideline. Employees may use a different method as long as the Standard's 15-character minimum is still met."
     },
     "stepwise_doc": {
       "answer": "Procedure",
-      "distractors": ["Policy", "Standard", "Guideline", "Runbook charter"],
+      "distractors": ["Policy", "Standard", "Guideline", "Baseline"],
       "explanation": "Line 4 is an ordered, click-by-click set of instructions tied to a specific tool (Active Directory). Procedures live closest to the technology and are rewritten whenever the tool changes."
     },
     "primary_metric": {
@@ -45,7 +45,7 @@
     },
     "responsibility_tool": {
       "answer": "RACI matrix",
-      "distractors": ["Risk register", "SBOM", "CMDB entry", "Data flow diagram"],
+      "distractors": ["Risk register", "Business impact analysis", "Asset inventory", "Data flow diagram"],
       "explanation": "A RACI matrix assigns Responsible, Accountable, Consulted, and Informed roles — the canonical tool for clarifying who-does-what in incident response."
     }
   }
