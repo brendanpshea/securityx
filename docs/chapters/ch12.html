@@ -622,8 +622,12 @@ operations — pulling IOC feeds nightly, running compliance checks
 weekly, generating metric dashboards hourly.</li>
 <li><strong>Event-driven triggers</strong> that fire in response to
 conditions — an AWS EventBridge rule that invokes a Lambda function when
-an IAM role is modified, a webhook from the SIEM that calls a
-containment endpoint when a high-severity alert fires.</li>
+an IAM role is modified, a <strong>webhook</strong> (an HTTP callback:
+when an event occurs, one system POSTs a small JSON message to a URL the
+other exposes) from the SIEM that calls a containment endpoint when a
+high-severity alert fires. A webhook endpoint is attack surface in its
+own right, so authenticate callers (signed payloads or mTLS) and
+validate what they send.</li>
 <li><strong>API and SDK integration</strong> that chains multiple tools
 together — a script that queries the SIEM for all hosts that
 communicated with a known-bad IP, then calls the EDR API to isolate each

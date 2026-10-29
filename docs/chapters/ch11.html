@@ -211,8 +211,13 @@ value.</li>
 <li><strong>Stage alerts by severity and context.</strong> Weigh asset
 criticality and type, user privilege, data classification, impact, and
 residual risk. An alert on a domain controller from a domain admin’s
-account is not the same priority as the same alert on a
-workstation.</li>
+account is not the same priority as the same alert on a workstation.
+Category matters too: a <strong>malware alert</strong> (an EDR,
+antivirus, or sandbox verdict on a file or process) usually means active
+compromise and calls for prompt host containment, while a
+<strong>vulnerability alert</strong> (a scanner or posture finding)
+signals exposure and routes to remediation on a deadline set by severity
+and known exploitation.</li>
 <li><strong>Use detection-as-code.</strong> Detections live in a Git
 repository, get code review, are versioned and tested, and are retired
 when they outlive their usefulness — the same engineering rigor as

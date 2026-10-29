@@ -803,6 +803,14 @@ class="citation" data-cites="cabf-sc063-2023 letsencrypt-ocsp-2025">(<a
 href="#ref-cabf-sc063-2023" role="doc-biblioref">CA/Browser Forum
 2023</a>; <a href="#ref-letsencrypt-ocsp-2025"
 role="doc-biblioref">Let’s Encrypt 2025</a>)</span>.</li>
+<li><strong>Cryptographic implementation flaws.</strong> Sometimes the
+protocol and certificates are fine but the code using them is not: an
+application that “temporarily” disables certificate or hostname
+validation, a library bug such as Heartbleed (CVE-2014-0160) in OpenSSL,
+a homegrown crypto routine, a weak random-number source, or AES-GCM
+nonce reuse (Chapter 8). Use maintained libraries with their secure
+defaults, keep them patched, and test that invalid certificates are
+actually rejected.</li>
 <li><strong>Clock skew.</strong> A client whose clock is hours off
 rejects valid certificates. NTP/Chrony hygiene matters more than people
 expect.</li>
