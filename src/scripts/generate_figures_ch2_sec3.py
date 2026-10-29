@@ -50,7 +50,7 @@ def create_cyber_kill_chain():
     plt.close()
 
 def create_diamond_model():
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(8, 6))
     
     # Diamond coordinates
     top = (0, 2)
@@ -76,16 +76,20 @@ def create_diamond_model():
     for label, (pos, color, text_color) in nodes.items():
         circle = plt.Circle(pos, node_radius, color=color, zorder=2)
         ax.add_patch(circle)
-        # Place text slightly offset
-        y_offset = 0.6 if pos[1] > 0 else -0.6 if pos[1] < 0 else 0
-        x_offset = 0.8 if pos[0] > 0 else -0.8 if pos[0] < 0 else 0
-        
-        ax.text(pos[0] + x_offset, pos[1] + y_offset, label, ha='center', va='center', 
-                color='#0f172a', fontsize=12, fontweight='bold', 
-                bbox=dict(facecolor='white', edgecolor='none', alpha=0.8, pad=0.2))
+        # Top/bottom labels sit above/below their nodes; left/right labels sit
+        # just outside their nodes so they never overlap a circle or an edge.
+        if pos[0] == 0:
+            lx, ly, ha = pos[0], pos[1] + (0.65 if pos[1] > 0 else -0.65), 'center'
+        else:
+            lx, ly = pos[0] + (0.6 if pos[0] > 0 else -0.6), pos[1]
+            ha = 'left' if pos[0] > 0 else 'right'
 
-    ax.set_xlim(-3, 3)
+        ax.text(lx, ly, label, ha=ha, va='center',
+                color='#0f172a', fontsize=12, fontweight='bold')
+
+    ax.set_xlim(-4.6, 4.6)
     ax.set_ylim(-3, 3)
+    ax.set_aspect('equal')
     ax.axis('off')
     
     plt.title("The Diamond Model of Intrusion Analysis", fontsize=14, fontweight='bold', pad=15)

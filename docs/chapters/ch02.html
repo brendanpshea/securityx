@@ -24,8 +24,9 @@ Management and Threat Modeling</h1>
 qualitative risk assessment methodologies.</li>
 <li><strong>Formulate</strong> strategies for third-party risk
 management, including supply chain and vendor risks.</li>
-<li><strong>Evaluate</strong> availability, confidentiality, and
-integrity risk considerations within business continuity planning.</li>
+<li><strong>Evaluate</strong> availability, confidentiality, integrity,
+and privacy risk considerations within business continuity
+planning.</li>
 <li><strong>Design</strong> a crisis management and breach response
 plan.</li>
 <li><strong>Differentiate</strong> between threat actor characteristics
@@ -50,14 +51,13 @@ breached anyway, because thin defenses break everywhere at once.</p>
 <p>So modern cybersecurity is not about <em>eliminating</em> risk; it is
 about <em>managing</em> it. A business that takes zero risks makes zero
 profit. Moving to the cloud, allowing remote work, and accepting credit
-cards all introduce risk — and yet refusing to do any of those things
-would also kill the business. The security professional’s job is not to
-say “no.” It is to measure each risk, then apply just enough defense to
-bring it within what the business can tolerate.</p>
-<p>That requires discipline. Security leaders have to know what they are
-protecting (the assets), who might come for it (the threat actors), how
-those actors operate (the threat models), and how much money and effort
-each defense is worth. This chapter walks through <strong>Risk
+cards all introduce risk — and refusing to do any of them would also
+kill the business. The security professional’s job is not to say “no.”
+It is to measure each risk, then apply just enough defense to bring it
+within what the business can tolerate.</p>
+<p>That requires knowing what you are protecting (the assets), who might
+come for it (the threat actors), how they operate (the threat models),
+and what each defense is worth. This chapter walks through <strong>Risk
 Management</strong> and <strong>Threat Modeling</strong> — the
 analytical machinery that turns “we should be more secure” into
 specific, prioritized, defensible decisions. By the end, you will be
@@ -72,30 +72,37 @@ is defending and how vulnerable those assets are. In cybersecurity,
 agent exploiting a vulnerability, and the corresponding business impact
 of that exploitation.</p>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong> The fundamental equation of risk
-management is: <strong>Risk = Threat × Vulnerability × Impact</strong>.
-If any of these three factors are zero, the overall risk is zero. For
-example, if a severe vulnerability exists in an operating system, but
-that system is completely unplugged and locked in a concrete vault (zero
-threat access), the risk is zero.</p>
+<p><strong class="callout-title">Key Point</strong> A classic way to think about risk is:
+<strong>Risk = Threat × Vulnerability × Impact</strong>. If any of these
+three factors is zero, the overall risk is zero. For example, if a
+severe vulnerability exists in an operating system, but that system is
+completely unplugged and locked in a concrete vault (zero threat
+access), the risk is zero. This is a conceptual model, not literal
+arithmetic; in day-to-day practice, teams usually score <strong>Risk =
+Likelihood × Impact</strong>.</p>
 </blockquote>
-<p>To systematically manage this equation, organizations rely on
-formalized risk assessment and governance frameworks such as NIST SP
-800-30 and the NIST Cybersecurity Framework 2.0 <span class="citation"
-data-cites="nist-sp800-30r1-2012 nist-csf-2-2024">(<a
+<p>Organizations rely on formal <strong>risk assessment
+frameworks</strong> to do this consistently: NIST SP 800-30 (a
+step-by-step assessment guide), the NIST Risk Management Framework (SP
+800-37), ISO/IEC 27005, and <strong>FAIR</strong> (Factor Analysis of
+Information Risk), a quantitative model that expresses risk in dollars
+<span class="citation"
+data-cites="nist-sp800-30r1-2012 nist-sp800-37r2-2018">(<a
 href="#ref-nist-sp800-30r1-2012" role="doc-biblioref">Joint Task Force
-Transformation Initiative 2012</a>; <a href="#ref-nist-csf-2-2024"
+Transformation Initiative 2012</a>; <a href="#ref-nist-sp800-37r2-2018"
+role="doc-biblioref">Joint Task Force 2018</a>)</span>. The NIST
+Cybersecurity Framework 2.0 complements them with six functions,
+including Govern for risk strategy <span class="citation"
+data-cites="nist-csf-2-2024">(<a href="#ref-nist-csf-2-2024"
 role="doc-biblioref">National Institute of Standards and Technology
-2024</a>)</span>. Regardless of the specific framework chosen, the
-overarching process generally follows a standardized workflow:</p>
-<figure>
-<img src="../assets/images/ch02_risk_workflow.png"
-alt="A five-step risk assessment workflow: identify assets, identify threats, identify vulnerabilities, analyze likelihood and impact, then prioritize and treat the resulting risks." />
-<figcaption aria-hidden="true">A five-step risk assessment workflow:
-identify assets, identify threats, identify vulnerabilities, analyze
-likelihood and impact, then prioritize and treat the resulting
-risks.</figcaption>
-</figure>
+2024</a>)</span>. Whichever is chosen, the process generally follows a
+standardized workflow:</p>
+<p><img src="../assets/images/ch02_risk_workflow.png"
+alt="A five-step risk assessment workflow: identify assets, identify threats, identify vulnerabilities, analyze likelihood and impact and rank the risks, then treat them." />
+<em>Figure 2.1: The risk assessment workflow. Steps 1–3 gather the
+ingredients of risk, Step 4 measures it, and Step 5 turns the result
+into a decision; mature programs repeat the loop as assets and threats
+change.</em></p>
 <ol type="1">
 <li><strong>Asset Identification:</strong> You cannot protect what you
 do not know you have. This involves creating a comprehensive inventory
@@ -108,9 +115,12 @@ weaknesses in the assets (e.g., unpatched software, poor physical
 security).</li>
 <li><strong>Risk Analysis:</strong> Calculating the likelihood of the
 threat exploiting the vulnerability and the resulting financial or
-operational impact.</li>
-<li><strong>Risk Treatment:</strong> Deciding how to handle the
-identified risk (mitigate, transfer, avoid, or accept).</li>
+operational impact (its <em>severity</em>), then ranking risks so the
+biggest get attention first.</li>
+<li><strong>Risk Treatment:</strong> Choosing a response for each risk
+(mitigate, transfer, avoid, or accept) and recording it in a
+<strong>risk register</strong>, the organization’s running list of
+risks, owners, and decisions.</li>
 </ol>
 <h3 id="quantitative-vs.-qualitative-analysis">Quantitative
 vs. Qualitative Analysis</h3>
@@ -122,31 +132,32 @@ judgment, experience, and intuition. Instead of using hard financial
 numbers, qualitative analysis assigns descriptive values to the
 likelihood and impact of a risk. You will frequently see this
 represented as a “heat map” or a traffic-light system (Red, Yellow,
-Green). For example, a qualitative assessment might determine that the
-likelihood of a hurricane hitting a Florida data center is “High,” and
-the impact would be “Severe.”</p>
-<p>Qualitative analysis is incredibly popular because it is fast, easy
-to understand, and does not require complex mathematical modeling.
-However, it is fundamentally subjective. What one analyst considers a
-“Medium” risk, another might consider “High.”</p>
+Green). Many teams score likelihood and impact on a 1–5 scale and
+multiply them to rank risks. For example, a qualitative assessment might
+determine that the likelihood of a hurricane hitting a Florida data
+center is “High,” and the impact would be “Severe.”</p>
+<p>Qualitative analysis is popular because it is fast and easy to
+understand, but it is subjective: one analyst’s “Medium” is another’s
+“High.”</p>
 <p><strong>Quantitative Risk Analysis</strong>, on the other hand,
-relies entirely on hard financial numbers and historical data. The goal
-of quantitative analysis is to determine the exact dollar value of a
-risk so that management can make mathematically sound budget decisions.
-If a specific firewall upgrade costs $100,000, but the quantitative risk
-analysis proves that the firewall will prevent $500,000 in expected
-annual losses, the purchase is mathematically justified.</p>
-<p>To perform a quantitative analysis, you must calculate three specific
+relies on hard financial numbers and historical data. The goal of
+quantitative analysis is to estimate the dollar value of a risk so that
+management can make numbers-based budget decisions.</p>
+<p>To perform a quantitative analysis, you calculate three key
 metrics:</p>
 <ul>
 <li><strong>Single Loss Expectancy (SLE):</strong> The total financial
 loss an organization would suffer from a <em>single</em> occurrence of
 the threat. This includes the cost of replacing hardware, lost revenue
-during downtime, and regulatory fines.</li>
-<li><strong>Annualized Rate of Occurrence (ARO):</strong> The historical
-probability that the threat will occur within a single year. If a flood
-happens once every 10 years, the ARO is 0.1. If a server crashes five
-times a year, the ARO is 5.0.</li>
+during downtime, and regulatory fines. SLE is often calculated as
+<strong>Asset Value (AV) × Exposure Factor (EF)</strong>, where EF is
+the share of the asset’s value lost in one incident. A $4,000,000
+database with a 25% EF has an SLE of $1,000,000. (Darcy, below,
+estimates SLE directly from lost revenue.)</li>
+<li><strong>Annualized Rate of Occurrence (ARO):</strong> The estimated
+number of times the threat will occur in a typical year, based on
+historical data. If a flood happens once every 10 years, the ARO is 0.1.
+If a server crashes five times a year, the ARO is 5.0.</li>
 <li><strong>Annualized Loss Expectancy (ALE):</strong> The total
 financial loss the organization expects to suffer from this threat
 <em>per year</em>. The formula is simple: <strong>ALE = SLE ×
@@ -155,10 +166,13 @@ ARO</strong>.</li>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> A common pitfall in risk management is
 attempting to use Quantitative Analysis for highly unpredictable,
-unprecedented cyberattacks (like a zero-day exploit). If you have no
-historical data to calculate an accurate Annualized Rate of Occurrence
-(ARO), your quantitative math is essentially guesswork. In these
-scenarios, Qualitative Analysis is often more appropriate.</p>
+unprecedented cyberattacks (like a <strong>zero-day exploit</strong>,
+which targets a flaw the vendor does not yet know about, so no patch
+exists). If you have no historical data to calculate an accurate
+Annualized Rate of Occurrence (ARO), your quantitative math is
+essentially guesswork. In these scenarios, Qualitative Analysis is often
+more appropriate. (FAIR-style models cope by using ranges instead of
+single numbers.)</p>
 </blockquote>
 <table>
 <caption>Table 2.1: Comparing Qualitative vs. Quantitative Risk
@@ -213,50 +227,43 @@ imagination.” Standard impact analysis typically looks at average,
 expected disruptions—a server crashing for two hours or an employee
 clicking a phishing link. However, robust risk management requires
 assessing <strong>Extreme but Plausible Scenarios</strong>.</p>
-<p>These are “Black Swan” events: highly unlikely, yet entirely possible
-events that would have a devastating impact on the organization. For a
-hospital, an extreme but plausible scenario is not just a brief power
-outage; it is a ransomware attack that simultaneously locks all
-electronic health records, shuts down life-support monitoring systems,
-and disables the VoIP telephone network, all while a major natural
-disaster brings an influx of trauma patients.</p>
-<p>By modeling these extreme but plausible scenarios, organizations
-ensure that their crisis management plans are resilient enough to handle
-absolute worst-case conditions, rather than just everyday
-inconveniences.</p>
-<!-- -->
-<blockquote class="callout-example">
-<p><strong class="callout-title">Example</strong> A standard risk analysis for a bank might
-consider a temporary internet outage. An <em>extreme but plausible</em>
-scenario would model a coordinated attack where threat actors launch a
-massive Distributed Denial of Service (DDoS) attack against the bank’s
-customer portal simultaneously while a rogue insider wipes the primary
-database backups, crippling both customer access and recovery
-capabilities at the exact same moment.</p>
-</blockquote>
+<p>These are severe stress-test scenarios (sometimes loosely called
+“black swan” events): highly unlikely, yet entirely possible events that
+would have a devastating impact on the organization. For a hospital, an
+extreme but plausible scenario is not just a brief power outage; it is a
+ransomware attack that simultaneously locks all electronic health
+records, shuts down life-support monitoring systems, and disables the
+VoIP telephone network, all while a major natural disaster brings an
+influx of trauma patients.</p>
+<p>Modeling these scenarios tests whether crisis management plans can
+survive worst-case conditions, not just everyday inconveniences. A bank,
+for example, would model not just a brief internet outage but a DDoS
+attack on its customer portal at the same moment a rogue insider wipes
+the backups.</p>
 <h3 id="risk-appetite-and-tolerance">Risk Appetite and Tolerance</h3>
 <p>Once the risk has been calculated, the organization must decide what
 to do with it. This decision is guided by the organization’s
 <strong>Risk Appetite</strong> and <strong>Risk Tolerance</strong>.</p>
 <ul>
-<li><strong>Risk Appetite:</strong> The broad, overarching amount of
-risk an organization is willing to aggressively pursue to achieve its
-strategic goals. A lean, aggressive tech startup will have a massive
-risk appetite—they are willing to launch buggy, unsecure software
-quickly to capture market share. A traditional national bank will have a
-very low risk appetite.</li>
-<li><strong>Risk Tolerance:</strong> The specific, measurable deviation
-from the risk appetite that the organization will temporarily accept.
-For example, a hospital’s risk appetite might state “We accept zero
-unplanned downtime.” Their risk tolerance might be “We will tolerate up
-to 5 minutes of downtime per month for emergency patching.”</li>
+<li><strong>Risk Appetite:</strong> The broad amount and type of risk an
+organization is willing to pursue to achieve its strategic goals. A lean
+tech startup may have a high risk appetite—it will ship fast, accept
+some security gaps, and fix them later to capture market share. A
+traditional national bank will have a very low risk appetite.</li>
+<li><strong>Risk Tolerance:</strong> The specific, measurable limit
+around that appetite: how far results can drift before leaders must act.
+For example, a hospital’s risk appetite might state “We have very low
+appetite for outages that affect patient care.” Its risk tolerance might
+be “Unplanned downtime of the electronic health record system must not
+exceed 5 minutes per month.”</li>
 </ul>
 <p>Based on these thresholds, the organization will choose one of four
 <strong>Risk Treatment</strong> strategies:</p>
 <ol type="1">
 <li><strong>Mitigation:</strong> Implementing security controls (like
-firewalls or encryption) to reduce the likelihood or impact of the
-risk.</li>
+firewalls or encryption) to reduce the likelihood or impact of the risk.
+Fixing the underlying weakness, such as patching, is often called
+<strong>remediation</strong>.</li>
 <li><strong>Transference:</strong> Shifting the financial burden of the
 risk to a third party. The most common example of this is purchasing a
 cybersecurity insurance policy.</li>
@@ -264,10 +271,15 @@ cybersecurity insurance policy.</li>
 causes the risk. If an organization determines that launching a specific
 cloud application is too risky to secure, they may simply cancel the
 project.</li>
-<li><strong>Acceptance:</strong> Acknowledging the risk but deciding to
-do nothing because the cost of mitigating the risk exceeds the potential
-loss.</li>
+<li><strong>Acceptance:</strong> Knowingly deciding to do nothing
+because the cost of mitigating the risk exceeds the potential loss, or
+because the risk already falls within tolerance.</li>
 </ol>
+<p>Whichever strategy is chosen, some <strong>residual risk</strong>
+remains, and it must fall within the organization’s tolerance.
+Acceptance should be a documented decision signed by an accountable
+executive, with a review date. A mitigation approved on paper but never
+funded is <em>silent</em> acceptance: no owner, no paper trail.</p>
 <!-- -->
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> A company realizes that an older,
@@ -289,22 +301,21 @@ the risk of it being defaced.</li>
 and Continuous Monitoring</h3>
 <p>In a modern enterprise, managing risk across thousands of servers,
 hundreds of third-party vendors, and dozens of compliance frameworks is
-mathematically impossible using manual spreadsheets. To handle this
-complexity, organizations deploy <strong>Governance, Risk, and
-Compliance (GRC) Tools</strong>.</p>
-<p>GRC tools are massive software platforms designed to automate the
-entire risk management lifecycle. They provide several critical
-functions:</p>
+impractical with manual spreadsheets. To handle this complexity,
+organizations deploy <strong>Governance, Risk, and Compliance (GRC)
+Tools</strong>.</p>
+<p>GRC tools are software platforms that automate the risk management
+lifecycle. They provide several critical functions:</p>
 <ul>
-<li><strong>Mapping:</strong> GRC tools automatically map specific
-technical controls to multiple compliance frameworks simultaneously. If
-you configure a firewall rule, the GRC tool maps that single action to
-satisfy requirements for both PCI DSS and HIPAA, preventing duplicate
-work.</li>
-<li><strong>Automation and Documentation:</strong> Rather than manually
-emailing department heads to ask if they have completed their security
-audits, GRC tools automate these workflows, track completion status, and
-generate centralized documentation for external auditors.</li>
+<li><strong>Mapping:</strong> GRC tools map each control to the
+requirements of multiple compliance frameworks at once. If one firewall
+rule satisfies requirements in both PCI DSS and HIPAA, the tool records
+that single control against both, preventing duplicate work.</li>
+<li><strong>Automation, Compliance Tracking, and Documentation:</strong>
+Rather than manually emailing department heads to ask if they have
+completed their security audits, GRC tools automate these workflows,
+track which requirements are met, overdue, or failing, and generate
+centralized documentation for external auditors.</li>
 <li><strong>Continuous Monitoring:</strong> Traditional risk assessments
 are static point-in-time exercises (e.g., an annual audit). GRC tools
 integrate directly with the IT infrastructure via APIs to provide
@@ -313,17 +324,13 @@ compliance due to an unauthorized configuration change, the GRC tool
 automatically updates the organization’s live risk dashboard and alerts
 the security team.</li>
 </ul>
-<p>By utilizing GRC platforms, security teams can shift their focus from
-manually tracking compliance checkboxes to actively defending the
-organization.</p>
 <h3 id="validating-risk-treatments-and-testing-plans">Validating Risk
 Treatments and Testing Plans</h3>
-<p>Identifying a risk and selecting a treatment strategy is not the end
-of the process. Security teams must also <strong>validate</strong> that
-the selected control actually reduces the real-world risk to an
-acceptable level. A firewall rule written on paper, a backup policy
-saved in SharePoint, or an incident response runbook approved by Legal
-are all meaningless if nobody has confirmed that they work under
+<p>Selecting a treatment is not the end of the process. Security teams
+must also <strong>validate</strong> that the control actually reduces
+real-world risk to an acceptable level. A firewall rule on paper, a
+backup policy saved in SharePoint, or an incident response runbook
+approved by Legal means little if nobody has confirmed it works under
 stress.</p>
 <p>Validation takes different forms depending on the risk being
 addressed:</p>
@@ -334,8 +341,8 @@ scans, control assessments, attack simulations, and targeted retesting
 after remediation.</li>
 <li><strong>BCDR testing:</strong> Proving that backup and recovery
 plans work in practice. Tabletop exercises, restore drills, and failover
-tests reveal whether recovery time objectives are realistic or merely
-aspirational.</li>
+tests reveal whether the recovery times the business expects are
+realistic or merely aspirational.</li>
 <li><strong>Incident response testing:</strong> Rehearsing the response
 to a data leak, ransomware outbreak, or sensitive/privileged data breach
 before the real event occurs. The goal is to expose confusion in roles,
@@ -346,24 +353,23 @@ low.</li>
 Risk</strong>. When confidential data is exposed, the organization must
 be prepared for <strong>data leak response</strong>, triage of a
 <strong>sensitive/privileged data breach</strong>, formal
-<strong>reporting</strong> to regulators or customers, and the use of
-<strong>encryption</strong> to reduce the blast radius in the first
-place. Mature organizations do not merely buy controls; they
-continuously test whether those controls actually change the
-outcome.</p>
+<strong>reporting</strong> to regulators or customers (see Table 2.3 for
+deadlines), and the use of <strong>encryption</strong> to reduce the
+blast radius in the first place. Mature organizations keep testing
+whether their controls actually change the outcome.</p>
 <!-- -->
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong> <strong>Fitzwilliam Darcy and the
 Derbyshire Holdings Calculation (Quantitative Risk)</strong></p>
-<p>Fitzwilliam Darcy, the Director of Risk Management at the highly
-prestigious investment firm Derbyshire Holdings, was facing a budget
-crisis. His security engineers requested $150,000 to purchase an
-advanced web application firewall (WAF) to protect the firm’s primary
+<p>Fitzwilliam Darcy, the Director of Risk Management at the investment
+firm Derbyshire Holdings, was facing a budget crisis. His security
+engineers requested $150,000 for a service combining traffic scrubbing
+with a web application firewall (WAF) to protect the firm’s primary
 trading portal from Distributed Denial of Service (DDoS) attacks. The
 Board of Directors, skeptical of the cost, demanded financial
 justification.</p>
 <p>Darcy opted for a strict Quantitative Risk Analysis to prove the ROI
-of the firewall.</p>
+of the purchase.</p>
 <p>First, he calculated the <strong>Single Loss Expectancy
 (SLE)</strong>. He consulted with the trading floor managers and
 determined that if the trading portal went down due to a DDoS attack,
@@ -380,15 +386,19 @@ times per year (ARO = <strong>0.5</strong>).</p>
 (ALE)</strong> using the formula ALE = SLE × ARO. ALE = $40,000 × 0.5 =
 <strong>$20,000</strong>.</p>
 <p>Darcy presented these findings to the Board. He explained that
-without the firewall, the firm was expected to lose $20,000 every single
+without the service, the firm was expected to lose $20,000 every single
 year to DDoS attacks. Over the 5-year expected lifespan of the $150,000
-firewall, the attacks would only cost the firm $100,000.</p>
+service, the attacks would only cost the firm $100,000.</p>
 <p>Because the cost of the mitigation ($150,000) was <em>greater</em>
 than the expected financial loss over that same time period ($100,000),
 Darcy recommended that the Board <strong>Accept</strong> the risk and
-deny the purchase of the firewall. The math proved that buying the
-firewall was actually a worse financial decision than simply absorbing
-the cost of the cyberattacks.</p>
+deny the purchase. On these numbers, buying the service was a worse
+financial decision than simply absorbing the cost of the attacks.</p>
+<p>Notice what the numbers leave out, though: Darcy’s SLE counts only
+lost trading fees, not customer churn or regulatory attention, and the
+service would not stop every attack. A risk figure is only as good as
+the impact model behind it, so a sound recommendation documents its
+assumptions and revisits them.</p>
 </blockquote>
 <!-- -->
 <blockquote class="callout-thought">
@@ -428,17 +438,15 @@ restore drills.</li>
 <h2 id="who-are-our-adversaries">Who Are Our Adversaries?</h2>
 <p>Once we understand our assets and the impact if they are compromised,
 the next step is to understand <em>who</em> might compromise them. A
-vulnerability without a threat actor is just a theoretical problem. In
-the real world, adversaries actively hunt for vulnerabilities to
-exploit. Understanding the nature of these adversaries allows security
-teams to build highly targeted, efficient defenses rather than relying
-on generic, “catch-all” strategies.</p>
+vulnerability without a threat actor is just a theoretical problem, but
+in the real world, adversaries actively hunt for vulnerabilities to
+exploit. Knowing them lets security teams build targeted defenses
+instead of generic, “catch-all” ones.</p>
 <h3 id="threat-actor-motivations-and-resources">Threat Actor Motivations
 and Resources</h3>
-<p>Not all hackers are equal. A teenager in their basement has a vastly
-different operational capacity than a highly funded military cyber-unit.
-To accurately model threats, we must categorize adversaries based on
-their <strong>Motivations</strong> and their
+<p>Not all hackers are equal: a teenager in a basement has far less
+capacity than a military cyber-unit. To model threats accurately, we
+categorize adversaries by their <strong>Motivations</strong> and their
 <strong>Resources</strong>.</p>
 <p><strong>Motivations</strong> drive <em>why</em> the attack is
 happening. Common motivations include:</p>
@@ -450,8 +458,8 @@ extorting millions from healthcare organizations.</em></li>
 <li><strong>Geopolitical / Cyber Warfare (Nation-State):</strong> Highly
 funded, state-sponsored actors attacking critical infrastructure to
 destabilize rival nations. <em>Example: The Stuxnet worm, reportedly
-built by US and Israeli intelligence, which physically destroyed Iranian
-nuclear centrifuges.</em></li>
+built by US and Israeli intelligence, which physically damaged Iranian
+uranium-enrichment centrifuges.</em></li>
 <li><strong>Activism (Hacktivism):</strong> Ideologically driven
 attacks. A hacktivist group might deface a corporate website or leak
 internal emails to protest a company’s environmental policies.
@@ -513,8 +521,8 @@ target.</li>
 <th scope="row" style="text-align: left;"><strong>Nation-State / APT (Advanced
 Persistent Threat)</strong></th>
 <td style="text-align: left;">Espionage, Geopolitical dominance</td>
-<td style="text-align: left;">Unlimited funding, custom zero-day
-exploits, massive intelligence networks.</td>
+<td style="text-align: left;">Extensive state funding, custom zero-day
+exploits, large intelligence networks.</td>
 <td style="text-align: left;">“Low and slow” attacks, supply chain
 compromise, long-term persistence.</td>
 </tr>
@@ -548,9 +556,12 @@ misconfiguration.</td>
 <h3 id="supply-chain-vendor-and-subprocessor-risk">Supply Chain, Vendor,
 and Subprocessor Risk</h3>
 <p>One of the most dangerous adversary capabilities is exploiting the
-<strong>Supply Chain</strong>. Modern enterprises do not operate in a
-vacuum; they rely on a vast network of third-party vendors, software
-providers, and contractors.</p>
+<strong>Supply Chain</strong>: the vendors, software and hardware
+suppliers, and contractors an organization depends on. Attackers either
+abuse a supplier’s trusted access (as in the Target case below) or
+tamper with what it delivers, such as poisoned software updates
+(SolarWinds, Chapter 5) or vulnerable open-source components (Chapter
+6).</p>
 <p><strong>Vendor Risk</strong> occurs when an organization grants a
 trusted third party access to its network or data. For example, a
 hospital might hire an external accounting firm to process its payroll.
@@ -563,7 +574,12 @@ If the hospital’s accounting firm uses a cloud hosting provider to store
 the payroll data, that cloud provider is a subprocessor. Even if the
 hospital meticulously vetted the accounting firm, a breach at the
 unvetted cloud hosting provider will still result in the hospital’s data
-being stolen.</p>
+being stolen. Privacy law recognizes this chain: under GDPR Article 28,
+a processor may engage a subprocessor only with the controller’s
+authorization and must pass the same data-protection obligations down to
+it <span class="citation" data-cites="eu-gdpr-2016">(<a
+href="#ref-eu-gdpr-2016" role="doc-biblioref">European Parliament and
+Council of the European Union 2016</a>)</span>.</p>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> An organization can outsource its
 <em>operations</em> to a vendor, but it can never outsource its
@@ -572,34 +588,34 @@ credit card numbers, the regulatory agencies and the media will blame
 <em>your</em> organization, not the vendor.</p>
 </blockquote>
 <p>To mitigate third-party risk, organizations must establish rigorous
-vendor management programs. This includes requiring vendors to pass
-security audits (such as providing a SOC 2 report), enforcing the
-principle of least privilege for vendor network access, and actively
-monitoring the vendor’s cybersecurity posture.</p>
+vendor management programs: due diligence before signing (questionnaires
+and audit evidence such as a SOC 2 report), contract clauses requiring
+breach notification, audit rights, and flow-down of security duties to
+subprocessors, least-privilege and segmented network access for vendors,
+continuous monitoring instead of a once-a-year questionnaire, and
+offboarding that removes vendor access when the contract ends.</p>
 <!-- -->
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong> <strong>The Target HVAC Vendor Breach
 (Third-Party Risk)</strong></p>
 <p>In 2013, the retail giant Target suffered one of the most infamous
-data breaches in history, resulting in the theft of 40 million credit
-and debit card numbers. The breach was a masterclass in exploiting
-third-party vendor risk <span class="citation"
-data-cites="senate-target-breach-2014">(<a
+data breaches in history, resulting in the theft of roughly 40 million
+credit and debit card numbers between late November and mid-December.
+The breach was a masterclass in exploiting third-party vendor risk <span
+class="citation" data-cites="senate-target-breach-2014">(<a
 href="#ref-senate-target-breach-2014" role="doc-biblioref">United States
 Senate Committee on Commerce, Science, and Transportation, Majority
 Staff 2014</a>)</span>.</p>
-<p>Target had invested millions of dollars in robust perimeter security
-for their corporate network and point-of-sale (POS) systems. However, a
-financially motivated cybercriminal syndicate realized that attacking
-Target’s formidable defenses directly would be too difficult. Instead,
-the attackers identified a softer target: Fazio Mechanical Services, a
-small heating, ventilation, and air conditioning (HVAC) company that
-serviced Target’s stores.</p>
-<p>Because Fazio monitored the temperature of the stores, Target had
-granted the HVAC vendor remote access to its vendor portal. The
-attackers launched a simple phishing campaign against Fazio employees
-and successfully infected the small vendor’s computers with a
-credential-stealing trojan <span class="citation"
+<p>Target had invested heavily in security for its corporate network and
+point-of-sale (POS) systems. Instead of attacking those defenses
+head-on, a financially motivated criminal group went after a softer
+target: Fazio Mechanical Services, a small heating, ventilation, and air
+conditioning (HVAC) company that serviced Target’s stores.</p>
+<p>Like many Target vendors, Fazio had been given access to Target’s
+external vendor portal for electronic billing, contract submission, and
+project management. The attackers launched a simple phishing campaign
+against Fazio employees and successfully infected the small vendor’s
+computers with a credential-stealing trojan <span class="citation"
 data-cites="senate-target-breach-2014 krebs-target-vendor-2014">(<a
 href="#ref-senate-target-breach-2014" role="doc-biblioref">United States
 Senate Committee on Commerce, Science, and Transportation, Majority
@@ -609,16 +625,15 @@ role="doc-biblioref">Krebs 2014</a>)</span>.</p>
 vendor portal. From there, they were able to pivot out of the vendor
 system and traverse Target’s internal network until they reached the POS
 registers. The attackers deployed custom malware onto the cash registers
-that scraped the credit card data from the magnetic stripe the exact
-moment a customer swiped their card, before the data could be encrypted
-<span class="citation" data-cites="senate-target-breach-2014">(<a
+that scraped card data out of the registers’ memory the moment a
+customer swiped, before the data could be encrypted <span
+class="citation" data-cites="senate-target-breach-2014">(<a
 href="#ref-senate-target-breach-2014" role="doc-biblioref">United States
 Senate Committee on Commerce, Science, and Transportation, Majority
 Staff 2014</a>)</span>.</p>
-<p>This catastrophic breach demonstrated that an enterprise’s security
-is only as strong as its weakest vendor. It fundamentally changed how
-the cybersecurity industry approaches third-party risk and network
-segmentation.</p>
+<p>The breach demonstrated that an enterprise’s security is only as
+strong as its weakest vendor, and it changed how the industry approaches
+third-party risk and network segmentation.</p>
 </blockquote>
 <!-- -->
 <blockquote class="callout-thought">
@@ -677,18 +692,23 @@ while others focus on active network intrusions.</p>
 Kill Chain</h4>
 <p>Developed by Lockheed Martin, the Cyber Kill Chain models the
 sequential phases an adversary must complete to successfully execute a
-cyberattack. The core philosophy is that an attack is a <em>chain</em>
-of events; if the defending organization can break the chain at any
-point, the attack fails.</p>
-<figure>
-<img src="../assets/images/ch02_cyber_kill_chain.png"
+cyberattack <span class="citation"
+data-cites="hutchins-kill-chain-2011">(<a
+href="#ref-hutchins-kill-chain-2011" role="doc-biblioref">Hutchins et
+al. 2011</a>)</span>. The core philosophy is that an attack is a
+<em>chain</em> of events; if the defending organization can break the
+chain at any point, the attack fails. (The U.S. Senate’s staff analysis
+of the Target breach was organized around this very model <span
+class="citation" data-cites="senate-target-breach-2014">(<a
+href="#ref-senate-target-breach-2014" role="doc-biblioref">United States
+Senate Committee on Commerce, Science, and Transportation, Majority
+Staff 2014</a>)</span>.)</p>
+<p><img src="../assets/images/ch02_cyber_kill_chain.png"
 alt="The Lockheed Martin Cyber Kill Chain showing seven sequential stages — reconnaissance, weaponization, delivery, exploitation, installation, command and control, and actions on objectives — with defenders aiming to detect and break the chain at any stage before the attacker reaches the final objective." />
-<figcaption aria-hidden="true">The Lockheed Martin Cyber Kill Chain
-showing seven sequential stages — reconnaissance, weaponization,
-delivery, exploitation, installation, command and control, and actions
-on objectives — with defenders aiming to detect and break the chain at
-any stage before the attacker reaches the final objective.</figcaption>
-</figure>
+<em>Figure 2.2: The seven Cyber Kill Chain stages. Defenders map
+controls to stages (email filtering at Delivery, patching at
+Exploitation, egress filtering at Command and Control) to find stages
+where nothing would stop the attacker.</em></p>
 <ol type="1">
 <li><strong>Reconnaissance:</strong> The attacker gathers intelligence
 on the target (e.g., searching LinkedIn for employee emails, scanning
@@ -723,16 +743,16 @@ Intrusion Analysis</h4>
 attack, the <strong>Diamond Model</strong> focuses on the
 <em>relationships</em> between four core features of every malicious
 event.</p>
-<figure>
-<img src="../assets/images/ch02_diamond_model.png"
+<p><img src="../assets/images/ch02_diamond_model.png"
 alt="The Diamond Model of Intrusion Analysis links four core features of every intrusion — adversary, capability, infrastructure, and victim — arranged as a diamond. Edges between vertices show the analytical pivots an investigator uses to move from one known feature to discover the others." />
-<figcaption aria-hidden="true">The Diamond Model of Intrusion Analysis
-links four core features of every intrusion — adversary, capability,
-infrastructure, and victim — arranged as a diamond. Edges between
-vertices show the analytical pivots an investigator uses to move from
-one known feature to discover the others.</figcaption>
-</figure>
-<p>The Diamond Model connects:</p>
+<em>Figure 2.3: The Diamond Model. Every intrusion has all four
+features, even if some are unknown; analysts pivot along the edges from
+a known feature (a malware sample, an IP address) to uncover the
+others.</em></p>
+<p>The Diamond Model <span class="citation"
+data-cites="caltagirone-diamond-2013">(<a
+href="#ref-caltagirone-diamond-2013" role="doc-biblioref">Caltagirone et
+al. 2013</a>)</span> connects:</p>
 <ul>
 <li><strong>Adversary:</strong> The threat actor behind the attack.</li>
 <li><strong>Victim:</strong> The target organization or individual.</li>
@@ -745,25 +765,33 @@ communication structures the adversary used to deliver the capability
 <p>Analysts use the Diamond Model to pivot from knowns to unknowns. If
 an analyst detects a specific IP address (Infrastructure) delivering a
 specific trojan (Capability) to their network (Victim), they can
-cross-reference threat intelligence databases to potentially identify
-the Nation-State (Adversary) that exclusively uses that combination.</p>
+cross-reference threat intelligence databases to identify the
+Nation-State (Adversary) known to have used that combination before.
+Because adversaries reuse and share tools and infrastructure, a match is
+a lead to investigate, not proof.</p>
 <h4 id="mitre-attck">MITRE ATT&amp;CK</h4>
 <p>The MITRE ATT&amp;CK (Adversarial Tactics, Techniques, and Common
 Knowledge) framework is a globally accessible knowledge base of
-adversary tactics and techniques based on real-world observations.
-Unlike the theoretical Cyber Kill Chain, MITRE ATT&amp;CK is highly
-practical and granular. It provides a massive matrix detailing the exact
-methods attackers use to bypass specific defenses.</p>
+adversary tactics and techniques based on real-world observations <span
+class="citation" data-cites="mitre-attack-matrix-2026">(<a
+href="#ref-mitre-attack-matrix-2026" role="doc-biblioref">MITRE
+Corporation 2026</a>)</span>. Unlike the high-level Cyber Kill Chain,
+MITRE ATT&amp;CK is highly practical and granular. Its matrices
+(Enterprise, Mobile, and ICS) organize the <em>why</em> (tactics) and
+the <em>how</em> (techniques and sub-techniques) of real attacks. MITRE
+updates ATT&amp;CK regularly, so cite technique IDs and check the
+current version before building detections around it.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> A security team wants to defend against
 attackers stealing passwords. They look up the <strong>Tactic</strong>
 of “Credential Access” in the MITRE ATT&amp;CK matrix. Under this
 Tactic, they find the specific <strong>Technique</strong> “OS Credential
-Dumping” (T1003). MITRE explains that attackers frequently target the
-LSASS memory process in Windows to extract plaintext passwords. MITRE
-then provides the exact commands an attacker would run, and lists
-specific <strong>Mitigations</strong>, such as enabling Windows
-Credential Guard, to stop it.</p>
+Dumping” (T1003), including its sub-technique for LSASS memory. MITRE
+explains that attackers frequently target the LSASS process in Windows
+to extract password hashes and other credentials. MITRE then lists
+real-world <strong>procedure examples</strong> (such as the Mimikatz
+tool) along with detection guidance and <strong>Mitigations</strong>,
+such as enabling Windows Credential Guard, to stop it.</p>
 </blockquote>
 <h4 id="stride-capec-and-owasp">STRIDE, CAPEC, and OWASP</h4>
 <p>When modeling threats during the software engineering and application
@@ -775,13 +803,18 @@ modeling software threats: <strong>S</strong>poofing,
 <strong>I</strong>nformation Disclosure, <strong>D</strong>enial of
 Service, and <strong>E</strong>levation of Privilege.</li>
 <li><strong>CAPEC:</strong> The Common Attack Pattern Enumeration and
-Classification is a dictionary of known attack patterns used by
-adversaries to exploit weaknesses in applications.</li>
+Classification, maintained by MITRE, is a catalog of common
+<strong>attack patterns</strong>: the repeatable steps adversaries use
+to exploit a weakness (SQL injection is one). Threat modelers use it to
+brainstorm how a feature could be attacked.</li>
 <li><strong>OWASP:</strong> The Open Worldwide Application Security
-Project is a nonprofit foundation that maintains the “OWASP Top 10,” the
-globally recognized standard document representing the ten most critical
-security risks to web applications (such as Injection attacks and Broken
-Access Control).</li>
+Project is a nonprofit foundation that maintains the “OWASP Top 10,” a
+widely used awareness document ranking the ten most critical security
+risks to web applications (such as Broken Access Control and Injection).
+It is revised every few years; the current edition is the 2025 list
+<span class="citation" data-cites="owasp-top10-2025">(<a
+href="#ref-owasp-top10-2025" role="doc-biblioref">OWASP Foundation
+2025</a>)</span>.</li>
 </ul>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> A software engineer is designing a new
@@ -795,8 +828,18 @@ Authentication)</em></li>
 password reset link in transit? <em>(Mitigation: Enforce HTTPS/TLS
 encryption)</em></li>
 <li><strong>R</strong>epudiation: If a customer makes a massive
-purchase, could they later deny doing it? <em>(Mitigation: Log the IP
-address and exact timestamp of every transaction)</em></li>
+purchase, could they later deny doing it? <em>(Mitigation: Keep
+tamper-evident audit logs tying each transaction to an authenticated
+account and timestamp)</em></li>
+<li><strong>I</strong>nformation Disclosure: Could one customer see
+another’s order history? <em>(Mitigation: Enforce server-side
+authorization checks on every record)</em></li>
+<li><strong>D</strong>enial of Service: Could an attacker lock out
+customers by hammering the login form? <em>(Mitigation: Rate limiting
+and bot detection)</em></li>
+<li><strong>E</strong>levation of Privilege: Could a normal customer
+reach an admin function? <em>(Mitigation: Least privilege and role
+checks on the server)</em></li>
 </ul>
 </blockquote>
 <h3 id="threat-modeling-methods">Threat Modeling Methods</h3>
@@ -839,8 +882,9 @@ examine dangerous implementation details, and <strong>user
 factors</strong> such as administrator workarounds, shared accounts,
 weak approval workflows, and unsafe habits that widen exposure without
 changing a single packet flow.</p>
-<p>Whenever data crosses a trust boundary, it must be validated,
-authenticated, and encrypted.</p>
+<p>Whenever data or a request crosses a trust boundary, the system
+should authenticate who is sending it, authorize what they may do,
+validate the input, and protect it in transit.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong> Consider an employee working from a coffee
 shop who needs to access a corporate database. The coffee shop’s public
@@ -872,14 +916,17 @@ discovered through <strong>cloud services discovery</strong>, and the
 organization’s <strong>public digital presence</strong> across marketing
 sites, developer portals, DNS records, and exposed APIs.</p>
 <p>Finally, threat models must incorporate legal and business
-constraints. <strong>Legal holds</strong> may prevent data destruction
-during litigation. <strong>Due diligence</strong> and <strong>due
-care</strong> shape what a reasonable defender is expected to verify
-before a merger, cloud migration, or vendor integration. <strong>Export
-controls</strong> can restrict where software, cryptography, or data may
-flow. <strong>Contractual obligations</strong> often impose stricter
-logging, notification, or isolation requirements than the law
-itself.</p>
+constraints. <strong>Legal holds</strong> require preserving potentially
+relevant data during litigation or an investigation, even when normal
+retention rules would delete it. <strong>Due diligence</strong> is the
+investigation done <em>before</em> committing, such as assessing an
+acquisition target’s security or vetting a vendor; <strong>due
+care</strong> is the ongoing duty to act as a reasonably prudent
+organization would afterward, such as patching and monitoring.
+<strong>Export controls</strong> can restrict where software,
+cryptography, or data may flow. <strong>Contractual obligations</strong>
+often impose stricter logging, notification, or isolation requirements
+than the law itself.</p>
 <h3 id="the-impact-of-organizational-change">The Impact of
 Organizational Change</h3>
 <p>An organization’s attack surface is not static; it changes
@@ -925,12 +972,11 @@ mean segmentation around a legacy server, stronger monitoring around a
 sensitive workflow, or compensating controls where direct replacement is
 not yet feasible.</p>
 <p><strong>Without an Existing System in Place:</strong> Greenfield
-designs allow architects to define trust boundaries, identity flows,
+designs let architects define trust boundaries, identity flows,
 encryption requirements, and approval gates before technical debt
 accumulates. This is where abuse cases, attack trees, and design reviews
-are most powerful, because the team can eliminate entire classes of
-threats before code is ever written or infrastructure is ever
-deployed.</p>
+are most powerful, because the team can eliminate whole classes of
+threats before code is written or infrastructure is deployed.</p>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 2.3</strong></p>
 <ol type="1">
@@ -966,10 +1012,9 @@ them.</li>
 for the Worst-Case Scenario?</h2>
 <p>No matter how robust an organization’s threat models and preventative
 controls are, determined adversaries will eventually breach the
-perimeter. In cybersecurity, the assumption of a breach is not
-pessimism; it is a foundational principle of modern defense. Therefore,
-security architects must design systems that not only resist attack but
-can rapidly recover when compromised.</p>
+perimeter. Assuming a breach is not pessimism; it is a foundational
+principle of modern defense, so systems must not only resist attack but
+recover rapidly when compromised.</p>
 <p>When a major incident occurs, an organization relies on two critical
 disciplines: <strong>Crisis Management</strong> and <strong>Business
 Continuity and Disaster Recovery (BCDR)</strong>.</p>
@@ -982,15 +1027,96 @@ decision-making under extreme pressure.</p>
 is in charge during a cyber incident. It defines the Incident Response
 (IR) team roles, establishing who has the authority to declare a
 disaster, who is authorized to speak to the media, and when to notify
-law enforcement or regulatory bodies.</p>
+law enforcement or regulatory bodies. A workable plan also includes a
+communication plan with pre-approved statements for employees,
+customers, regulators, and the press; an out-of-band channel (such as a
+phone bridge) in case email and chat are compromised; legal counsel from
+the first hour, to preserve evidence and privilege; a decision log; and
+regular exercises, because a plan nobody has rehearsed is a plan nobody
+follows. (Chapter 12 covers the technical incident response
+process.)</p>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> A technical team can successfully contain
 malware within minutes, but if the Public Relations team issues a
-misleading statement to the press, or the Legal team fails to notify
-regulators within 72 hours (as required by GDPR), the organization will
-still suffer massive reputational and financial damage. Crisis
-management ensures all departments move in lockstep.</p>
+misleading statement to the press, or the Legal team misses the
+reporting deadline for the rules that apply (for example, 72 hours under
+GDPR), the organization will still suffer massive reputational and
+financial damage. Crisis management ensures all departments move in
+lockstep.</p>
 </blockquote>
+<p>Each reporting clock starts at a different moment (awareness,
+classification, or a materiality decision), so the plan should name who
+makes that call.</p>
+<table>
+<caption>Table 2.3: Selected breach-reporting deadlines as of late 2026.
+Rules change and have exceptions, so confirm with legal
+counsel.</caption>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" style="text-align: left;">Regime</th>
+<th scope="col" style="text-align: left;">Applies to</th>
+<th scope="col" style="text-align: left;">Reporting clock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row" style="text-align: left;"><strong>GDPR</strong> (EU/EEA)</th>
+<td style="text-align: left;">Anyone handling EU residents’ personal
+data</td>
+<td style="text-align: left;">Authority notified within 72 hours of
+awareness, where feasible, unless risk to individuals is unlikely;
+individuals notified without undue delay if risk is high <span
+class="citation" data-cites="eu-gdpr-2016">(<a href="#ref-eu-gdpr-2016"
+role="doc-biblioref">European Parliament and Council of the European
+Union 2016</a>)</span></td>
+</tr>
+<tr>
+<th scope="row" style="text-align: left;"><strong>SEC Form 8-K Item 1.05</strong>
+(U.S.)</th>
+<td style="text-align: left;">Public companies</td>
+<td style="text-align: left;">Four business days after determining the
+incident is material <span class="citation"
+data-cites="sec-cyber-disclosure-2023">(<a
+href="#ref-sec-cyber-disclosure-2023" role="doc-biblioref">U.S.
+Securities and Exchange Commission 2023</a>)</span></td>
+</tr>
+<tr>
+<th scope="row" style="text-align: left;"><strong>NIS2</strong> (EU)</th>
+<td style="text-align: left;">Essential and important entities</td>
+<td style="text-align: left;">Early warning in 24 hours, notification in
+72 hours, final report in one month <span class="citation"
+data-cites="eu-nis2-2022">(<a href="#ref-eu-nis2-2022"
+role="doc-biblioref">European Parliament and Council of the European
+Union 2022a</a>)</span></td>
+</tr>
+<tr>
+<th scope="row" style="text-align: left;"><strong>DORA</strong> (EU)</th>
+<td style="text-align: left;">Financial entities</td>
+<td style="text-align: left;">Initial notice within 4 hours of
+classifying an incident as major (24 hours after awareness at most),
+then 72 hours, then one month <span class="citation"
+data-cites="eu-dora-2022 eu-dora-incident-rts-2025">(<a
+href="#ref-eu-dora-2022" role="doc-biblioref">European Parliament and
+Council of the European Union 2022b</a>; <a
+href="#ref-eu-dora-incident-rts-2025" role="doc-biblioref">European
+Commission 2025</a>)</span></td>
+</tr>
+<tr>
+<th scope="row" style="text-align: left;"><strong>CIRCIA</strong> (U.S.)</th>
+<td style="text-align: left;">Critical infrastructure</td>
+<td style="text-align: left;"><em>Proposed:</em> 72 hours for incidents,
+24 hours for ransom payments. Final rule still pending in late 2026
+<span class="citation" data-cites="cisa-circia-2026">(<a
+href="#ref-cisa-circia-2026" role="doc-biblioref">Cybersecurity and
+Infrastructure Security Agency 2026</a>)</span></td>
+</tr>
+</tbody>
+</table>
 <h3 id="bcdr-availability-risk-and-backup-strategies">BCDR, Availability
 Risk, and Backup Strategies</h3>
 <p>While crisis management handles the human element, <strong>Business
@@ -998,18 +1124,22 @@ Continuity and Disaster Recovery (BCDR)</strong> handles the technical
 and operational recovery. BCDR is designed to mitigate
 <strong>Availability Risk</strong>—the risk that critical systems or
 data will be inaccessible when needed.</p>
-<figure>
-<img src="../assets/images/ch02_bcdr_lifecycle.png"
-alt="The Business Continuity and Disaster Recovery planning lifecycle: business impact analysis, recovery strategy selection, plan development, training and testing, and ongoing maintenance — a continuous loop in which lessons learned from each test or real event feed back into the next round of planning." />
-<figcaption aria-hidden="true">The Business Continuity and Disaster
-Recovery planning lifecycle: business impact analysis, recovery strategy
-selection, plan development, training and testing, and ongoing
-maintenance — a continuous loop in which lessons learned from each test
-or real event feed back into the next round of planning.</figcaption>
-</figure>
+<p><img src="../assets/images/ch02_bcdr_lifecycle.png"
+alt="The Business Continuity and Disaster Recovery planning lifecycle: project initiation, business impact analysis, recovery strategy development, plan design and implementation, and testing and maintenance, with a dashed continuous-improvement loop returning from testing and maintenance to the business impact analysis so lessons learned from each test or real event feed back into planning." />
+<em>Figure 2.4: The BCDR planning lifecycle. The Business Impact
+Analysis (BIA) in Step 2 drives every later choice, and the dashed loop
+shows testing feeding lessons back into the plan, so it is never
+“finished.”</em></p>
 <p>A BCDR plan answers a simple question: <em>How does the business
 survive if our primary data center is destroyed or our data is encrypted
-by ransomware?</em></p>
+by ransomware?</em> Planning starts with a <strong>Business Impact
+Analysis (BIA)</strong>, which identifies critical business functions
+and what losing each would cost. For each critical system, the BIA sets
+a <strong>Recovery Time Objective (RTO)</strong>, the longest it can
+stay down, and a <strong>Recovery Point Objective (RPO)</strong>, the
+most data (measured in time) the business can afford to lose. An RPO of
+one hour means backups or replication must capture changes at least
+hourly.</p>
 <p>The cornerstone of any BCDR strategy is backups. However, not all
 backups provide the same level of protection:</p>
 <ul>
@@ -1023,43 +1153,69 @@ simultaneously.</li>
 backups are physically or logically severed from the primary network.
 This could be tape drives stored in a physical vault, or immutable cloud
 backups stored in an isolated, read-only tenant. Disconnected backups
-are immune to standard network-based ransomware because the attacker
-literally cannot reach them.</li>
+sit out of reach of ransomware spreading across the network, which is
+why they survive attacks that destroy connected ones.</li>
 </ul>
 <blockquote class="callout-key-point">
-<p><strong class="callout-title">Key Point</strong> To combat advanced ransomware,
-organizations should employ the <strong>3-2-1 Backup Rule</strong>: Keep
-at least <strong>3</strong> copies of your data, on <strong>2</strong>
-different storage media, with <strong>1</strong> copy stored entirely
-offsite and offline (disconnected).</p>
+<p><strong class="callout-title">Key Point</strong> The <strong>3-2-1 Backup Rule</strong>
+says to keep at least <strong>3</strong> copies of your data, on
+<strong>2</strong> different storage media, with <strong>1</strong> copy
+stored offsite. Against modern ransomware, the extended
+<strong>3-2-1-1-0</strong> version adds <strong>1</strong> copy that is
+offline or immutable (cannot be altered) and <strong>0</strong> errors
+found when restores are tested.</p>
 </blockquote>
 <h3 id="integrity-risk">Integrity Risk</h3>
 <p>In addition to availability, BCDR plans must account for
 <strong>Integrity Risk</strong>. It is not enough to just restore a
-database from a backup; you must prove mathematically that the attacker
-did not subtly alter the backup data before you restored it.</p>
+database from a backup; you must verify that the attacker did not subtly
+alter the backup data before you restored it.</p>
 <p>Security engineers protect data integrity using several
 mechanisms:</p>
 <ul>
 <li><strong>Hashing:</strong> Generating cryptographic hashes (like
-SHA-256) of critical files. If a file is altered by even a single bit,
-its hash value changes entirely, instantly alerting the system to
-tampering.</li>
+SHA-256) of critical files when they are created and storing those
+hashes separately. If a file is altered by even a single bit, its hash
+value changes entirely, so a mismatch exposes tampering.</li>
 <li><strong>Remote Journaling:</strong> Transmitting database
-transaction logs to a secure, remote server in real-time. If the primary
-database crashes or is corrupted, the remote journal can be used to
-rebuild the database perfectly up to the second before the failure.</li>
+transaction logs to a secure, remote server in real-time (or in frequent
+batches). If the primary database crashes or is corrupted, the remote
+journal can be used to rebuild the database perfectly up to the second
+before the failure.</li>
 <li><strong>Interference Monitoring:</strong> Watching for deliberate
 attempts to disrupt replication, journal shipping, sensor inputs, or
-synchronization traffic. Attackers do not always need to corrupt a file
-directly; sometimes they only need to interfere with the signals and
-dependencies that defenders rely upon to trust the data.</li>
+synchronization traffic. Attackers sometimes only need to interfere with
+the signals defenders rely on to trust the data.</li>
 <li><strong>Antitampering Controls:</strong> Physical or logical
 mechanisms that protect hardware and logs. For example, a server might
 have a physical antitamper switch that alerts security if the server
 chassis is opened. Log files can be forwarded to a centralized,
 write-once-read-many (WORM) syslog server so an attacker cannot delete
 their tracks.</li>
+</ul>
+<h3 id="privacy-risk-considerations">Privacy Risk Considerations</h3>
+<p>Confidentiality asks whether the wrong people can see data.
+<strong>Privacy risk</strong> asks whether <em>personal</em> data is
+handled as law and individuals expect, even when no attacker is
+involved:</p>
+<ul>
+<li><strong>Data subject rights:</strong> Laws such as the GDPR and CCPA
+let individuals request access to, correction of, and deletion of their
+data. Missing the legal deadline (generally one month under the GDPR
+<span class="citation" data-cites="eu-gdpr-2016">(<a
+href="#ref-eu-gdpr-2016" role="doc-biblioref">European Parliament and
+Council of the European Union 2016</a>)</span>) is a compliance risk, so
+organizations must know where personal data lives, including in
+backups.</li>
+<li><strong>Data sovereignty:</strong> Data is subject to the laws of
+the country where it is stored or processed (see Chapter 1). Cloud
+regions, replicas, and subprocessors can move data across borders, so
+BCDR designs must track where copies sit.</li>
+<li><strong>Biometrics:</strong> A stolen fingerprint or face template
+cannot be reset like a password, and the GDPR treats biometric data used
+for identification as a special category with stricter conditions.
+Collect it only when necessary, store templates rather than raw images,
+and encrypt them.</li>
 </ul>
 <!-- -->
 <blockquote class="callout-case-study">
@@ -1087,12 +1243,12 @@ offsite data vaulting service and requested the delivery of last week’s
 <strong>Disconnected Backups</strong>—physical tape drives that had been
 air-gapped from the network.</p>
 <p>Because the tapes were offline, the ransomware could not reach them.
-Alice’s team used cryptographic <strong>Hashing</strong> to verify the
-integrity of the data on the tapes before restoring it to a clean,
-isolated environment. To bridge the gap between last week’s tape backup
-and the exact moment of the attack, they applied the transaction logs
-stored via <strong>Remote Journaling</strong> on a segregated
-server.</p>
+Alice’s team used cryptographic <strong>Hashing</strong> to compare the
+tapes against the hash values recorded when they were written, verifying
+integrity before restoring the data to a clean, isolated environment. To
+bridge the gap between last week’s tape backup and the exact moment of
+the attack, they applied the transaction logs stored via <strong>Remote
+Journaling</strong> on a segregated server.</p>
 <p>By executing a well-rehearsed BCDR strategy, Wonderland Logistics
 rebuilt their database with perfect integrity and resumed shipping
 within 18 hours, without paying a single dime to the attackers.</p>
@@ -1122,10 +1278,11 @@ both availability and data integrity without paying the ransom?</li>
 </summary>
 <ol type="1">
 <li><strong>Three copies of data, on two kinds of media, with one copy
-offsite and offline.</strong></li>
+offsite.</strong> The extended 3-2-1-1-0 version adds one offline or
+immutable copy and zero errors on restore tests.</li>
 <li><strong>Disconnected backups.</strong> Ransomware can usually reach
-connected backups, but it cannot encrypt media that is offline or
-isolated.</li>
+connected backups, but it generally cannot encrypt media that is offline
+or isolated.</li>
 <li><strong>Disconnected backups plus hashing and remote
 journaling.</strong> Alice restored from the offline tapes, verified the
 data with hashes, and replayed the journaled transactions to catch up
@@ -1136,14 +1293,12 @@ safely.</li>
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
 <p>In this chapter, we explored the reality of defending an enterprise.
-We learned that risk cannot be eliminated, only managed through
-mathematical analysis and strategic treatment. We categorized our
-adversaries, examining the differing motivations and vast resources of
-Nation-States, Hacktivists, and Insiders. We explored threat modeling
-frameworks like the Cyber Kill Chain and MITRE ATT&amp;CK to
-systematically dissect attacks. Finally, we recognized that because
-breaches are inevitable, resilient Crisis Management and BCDR planning
-are the ultimate safety net for an organization.</p>
+Risk cannot be eliminated, only measured and treated. We profiled
+adversaries by motivation and resources, dissected attacks with the
+Cyber Kill Chain, Diamond Model, MITRE ATT&amp;CK, and STRIDE, and
+mapped our attack surface. Finally, because breaches are inevitable,
+crisis management, regulatory reporting, and BCDR planning are the
+ultimate safety net.</p>
 <p>By mastering Risk Management and Threat Modeling, security
 professionals ensure they are fighting the right battles, against the
 right adversaries, with the right budget.</p>
@@ -1152,23 +1307,28 @@ right adversaries, with the right budget.</p>
 <li><strong>Risk:</strong> The probability of a threat exploiting a
 vulnerability and the resulting business impact.</li>
 <li><strong>Quantitative Risk Analysis:</strong> Determining risk using
-hard financial data and historical statistics to calculate exact dollar
+hard financial data and historical statistics to estimate dollar
 amounts.</li>
 <li><strong>Qualitative Risk Analysis:</strong> Determining risk using
 subjective judgment, experience, and descriptive labels (e.g., Low,
 Medium, High).</li>
 <li><strong>Single Loss Expectancy (SLE):</strong> The financial cost of
-a single occurrence of a threat.</li>
-<li><strong>Annualized Rate of Occurrence (ARO):</strong> The historical
-probability of a threat occurring in a single year.</li>
+a single occurrence of a threat (often Asset Value × Exposure
+Factor).</li>
+<li><strong>Annualized Rate of Occurrence (ARO):</strong> The estimated
+number of times a threat will occur in a year (0.1 means once in ten
+years).</li>
 <li><strong>Annualized Loss Expectancy (ALE):</strong> The total
 financial loss expected from a threat per year (SLE × ARO).</li>
 <li><strong>Risk Appetite vs. Tolerance:</strong> Appetite is the broad
 willingness to take risk for strategic goals; Tolerance is the specific,
-measurable deviation allowed.</li>
+measurable limit around it.</li>
 <li><strong>Risk Treatment Strategies:</strong> The four choices a
 business has when facing risk: Mitigation (reducing), Transference
-(insurance), Avoidance (canceling), or Acceptance (ignoring).</li>
+(insurance), Avoidance (canceling), or Acceptance (knowingly, and
+documented).</li>
+<li><strong>Residual Risk:</strong> The risk that remains after
+treatment; it must fall within tolerance.</li>
 <li><strong>GRC Tools:</strong> Governance, Risk, and Compliance
 platforms used to map controls, automate audits, and provide continuous
 security monitoring.</li>
@@ -1186,19 +1346,21 @@ network.</li>
 <li><strong>Vendor &amp; Subprocessor Risk:</strong> The risk introduced
 by a third-party vendor (or the vendor’s vendor) suffering a breach that
 exposes the primary organization’s data.</li>
-<li><strong>Zero-Day Exploit:</strong> A cyberattack that occurs on the
-same day a weakness is discovered in software, meaning no patch
-exists.</li>
-<li><strong>Cyber Kill Chain:</strong> A framework modeling the
+<li><strong>Zero-Day Exploit:</strong> An attack that targets a software
+flaw the vendor does not yet know about, so no patch exists.</li>
+<li><strong>Cyber Kill Chain:</strong> A framework modeling the seven
 sequential phases of a cyberattack.</li>
+<li><strong>Diamond Model:</strong> An intrusion-analysis model linking
+adversary, capability, infrastructure, and victim so analysts can pivot
+from known features to unknown ones.</li>
 <li><strong>MITRE ATT&amp;CK:</strong> A granular knowledge base of
 adversary tactics and techniques.</li>
 <li><strong>STRIDE:</strong> A threat modeling framework for software
 development (Spoofing, Tampering, Repudiation, Information Disclosure,
 Denial of Service, Elevation of Privilege).</li>
-<li><strong>CAPEC &amp; OWASP:</strong> Frameworks listing common attack
-patterns (CAPEC) and the top critical web application security risks
-(OWASP).</li>
+<li><strong>CAPEC &amp; OWASP:</strong> A catalog of common attack
+patterns (CAPEC) and the OWASP Top 10 list of critical web application
+security risks.</li>
 <li><strong>Attack Surface:</strong> The total sum of all possible
 points where an unauthorized user can enter or extract data from an
 environment.</li>
@@ -1207,7 +1369,14 @@ changes its level of trust (e.g., passing from the public internet into
 a private network).</li>
 <li><strong>Connected vs. Disconnected Backups:</strong> Connected
 backups are fast but vulnerable to ransomware; disconnected (air-gapped)
-backups are offline and immune to network attacks.</li>
+backups are offline and out of reach of network-based attacks.</li>
+<li><strong>BIA, RTO, and RPO:</strong> The Business Impact Analysis
+identifies critical functions; the Recovery Time Objective is the
+longest acceptable outage; the Recovery Point Objective is the most data
+loss acceptable, measured in time.</li>
+<li><strong>Privacy Risk:</strong> The risk that personal data is
+handled in ways that violate law or individuals’ expectations (data
+subject rights, data sovereignty, biometrics).</li>
 <li><strong>Remote Journaling:</strong> Transmitting database
 transaction logs offsite in real-time to prevent data loss.</li>
 </ul>
@@ -1394,6 +1563,60 @@ is what a tabletop needs.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-caltagirone-diamond-2013" class="csl-entry"
+role="listitem">
+Caltagirone, Sergio, Andrew Pendergast, and Christopher Betz. 2013.
+<em>The Diamond Model of Intrusion Analysis</em>. <span>Center for Cyber
+Intelligence Analysis and Threat Research</span>. <a
+href="https://apps.dtic.mil/sti/pdfs/ADA586960.pdf">https://apps.dtic.mil/sti/pdfs/ADA586960.pdf</a>.
+</div>
+<div id="ref-cisa-circia-2026" class="csl-entry" role="listitem">
+Cybersecurity and Infrastructure Security Agency. 2026. <em>Cyber
+Incident Reporting for Critical Infrastructure Act of 2022
+(CIRCIA)</em>. <a
+href="https://www.cisa.gov/topics/cyber-threats-and-advisories/information-sharing/cyber-incident-reporting-critical-infrastructure-act-2022-circia">https://www.cisa.gov/topics/cyber-threats-and-advisories/information-sharing/cyber-incident-reporting-critical-infrastructure-act-2022-circia</a>.
+</div>
+<div id="ref-eu-dora-incident-rts-2025" class="csl-entry"
+role="listitem">
+European Commission. 2025. <em>Commission Delegated Regulation (EU)
+2025/301 on the Content and Time Limits for Reporting Major ICT-Related
+Incidents Under DORA</em>. <a
+href="https://eur-lex.europa.eu/eli/reg_del/2025/301/oj">https://eur-lex.europa.eu/eli/reg_del/2025/301/oj</a>.
+</div>
+<div id="ref-eu-gdpr-2016" class="csl-entry" role="listitem">
+European Parliament and Council of the European Union. 2016.
+<em>Regulation (EU) 2016/679 (General Data Protection Regulation)</em>.
+<a
+href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">https://eur-lex.europa.eu/eli/reg/2016/679/oj</a>.
+</div>
+<div id="ref-eu-nis2-2022" class="csl-entry" role="listitem">
+European Parliament and Council of the European Union. 2022a.
+<em>Directive (EU) 2022/2555 (NIS2), Article 23: Reporting
+Obligations</em>. <a
+href="https://eur-lex.europa.eu/eli/dir/2022/2555/oj">https://eur-lex.europa.eu/eli/dir/2022/2555/oj</a>.
+</div>
+<div id="ref-eu-dora-2022" class="csl-entry" role="listitem">
+European Parliament and Council of the European Union. 2022b.
+<em>Regulation (EU) 2022/2554 (Digital Operational Resilience Act),
+Article 19</em>. <a
+href="https://eur-lex.europa.eu/eli/reg/2022/2554/oj">https://eur-lex.europa.eu/eli/reg/2022/2554/oj</a>.
+</div>
+<div id="ref-hutchins-kill-chain-2011" class="csl-entry"
+role="listitem">
+Hutchins, Eric M., Michael J. Cloppert, and Rohan M. Amin. 2011.
+<span>“Intelligence-Driven Computer Network Defense Informed by Analysis
+of Adversary Campaigns and Intrusion Kill Chains.”</span>
+<em>Proceedings of the 6th International Conference on Information
+Warfare and Security</em>. <a
+href="https://www.lockheedmartin.com/content/dam/lockheed-martin/rms/documents/cyber/LM-White-Paper-Intel-Driven-Defense.pdf">https://www.lockheedmartin.com/content/dam/lockheed-martin/rms/documents/cyber/LM-White-Paper-Intel-Driven-Defense.pdf</a>.
+</div>
+<div id="ref-nist-sp800-37r2-2018" class="csl-entry" role="listitem">
+Joint Task Force. 2018. <em>Risk Management Framework for Information
+Systems and Organizations: A System Life Cycle Approach for Security and
+Privacy</em>. SP 800-37 Rev. 2. <span>National Institute of Standards
+and Technology</span>. <a
+href="https://doi.org/10.6028/NIST.SP.800-37r2">https://doi.org/10.6028/NIST.SP.800-37r2</a>.
+</div>
 <div id="ref-nist-sp800-30r1-2012" class="csl-entry" role="listitem">
 Joint Task Force Transformation Initiative. 2012. <em>Guide for
 Conducting Risk Assessments</em>. NIST SP 800-30 Rev. 1. <span>National
@@ -1406,11 +1629,21 @@ Krebs, Brian. 2014. <em>Email Attack on Vendor Set up Breach at
 Target</em>. <a
 href="https://krebsonsecurity.com/2014/02/email-attack-on-vendor-set-up-breach-at-target/">https://krebsonsecurity.com/2014/02/email-attack-on-vendor-set-up-breach-at-target/</a>.
 </div>
+<div id="ref-mitre-attack-matrix-2026" class="csl-entry"
+role="listitem">
+MITRE Corporation. 2026. <em>MITRE ATT&amp;CK: Enterprise, Mobile, and
+ICS Matrices</em>. <a
+href="https://attack.mitre.org/">https://attack.mitre.org/</a>.
+</div>
 <div id="ref-nist-csf-2-2024" class="csl-entry" role="listitem">
 National Institute of Standards and Technology. 2024. <em>Cybersecurity
 Framework 2.0</em>. NIST CSWP 29. <span>National Institute of Standards
 and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.CSWP.29">https://doi.org/10.6028/NIST.CSWP.29</a>.
+</div>
+<div id="ref-owasp-top10-2025" class="csl-entry" role="listitem">
+OWASP Foundation. 2025. <em>OWASP Top 10:2025</em>. <a
+href="https://owasp.org/Top10/2025/">https://owasp.org/Top10/2025/</a>.
 </div>
 <div id="ref-senate-target-breach-2014" class="csl-entry"
 role="listitem">
@@ -1419,6 +1652,13 @@ Majority Staff. 2014. <em>A <span>“Kill Chain”</span> Analysis of the
 2013 Target Data Breach</em>. <span>United States Senate Committee on
 Commerce, Science, and Transportation</span>. <a
 href="https://www.commerce.senate.gov/wp-content/uploads/media/doc/2014%200325%20Target%20Kill%20Chain%20Analysis.pdf">https://www.commerce.senate.gov/wp-content/uploads/media/doc/2014%200325%20Target%20Kill%20Chain%20Analysis.pdf</a>.
+</div>
+<div id="ref-sec-cyber-disclosure-2023" class="csl-entry"
+role="listitem">
+U.S. Securities and Exchange Commission. 2023. <em>Cybersecurity Risk
+Management, Strategy, Governance, and Incident Disclosure (Release Nos.
+33-11216; 34-97989)</em>. <a
+href="https://www.sec.gov/files/rules/final/2023/33-11216.pdf">https://www.sec.gov/files/rules/final/2023/33-11216.pdf</a>.
 </div>
 </div>
 

@@ -44,13 +44,13 @@ def create_bcdr_lifecycle():
     # Add an arrow looping from step 5 back to step 2 to show continuous improvement
     loop_arrow = FancyArrowPatch((4 * spacing, -box_height/2 - 0.1), 
                                  (1 * spacing, -box_height/2 - 0.1),
-                                 connectionstyle="bar,fraction=-0.3",
+                                 connectionstyle="bar,fraction=-0.2",
                                  arrowstyle='-|>', mutation_scale=15, color='#06b6d4', lw=2, linestyle='--')
     ax.add_patch(loop_arrow)
-    ax.text(2.5 * spacing, -1.2, "Continuous Improvement & Updates", ha='center', va='center', color='#06b6d4', fontsize=9, fontweight='bold')
+    ax.text(2.5 * spacing, -1.95, "Continuous Improvement & Updates", ha='center', va='center', color='#06b6d4', fontsize=9, fontweight='bold')
 
     ax.set_xlim(-1, len(steps) * spacing - 0.5)
-    ax.set_ylim(-1.5, 1)
+    ax.set_ylim(-2.3, 1)
     ax.axis('off')
     
     plt.title("The BCDR Planning Lifecycle", fontsize=15, fontweight='bold', pad=15)

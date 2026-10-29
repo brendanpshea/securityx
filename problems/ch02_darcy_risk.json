@@ -6,7 +6,7 @@
   "artifact_kind": "card",
   "artifact_md": "```\nDerbyshire Holdings — Vendor Risk Register\n  Entry .................. PCS-2025-04\n  Status ................. open, awaiting board memo\n  Reviewer ............... F. Darcy   (escalate: yes)\n\n  Vendor ................. Pemberley Climate Services\n  Engagement type ........ on-site HVAC subcontractor, 5-yr renewal\n  Asset at risk .......... PROD-FIN-01  Customer payment database\n  Asset Value (AV) ....... $4,000,000\n  Exposure Factor (EF) ... 0.25      (≈ 25% loss per incident)\n  ARO .................... 0.2       (~ once per 5 yrs, per peer data)\n\n  Access path ............ tech laptops → DC LAN directly\n                           NO segmentation; NO jump host\n  Authentication ......... shared 'pemberley-hvac' local account\n  Last assessment ........ paper questionnaire, 14 mos ago (Boyd, ext.)\n  Continuous monitoring .. NONE\n```",
   "prompt_md": "Use the register entry to complete Darcy's board memo, then click **Check answers**.",
-  "body_md": "Using the AV and EF fields in the register, the **Single Loss Expectancy (SLE)** for a Pemberley-driven breach is **{{sle}}**. Multiplying by ARO, the **Annualized Loss Expectancy (ALE)** is **{{ale}}**.\n\nBecause the *access path* field makes Pemberley the conduit (not the attacker), Darcy classifies this as a **{{risk_category}}** risk. The most likely adversary profile, motivated by financial gain and possessing moderate but not nation-state-level resources, is the **{{actor}}**.\n\nTo map the likely intrusion (initial access via the contractor laptop, then lateral movement to the database), Darcy will present the scenario using the **{{framework}}** framework, which catalogs adversary tactics and techniques observed in the wild.\n\nGiven that the ALE exceeds the cost of network segmentation but the residual risk is still non-zero, Darcy recommends a **{{treatment}}** strategy — segment Pemberley onto an isolated VLAN and require jump-host access. To replace the *Last assessment* / *Continuous monitoring* gap in the register, Darcy will propose adopting a **{{monitoring_tool}}** platform.",
+  "body_md": "Using the AV and EF fields in the register, the **Single Loss Expectancy (SLE)** for a Pemberley-driven breach is **{{sle}}**. Multiplying by ARO, the **Annualized Loss Expectancy (ALE)** is **{{ale}}**.\n\nBecause the *access path* field makes Pemberley the conduit (not the attacker), Darcy classifies this as a **{{risk_category}}** risk. The most likely adversary profile, motivated by financial gain and possessing moderate but not nation-state-level resources, is the **{{actor}}**.\n\nTo map the likely intrusion (initial access via the contractor laptop, then lateral movement to the database), Darcy will present the scenario using the **{{framework}}** framework, which catalogs adversary tactics and techniques observed in the wild.\n\nGiven that the ALE exceeds the cost of network segmentation but the residual risk is still non-zero, Darcy recommends a **{{treatment}}** strategy — segment Pemberley onto an isolated VLAN and require jump-host access. To replace the *Last assessment* / *Continuous monitoring* gap in the register, Darcy will propose adopting a **{{monitoring_tool}}** platform that tracks Pemberley's control mappings, assessment evidence, and compliance status continuously.",
   "blanks": {
     "sle": {
       "answer": "$1,000,000",
@@ -19,21 +19,21 @@
       "explanation": "ALE = SLE × ARO = $1,000,000 × 0.2 (once every five years) = $200,000 per year."
     },
     "risk_category": {
-      "answer": "supply chain / third-party",
+      "answer": "third-party vendor",
       "distractors": [
-        "insider",
+        "malicious insider",
         "natural disaster",
-        "compliance",
+        "regulatory compliance",
         "reputational"
       ],
-      "explanation": "When the threat is enabled by a vendor's access or process — not by the vendor's own malice — it is classified as supply-chain or third-party risk."
+      "explanation": "When the exposure comes from a vendor's access or practices — not from the vendor's own malice and not from your own employees — it is third-party (vendor) risk, part of supply chain risk. Pemberley's technicians are outsiders granted trusted access, so \"insider\" is the wrong bucket."
     },
     "actor": {
       "answer": "Organized cybercrime group",
       "distractors": [
-        "Nation-state APT",
-        "Hacktivist",
-        "Script kiddie",
+        "Nation-state APT group",
+        "Hacktivist collective",
+        "Unskilled script kiddie",
         "Disgruntled insider"
       ],
       "explanation": "Financially motivated, moderately resourced actors targeting payment data are the textbook profile of organized cybercrime — distinct from nation-states (geopolitical motive, top-tier resources) or hacktivists (ideological motive)."
@@ -53,8 +53,7 @@
       "distractors": [
         "Accept",
         "Transfer (insure)",
-        "Avoid (terminate)",
-        "Ignore"
+        "Avoid (terminate)"
       ],
       "explanation": "Implementing a control (segmentation + jump host) to lower likelihood or impact is risk *mitigation*. Transfer would be buying cyber insurance; avoidance would be ending the Pemberley contract entirely."
     },
@@ -66,7 +65,7 @@
         "DLP",
         "CASB"
       ],
-      "explanation": "GRC platforms automate continuous third-party assessment, control mapping, and compliance tracking — replacing one-off annual questionnaires. SIEM/EDR/DLP/CASB address different operational layers."
+      "explanation": "GRC platforms automate control mapping, compliance tracking, documentation, and continuous monitoring of third-party posture — replacing one-off annual questionnaires. SIEM collects and correlates security events, EDR protects endpoints, DLP watches data movement, and CASB governs cloud-app usage; none is built to track a vendor's control and compliance status."
     }
   }
 }
