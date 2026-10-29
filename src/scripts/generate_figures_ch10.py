@@ -51,13 +51,13 @@ def create_purdue_model():
 
     # Levels from top (enterprise/IT) to bottom (physical process)
     levels = [
-        (5, 'Level 5 — Enterprise / Internet',
-         'Public web, email, VPN, remote vendors',
+        (5, 'Level 5 — Enterprise Network',
+         'Corporate data centers, cloud services, Internet edge',
          SURFACE_ALT),
-        (4, 'Level 4 — Enterprise IT',
+        (4, 'Level 4 — Site Business Planning (IT)',
          'ERP, email, business apps, corporate AD',
          CYAN),
-        ('DMZ', 'Industrial DMZ (iDMZ)',
+        ('DMZ', 'Industrial DMZ (iDMZ, "Level 3.5")',
          'Patch servers, jump hosts, historian replicas, AV updates',
          AMBER),
         (3, 'Level 3 — Operations & Control',
@@ -87,7 +87,7 @@ def create_purdue_model():
         y -= h
 
     # Right-side trust labels
-    ax.text(13.0, 9.65 + (1.05 - 0.15) / 2, 'Untrusted',
+    ax.text(13.0, 9.65 + (1.05 - 0.15) / 2, 'Less\ntrusted',
             ha='left', fontsize=10, color=ROSE, fontweight='bold')
     ax.text(13.0, 9.65 - 1.05 + (1.05 - 0.15) / 2, 'IT',
             ha='left', fontsize=10, color=CYAN, fontweight='bold')
@@ -100,7 +100,7 @@ def create_purdue_model():
 
     # Note
     ax.text(7.0, 0.4,
-            'All north-south traffic between IT and OT must traverse the industrial DMZ — no direct connections. '
+            'Best practice: all north-south traffic between IT and OT traverses the industrial DMZ — no direct connections. '
             'East-west traffic within OT is segmented further by zones and conduits (ISA/IEC 62443).',
             ha='center', fontsize=10, color=SLATE, style='italic')
 
@@ -137,7 +137,7 @@ def create_wireless_segmentation():
         (3.6, 'Guest',
          'Captive portal\nInternet only — no internal\nClient isolation on', AMBER),
         (1.8, 'IoT / Smart-bldg',
-         'WPA3-PSK per-device\nVLAN isolated, egress only\nto vendor cloud', ROSE),
+         'Per-device PSK (iPSK)\nVLAN isolated, egress only\nto vendor cloud', ROSE),
     ]
     for y, name, desc, color in ssids_left:
         text_color = TEXT_DARK if color in (CYAN, EMERALD, AMBER) else TEXT_LIGHT

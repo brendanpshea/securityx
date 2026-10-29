@@ -2,102 +2,101 @@
   "id": "ch04-prospero-zero-trust",
   "chapter": 4,
   "title": "Prospero Redesigns the Milan Island Network",
-  "context_md": "Prospero, Network Architect at *Milan Island Telecom*, is dismantling the company's twenty-year-old castle-and-moat network. After the pandemic, two-thirds of the workforce became permanent remote, contractors connect from a dozen countries, and the company adopted three SaaS suites — none of which sit behind the corporate firewall.\n\nThe legacy design assumes that anyone inside the perimeter VPN is trustworthy. Prospero has been asked to fix this without forcing every remote worker to backhaul traffic through the Milan headquarters, which would crush the WAN links and add 200ms of latency to every Salesforce request.\n\nHis plan: collapse networking and security functions into a single cloud-delivered edge service, evaluate every request continuously rather than once at login, break the flat internal network into per-application segments small enough that a single compromised laptop cannot reach the customer billing database, and classify all data so that DLP rules can travel with files even when they leave the network.\n\nProspero also has to convince the auditors that he can *measure* whether the new controls work — not just claim they do.",
+  "context_md": "Prospero, Network Architect at *Milan Island Telecom*, is dismantling the company's twenty-year-old castle-and-moat network. After the pandemic, two-thirds of the workforce became permanent remote, contractors connect from a dozen countries, and the company adopted three SaaS suites — none of which sit behind the corporate firewall.\n\nThe legacy design assumes that anyone inside the perimeter VPN is trustworthy. Prospero has been asked to fix this without forcing every remote worker to backhaul traffic through the Milan headquarters, which would crush the WAN links and add 200ms of latency to every Salesforce request.\n\nHis plan: collapse networking and security functions into a single cloud-delivered edge service, keep re-checking trust after login instead of granting it once, break the flat internal network into per-application segments small enough that a single compromised laptop cannot reach the customer billing database, and classify all data so that DLP rules can travel with files even when they leave the network.\n\nProspero also has to convince the auditors that he can *measure* whether the new controls work — not just claim they do.",
   "artifact_title": "Architecture Review — Milan Island Telecom (auditor's working table)",
   "artifact_kind": "table",
   "artifact_md": "| Domain | Today | Pain point observed |\n|---|---|---|\n| **Workforce** | 67% permanent remote; contractors in 12 countries | n/a (driver, not finding) |\n| **WAN path** | All remote traffic backhauled → Milan HQ VPN concentrator | +200 ms to every Salesforce request; users tunneling around VPN |\n| **Internal segmentation** | Flat /16; customer billing DB reachable from any VPN-authenticated laptop | Lateral movement trivial — confirmed in March red-team |\n| **Authorization model** | Identity checked once at VPN login | Stolen session ≈ stolen tenure; no posture re-check |\n| **Customer data** | No labels, no DLP at egress, no scanning at rest | Auditor pulled 47 mislabeled customer files in 20 minutes |\n| **Effectiveness reporting** | Quarterly slide: *\"controls are in place\"* | No measurable evidence; auditors flagged on last review |",
   "prompt_md": "Map each row of the audit table to Prospero's Zero Trust fix, then click **Check answers**.",
-  "body_md": "The *Workforce* + *WAN path* rows drive the access layer: Prospero will replace the hub-and-spoke VPN with a **{{edge_service}}** that delivers SD-WAN, SWG, CASB, ZTNA, and FWaaS from cloud points of presence close to the user, eliminating the backhaul penalty.\n\nRather than trusting the network location of a request, every access decision will be made at a **{{pdp}}**, which evaluates identity, device posture, and context. The decision is then enforced at the **{{pep}}** in front of each application. The *Authorization* row is fixed by making authorization **{{auth_model}}** — re-evaluated on every request, not granted once at login.\n\nThe *Internal segmentation* row is fixed by **{{segmentation}}** — far finer-grained than traditional VLAN segmentation. A compromised endpoint can reach only the services it has been explicitly authorized for.\n\nThe *Customer data* row is fixed in three moves: every customer file is assigned a sensitivity **{{label}}** at creation, **{{dlp_state}}** DLP rules scan email and SaaS uploads for matching content as it leaves the environment, and files at rest are inspected by **{{discovery}}** scans to find mislabeled or shadow copies.\n\nThe *Effectiveness reporting* row is fixed by publishing a quarterly dashboard of **{{metric}}** — quantitative evidence that the controls reduce real risk, not just compliance checkboxes.",
+  "body_md": "The *Workforce* + *WAN path* rows drive the access layer: Prospero will replace the hub-and-spoke VPN with **{{edge_service}}**, which delivers SD-WAN, SWG, CASB, ZTNA, and FWaaS from cloud points of presence close to the user, eliminating the backhaul penalty.\n\nRather than trusting the network location of a request, every access decision will be made by the **{{pdp}}**, which evaluates identity, device posture, and context. The decision is then enforced at the **{{pep}}** in front of each application. The *Authorization* row is fixed by making authorization **{{auth_model}}**: trust is re-evaluated as identity, device posture, and context change.\n\nThe *Internal segmentation* row is fixed by **{{segmentation}}**, which is far finer-grained than traditional network zones. A compromised endpoint can reach only the services it has been explicitly authorized for.\n\nThe *Customer data* row is fixed in three moves: every customer file is assigned a **{{label}}** at creation that records how sensitive it is, **{{dlp_state}}** DLP rules scan email and SaaS uploads for matching content as it leaves the environment, and files at rest are inspected by **{{discovery}}** scans to find mislabeled or shadow copies.\n\nThe *Effectiveness reporting* row is fixed by publishing a quarterly dashboard of **{{metric}}**, quantitative evidence that the controls actually reduce risk.",
   "blanks": {
     "edge_service": {
-      "answer": "SASE",
+      "answer": "Secure Access Service Edge (SASE)",
       "distractors": [
-        "Site-to-site IPsec VPN",
-        "MPLS backbone",
-        "Reverse proxy farm",
-        "Air-gapped enclave"
+        "Managed MPLS WAN",
+        "Cloud-hosted VPN concentrator",
+        "CDN with an edge WAF",
+        "Standalone secure web gateway"
       ],
-      "explanation": "SASE is the cloud-delivered convergence of SD-WAN with security services (SWG, CASB, ZTNA, FWaaS) — purpose-built for the deperimeterized, remote-first scenario described."
+      "explanation": "SASE converges SD-WAN with cloud-delivered security services (SWG, CASB, ZTNA, FWaaS) at points of presence near the user, which removes the backhaul penalty in the scenario. A managed MPLS WAN or a cloud-hosted VPN concentrator still funnels users down a central path and adds no CASB or ZTNA; a CDN with an edge WAF protects published web applications, not remote-user access; a standalone secure web gateway covers web filtering only."
     },
     "pdp": {
-      "answer": "PDP",
+      "answer": "Policy Decision Point (PDP)",
       "distractors": [
         "Policy Enforcement Point (PEP)",
-        "Trust Anchor",
-        "Identity Provider",
-        "Certificate Authority"
+        "Certificate Authority (CA)",
+        "SIEM correlation engine",
+        "Vulnerability scanner"
       ],
-      "explanation": "In Zero Trust architecture, the PDP evaluates context and produces an authorization decision; the PEP enforces that decision at the resource."
+      "explanation": "The PDP (NIST's policy engine plus policy administrator) evaluates identity, device posture, and context and returns the decision; the PEP only applies it. A certificate authority issues credentials, a SIEM correlation engine supplies telemetry that can feed a decision, and a vulnerability scanner reports weaknesses. None of them decides access."
     },
     "pep": {
-      "answer": "PEP",
+      "answer": "Policy Enforcement Point (PEP)",
       "distractors": [
         "Policy Decision Point (PDP)",
-        "Service Mesh Sidecar",
-        "Reverse Proxy",
-        "Bastion Host"
+        "Certificate Authority (CA)",
+        "SIEM correlation engine",
+        "Vulnerability scanner"
       ],
-      "explanation": "The PEP sits in the data path and applies the PDP's allow/deny decision to the actual request."
+      "explanation": "The PEP sits in the data path in front of the application and applies the PDP's allow or deny decision (it may be built as a gateway, reverse proxy, or agent). The PDP decides but never touches the traffic. A certificate authority, SIEM correlation engine, and vulnerability scanner are not in the request path."
     },
     "auth_model": {
       "answer": "continuous",
       "distractors": [
-        "session-based",
         "perimeter-based",
         "one-time at login",
-        "anonymous"
+        "annually recertified",
+        "static (role-inherited)"
       ],
-      "explanation": "Continuous authorization (re-evaluating identity, device posture, and context on every request) is the core Zero Trust principle distinguishing it from traditional perimeter or session-based models."
+      "explanation": "Continuous authorization re-evaluates identity, device posture, and context as they change instead of trusting a single login. Perimeter-based trust depends on network location, one-time-at-login trust is the stolen-session problem in the audit table, annual recertification is far too slow to catch a hijacked session, and static role inheritance never re-checks context."
     },
     "segmentation": {
       "answer": "microsegmentation",
       "distractors": [
         "VLAN segmentation",
-        "subnet routing",
+        "subnet-based zoning",
         "physical air-gapping",
-        "flat layer-2 trunking"
+        "screened subnet (DMZ)"
       ],
-      "explanation": "Microsegmentation creates per-workload (often per-process) policy boundaries — the granularity needed to limit east-west movement after compromise. VLANs operate at far coarser scope."
+      "explanation": "Microsegmentation applies policy per workload or application, so a compromised laptop reaches only what it is explicitly allowed to reach. VLANs and subnet zones group many systems together, air-gapping is impractical for SaaS and remote users, and a DMZ protects internet-facing services rather than limiting east-west movement inside the network."
     },
     "label": {
       "answer": "classification label",
       "distractors": [
-        "MAC address",
-        "VLAN tag",
-        "ASN",
-        "TLS certificate"
+        "retention schedule",
+        "integrity hash",
+        "data-owner field",
+        "backup job ID"
       ],
-      "explanation": "Data classification labels (e.g., Public / Internal / Confidential / Restricted) travel with the data and let DLP and access controls apply consistent rules across systems."
+      "explanation": "A classification label records how sensitive a file is and travels with it, so DLP and access controls can apply consistent rules in any system. Retention schedules, integrity hashes, owner fields, and backup job IDs describe other attributes and cannot tell DLP whether a file is customer-confidential."
     },
     "dlp_state": {
       "answer": "in-transit",
       "distractors": [
-        "at-rest only",
-        "in-use only",
-        "off-host",
-        "decommissioned"
+        "at-rest",
+        "in-use",
+        "data-discovery"
       ],
-      "explanation": "Email and SaaS-upload inspection happens as data moves — DLP for data *in transit*. At-rest DLP scans stored files; in-use DLP watches endpoints during active editing."
+      "explanation": "Inspecting email and SaaS uploads happens while data moves, so it is DLP in transit. At-rest DLP protects stored files, in-use DLP governs actions on open data at the endpoint (copy, print, screenshot), and data discovery is the separate job of finding sensitive data nobody knew about."
     },
     "discovery": {
       "answer": "data discovery",
       "distractors": [
         "vulnerability scanning",
-        "penetration testing",
+        "configuration compliance scanning",
         "port scanning",
-        "fuzzing"
+        "penetration testing"
       ],
-      "explanation": "Data discovery scans repositories for sensitive content, detecting mislabeled, shadow, or forgotten copies of regulated data."
+      "explanation": "Data discovery scans repositories for sensitive content, finding mislabeled, shadow, or forgotten copies. Vulnerability scanning finds software weaknesses, configuration scanning checks settings against a baseline, port scanning maps open services, and penetration testing probes exploitability. None of them looks inside files for sensitive data."
     },
     "metric": {
-      "answer": "control effectiveness metrics",
+      "answer": "risk-movement metrics",
       "distractors": [
-        "uptime SLAs",
-        "help desk ticket volume",
-        "marketing KPIs",
-        "employee satisfaction scores"
+        "blocked-event counts",
+        "tool-deployment counts",
+        "audit-checklist completion",
+        "training-completion rates"
       ],
-      "explanation": "Auditors and the board want measurable evidence that controls work — coverage %, mean-time-to-detect, blocked vs. allowed event ratios, etc. Effectiveness metrics convert security claims into defensible numbers."
+      "explanation": "Risk-movement metrics, such as a falling number of standing administrators or unmanaged internet-exposed assets, show whether exposure is actually shrinking. Blocked-event and tool counts measure activity or spending, checklist completion measures compliance paperwork, and training completion measures awareness. None of them shows that risk went down."
     }
   }
 }

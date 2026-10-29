@@ -39,12 +39,12 @@ data at rest and in transit.</li>
 using assessments, scanning, and metrics.</li>
 </ul>
 <h2 id="introduction">Introduction</h2>
-<p>The first three chapters covered governance, risk, and adversaries.
-This chapter shifts to architecture — where business intent becomes
-technical reality. Architecture is the discipline of deciding where
-controls belong, how trust is established, what must be segmented, where
-data may flow, and how the system holds together when something
-inevitably breaks.</p>
+<p>The first three chapters covered governance, risk, and the evolving
+threat landscape. This chapter shifts to architecture — where business
+intent becomes technical reality. Architecture is the discipline of
+deciding where controls belong, how trust is established, what must be
+segmented, where data may flow, and how the system holds together when
+something inevitably breaks.</p>
 <p>Too often, controls get bolted on without architectural intent. A
 firewall is bought “because every enterprise needs one.” A VPN is added
 because remote work demands it. A WAF is deployed because the auditor
@@ -56,12 +56,10 @@ value. Architecture is the answer to one question: <em>where should each
 control live so that it meaningfully reduces risk without damaging the
 business?</em></p>
 <p>That question forces a shift from operator thinking to architect
-thinking. Operators tune the controls in front of them. Architects
-decide which controls should exist, how they should interact, and what
-assumptions the environment is allowed to make. The exam expects the
-architect’s perspective — placement, segmentation, recoverability,
-subject-object relationships, and the difference between a system that
-is merely hardened and one that is intentionally resilient.</p>
+thinking. Operators tune the controls in front of them; architects
+decide which controls should exist, how they interact, and what
+assumptions the environment may make. The exam expects the architect’s
+perspective.</p>
 <p>The single most important architectural shift in modern cybersecurity
 is the move away from implicit trust. For decades, enterprises ran on a
 castle-and-moat model: get inside the perimeter and you were trusted.
@@ -72,13 +70,10 @@ access continuously, and assume compromise is always possible <span
 class="citation" data-cites="nist-sp800-207-2020">(<a
 href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
 2020</a>)</span>.</p>
-<p>In this chapter we walk component placement (firewalls, IPS, IDS,
-WAFs, proxies, API gateways, VPN concentrators, NAC), then resilience
-patterns (scaling, recovery, geographic distribution), then Zero Trust
-as a design philosophy (segmentation, microsegmentation, continuous
-authorization, SASE, attestation), and finally the data side —
-classification, labeling, DLP, hybrid boundaries, and the metrics that
-tell you whether the architecture is actually working. By the end you
+<p>In this chapter we cover component placement and resilience patterns
+(scaling, recovery, geography), then Zero Trust as a design philosophy,
+and finally security boundaries, data protection (classification, DLP),
+and the metrics that show whether the architecture works. By the end you
 should be able to look at an enterprise environment and ask not just
 “what controls exist?” but “why are they placed there, what assumptions
 do they enforce, and what happens when those assumptions fail?”</p>
@@ -98,9 +93,7 @@ maintained, which assets must remain available, and which dependencies
 are allowed to break. A beautifully hardened application tier is
 meaningless if the identity provider is a single point of failure. A
 geographically distributed web platform is still fragile if the session
-store is pinned to one data center. A VPN may provide secure access, but
-if every remote employee depends on one overloaded concentrator,
-security has been achieved at the cost of availability.</p>
+store is pinned to one data center.</p>
 <p>When architects evaluate resilience, they are usually answering four
 design questions:</p>
 <ol type="1">
@@ -116,11 +109,9 @@ a controlled way rather than collapsing all at once.</li>
 </ol>
 <h3 id="component-placement-and-configuration">Component Placement and
 Configuration</h3>
-<p>Architects begin by thinking in layers. Not because the OSI model
-solves every problem, but because layered thinking helps identify where
-specific controls add the most value.</p>
-<p>In practice, component placement decisions are usually driven by a
-small set of architectural criteria:</p>
+<p>Architects begin by thinking in layers, because layered thinking
+helps identify where specific controls add the most value. Component
+placement decisions are usually driven by four criteria:</p>
 <ul>
 <li><strong>Trust boundary clarity:</strong> Is this where trusted and
 untrusted traffic actually meet?</li>
@@ -135,10 +126,9 @@ much of the environment is exposed?</li>
 the <strong>firewall</strong>. Firewalls enforce broad allow and deny
 decisions about traffic entering or leaving a trust boundary. They are
 excellent at policy enforcement, basic segmentation, and reducing
-unnecessary exposure. However, a firewall is not a universal answer. It
-does not inherently understand application logic, suspicious sequences
-of events, or business context. Its value is greatest when it sits on
-clear trust boundaries: internet-to-DMZ, partner-to-extranet,
+unnecessary exposure. However, a firewall does not inherently understand
+application logic or business context. Its value is greatest when it
+sits on clear trust boundaries: internet-to-DMZ, partner-to-extranet,
 production-to-administration network, or user-segment-to-sensitive data
 zone.</p>
 <p>An <strong>Intrusion Prevention System (IPS)</strong> is commonly
@@ -182,9 +172,8 @@ modern enterprises are increasingly API-driven. Many business processes
 that once relied on browsers and human users now run through
 machine-to-machine calls. API gateways enforce authentication,
 authorization, rate limiting, request validation, version management,
-and logging for those calls. Their placement should reflect that APIs
-are not just another web page. They are programmable trust boundaries.
-If a traditional web portal serves humans and an API serves mobile
+and logging for those calls. APIs are not just another web page. They
+are programmable trust boundaries, and when an API serves mobile
 applications, partners, and internal automations, the API gateway
 becomes a primary security control rather than a convenience
 feature.</p>
@@ -206,31 +195,34 @@ not replace segmentation deeper in the network, but it reduces the risk
 that unmanaged or unhealthy devices receive the same network treatment
 as known-good corporate assets.</p>
 <p>Some of the most neglected placement decisions involve visibility
-tools rather than blocking tools. <strong>Network taps</strong> and
-<strong>collectors</strong> exist so the organization can observe what
-the environment is actually doing. A tap placed on the wrong segment
-produces elegant but irrelevant data. A collector that receives only
-perimeter logs while missing identity events, cloud telemetry, and
-east-west communications creates a false sense of coverage. Mature
-architectures deliberately place taps and collectors where they
-illuminate high-value paths: administrative networks, identity systems,
-cloud control planes, application tiers, and critical data
-repositories.</p>
+tools rather than blocking tools. A <strong>network tap</strong> is a
+device (or virtual feature) that copies a link’s traffic to a monitoring
+tool such as an IDS without sitting in the traffic’s path. A
+<strong>collector</strong> gathers logs, flow records, or packet copies
+from many sources into one place for analysis. Both exist so the
+organization can observe what the environment is actually doing. A tap
+placed on the wrong segment produces elegant but irrelevant data. A
+collector that receives only perimeter logs while missing identity
+events, cloud telemetry, and east-west communications creates a false
+sense of coverage. Mature architectures deliberately place taps and
+collectors where they illuminate high-value paths: administrative
+networks, identity systems, cloud control planes, application tiers, and
+critical data repositories.</p>
 <p>Even <strong>vulnerability scanners</strong> require architectural
 thought. Internal scanners belong where they can safely evaluate broad
 asset populations without being blocked or mistaken for attacks.
 External scanners belong where they reveal how the organization appears
-from the public internet. Both are architectural controls because they
-influence asset discovery, attack surface management, and validation. A
-scanner locked away in a forgotten management VLAN is as ineffective as
-an unused alarm system.</p>
+from the public internet. Both influence asset discovery, attack surface
+management, and validation, and a scanner locked in a forgotten
+management VLAN is as useless as an unused alarm system.</p>
 <p>Finally, <strong>Content Delivery Networks (CDNs)</strong> change
 security architecture by moving some controls outward. A CDN can absorb
 distributed denial-of-service traffic, cache static content, shield
 origin servers, and provide edge-layer WAF features. But architects must
 remain careful. Moving capabilities to a CDN does not eliminate origin
-security requirements. It simply changes where some controls
-execute.</p>
+security requirements. It simply changes where some controls execute,
+and an attacker who learns the origin server’s real address can bypass
+the CDN entirely unless the origin accepts traffic only from it.</p>
 <table>
 <caption>Table 4.1: Common Security Components, Their Best Placement
 Goals, and Frequent Design Mistakes.</caption>
@@ -359,39 +351,42 @@ and geographic placement become part of security rather than mere
 infrastructure engineering.</p>
 <p><strong>Load balancing</strong> distributes work across multiple
 nodes so that one overloaded or failed system does not take down the
-service. In security architecture, load balancing also limits blast
-radius. If traffic can be shifted between healthy nodes, defenders gain
-the ability to isolate compromised instances without fully interrupting
-the service. The architect must decide whether the environment uses
-active-active or active-passive design. Active-active designs maximize
-availability but may increase synchronization complexity. Active-passive
-designs simplify failover logic but can hide dormant failure states if
-the passive environment is rarely exercised.</p>
+service. Health checks pull failing nodes out of rotation, and the
+balancer often terminates TLS, so it is a security component and not
+just plumbing. It also limits blast radius: traffic can be shifted away
+from a compromised instance so defenders can isolate it without
+interrupting the service. Because the balancer can itself be a single
+point of failure, it is usually deployed as a redundant pair. The
+architect must also choose between active-active and active-passive
+designs. Active-active designs spread traffic across every node, which
+uses capacity fully and fails over quickly, but they need spare capacity
+to absorb a node loss and add state-synchronization complexity.
+Active-passive designs simplify failover logic but can hide dormant
+failure states if the passive environment is rarely exercised.</p>
 <p><strong>Recoverability</strong> is the architecture’s ability to
 restore business function after failure. This requires more than
 backups. It requires clear recovery order, tested dependencies,
-replacement procedures, and realistic time objectives. A resilient
-application stack may require the identity provider, database, secrets
-store, and DNS layer to recover in a specific sequence. Architects who
-only protect the application servers without modeling dependency
-recovery are not designing for resilience; they are designing for
-optimism.</p>
+replacement procedures, and realistic recovery time and recovery point
+objectives (RTO and RPO: how long restoration may take, and how much
+data loss is tolerable). A resilient application stack may require the
+identity provider, database, secrets store, and DNS layer to recover in
+a specific sequence. Architects who only protect the application servers
+without modeling dependency recovery are not designing for resilience;
+they are designing for optimism.</p>
 <p><strong>Interoperability</strong> matters because enterprise systems
-rarely stand alone. Identity providers, ticketing platforms, monitoring
-systems, API consumers, third-party integrations, and cloud workloads
-all depend on each other. Interoperability becomes a security issue when
-a control is so isolated that it cannot share events, enforce consistent
-decisions, or support coordinated response. For example, a DLP solution
-that cannot consume classification tags or share alerts with the SIEM
-may be technically deployed but strategically disconnected.</p>
+rarely stand alone. Identity providers, monitoring systems, API
+consumers, third-party integrations, and cloud workloads all depend on
+each other. Interoperability becomes a security issue when a control is
+so isolated that it cannot share events or support coordinated response.
+For example, a DLP solution that cannot consume classification tags or
+share alerts with the SIEM may be technically deployed but strategically
+disconnected.</p>
 <p><strong>Geographic considerations</strong> also shape resilience.
 Placing all critical services in a single region may simplify
 operations, but it makes the enterprise vulnerable to regional outage,
-legal disruption, and concentrated attack. Multi-region or multi-site
-deployment improves resilience, but it also introduces complexity around
-latency, data sovereignty, key management, and failover consistency.
-Architects must weigh the security benefits of distribution against the
-operational and legal complications it creates.</p>
+legal disruption, and concentrated attack. Multi-region deployment
+improves resilience, but it also introduces complexity around latency,
+data sovereignty, key management, and failover consistency.</p>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> Multi-region design is not automatically
 resilient. If every region depends on a single global identity service,
@@ -478,6 +473,31 @@ context, policy, and the specific resource request. Trust is narrow,
 conditional, and continuously reevaluated <span class="citation"
 data-cites="nist-sp800-207-2020">(<a href="#ref-nist-sp800-207-2020"
 role="doc-biblioref">Rose et al. 2020</a>)</span>.</p>
+<p>NIST SP 800-207 splits every access decision into two roles <span
+class="citation" data-cites="nist-sp800-207-2020">(<a
+href="#ref-nist-sp800-207-2020" role="doc-biblioref">Rose et al.
+2020</a>)</span>. A <strong>Policy Decision Point (PDP)</strong>
+evaluates each request against policy, using inputs such as identity,
+device posture, and resource sensitivity, and returns allow or deny.
+(NIST divides it into a <em>policy engine</em> that decides and a
+<em>policy administrator</em> that sets up or tears down the session.) A
+<strong>Policy Enforcement Point (PEP)</strong> sits in the data path in
+front of the resource, as a gateway, reverse proxy, or agent, and
+applies the decision. A resource with no PEP never consults the PDP.
+NIST calls an area where entities are trusted by default after an
+initial check an <strong>implicit trust zone</strong> and advises
+keeping it as small as possible. Chapter 5 revisits PDPs and PEPs from
+the identity side.</p>
+<p>CISA’s Zero Trust Maturity Model (version 2.0) organizes the work
+into five pillars: <strong>Identity</strong>, <strong>Devices</strong>,
+<strong>Networks</strong>, <strong>Applications and Workloads</strong>,
+and <strong>Data</strong>, with visibility and analytics, automation and
+orchestration, and governance cutting across all five. Each pillar is
+scored as traditional, initial, advanced, or optimal, which is why Zero
+Trust is a maturity journey, not a switch you flip <span
+class="citation" data-cites="cisa-ztmm-2023">(<a
+href="#ref-cisa-ztmm-2023" role="doc-biblioref">Cybersecurity and
+Infrastructure Security Agency 2023</a>)</span>.</p>
 <h3
 id="continuous-authorization-and-context-based-reauthentication">Continuous
 Authorization and Context-Based Reauthentication</h3>
@@ -495,13 +515,11 @@ Trust architecture should react. That reaction may be reauthentication,
 reduced privilege, step-up MFA, session isolation, or outright
 termination.</p>
 <p>This is where <strong>context-based reauthentication</strong> becomes
-essential. Access decisions may change based on geographic location,
-device compliance, time of day, recent administrative actions, user
-behavior analytics, resource sensitivity, or whether the session is
-invoking APIs versus browsing a portal. The architect’s task is not
-simply to turn on step-up authentication everywhere. It is to design
-meaningful decision points that improve security without collapsing
-usability.</p>
+essential. Access decisions may change based on location, device
+compliance, time of day, user behavior analytics, or resource
+sensitivity. The architect’s task is not to turn on step-up
+authentication everywhere, but to design meaningful decision points that
+improve security without collapsing usability.</p>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> Zero Trust does not eliminate usability
 trade-offs. It makes them explicit. Good architecture asks for stronger
@@ -514,9 +532,8 @@ train users to resent security.</p>
 <p>Prospero’s team at <em>Milan Island Telecom</em> configures two risk
 signals in their identity platform:</p>
 <ul>
-<li><strong>Impossible travel:</strong> A session that started in
-Chicago should not present requests from Eastern Europe within two
-hours.</li>
+<li><strong>Impossible travel:</strong> A session token last used in
+Chicago should not appear in Eastern Europe within two hours.</li>
 <li><strong>High-sensitivity resource:</strong> Access to the customer
 billing API is tagged as a high-privilege action in policy.</li>
 </ul>
@@ -529,11 +546,9 @@ API.</p>
 resource access. The policy fires: step-up MFA required. The attacker
 does not have the agent’s phone. The API call is blocked and logged to
 the SIEM as a high-severity alert for the SOC.</p>
-<p>The agent is not interrupted during their normal workday. The
-attacker is stopped precisely at the moment the risk threshold is
-crossed. That is the practical payoff of continuous authorization:
-presence on the network is not enough — trust must be re-earned when
-conditions change.</p>
+<p>The agent is never interrupted; the attacker is stopped at the moment
+the risk threshold is crossed. That is the payoff of continuous
+authorization: trust must be re-earned when conditions change.</p>
 </blockquote>
 <h3
 id="subject-object-relationships-and-least-privilege-design">Subject-Object
@@ -577,7 +592,8 @@ signals, and attestation frameworks that prove a system is in an
 expected state.</p>
 <p>Attestation is especially important in distributed and cloud-native
 environments. A device or workload may need to prove that it booted
-correctly, is running approved code, holds valid certificates, or
+correctly (for example, through a measurement of the boot chain recorded
+in its TPM), is running approved code, holds valid certificates, or
 belongs to an expected management domain. Without attestation,
 architectures rely on claims rather than evidence.</p>
 <h3
@@ -605,10 +621,11 @@ updated.</p>
 <strong>VPN</strong> and <strong>always-on VPN</strong>. Traditional VPN
 design often creates a secure tunnel and then hands the user a broad
 internal network view. Zero Trust architectures treat VPN as transport
-rather than trust. Always-on VPN may be useful for managed endpoints
-that must receive policy and telemetry off-network, but it should still
-coexist with segmentation, application-level authorization, and
-contextual checks.</p>
+rather than trust. Always-on VPN connects automatically whenever a
+managed device is online, so users cannot forget or skip it. That is
+useful for endpoints that must receive policy and telemetry off-network,
+but it should still coexist with segmentation, application-level
+authorization, and contextual checks.</p>
 <h3 id="api-integration-validation-and-modern-trust-boundaries">API
 Integration, Validation, and Modern Trust Boundaries</h3>
 <p>Modern systems are bound together by APIs. This means the attack
@@ -631,7 +648,8 @@ boundary matters more.</p>
 include:</p>
 <ul>
 <li><strong>Caller identity verification:</strong> The system must know
-which subject is making the request.</li>
+which subject is making the request, for example through signed tokens
+or mutual TLS between services.</li>
 <li><strong>Authorization by action:</strong> The subject should be
 allowed to invoke only the specific function required.</li>
 <li><strong>Input and schema validation:</strong> Unexpected parameters,
@@ -649,20 +667,29 @@ the realization that security can no longer depend on a single network
 edge. Controls must move closer to the subject, the object, and the
 interaction itself.</p>
 <p>This is one reason organizations adopt <strong>Secure Access Service
-Edge (SASE)</strong>. SASE combines networking and security functions,
-often delivering policy enforcement, secure web gateway capabilities,
-CASB features, zero-trust network access, and traffic optimization from
-distributed cloud points of presence. It is not a synonym for Zero
-Trust, but it is often an effective delivery model for Zero Trust-style
-enforcement in remote and hybrid environments.</p>
+Edge (SASE)</strong>, a cloud-delivered service that converges wide-area
+networking with network security. SASE pairs SD-WAN (described next)
+with a <strong>Security Service Edge (SSE)</strong>: a secure web
+gateway (SWG) that filters web traffic, a cloud access security broker
+(CASB) that governs SaaS use, and <strong>Zero Trust Network Access
+(ZTNA)</strong>, often plus firewall-as-a-service (FWaaS). ZTNA is the
+Zero Trust alternative to broad VPN access: a broker authenticates the
+user and device, then connects them to one specific application instead
+of placing them on the network. These services run at cloud points of
+presence near the user. SASE is not a synonym for Zero Trust, but it is
+often an effective delivery model for Zero Trust-style enforcement in
+remote and hybrid environments.</p>
 <p><strong>Software-Defined Wide Area Network (SD-WAN)</strong> helps
 control how traffic moves across distributed sites, cloud resources, and
-branch offices. It can improve resilience and path selection, but from a
-security perspective its main value is policy consistency and visibility
-across varied routes. <strong>Software-Defined Networking (SDN)</strong>
-extends that logic to internal environments, enabling architects to
-define segmentation and path control in software rather than relying
-solely on static hardware configuration.</p>
+branch offices, typically over encrypted tunnels that choose the best
+available link for each application. It can improve resilience and path
+selection, but from a security perspective its main value is policy
+consistency and visibility across varied routes.
+<strong>Software-Defined Networking (SDN)</strong> extends that logic to
+internal environments by separating the control plane (which decides
+where traffic should go) from the data plane (which forwards it), so
+architects can define segmentation and path control in software rather
+than relying solely on static hardware configuration.</p>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> SASE, SD-WAN, and SDN can improve control
 consistency, but they also centralize policy logic. If the policy model
@@ -672,19 +699,18 @@ is weak, automation simply distributes the mistake faster.</p>
 <p><strong class="callout-title">Case Study</strong> <strong>Prospero and the Remote
 Workforce at Milan Island Telecom</strong></p>
 <p>Prospero, the senior network architect at Milan Island Telecom,
-inherited an environment built for a different decade. The company had
-once relied on a central headquarters, a single data center, and a thick
-perimeter of firewalls and VPN concentrators. After a rapid expansion
-into remote work and cloud-hosted customer platforms, the architecture
-had become strained. Employees connected from home, field technicians
-used tablets over cellular links, and contractors needed limited access
-to internal portals hosted partly in the cloud and partly
-on-premises.</p>
-<p>The old model forced everyone through the same VPN concentrators.
-Once connected, users landed on the internal network with broad
-reachability. Performance was poor, helpdesk tickets were constant, and
-security incidents were escalating because compromised endpoints could
-see far too much of the environment.</p>
+inherited an environment built for a different decade: a central
+headquarters, a single data center, and a thick perimeter of firewalls
+and VPN concentrators. After a rapid expansion into remote work and
+cloud-hosted customer platforms, the architecture was strained.
+Employees connected from home, field technicians used tablets over
+cellular links, and contractors needed limited access to internal
+portals hosted partly in the cloud and partly on-premises.</p>
+<p>The old model forced everyone through the same VPN concentrators, and
+users landed on the internal network with broad reachability.
+Performance was poor, helpdesk tickets were constant, and security
+incidents were escalating because compromised endpoints could see far
+too much of the environment.</p>
 <p>Prospero redesigned the access architecture around Zero Trust
 principles. He introduced strong device identity and posture checks,
 moved public and partner-facing services behind application-specific
@@ -696,14 +722,13 @@ required context-based reauthentication, and the administrative plane
 was isolated from normal user traffic.</p>
 <p>To support distributed access, Prospero paired Zero Trust policy with
 a SASE platform and SD-WAN-aware branch design. Traffic no longer
-hairpinned inefficiently through headquarters simply because that was
-how the old VPN had worked. Instead, traffic was evaluated near the
-user, routed intelligently, and allowed only toward explicitly approved
-destinations.</p>
-<p>The final result was not just stronger security. Latency fell,
-contractor access became easier to manage, and incident response gained
-far better clarity because each access decision was tied to a known
-subject, known device posture, and known destination object.</p>
+hairpinned through headquarters because that was how the old VPN worked;
+it was evaluated near the user and allowed only toward explicitly
+approved destinations.</p>
+<p>The result was not just stronger security. Latency fell, contractor
+access became easier to manage, and incident response gained clarity
+because each access decision was tied to a known subject, device
+posture, and destination object.</p>
 </blockquote>
 <table>
 <caption>Table 4.2: Comparing the Traditional Perimeter Model with Zero
@@ -777,9 +802,9 @@ do?</li>
 trust</strong>.</li>
 <li><strong>Secure transport only.</strong> Authorization still depends
 on identity, device posture, context, and policy.</li>
-<li>It should <strong>step up, block, or terminate the request</strong>
-because impossible travel plus access to a sensitive API crosses the
-risk threshold.</li>
+<li>It should <strong>require step-up authentication, and block the call
+and end the session if the challenge fails</strong>, because impossible
+travel plus access to a sensitive API crosses the risk threshold.</li>
 </ol>
 </details>
 <hr />
@@ -791,201 +816,17 @@ decide what evidence is required before crossing is permitted. Security
 boundaries are therefore not merely network constructs. They exist
 around data sensitivity, identity privilege, management planes, physical
 locations, business workflows, and third-party integrations.</p>
-<h3 id="attack-surface-management-hardening-and-defense-in-depth">Attack
-Surface Management, Hardening, and Defense-in-Depth</h3>
-<p>The first step in enforcing a boundary is understanding what is
-exposed. <strong>Attack surface management</strong> identifies
-externally reachable systems, internet-visible services, exposed APIs,
-cloud assets, public identities, and accidental exposures such as
-forgotten subdomains or open storage buckets. But identifying exposure
-is only the beginning. Reduction requires action: decommissioning
-unnecessary services, tightening configurations, patching
-vulnerabilities, removing legacy protocols, disabling risky default
-features, and shrinking administrative paths.</p>
-<p><strong>Hardening</strong> is the disciplined reduction of
-unnecessary functionality. It is not glamorous, but it is one of the
-highest-return architectural practices available. Every unused service,
-open port, permissive ACL, legacy cipher, or default credential is an
-invitation to attack. The architect’s role is to ensure that platforms
-are designed for the least function required, not the maximum
-convenience possible.</p>
-<p><strong>Defense-in-depth</strong> means accepting that any single
-control can fail. If the WAF misses a payload, input validation should
-still help. If a workstation is compromised, segmentation should still
-block lateral movement. If a privileged account is abused, centralized
-logging and anomaly detection should still raise an alert.
-Defense-in-depth is not simply piling on tools. It is ensuring that each
-layer covers a different failure mode.</p>
-<p>Legacy components require special attention. They often sit inside
-environments that have evolved around them, gathering exceptions and
-trust relationships over time. Architects must decide whether to
-isolate, wrap, replace, or instrument these systems. The worst option is
-usually to leave them in place while pretending they still fit the
-modern trust model.</p>
-<h3
-id="centralized-logging-monitoring-alerting-and-sensor-placement">Centralized
-Logging, Monitoring, Alerting, and Sensor Placement</h3>
-<p>Security boundaries are only meaningful if defenders can see them
-being crossed. That is why <strong>centralized logging</strong> is a
-design requirement, not merely an operational convenience. Architects
-should decide where identity events, administrative actions, API calls,
-DLP alerts, endpoint telemetry, and network events converge so that the
-security team can reconstruct activity across the entire kill chain.</p>
-<p><strong>Continuous monitoring</strong> matters because point-in-time
-reviews miss drift. Configurations change, integrations expand,
-certificates expire, and cloud resources appear faster than manual
-reviews can keep pace. Monitoring should therefore be attached to
-architectural choke points: identity providers, API gateways, privileged
-access paths, management networks, DLP boundaries, and externally facing
-services.</p>
-<p><strong>Alerting</strong> is valuable only when tied to
-architecture-aware context. A failed login on a public portal is not
-equivalent to a failed login on the domain administration plane. Ten
-thousand blocked WAF requests may be noise, while a single successful
-request into a sensitive administrative endpoint may be critical.
-Architects support effective alerting when they design zones,
-classifications, identities, and logging schemas that allow events to be
-prioritized intelligently.</p>
-<p><strong>Sensor placement</strong> is equally important. If sensors
-sit only at the perimeter, defenders miss lateral movement. If they sit
-only on endpoints, they may miss cloud control plane changes or API
-abuse. A mature architecture uses complementary viewpoints: endpoint
-sensors, network telemetry, identity logs, cloud audit trails, DLP
-events, and application-layer instrumentation.</p>
-<blockquote class="callout-example">
-<p><strong class="callout-title">Example</strong> An enterprise with strong perimeter
-controls but weak internal telemetry may stop many internet-borne
-attacks while still missing privilege escalation inside the domain. By
-placing sensors around the identity provider, administrative jump hosts,
-cloud management plane, and east-west traffic between application tiers,
-the organization turns the architecture itself into a set of
-observability checkpoints.</p>
-</blockquote>
-<h3 id="information-and-data-security-design">Information and Data
-Security Design</h3>
-<p>Architects protect data best when they stop treating all data as
-equal. This is the role of <strong>classification models</strong>,
-<strong>data labeling</strong>, and <strong>tagging
-strategies</strong>.</p>
-<p>A <strong>classification model</strong> defines categories such as
-public, internal, confidential, regulated, restricted, or mission
-critical. The exact names vary, but the purpose is the same: the
-environment must understand that customer payment records, internal
-training slides, source code, and public marketing brochures do not
-require the same treatment.</p>
-<p><strong>Data labeling</strong> makes the classification visible to
-systems and users. Labels can be embedded in documents, emails, cloud
-objects, records, or database fields. <strong>Tagging
-strategies</strong> go even further by attaching machine-readable
-metadata that can drive automation. A tagged resource may automatically
-trigger encryption, retention rules, stricter sharing controls, or DLP
-policies.</p>
-<p>The more mature the classification and tagging strategy, the more the
-architecture can enforce policy automatically instead of relying on
-human memory. This is especially important in hybrid environments where
-data flows across on-premises systems, SaaS platforms, APIs, mobile
-devices, and cloud storage services.</p>
-<h3 id="dlp-at-rest-in-transit-and-discovery">DLP at Rest, in Transit,
-and Discovery</h3>
-<p><strong>Data Loss Prevention (DLP)</strong> is most effective when
-treated as a distributed architectural pattern rather than a single
-tool.</p>
-<ul>
-<li><strong>DLP at rest</strong> protects data stored on file systems,
-object storage, databases, endpoints, and collaboration platforms. This
-may involve classification-based restrictions, encryption, access
-controls, and scanning for sensitive patterns.</li>
-<li><strong>DLP in transit</strong> protects data moving through email,
-web traffic, APIs, chat systems, and cloud synchronization channels.
-This often involves gateways, CASBs, proxies, and egress
-inspection.</li>
-<li><strong>Data discovery</strong> is the continuous search for
-sensitive information that the organization did not realize it had or
-did not realize it had placed in risky locations. Discovery is
-architecturally critical because unknown sensitive data cannot be
-reliably protected.</li>
-</ul>
-<p>Architects must also design around user behavior. If the official
-process for sharing sensitive data is clumsy, users will create shadow
-processes. The result is that DLP fails not because the tool was weak,
-but because the architecture ignored business workflow.</p>
-<p>That means DLP design should balance three competing needs:</p>
-<ol type="1">
-<li><strong>Accurate identification of sensitive data.</strong> False
-negatives create breach paths.</li>
-<li><strong>Usable business workflows.</strong> If legitimate work
-becomes painful, users route around the control.</li>
-<li><strong>Actionable enforcement choices.</strong> The system should
-know when to block, warn, encrypt, quarantine, or simply log.</li>
-</ol>
-<h3
-id="hybrid-infrastructures-and-third-party-integration-boundaries">Hybrid
-Infrastructures and Third-Party Integration Boundaries</h3>
-<p>Modern enterprises are hybrid by default. Data and workflows move
-across on-premises systems, SaaS platforms, IaaS environments, branch
-networks, partner APIs, contractor endpoints, and mobile devices.
-Security boundaries must therefore be portable.</p>
-<p>In a hybrid architecture, the challenge is consistency. A
-classification rule enforced in Microsoft 365 but not in a cloud storage
-bucket is not a strategy. A privileged access workflow enforced
-on-premises but bypassed in a SaaS administration portal is not a
-control model. Architects must define which policies follow the user,
-which follow the workload, and which follow the data.</p>
-<p>Third-party integrations deserve especially careful handling. Every
-partner connection, outsourced workflow, webhook, SaaS connector, and
-B2B API is a boundary crossing. Least privilege, explicit contracts,
-logging, validation, and segmentation all matter. The goal is not to
-avoid integrations, but to prevent them from inheriting more trust than
-their business purpose requires.</p>
-<h3 id="measuring-control-effectiveness">Measuring Control
-Effectiveness</h3>
-<p>Architecture should be evaluated by evidence, not by diagrams alone.
-That is why <strong>control effectiveness</strong> must be measured
-through <strong>assessments</strong>, <strong>scanning</strong>, and
-<strong>metrics</strong>.</p>
-<p>Assessments determine whether the intended design exists in practice.
-Scanning reveals exposed assets, misconfigurations, weak ciphers,
-outdated software, and drift from baseline. Metrics help leadership
-understand whether controls are reducing risk over time. Useful metrics
-might include segmentation policy violations, mean time to revoke
-privileged access, unclassified data percentage, WAF false-positive
-rates, privileged-session reauthentication rates, or the number of
-unmanaged internet-exposed assets.</p>
-<p>Poor metrics focus only on volume. Good metrics focus on risk
-movement. A thousand blocked requests may say little. A 40% reduction in
-privileged accounts with standing administrative access says a great
-deal.</p>
-<blockquote class="callout-case-study">
-<p><strong class="callout-title">Case Study</strong> <strong>Google BeyondCorp and the
-Collapse of the Old Perimeter</strong></p>
-<p>A frequently cited example of modern security architecture is
-Google’s BeyondCorp initiative. After realizing that employees
-increasingly worked from untrusted networks, and that the internal
-network itself could no longer be assumed safe by default, Google began
-replacing location-based trust with device and user-centered access
-decisions <span class="citation" data-cites="google-beyondcorp-2014">(<a
-href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
-2014</a>)</span>.</p>
-<p>Instead of assuming that being on the corporate LAN granted broad
-trust, BeyondCorp evaluated user identity, device posture, and the
-requested application before granting access. Applications were exposed
-through access proxies and policy engines rather than hidden behind a
-monolithic VPN model. This was a foundational architectural shift:
-access became a function of verified context rather than physical
-network placement <span class="citation"
-data-cites="google-beyondcorp-2014">(<a
-href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
-2014</a>)</span>.</p>
-<p>The lesson for security architects is not that every enterprise must
-copy Google’s exact tooling. The lesson is that the perimeter is no
-longer the only meaningful security boundary. Identity, device trust,
-application gateways, telemetry, and policy engines must all work
-together to create enforceable boundaries in a world where users,
-devices, and workloads constantly move <span class="citation"
-data-cites="google-beyondcorp-2014">(<a
-href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
-2014</a>)</span>.</p>
-</blockquote>
+<p>Three boundary ideas recur in Zero Trust designs. A <strong>secure
+zone</strong> is a segment that holds high-value assets behind tightly
+controlled entry points, such as a management network, a payment-card
+environment, or a regulated-data enclave. A <strong>data
+perimeter</strong> is the set of guardrails that keeps data within
+trusted bounds wherever it lives: only trusted identities, from trusted
+devices and networks, may reach it, and it may be copied only to
+approved destinations. <strong>System components</strong> such as
+identity providers, gateways, policy engines, and management consoles
+are boundaries too, because whoever controls them can rewrite the rules
+for everything else.</p>
 <table>
 <caption>Table 4.3: Comparing Different Types of Security Boundaries in
 Enterprise Architecture.</caption>
@@ -1041,18 +882,222 @@ assessments</td>
 </tr>
 </tbody>
 </table>
+<h3 id="attack-surface-management-hardening-and-defense-in-depth">Attack
+Surface Management, Hardening, and Defense-in-Depth</h3>
+<p>The first step in enforcing a boundary is understanding what is
+exposed. <strong>Attack surface management</strong> identifies
+externally reachable systems, internet-visible services, exposed APIs,
+cloud assets, public identities, and accidental exposures such as
+forgotten subdomains or open storage buckets. But identifying exposure
+is only the beginning. Reduction requires action: decommissioning
+unnecessary services, tightening configurations, running
+<strong>vulnerability management</strong> (finding, prioritizing, and
+fixing weaknesses before attackers exploit them), removing legacy
+protocols, disabling risky default features, and shrinking
+administrative paths.</p>
+<p><strong>Hardening</strong> is the disciplined reduction of
+unnecessary functionality. It is not glamorous, but it is one of the
+highest-return architectural practices available. Every unused service,
+open port, permissive ACL, legacy cipher, or default credential is an
+invitation to attack. The architect’s role is to ensure that platforms
+are designed for the least function required, not the maximum
+convenience possible.</p>
+<p><strong>Defense-in-depth</strong> means accepting that any single
+control can fail. If the WAF misses a payload, input validation should
+still help. If a workstation is compromised, segmentation should still
+block lateral movement. If a privileged account is abused, centralized
+logging and anomaly detection should still raise an alert.
+Defense-in-depth is not simply piling on tools. It is ensuring that each
+layer covers a different failure mode.</p>
+<p>Legacy components require special attention. They often sit inside
+environments that have evolved around them, gathering exceptions and
+trust relationships over time. Architects must decide whether to
+isolate, wrap, replace, or instrument these systems. The worst option is
+usually to leave them in place while pretending they still fit the
+modern trust model.</p>
+<h3
+id="centralized-logging-monitoring-alerting-and-sensor-placement">Centralized
+Logging, Monitoring, Alerting, and Sensor Placement</h3>
+<p>Security boundaries are only meaningful if defenders can see them
+being crossed. That is why <strong>centralized logging</strong> is a
+design requirement, not merely an operational convenience. Architects
+should decide where identity events, administrative actions, API calls,
+DLP alerts, endpoint telemetry, and network events converge so that the
+security team can reconstruct activity across the entire kill chain. The
+same data makes <strong>threat hunting</strong> possible: a hunter forms
+a hypothesis (for example, “an attacker is abusing a stolen service
+account”) and searches retained telemetry for evidence no alert raised.
+Logging and sensor choices therefore decide which hypotheses can ever be
+tested.</p>
+<p><strong>Continuous monitoring</strong> matters because point-in-time
+reviews miss drift. Configurations change, integrations expand,
+certificates expire, and cloud resources appear faster than manual
+reviews can keep pace. Monitoring should therefore be attached to
+architectural choke points: identity providers, API gateways, privileged
+access paths, management networks, DLP boundaries, and externally facing
+services.</p>
+<p><strong>Alerting</strong> is valuable only when tied to
+architecture-aware context. A failed login on a public portal is not
+equivalent to a failed login on the domain administration plane. Ten
+thousand blocked WAF requests may be noise, while a single successful
+request into a sensitive administrative endpoint may be critical.
+Architects support effective alerting when they design zones,
+classifications, identities, and logging schemas that allow events to be
+prioritized intelligently.</p>
+<p><strong>Sensor placement</strong> is equally important. If sensors
+sit only at the perimeter, defenders miss lateral movement. If they sit
+only on endpoints, they may miss cloud control plane changes or API
+abuse. A mature architecture uses complementary viewpoints: endpoint
+sensors, network telemetry, identity logs, cloud audit trails, DLP
+events, and application-layer instrumentation.</p>
+<blockquote class="callout-example">
+<p><strong class="callout-title">Example</strong> An enterprise with strong perimeter
+controls but weak internal telemetry may stop many internet-borne
+attacks while still missing privilege escalation inside the domain.
+Placing sensors around the identity provider, administrative jump hosts,
+cloud management plane, and east-west application traffic turns the
+architecture itself into a set of observability checkpoints.</p>
+</blockquote>
+<h3 id="information-and-data-security-design">Information and Data
+Security Design</h3>
+<p>Architects protect data best when they stop treating all data as
+equal. This is the role of <strong>classification models</strong>,
+<strong>data labeling</strong>, and <strong>tagging
+strategies</strong>.</p>
+<p>A <strong>classification model</strong> defines categories such as
+public, internal, confidential, regulated, restricted, or mission
+critical. The exact names vary, but the purpose is the same: the
+environment must understand that customer payment records, internal
+training slides, source code, and public marketing brochures do not
+require the same treatment.</p>
+<p><strong>Data labeling</strong> makes the classification visible to
+systems and users. Labels can be embedded in documents, emails, cloud
+objects, records, or database fields. <strong>Tagging
+strategies</strong> go even further by attaching machine-readable
+metadata that can drive automation. A tagged resource may automatically
+trigger encryption, retention rules, stricter sharing controls, or DLP
+policies.</p>
+<p>The more mature the classification and tagging strategy, the more the
+architecture can enforce policy automatically instead of relying on
+human memory, which matters most in hybrid environments where data flows
+across on-premises systems, SaaS platforms, APIs, and cloud storage.</p>
+<h3 id="dlp-at-rest-in-transit-and-discovery">DLP at Rest, in Transit,
+and Discovery</h3>
+<p><strong>Data Loss Prevention (DLP)</strong> is most effective when
+treated as a distributed architectural pattern rather than a single
+tool.</p>
+<ul>
+<li><strong>DLP at rest</strong> protects known data stored on file
+systems, object storage, databases, endpoints, and collaboration
+platforms through classification-based restrictions, encryption, and
+access controls.</li>
+<li><strong>DLP in transit</strong> protects data moving through email,
+web traffic, APIs, chat systems, and cloud synchronization channels.
+This often involves gateways, CASBs, proxies, and egress inspection. (A
+third state, <em>data in use</em>, is covered by endpoint agents that
+control copying, printing, and screenshots of open data.)</li>
+<li><strong>Data discovery</strong> is the continuous scanning of
+repositories for sensitive patterns (card numbers, national ID numbers,
+source code) the organization did not realize it had or did not realize
+it had placed in risky locations. Discovery is architecturally critical
+because unknown sensitive data cannot be reliably protected.</li>
+</ul>
 <p><img src="../assets/images/ch04_dlp_layers.png"
-alt="DLP controls applied across endpoint, gateway, cloud, and data repository layers." />
-<em>Figure 4.3: DLP controls applied across endpoint, gateway, cloud,
-and data repository layers.</em></p>
+alt="DLP controls applied across endpoint, transit, cloud, and data layers, following a discover, classify, enforce, and measure cycle." />
+<em>Figure 4.3: DLP controls applied across endpoint, transit, cloud,
+and data layers, following a discover, classify, enforce, and measure
+cycle.</em></p>
+<p>Architects must also design around user behavior. If the official
+process for sharing sensitive data is clumsy, users will create shadow
+processes. The result is that DLP fails not because the tool was weak,
+but because the architecture ignored business workflow.</p>
+<p>That means DLP design should balance three competing needs:</p>
+<ol type="1">
+<li><strong>Accurate identification of sensitive data.</strong> False
+negatives create breach paths.</li>
+<li><strong>Usable business workflows.</strong> If legitimate work
+becomes painful, users route around the control.</li>
+<li><strong>Actionable enforcement choices.</strong> The system should
+know when to block, warn, encrypt, quarantine, or simply log.</li>
+</ol>
+<h3
+id="hybrid-infrastructures-and-third-party-integration-boundaries">Hybrid
+Infrastructures and Third-Party Integration Boundaries</h3>
+<p>Modern enterprises are hybrid by default. Data and workflows move
+across on-premises systems, SaaS platforms, IaaS environments, branch
+networks, partner APIs, contractor endpoints, and mobile devices.
+Security boundaries must therefore be portable.</p>
+<p>In a hybrid architecture, the challenge is consistency. A
+classification rule enforced in Microsoft 365 but not in a cloud storage
+bucket is not a strategy. A privileged access workflow enforced
+on-premises but bypassed in a SaaS administration portal is not a
+control model. Architects must define which policies follow the user,
+which follow the workload, and which follow the data.</p>
+<p>Third-party integrations deserve especially careful handling. Every
+partner connection, webhook, SaaS connector, and B2B API is a boundary
+crossing, so least privilege, explicit contracts, logging, validation,
+and segmentation all matter. The goal is not to avoid integrations, but
+to prevent them from inheriting more trust than their business purpose
+requires.</p>
+<h3 id="measuring-control-effectiveness">Measuring Control
+Effectiveness</h3>
+<p>Architecture should be evaluated by evidence, not by diagrams alone.
+That is why <strong>control effectiveness</strong> must be measured
+through <strong>assessments</strong>, <strong>scanning</strong>, and
+<strong>metrics</strong>.</p>
+<p>Assessments determine whether the intended design exists in practice.
+Scanning reveals exposed assets, misconfigurations, weak ciphers,
+outdated software, and drift from baseline. Metrics help leadership
+understand whether controls are reducing risk over time. Useful metrics
+might include segmentation policy violations, mean time to revoke
+privileged access, unclassified data percentage, WAF false-positive
+rates, privileged-session reauthentication rates, or the number of
+unmanaged internet-exposed assets.</p>
+<p>Poor metrics focus only on volume. Good metrics focus on risk
+movement. A thousand blocked requests may say little. A 40% reduction in
+privileged accounts with standing administrative access says a great
+deal.</p>
+<blockquote class="callout-case-study">
+<p><strong class="callout-title">Case Study</strong> <strong>Google BeyondCorp and the
+Collapse of the Old Perimeter</strong></p>
+<p>A frequently cited example of modern security architecture is
+Google’s BeyondCorp initiative. After realizing that employees
+increasingly worked from untrusted networks, and that the internal
+network itself could no longer be assumed safe by default, Google began
+replacing location-based trust with device and user-centered access
+decisions, and described the approach publicly in a 2014 paper <span
+class="citation" data-cites="google-beyondcorp-2014">(<a
+href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
+2014</a>)</span>.</p>
+<p>Instead of assuming that being on the corporate LAN granted broad
+trust, BeyondCorp evaluated user identity, device posture, and the
+requested application before granting access. Managed devices were
+tracked in an inventory and identified by certificates, and applications
+were exposed through an internet-facing access proxy backed by a policy
+engine rather than hidden behind a monolithic VPN model. This was a
+foundational architectural shift: access became a function of verified
+context rather than physical network placement <span class="citation"
+data-cites="google-beyondcorp-2014">(<a
+href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
+2014</a>)</span>.</p>
+<p>The lesson for security architects is not that every enterprise must
+copy Google’s exact tooling. The lesson is that the perimeter is no
+longer the only meaningful security boundary. Identity, device trust,
+application gateways, telemetry, and policy engines must all work
+together to create enforceable boundaries in a world where users,
+devices, and workloads constantly move <span class="citation"
+data-cites="google-beyondcorp-2014">(<a
+href="#ref-google-beyondcorp-2014" role="doc-biblioref">Ward and Beyer
+2014</a>)</span>.</p>
+</blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 4.4</strong></p>
 <ol type="1">
 <li><strong>Recall.</strong> What do classification labels and tagging
 strategies let the architecture do automatically?</li>
-<li><strong>Discriminate.</strong> Scanning email or SaaS uploads for
-sensitive content is what kind of DLP, and searching cloud storage for
-forgotten sensitive files is what kind?</li>
+<li><strong>Discriminate.</strong> Inspecting email and SaaS uploads as
+they leave is which kind of DLP, and hunting through cloud storage for
+sensitive files nobody knew were there is which kind?</li>
 <li><strong>Apply.</strong> An auditor wants proof that the architecture
 works. Name one metric from the chapter that shows risk movement rather
 than raw event volume.</li>
@@ -1066,9 +1111,10 @@ than raw event volume.</li>
 <li>They make data sensitivity <strong>visible and
 machine-readable</strong>, so systems can apply controls like
 encryption, retention, and DLP automatically.</li>
-<li>Upload inspection is <strong>DLP in transit</strong>; searching
-repositories for risky sensitive data is <strong>data
-discovery</strong>.</li>
+<li>Inspecting data as it leaves is <strong>DLP in transit</strong>;
+finding sensitive data in places nobody knew about is <strong>data
+discovery</strong>, not protection of known stored data (DLP at
+rest).</li>
 <li>One good example is a <strong>reduction in standing privileged
 access</strong>. That shows risk moving, not just events
 accumulating.</li>
@@ -1078,24 +1124,21 @@ accumulating.</li>
 <h2 id="chapter-review-and-conclusion">Chapter Review and
 Conclusion</h2>
 <p>In this chapter, we moved from security theory into security
-architecture. We examined why control placement matters, how firewalls,
-IPS, IDS, WAFs, proxies, API gateways, VPNs, NAC systems, collectors,
-and CDNs each protect different portions of the trust model, and why
+architecture. We examined why control placement matters, how each
+component protects a different portion of the trust model, and why
 resilience depends on explicit design choices around recoverability,
 scaling, state, and geography.</p>
 <p>We then unpacked Zero Trust as a design philosophy rather than a
-marketing slogan. We explored continuous authorization, context-based
-reauthentication, subject-object relationships, segmentation,
-microsegmentation, API validation, attestation, SASE, SD-WAN, and
-deperimeterization. Most importantly, we emphasized that Zero Trust is
-not about distrusting everyone equally. It is about granting trust
-narrowly, conditionally, and with evidence.</p>
-<p>Finally, we examined how to enforce security boundaries through
-attack surface reduction, centralized visibility, data classification,
-DLP, hybrid consistency, and measurable control effectiveness.
-Architecture succeeds when it reduces dependency on heroic operators and
-instead builds environments where the right outcome becomes the default
-outcome.</p>
+marketing slogan: continuous authorization, PDPs and PEPs,
+subject-object relationships, microsegmentation, API validation,
+attestation, and SASE. Zero Trust is not about distrusting everyone
+equally. It is about granting trust narrowly, conditionally, and with
+evidence.</p>
+<p>Finally, we examined security boundaries, attack surface reduction,
+centralized visibility, data classification, DLP, hybrid consistency,
+and measurable control effectiveness. Architecture succeeds when it
+reduces dependency on heroic operators and instead builds environments
+where the right outcome becomes the default outcome.</p>
 <h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
 <li><strong>Firewall:</strong> A control that enforces network traffic
@@ -1108,6 +1151,8 @@ control that inspects and blocks malicious traffic in real time.</li>
 <li><strong>Web Application Firewall (WAF):</strong> A control that
 protects web applications by detecting and filtering malicious HTTP or
 HTTPS traffic.</li>
+<li><strong>Forward Proxy:</strong> An intermediary in front of users
+that controls and inspects their outbound requests.</li>
 <li><strong>Reverse Proxy:</strong> A server-side intermediary that
 receives inbound requests on behalf of backend services.</li>
 <li><strong>API Gateway:</strong> A control point that authenticates,
@@ -1115,30 +1160,80 @@ validates, meters, and logs API calls.</li>
 <li><strong>Network Access Control (NAC):</strong> A technology that
 evaluates endpoint identity or posture before granting network
 access.</li>
+<li><strong>Network Tap:</strong> A device or virtual feature that
+copies a link’s traffic to a monitoring tool without sitting in the
+traffic path.</li>
+<li><strong>Collector:</strong> A system that gathers logs, flow
+records, or packet copies from many sources for central analysis.</li>
+<li><strong>Content Delivery Network (CDN):</strong> A distributed edge
+network that caches content and absorbs attack traffic in front of
+origin servers.</li>
+<li><strong>Load Balancing:</strong> Distributing traffic across
+multiple nodes, using health checks, so one failure does not stop the
+service.</li>
 <li><strong>Recoverability:</strong> The ability of an environment to
 restore business function after failure or compromise.</li>
 <li><strong>Horizontal Scaling:</strong> Increasing capacity by
 distributing workload across multiple systems.</li>
 <li><strong>Vertical Scaling:</strong> Increasing capacity by adding
 more resources to a single system.</li>
+<li><strong>Persistence vs. Non-persistence:</strong> Keeping state over
+time versus frequently rebuilding or discarding systems to limit
+attacker dwell time.</li>
 <li><strong>Zero Trust:</strong> An architectural approach that denies
 implicit trust based on location and instead validates access
 continuously.</li>
+<li><strong>Policy Decision Point (PDP):</strong> The component that
+evaluates policy and returns an allow or deny decision.</li>
+<li><strong>Policy Enforcement Point (PEP):</strong> The component in
+the data path that applies the PDP’s decision.</li>
+<li><strong>Implicit Trust Zone:</strong> An area where entities are
+trusted by default after an initial check.</li>
 <li><strong>Continuous Authorization:</strong> Reevaluating whether
 access remains justified throughout the life of a session.</li>
 <li><strong>Context-Based Reauthentication:</strong> Requiring stronger
 proof of identity when contextual risk changes.</li>
 <li><strong>Subject-Object Relationship:</strong> The precise access
 relationship between a requester and a protected resource.</li>
+<li><strong>Segmentation:</strong> Separating an environment into zones
+so a compromise in one cannot freely reach another.</li>
 <li><strong>Microsegmentation:</strong> Fine-grained traffic control
-between workloads, services, or applications.</li>
+between individual workloads, services, or applications.</li>
+<li><strong>Always-on VPN:</strong> A VPN that connects automatically
+whenever a managed device is online.</li>
 <li><strong>Deperimeterization:</strong> Moving away from sole reliance
 on a single network perimeter as the primary trust model.</li>
 <li><strong>Secure Access Service Edge (SASE):</strong> A
-cloud-delivered architecture combining networking and security controls
-close to the user and workload.</li>
+cloud-delivered architecture that pairs SD-WAN with security services
+(SSE) near the user and workload.</li>
+<li><strong>Zero Trust Network Access (ZTNA):</strong> Brokered,
+per-application access that replaces broad VPN access to the
+network.</li>
+<li><strong>Software-Defined Wide Area Network (SD-WAN):</strong>
+Policy-driven path selection and security across sites, cloud, and
+branches.</li>
+<li><strong>Software-Defined Networking (SDN):</strong> Separating the
+control plane from the data plane so network policy is set in
+software.</li>
 <li><strong>Attestation:</strong> Evidence that a device or workload is
 in a trustworthy state.</li>
+<li><strong>Secure Zone:</strong> A segment that holds high-value assets
+behind tightly controlled entry points.</li>
+<li><strong>Data Perimeter:</strong> Guardrails that keep data within
+trusted identities, devices, networks, and destinations.</li>
+<li><strong>Attack Surface Management:</strong> Continuously identifying
+and reducing externally reachable systems and exposures.</li>
+<li><strong>Hardening:</strong> Removing unnecessary functionality and
+insecure defaults from a system.</li>
+<li><strong>Defense-in-Depth:</strong> Layering controls so that the
+failure of one safeguard does not automatically produce compromise.</li>
+<li><strong>Centralized Logging:</strong> Collecting identity, network,
+endpoint, and cloud events in one place for correlation and
+investigation.</li>
+<li><strong>Threat Hunting:</strong> Proactively searching retained
+telemetry for attacker activity that no alert has raised.</li>
+<li><strong>Classification Model:</strong> A scheme of sensitivity
+categories that determines how data must be handled.</li>
 <li><strong>Data Labeling:</strong> Marking data with visible or
 machine-readable indicators of sensitivity or handling
 requirements.</li>
@@ -1147,8 +1242,10 @@ data so that automated controls can enforce policy.</li>
 <li><strong>Data Loss Prevention (DLP):</strong> A set of controls
 designed to prevent sensitive data from being lost, exposed, or
 exfiltrated.</li>
-<li><strong>Defense-in-Depth:</strong> Layering controls so that the
-failure of one safeguard does not automatically produce compromise.</li>
+<li><strong>Data Discovery:</strong> Continuous scanning of repositories
+to find sensitive data the organization did not know it had.</li>
+<li><strong>Control Effectiveness:</strong> Evidence from assessments,
+scanning, and metrics that a control actually reduces risk.</li>
 </ul>
 <h3 id="practice-based-questions">Practice-Based Questions</h3>
 <div class="pbq-promo">
@@ -1213,20 +1310,18 @@ the auditors, and why?</li>
 <li>What architectural decision do you regret, and what would you do
 differently if you could rebuild from scratch?</li>
 </ul>
-<p>Listen for the gap between zero trust as a slide deck and zero trust
-as a day-to-day engineering practice — the place where ideology meets
-cable plants, vendor contracts, and ten-year-old applications nobody
-wants to touch.</p>
+<p>Listen for the gap between zero trust as a slide deck and as
+day-to-day engineering, where ideology meets vendor contracts and
+ten-year-old applications nobody wants to touch.</p>
 <blockquote>
 <p><em>No one to interview?</em> Run the conversation with a chatbot in
 role. A prompt that works: <em>“You are a principal security architect
-at a 10,000-person company that has spent the last four years on a zero
-trust transformation. You have been responsible for the network
-segmentation, ZTNA rollout, and conditional access policies. I’m
-interviewing you for a class. Answer in character. Push back on
-questions that treat zero trust as a product, and when I ask something a
-real architect would not actually know, say so.”</em> The rehearsal
-exposes the questions that conflate buzzwords with engineering.</p>
+at a 10,000-person company four years into a zero trust transformation,
+responsible for segmentation, ZTNA rollout, and conditional access. I’m
+interviewing you for a class. Answer in character, push back on
+questions that treat zero trust as a product, and say so when I ask
+something a real architect would not know.”</em> The rehearsal exposes
+questions that conflate buzzwords with engineering.</p>
 </blockquote>
 <h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
 <p>Pick the position you find <em>least</em> sympathetic and argue it as
@@ -1240,12 +1335,12 @@ conditional access, and device posture.</li>
 Defense-in-depth requires both: a strong perimeter buys time and stops
 noise, while identity-aware controls handle the cases where the
 perimeter is bypassed.</li>
-<li>“Zero trust” is mostly a marketing rebranding of controls that
-already existed (mutual TLS, least privilege, microsegmentation, NAC).
-The architectural question that actually matters — <em>how do you make a
-twenty-year-old enterprise actually look like Google’s BeyondCorp
-paper?</em> — has no good answer for most organizations, and treating
-zero trust as an achievable target sets programs up to fail.</li>
+<li>“Zero trust” is mostly a rebranding of controls that already existed
+(mutual TLS, least privilege, microsegmentation, NAC). The question that
+matters — <em>how do you make a twenty-year-old enterprise look like
+Google’s BeyondCorp paper?</em> — has no good answer for most
+organizations, so treating zero trust as an achievable target sets
+programs up to fail.</li>
 </ul>
 <p>The exercise only works if you defend the position you don’t already
 hold. In class, assign positions and go live; the surprise of having to
@@ -1265,15 +1360,15 @@ pressure.</p>
 min)</em></h4>
 <p>Find an architecture, zero trust, or network-security event from the
 last six months. Good hunting grounds: CISA Zero Trust Maturity Model
-updates, NIST SP 800-207 community profile releases, advisories on ZTNA
-or SASE vendor vulnerabilities (Ivanti, Fortinet, Palo Alto, Cisco),
-federal zero trust mandate progress reports under OMB M-22-09, and
-post-mortems on breaches that bypassed nominally “zero trust”
-architectures. Be ready to explain to a classmate, in two minutes, what
-happened, which zero trust pillar (identity, device, network,
-application, data) was decisive, and what other organizations are
-reconsidering as a result. Bring two primary sources you’d point them to
-if they wanted to read further.</p>
+updates, NIST zero trust guidance (SP 800-207 and its companion practice
+guide, SP 1800-35), advisories on ZTNA or SASE vendor vulnerabilities
+(Ivanti, Fortinet, Palo Alto, Cisco), agency progress against the
+federal zero trust strategy in OMB M-22-09, and post-mortems on breaches
+that bypassed nominally “zero trust” architectures. Be ready to explain
+to a classmate, in two minutes, what happened, which zero trust pillar
+(identity, device, network, application, data) was decisive, and what
+other organizations are reconsidering as a result. Bring two primary
+sources you’d point them to if they wanted to read further.</p>
 <h4 id="lab-artifact-read-a-sites-security-headers-20-min">Lab Artifact:
 Read a Site’s Security Headers <em>(20 min)</em></h4>
 <p>HTTP response headers are one of the most visible pieces of an
@@ -1296,24 +1391,21 @@ the <code>frame-ancestors</code> directive of CSP),
 href="https://securityheaders.com/">securityheaders.com</a> and compare
 the letter grade to what you found by hand.</li>
 <li>Then answer for each site: what attack class does each header
-actually buy protection against? Where is a header missing or weak, and
-what would the threat be if a vulnerability appeared elsewhere on the
-site? Which of the three sites would you most want to fix, and what
-would you ask for first?</li>
+protect against, where is one missing or weak, and which of the three
+sites would you most want to fix first?</li>
 </ol>
 <p><strong>Safety:</strong> This activity is entirely passive — you are
 reading headers your browser already receives. Do not run any scanner
 that issues unusual requests, attempt to bypass any header, or probe for
-vulnerabilities. Reading response headers is normal browser behavior;
-anything beyond that is not.</p>
+vulnerabilities.</p>
 <h4 id="model-a-local-system-2-hours">Model a Local System <em>(2+
 hours)</em></h4>
 <p>Pick a system you actually use — your school’s SSO portal, your
 employer’s VPN or ZTNA gateway, a SaaS application you have
 administrative access to — and sketch its zero trust posture from what
 you can observe.</p>
-<p>For each of the zero trust pillars from the chapter, document what
-you can tell from outside:</p>
+<p>For each of the five CISA zero trust pillars from the chapter,
+document what you can tell from outside:</p>
 <ul>
 <li><strong>Identity.</strong> What identity provider authenticates you?
 Is MFA required? Are there conditional access signals (device, location,
@@ -1329,13 +1421,19 @@ tell you?</li>
 is there visible labeling, redaction, or step-up authentication for
 sensitive operations?</li>
 </ul>
-<p>Then identify the pillar you have the lowest confidence in. <em>Do
-not test, probe, or attempt to bypass anything.</em> The deliverable is
-a one-page diagram and a paragraph naming the weakest visible pillar and
-what you would ask the operator to fix first.</p>
+<p>Then name the pillar you have the lowest confidence in. <em>Do not
+test, probe, or attempt to bypass anything.</em> The deliverable is a
+one-page diagram and a paragraph on the weakest visible pillar and what
+you would ask the operator to fix first.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-cisa-ztmm-2023" class="csl-entry" role="listitem">
+Cybersecurity and Infrastructure Security Agency. 2023. <em>Zero Trust
+Maturity Model, Version 2.0</em>. <span>Cybersecurity and Infrastructure
+Security Agency</span>. <a
+href="https://www.cisa.gov/sites/default/files/2023-04/zero_trust_maturity_model_v2_508.pdf">https://www.cisa.gov/sites/default/files/2023-04/zero_trust_maturity_model_v2_508.pdf</a>.
+</div>
 <div id="ref-nist-sp800-207-2020" class="csl-entry" role="listitem">
 Rose, Scott, Oliver Borchert, Stu Mitchell, and Sean Connelly. 2020.
 <em>Zero Trust Architecture</em>. NIST SP 800-207. <span>National
