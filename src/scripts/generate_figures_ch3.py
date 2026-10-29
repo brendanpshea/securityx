@@ -54,19 +54,19 @@ def create_ai_pipeline_diagram():
     
     # Trust Boundaries (Vertical/Horizontal dashed lines)
     # Boundary 1: Internet to Raw Data
-    ax.axvline(x=4.5, ymin=0.5, ymax=0.9, color=boundary_color, linestyle='--', linewidth=2.5, alpha=0.8)
+    ax.axvline(x=4.5, ymin=0.5, ymax=0.85, color=boundary_color, linestyle='--', linewidth=2.5, alpha=0.8)
     ax.text(4.5, 5.2, "TRUST BOUNDARY\nInternet -> Raw Data Lake", color=boundary_color, 
             horizontalalignment='center', fontsize=9, fontweight='bold')
     
     # Boundary 2: Raw to Sanitized
-    ax.axvline(x=8.5, ymin=0.5, ymax=0.9, color=boundary_color, linestyle='--', linewidth=2.5, alpha=0.8)
+    ax.axvline(x=8.5, ymin=0.5, ymax=0.85, color=boundary_color, linestyle='--', linewidth=2.5, alpha=0.8)
     ax.text(8.5, 5.2, "TRUST BOUNDARY\nRaw -> Sanitized Env", color=boundary_color, 
             horizontalalignment='center', fontsize=9, fontweight='bold')
 
     # Boundary 3: Internal to Public User
     ax.axhline(y=3, xmin=0.75, xmax=0.95, color=boundary_color, linestyle='--', linewidth=2.5, alpha=0.8)
-    ax.text(14.5, 2.8, "TRUST BOUNDARY\nInternal Model -> External User", color=boundary_color, 
-            horizontalalignment='center', fontsize=9, fontweight='bold', bbox=dict(facecolor='white', edgecolor='none', alpha=0.7))
+    ax.text(14.3, 2.85, "TRUST BOUNDARY\nInternal Model -> External User", color=boundary_color, 
+            horizontalalignment='right', verticalalignment='top', fontsize=9, fontweight='bold')
 
     ax.set_xlim(0, 17)
     ax.set_ylim(0, 6)
@@ -93,12 +93,12 @@ def create_deepfake_diagram():
     # Boxes
     boxes = [
         (1, 4, 3, 1, "Attacker:\nAudio Sampling", "Extracting CEO's voice\nfrom public interviews", attacker_color),
-        (5, 4, 3, 1, "GAN Model\n(Generative AI)", "Training model to clone\nvoice patterns", ai_color),
-        (9, 4, 3, 1, "Synthesized\nDeepfake Audio", "Text-to-Speech generation\nin real-time", ai_color),
+        (5, 4, 3, 1, "Generative Model\n(GAN / diffusion / TTS)", "Learning to clone\nvoice or face patterns", ai_color),
+        (9, 4, 3, 1, "Synthesized\nDeepfake Audio", "Cloned voice, generated\nin real time", ai_color),
         (13, 4, 3, 1, "Social Engineering\nDelivery", "Calling the CFO\nfor urgent wire transfer", attacker_color),
         
         # Detection row
-        (9, 1.5, 3, 1, "Deepfake Detection\nAlgorithm", "Analyzing frequency artifacts\nand unnatural breathing", defender_color),
+        (9, 1.5, 3, 1, "Deepfake Detection\nAlgorithm", "Artifact analysis, liveness\nchecks, provenance (C2PA)", defender_color),
     ]
     
     for x, y, w, h, title, subtitle, color in boxes:
