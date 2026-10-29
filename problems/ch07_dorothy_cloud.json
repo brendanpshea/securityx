@@ -5,99 +5,99 @@
   "context_md": "Dorothy Gale, Cloud Architect at *Emerald City Solutions*, has just inherited a sprawling AWS environment built rapidly during the company's pandemic-era growth. The footprint includes managed Kubernetes clusters running customer workloads, a fleet of Lambda functions stitched together by API Gateway, an S3 bucket holding eight years of customer data, and a half-dozen SaaS apps that the marketing team adopted without telling IT.\n\nLast quarter brought two scares. First, a security researcher demonstrated that a misconfigured Lambda IAM role had read access to the customer S3 bucket — and the function had a server-side request forgery flaw that an attacker could have exploited to pivot. (The Capital One breach had used a strikingly similar pattern.) Second, an external auditor flagged that the bucket was \"public\" — though it later turned out only the *bucket policy* was misread; objects inside had no public ACLs. Either way, the auditor was unimpressed.\n\nDorothy now has board backing to tighten things up. Her plan covers responsibility boundaries, container and serverless hardening, API protections, governance of shadow SaaS, customer-managed encryption, and a layered control strategy that includes detective and preventative components — not just preventative.",
   "artifact_title": "External Cloud Audit — Emerald City Solutions, engagement EC-Q3",
   "artifact_kind": "findings",
-  "artifact_md": "*Auditor: Glinda Northrop, OSCP/OSCE. Findings 1–6 of 6. Distribution: CISO, Cloud Architect, Board Audit Committee.*\n\n**\\[HIGH\\] F-1.** Lambda function `customer-search-v3` holds `s3:GetObject` on `*` — not scoped to the `/customer/` prefix — and the `/lookup` endpoint exposes a confirmed SSRF vector. The pre-conditions for a Capital-One-shaped exfiltration are present.\n\n**\\[HIGH\\] F-2.** EKS cluster `prod-east-1` enforces no admission-time image policy. Pods are running with node-level IAM credentials rather than per-pod workload identities.\n\n**\\[HIGH\\] F-3.** API Gateway in front of the Lambda fleet authenticates clients with a static API key in the URL query string. No per-client throttling or quota configured.\n\n**\\[MED\\] F-4.** Customer bucket `cust-data-prod` is encrypted with the default AWS-managed KMS key. The enterprise contract signed 2026-04 with **Munchkin Industries** stipulates keys that AWS cannot read.\n\n**\\[MED\\] F-5.** The Marketing team has onboarded four SaaS apps (Asana, Calendly, Loom, Notion) without IT registration. Customer data has already flowed into at least two of these tenants.\n\n**\\[INFO\\] F-6.** Bucket public-exposure regression reported by internal auditor on 2026-08-14 — on review, object ACLs were never actually public (bucket-policy misread). No continuous configuration-drift detection is in place; the next check is the annual external audit.",
+  "artifact_md": "*Auditor: Glinda Northrop, OSCP/OSCE. Findings 1–6 of 6. Distribution: CISO, Cloud Architect, Board Audit Committee.*\n\n**\\[HIGH\\] F-1.** Lambda function `customer-search-v3` holds `s3:GetObject` on `*` — not scoped to the `/customer/` prefix — and the `/lookup` endpoint exposes a confirmed SSRF vector. The pre-conditions for a Capital-One-shaped exfiltration are present.\n\n**\\[HIGH\\] F-2.** EKS cluster `prod-east-1` has no cluster-side check on which container images may be deployed; unsigned, unscanned images have been admitted. Pods are running with node-level IAM credentials rather than per-pod workload identities.\n\n**\\[HIGH\\] F-3.** API Gateway in front of the Lambda fleet authenticates clients with a static API key in the URL query string. No per-client throttling or quota configured.\n\n**\\[MED\\] F-4.** Customer bucket `cust-data-prod` is encrypted with the default AWS-managed KMS key. The enterprise contract signed 2026-04 with **Munchkin Industries** stipulates that Emerald City, not AWS, controls the encryption keys (policy, rotation, and revocation).\n\n**\\[MED\\] F-5.** The Marketing team has onboarded four SaaS apps (Asana, Calendly, Loom, Notion) without IT registration. Customer data has already flowed into at least two of these tenants.\n\n**\\[INFO\\] F-6.** Bucket public-exposure regression reported by internal auditor on 2026-08-14 — on review, object ACLs were never actually public (bucket-policy misread). No continuous configuration-drift detection is in place; the next check is the annual external audit.",
   "prompt_md": "Map each finding (F-1 through F-6) to Dorothy's planned control, then click **Check answers**.",
-  "body_md": "First, Dorothy reminds the team that under the **{{model}}**, AWS is responsible for security *of* the cloud, while every finding in Glinda's report is security *in* the cloud — Emerald City's responsibility.\n\n**F-2** is fixed by requiring every container image to pass through an **{{image_control}}** before deployment, and by giving each pod its own **{{pod_identity}}** rather than inheriting node credentials.\n\n**F-1** is the textbook violation of the **{{principle}}** principle — the Lambda role needs scoping to just the prefixes it actually uses. **F-3** is fixed by enforcing **{{api_authz}}** at the API Gateway for client-to-API authorization, plus **{{api_throttle}}** to blunt abuse and runaway costs.\n\n**F-5** — the shadow SaaS — is addressed with a **{{casb}}** in API mode that can inspect data already resident in those tenants and produce a Shadow IT report.\n\n**F-4** is fixed by switching to **{{key_mgmt}}** so Emerald City can revoke access cryptographically without AWS's involvement. **F-6** is fixed by turning on **{{detection_control}}** — a continuous configuration-monitoring service — rather than waiting for next year's audit.\n\nFinally, when customer data is deleted from S3, Dorothy must address the risk that fragments of the data remain recoverable from underlying storage media. This residual-data risk is called **{{remanence}}**, and the contractual mitigation is to require provider attestation of secure deletion procedures.",
+  "body_md": "First, Dorothy reminds the team that under the **{{model}}**, AWS is responsible for security *of* the cloud, while every finding in Glinda's report is security *in* the cloud — Emerald City's responsibility.\n\n**F-2** is fixed by requiring every container image to pass through an **{{image_control}}** before deployment, and by giving each pod its own **{{pod_identity}}** rather than inheriting node credentials.\n\n**F-1** is the textbook violation of the **{{principle}}** principle — the Lambda role needs scoping to just the prefixes it actually uses. **F-3** is fixed by enforcing **{{api_authz}}** at the API Gateway for client-to-API authorization, plus **{{api_throttle}}** to blunt abuse and runaway costs.\n\n**F-5** — the shadow SaaS — is addressed with a **{{casb}}** in API mode that can inspect data already resident in those tenants and produce a Shadow IT report.\n\n**F-4** is fixed by switching to **{{key_mgmt}}** so Emerald City can revoke access cryptographically without AWS's involvement. **F-6** is fixed by turning on **{{detection_control}}** — a continuous configuration-monitoring service — rather than waiting for next year's audit.\n\nFinally, when customer data is deleted from S3, Dorothy must address the risk that fragments of the data remain recoverable from underlying storage media. This residual-data risk is called **{{remanence}}**; the strongest mitigation is cryptographic erasure (destroying the customer-managed key), backed by contractual provider attestation of secure deletion procedures.",
   "blanks": {
     "model": {
       "answer": "Shared Responsibility Model",
       "distractors": [
-        "Zero Trust Model",
-        "STRIDE Model",
-        "OSI Model",
-        "Bell-LaPadula Model"
+        "Zero Trust Architecture",
+        "Defense-in-Depth Model",
+        "Cloud Adoption Framework",
+        "Least-Privilege Model"
       ],
-      "explanation": "The Shared Responsibility Model defines the dividing line between cloud-provider duties and customer duties. The exact line shifts between IaaS, PaaS, and SaaS."
+      "explanation": "The Shared Responsibility Model defines the dividing line between cloud-provider duties and customer duties, and that line shifts between IaaS, PaaS, and SaaS. Zero Trust, defense in depth, and least privilege are design principles that the customer applies on its own side of the line; a cloud adoption framework guides migration planning rather than dividing security duties."
     },
     "image_control": {
       "answer": "admission controller",
       "distractors": [
-        "TLS handshake",
-        "BGP route filter",
-        "DNS sinkhole",
-        "WPA3 handshake"
+        "runtime syscall monitor (Falco)",
+        "container registry garbage collector",
+        "service mesh sidecar proxy",
+        "node OS patch baseline"
       ],
-      "explanation": "Container security pipelines scan images for vulnerabilities and use admission controllers (e.g., OPA Gatekeeper) to block non-compliant images from being deployed."
+      "explanation": "An admission controller (for example, Pod Security Admission, or a policy engine such as OPA Gatekeeper or Kyverno) intercepts requests to the Kubernetes API server and rejects non-compliant objects before they run, which is where an image-signature or scanning policy is enforced. A runtime syscall monitor such as Falco detects bad behavior only after a container is already running; registry garbage collection, a service mesh proxy, and a node patch baseline do not decide which images may be deployed."
     },
     "pod_identity": {
-      "answer": "per-pod workload identity (e.g., IRSA)",
+      "answer": "per-pod workload identity (IRSA or Pod Identity)",
       "distractors": [
-        "namespace-scoped service account",
-        "node instance profile",
-        "sidecar credential broker without IAM binding",
-        "static access key mounted as a secret"
+        "the namespace's default service account",
+        "the node instance profile, shared by all pods",
+        "a sidecar credential broker with no IAM binding",
+        "a static access key mounted as a Kubernetes secret"
       ],
-      "explanation": "Workload identity binds cloud permissions to the pod itself instead of letting every workload inherit node-level credentials. The other options either broaden access or add plumbing without giving the pod a distinct cloud identity."
+      "explanation": "Workload identity (IRSA or EKS Pod Identity on EKS) binds a specific IAM role to a specific pod, so cloud permissions are scoped per workload. The node instance profile and the shared default service account give every pod the same broad access; a broker with no IAM binding gives the pod no distinct cloud identity; and a static key mounted as a secret is a long-lived credential that can be stolen and reused."
     },
     "principle": {
       "answer": "least privilege",
       "distractors": [
         "defense in depth",
-        "fail-open",
         "separation of duties",
-        "open by default"
+        "complete mediation",
+        "fail-secure defaults"
       ],
-      "explanation": "Granting each Lambda role exactly the S3 prefixes it needs — and nothing more — is the canonical application of least privilege."
+      "explanation": "Granting each Lambda role exactly the S3 prefixes it needs, and nothing more, is the canonical application of least privilege. Defense in depth is about layering controls, separation of duties splits a sensitive task between people, complete mediation means checking every access request, and fail-secure defaults govern behavior on error; none of them describes scoping a role's permissions."
     },
     "api_authz": {
-      "answer": "OAuth 2.0 / JWT-based authorization",
+      "answer": "OAuth with JWT bearer tokens",
       "distractors": [
-        "Basic auth over HTTP",
-        "anonymous access",
-        "shared API key in URL query string",
-        "mTLS for end-user auth"
+        "Basic auth over plain HTTP",
+        "a static key in the URL query string",
+        "anonymous access with an IP allow-list",
+        "mutual TLS with no scopes or claims"
       ],
-      "explanation": "OAuth 2.0 with JWT bearer tokens is the standard for client-to-API authorization at modern API gateways."
+      "explanation": "OAuth 2.0 access tokens (often JWTs) carry scopes and claims that the gateway can validate on every request, which makes them the standard for client-to-API authorization. Basic auth over plain HTTP exposes credentials, a static key in the URL (the current design) is a weak, easily leaked shared secret that gets logged, and an IP allow-list does not identify the caller. Mutual TLS authenticates a client certificate but, without scopes or claims, does not express what that client may do."
     },
     "api_throttle": {
-      "answer": "rate limiting",
+      "answer": "rate limiting and quotas",
       "distractors": [
-        "DNSSEC",
-        "TLS pinning",
-        "ARP inspection",
-        "BGP peering"
+        "TLS certificate pinning",
+        "DNSSEC zone signing",
+        "response payload compression",
+        "API version deprecation"
       ],
-      "explanation": "Rate limiting (and quotas) at the API gateway is the standard control against abuse, scraping, brute force, and runaway billing."
+      "explanation": "Rate limiting and per-client quotas at the API gateway are the standard controls against abuse, scraping, brute force, and runaway billing. Certificate pinning and DNSSEC protect the authenticity of connections and name lookups, compression changes payload size, and version deprecation retires old endpoints; none of them caps request volume."
     },
     "casb": {
-      "answer": "CASB",
+      "answer": "CASB (Cloud Access Security Broker)",
       "distractors": [
         "WAF (Web Application Firewall)",
         "EDR (Endpoint Detection and Response)",
         "SIEM (Security Information and Event Management)",
         "NAC (Network Access Control)"
       ],
-      "explanation": "CASBs (in API or proxy mode) discover Shadow IT, enforce DLP and access policy on SaaS, and inspect data already resident in those tenants."
+      "explanation": "A CASB in API mode connects to each SaaS tenant's management API, discovers shadow IT, and inspects data already resident in those tenants. A WAF protects web applications you host, EDR protects endpoints, a SIEM correlates logs but does not reach into SaaS tenants, and NAC controls devices joining a network."
     },
     "key_mgmt": {
-      "answer": "customer-managed keys (CMK / BYOK)",
+      "answer": "customer-managed keys (CMK)",
       "distractors": [
-        "provider-managed keys",
-        "no encryption",
-        "static AES key in source code",
-        "self-signed TLS certificate"
+        "provider-managed keys (default)",
+        "a static AES key in an environment variable",
+        "TLS 1.3 on every S3 request",
+        "unencrypted storage behind stricter IAM"
       ],
-      "explanation": "Customer-managed keys (or bring-your-own-key) let the customer revoke decryption capability unilaterally — required when a customer contract demands cryptographic separation from the cloud provider."
+      "explanation": "With a customer-managed key in KMS, Emerald City owns the key policy, rotation, and revocation, so it can cut off decryption without AWS's involvement. Provider-managed keys leave that control with AWS, a static key in an environment variable is an exposed secret, TLS protects data in transit rather than the key that protects it at rest, and dropping encryption to rely on IAM removes a layer."
     },
     "detection_control": {
-      "answer": "CSPM",
+      "answer": "cloud posture monitoring (CSPM)",
       "distractors": [
         "Annual penetration test",
         "Manual IAM review every 12 months",
         "Quarterly tabletop exercise",
-        "Daily log printout"
+        "Monthly vulnerability scan of EC2 hosts"
       ],
-      "explanation": "CSPM (e.g., AWS Config + Security Hub, or third-party tools) continuously evaluates cloud configuration against policy and alerts on drift such as a bucket becoming public."
+      "explanation": "Cloud security posture management (CSPM; for example, AWS Config with Security Hub, or third-party tools) evaluates cloud configuration continuously against policy and alerts on drift such as a bucket becoming public. The distractors are periodic or manual checks that would leave exposures open for weeks or months, and an EC2 vulnerability scan does not examine S3 bucket configuration."
     },
     "remanence": {
       "answer": "data remanence",

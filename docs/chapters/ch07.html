@@ -124,8 +124,8 @@ an access key with administrator privileges and committing it to a
 public Git repository.</p>
 <table>
 <caption>Table 7.1: Security responsibilities by cloud service model. The
-shaded line moves up as the customer offloads more to the provider — but
-the top row never changes.</caption>
+dividing line moves up the stack as the customer offloads more to the
+provider — but the top row never changes.</caption>
 <thead>
 <tr>
 <th scope="col" style="text-align: left;">Layer</th>
@@ -208,17 +208,23 @@ reputational — even if “the cloud” gets the news headline.</p>
 <p>An engineer at <em>Emerald City Solutions</em> creates an S3 bucket
 named <code>emerald-customer-exports</code> during a prototype sprint.
 AWS encrypts it at rest by default using provider-managed AES-256 — that
-is the cloud’s responsibility, and it works. But the bucket policy was
-left as <code>"Principal": "*"</code> (world-readable), because “it was
-just a test.” The sprint ended; the bucket did not.</p>
+is the cloud’s responsibility, and it works. But the engineer switched
+off S3 Block Public Access (on by default for new buckets since 2023
+<span class="citation" data-cites="aws-s3-default-security-2023">(<a
+href="#ref-aws-s3-default-security-2023" role="doc-biblioref">Amazon Web
+Services 2023b</a>)</span>) and set the bucket policy to
+<code>"Principal": "*"</code> (world-readable), because “it was just a
+test.” The sprint ended; the bucket did not.</p>
 <p>The data inside — monthly CSV exports with customer names and
 contract values — was the customer’s responsibility to protect. AWS’s
-infrastructure was not breached. Three controls that are entirely the
-customer’s to configure would have caught this: S3 Block Public Access
-enabled at the account level, a Service Control Policy (SCP) preventing
-public bucket policies org-wide, and a CSPM scan that flags an
-“effective public read” ACL. All three were available and free. None was
-in place.</p>
+infrastructure was not breached. Three controls the customer alone
+configures would have caught this: S3 Block Public Access enforced at
+the account level; a Service Control Policy (SCP), an AWS Organizations
+guardrail, that stops anyone from removing it or attaching public bucket
+policies; and a <strong>cloud security posture management
+(CSPM)</strong> scan — a tool that continuously compares cloud
+configuration to security baselines — flagging an “effective public
+read” bucket. All three were available. None was in place.</p>
 <p>The shared responsibility model does not mean “the cloud is half to
 blame.” It means the dividing line is clearly documented, and
 misconfigurations on the customer side are the customer’s problem to
@@ -229,7 +235,8 @@ id="customer-managed-vs.-cloud-managed-keys-and-licenses">Customer-Managed
 vs. Cloud-Managed Keys and Licenses</h3>
 <p>A specific area where the shared responsibility line creates real
 architectural decisions is <strong>encryption key management</strong>.
-Every major cloud provider offers two general patterns:</p>
+Every major cloud provider offers a spectrum of key-management
+options:</p>
 <ul>
 <li><p><strong>Cloud-managed keys</strong> (sometimes called
 “provider-managed keys”): The provider generates, stores, rotates, and
@@ -243,22 +250,25 @@ service like AWS KMS, Azure Key Vault, or Google Cloud KMS. The provider
 still operates the key management infrastructure, but the customer
 controls policy, rotation, and revocation. This gives the customer the
 ability to revoke decryption — an option called <strong>cryptographic
-deletion</strong> that effectively renders all data encrypted under that
-key permanently inaccessible.</p></li>
+erasure</strong> (or crypto-shredding) that effectively renders all data
+encrypted under that key permanently inaccessible.</p></li>
 <li><p><strong>Bring Your Own Key (BYOK)</strong> and <strong>Hold Your
 Own Key (HYOK)</strong>: For the most security-sensitive deployments,
-customers can import their own keys generated outside the cloud (BYOK)
-or even keep keys in an external HSM that the cloud must call out to for
-each cryptographic operation (HYOK). HYOK gives the customer the ability
-to instantly revoke cloud access by disconnecting their HSM, but at
-significant complexity and performance cost.</p></li>
+customers can import key material generated outside the cloud into the
+provider’s KMS (BYOK), or keep keys in an external HSM or key manager
+that the cloud must call out to for each cryptographic operation (HYOK).
+HYOK lets the customer instantly cut off cloud access by disconnecting
+that HSM, but at significant complexity, performance, and availability
+cost — if the key service goes down, so does access to the
+data.</p></li>
 </ul>
 <p>The same logic applies to <strong>software licensing</strong> in the
-cloud. Some software is provided directly by the cloud provider with
-built-in licensing; other software must be brought by the customer
-through a <strong>Bring Your Own License (BYOL)</strong> model. License
-compliance, version management, and renewal in BYOL scenarios remain the
-customer’s responsibility.</p>
+cloud. Some software (Windows Server or SQL Server on a cloud VM, for
+example) is rented with the license included in the hourly price. Other
+software is brought by the customer under a <strong>Bring Your Own
+License (BYOL)</strong> model, which can cost less but leaves license
+compliance, renewal, and vendor audits — including whether the terms
+permit cloud use — with the customer.</p>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 7.1</strong></p>
 <ol type="1">
@@ -336,15 +346,19 @@ Google Artifact Registry, or self-hosted Harbor) should require
 authentication, integrate with vulnerability scanning, and enforce
 signed-image-only policies for production pulls.</p></li>
 <li><p><strong>Runtime security.</strong> Once a container is running,
-what can it do? <strong>Pod security standards</strong> in Kubernetes
-(the modern replacement for the older Pod Security Policies) enforce
-constraints: containers should not run as root, should not be
-privileged, should not mount the host filesystem, should drop all Linux
-capabilities except those they actually need, and should run with
-read-only root filesystems where possible. Tools like Falco watch
-syscalls inside containers and alert on anomalies — a container that
-suddenly opens a shell and starts probing the network is a strong
-indicator of compromise.</p></li>
+what can it do? Kubernetes <strong>Pod Security Standards</strong>
+define three profiles (Privileged, Baseline, Restricted) that the
+built-in Pod Security Admission controller enforces per namespace; it
+replaced PodSecurityPolicy, removed in Kubernetes 1.25 <span
+class="citation" data-cites="k8s-psa-stable-2022">(<a
+href="#ref-k8s-psa-stable-2022" role="doc-biblioref">Project
+2022</a>)</span>. Under the stricter profiles, containers should not run
+as root, should not be privileged, should not mount the host filesystem,
+should drop all Linux capabilities except those they actually need, and
+should run with read-only root filesystems where possible. Tools like
+Falco watch syscalls inside containers and alert on anomalies — a
+container that suddenly opens a shell and starts probing the network is
+a strong indicator of compromise.</p></li>
 <li><p><strong>Orchestrator security.</strong> Kubernetes itself is a
 complex distributed system with its own attack surface. The
 <strong>Kubernetes API server</strong> is the central control plane and
@@ -355,7 +369,13 @@ and configuration; it must be encrypted at rest and access-restricted.
 <strong>Network policies</strong> (a Kubernetes resource) define which
 pods can talk to which other pods — without them, the cluster network is
 essentially flat, and a single compromised container can move laterally
-with ease.</p></li>
+with ease. <strong>Admission controllers</strong> intercept API-server
+requests before objects are stored and can reject non-compliant ones — a
+privileged pod, or (through a policy engine such as OPA Gatekeeper or
+Kyverno) an unsigned image. Each pod should also get its own cloud
+identity (<strong>workload identity</strong>: IRSA or EKS Pod Identity
+on EKS, Entra Workload ID on AKS, Workload Identity Federation on GKE)
+rather than inheriting its node’s credentials.</p></li>
 </ol>
 <blockquote class="callout-warning">
 <p><strong class="callout-title">Warning</strong> The default Kubernetes installation is
@@ -374,14 +394,15 @@ as a Service (FaaS)</strong> — takes the abstraction one step further.
 The customer writes a function (a piece of code that responds to a
 specific event), uploads it to the platform, and the platform runs it on
 demand without the customer ever provisioning a server. AWS Lambda,
-Azure Functions, and Google Cloud Functions are the canonical
-examples.</p>
+Azure Functions, and Google Cloud Run functions (formerly Cloud
+Functions) are the canonical examples.</p>
 <p>Serverless flips several familiar security assumptions:</p>
 <ul>
 <li><p><strong>There is no long-running host to patch.</strong> Each
 invocation runs in an ephemeral environment that the provider rebuilds
-from scratch. Operating system patching is the provider’s job
-entirely.</p></li>
+from scratch. Operating system patching is the provider’s job, but the
+customer still owns the code, its libraries, and moving off deprecated
+language runtimes.</p></li>
 <li><p><strong>The attack surface shifts to the function’s permissions
 and triggers.</strong> The big questions become: what events can invoke
 this function, and what is the function authorized to do once
@@ -397,12 +418,12 @@ instrumentation become the primary controls.</p></li>
 </ul>
 <p>The most important security control for serverless is the
 <strong>principle of least privilege applied to function execution
-roles</strong>. A function that reads a single S3 bucket should have an
-IAM role that allows only <code>GetObject</code> against that one bucket
-— not full S3 read, not any other service. <strong>Over-permissioned
-functions</strong> are the dominant serverless misconfiguration pattern,
-and they turn a small code-level vulnerability into a much larger blast
-radius.</p>
+roles</strong> (the IAM identity a function runs as). A function that
+reads a single S3 bucket should have an IAM role that allows only
+<code>GetObject</code> against that one bucket — not full S3 read, not
+any other service. <strong>Over-permissioned functions</strong> are the
+dominant serverless misconfiguration pattern, and they turn a small
+code-level vulnerability into a much larger blast radius.</p>
 <table>
 <caption>Table 7.2: Security controls for containers vs. serverless. Both
 follow least-privilege principles, but the layers where controls apply
@@ -453,7 +474,7 @@ mesh</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Persistent State</th>
-<td style="text-align: left;">Volumes + sidecars</td>
+<td style="text-align: left;">Persistent volumes or external stores</td>
 <td style="text-align: left;">Externalized (DB, queue, cache)</td>
 </tr>
 </tbody>
@@ -463,12 +484,11 @@ mesh</td>
 Functions of Emerald City Solutions</strong></p>
 <p>Dorothy Gale joined <em>Emerald City Solutions</em> as a Cloud
 Architect, inheriting a serverless platform that had grown organically
-over four years. The platform was, by any reasonable measure, a success:
-more than 1,800 AWS Lambda functions handled everything from order
-processing to image thumbnail generation to a half-dozen internal Slack
-bots that engineers had built for fun. The platform was fast,
-cost-efficient, and reliably deployed dozens of times per day.</p>
-<p>It was also, Dorothy quickly discovered, a security disaster.</p>
+over four years. By any reasonable measure it was a success: more than
+1,800 AWS Lambda functions handled everything from order processing to
+thumbnail generation to a half-dozen internal Slack bots built for fun,
+and the platform deployed reliably dozens of times a day. It was also,
+Dorothy quickly discovered, a security disaster.</p>
 <p>Her first week, Dorothy ran an audit of IAM execution roles. Of the
 1,800 functions, 1,200 had been deployed with a role originally created
 for a long-deleted prototype — a role that granted <code>*:*</code> on
@@ -494,12 +514,10 @@ Third, she layered AWS CloudTrail logging into a SIEM and built alerts
 for any function that successfully invoked an API outside its declared
 least-privilege envelope — turning unexpected behavior into an
 investigation rather than a breach.</p>
-<p>The platform did not get slower. Cost dropped slightly because
-least-privilege roles caught a few accidental cross-region calls. And,
-most importantly, when an attacker briefly compromised a developer’s
-laptop a year later through a phishing email, the lateral path that
-would once have led to “everything” now ended at a single development
-function with read access to a single non-production bucket.</p>
+<p>The payoff came a year later, when an attacker briefly compromised a
+developer’s laptop through a phishing email. The lateral path that would
+once have led to “everything” now ended at a single development function
+with read access to a single non-production bucket.</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 7.2</strong></p>
@@ -548,9 +566,12 @@ keys.</strong> Modern cloud platforms support <strong>OIDC
 federation</strong> between CI/CD systems (GitHub Actions, GitLab CI,
 Azure DevOps) and cloud identity providers. The pipeline obtains a
 short-lived, audience-scoped token at run time rather than storing a
-permanent IAM access key. A leaked OIDC trust relationship limits damage
-to a specific repository and branch; a leaked static key gives full
-access until it is rotated.</p></li>
+permanent IAM access key. If the cloud role’s trust policy is pinned to
+a specific repository and branch (the token’s subject claim), a stolen
+token is useful only briefly and only for that pipeline — but a policy
+without that condition lets any repository on the platform request the
+role. A leaked static key gives full access until it is
+rotated.</p></li>
 <li><p><strong>Pipelines need their own least-privilege
 identity.</strong> A pipeline that deploys a frontend application does
 not need permission to read the customer database. Each pipeline should
@@ -572,19 +593,27 @@ are stored in version control, reviewed via pull requests, and applied
 through pipelines. The two most widely deployed tools in the SecurityX
 exam orbit are:</p>
 <ul>
-<li><p><strong>Terraform</strong> (and its open-source fork OpenTofu): A
-declarative IaC tool that supports virtually every cloud provider
-through a plugin model. Terraform configurations describe the
-<em>desired state</em> of infrastructure; Terraform itself computes the
-diff between current and desired state and applies the necessary
-changes. AWS CloudFormation, Azure Resource Manager (ARM/Bicep), and
-Google Cloud Deployment Manager fill the same role for their respective
-platforms.</p></li>
+<li><p><strong>Terraform</strong> (source-available rather than open
+source since HashiCorp’s 2023 license change) and its open-source fork
+<strong>OpenTofu</strong>: Declarative IaC tools that support virtually
+every cloud provider through a plugin model. Terraform configurations
+describe the <em>desired state</em> of infrastructure; Terraform itself
+computes the diff between current and desired state and applies the
+necessary changes. Its <strong>state file</strong> records every managed
+resource’s attributes, including secrets such as database passwords, so
+keep it in an encrypted, access-controlled remote backend, never in Git.
+AWS CloudFormation and Azure Resource Manager (ARM/Bicep) fill the same
+role natively for their platforms; Google Cloud’s Deployment Manager has
+been retired in favor of the Terraform-based Infrastructure Manager
+<span class="citation"
+data-cites="gcp-deployment-manager-deprecation">(<a
+href="#ref-gcp-deployment-manager-deprecation"
+role="doc-biblioref">Google Cloud, n.d.</a>)</span>.</p></li>
 <li><p><strong>Ansible</strong>: A configuration management tool that
 uses YAML “playbooks” to describe the desired state of systems. Ansible
-is most commonly used to configure operating systems and applications
-inside virtual machines, though it can also provision cloud
-resources.</p></li>
+is agentless (it connects over SSH or WinRM) and is most commonly used
+to configure operating systems and applications inside virtual machines,
+though it can also provision cloud resources.</p></li>
 </ul>
 <p>The security benefits of IaC are substantial: every infrastructure
 change is reviewable, auditable, and reproducible. The risk is that a
@@ -593,13 +622,13 @@ bucket, an overly broad IAM role — gets propagated everywhere by
 automation.</p>
 <p>The mitigation is <strong>policy-as-code</strong>. Tools like
 <strong>Open Policy Agent (OPA)</strong> with the Rego policy language,
-<strong>Checkov</strong>, <strong>tfsec</strong>, and
-<strong>Terrascan</strong> scan IaC files in the pipeline and reject
-changes that violate policy <em>before</em> they are applied. A
-Terraform pull request that creates an S3 bucket without server-side
-encryption can be rejected automatically; a Kubernetes manifest that
-requests <code>privileged: true</code> can fail the merge check. This
-shifts misconfiguration discovery from production audits to development
+<strong>Checkov</strong>, and <strong>Trivy</strong> (which absorbed the
+older tfsec scanner) scan IaC files in the pipeline and reject changes
+that violate policy <em>before</em> they are applied. A Terraform pull
+request that creates an S3 bucket without server-side encryption can be
+rejected automatically; a Kubernetes manifest that requests
+<code>privileged: true</code> can fail the merge check. This shifts
+misconfiguration discovery from production audits to development
 feedback loops.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
@@ -611,10 +640,11 @@ resource:</p>
   bucket = &quot;emerald-quarterly-reports&quot;
 }</code></pre>
 <p>No public-access block. No encryption configuration. Checkov, running
-in the CI pipeline, fails the PR instantly with two findings:</p>
-<pre><code>Check: CKV_AWS_53: &quot;Ensure S3 bucket has block public access enabled&quot;   FAILED
-Check: CKV_AWS_19: &quot;Ensure the S3 bucket has server-side-encryption&quot;    FAILED</code></pre>
-<p>The developer adds the required resources and the pipeline
+in the CI pipeline, fails the PR instantly with two findings
+(abridged):</p>
+<pre><code>Check: CKV2_AWS_6: &quot;Ensure that S3 bucket has a Public Access block&quot;                 FAILED
+Check: CKV_AWS_19: &quot;Ensure all data stored in the S3 bucket is securely encrypted at rest&quot;  FAILED</code></pre>
+<p>The developer adds the two missing resources and the pipeline
 passes:</p>
 <pre class="hcl"><code>resource &quot;aws_s3_bucket_public_access_block&quot; &quot;reports&quot; {
   bucket                  = aws_s3_bucket.reports.id
@@ -622,6 +652,15 @@ passes:</p>
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource &quot;aws_s3_bucket_server_side_encryption_configuration&quot; &quot;reports&quot; {
+  bucket = aws_s3_bucket.reports.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = &quot;AES256&quot;
+    }
+  }
 }</code></pre>
 <p>The check runs in seconds and catches a class of misconfiguration
 that has led to major public breaches. The principle is the same as SAST
@@ -668,15 +707,17 @@ redeployed. Package monitoring strategies include:</p>
 <li><strong>Pinning provider versions</strong> in IaC to prevent silent
 upgrades that could change behavior.</li>
 <li><strong>Scanning container images and serverless deployment
-packages</strong> at build time for known vulnerabilities.</li>
+packages</strong> at build time for known vulnerabilities, and
+re-scanning what is already deployed, because new flaws are disclosed
+daily.</li>
 <li><strong>Subscribing to vendor advisory feeds</strong> for the cloud
 platforms and managed services in use.</li>
 <li><strong>Integrating SBoMs into the cloud delivery pipeline</strong>
 so that every deployed artifact has a corresponding inventory.</li>
 </ul>
 <blockquote class="callout-warning">
-<p><strong class="callout-title">Warning</strong> A cloud platform’s “latest” tag is not a
-stable artifact. Building a container image that pulls
+<p><strong class="callout-title">Warning</strong> A container image’s <code>latest</code>
+tag is not a stable artifact. Building a container image that pulls
 <code>python:latest</code> produces a different result this week than
 next week. For production systems, pin to specific image digests (sha256
 hashes), not tags — the digest is immutable, the tag is not.</p>
@@ -700,7 +741,9 @@ uploaded or downloaded, what actions are logged, and what constitutes
 anomalous behavior. CASBs were initially developed to address
 <strong>Shadow IT</strong> — the phenomenon of employees adopting cloud
 services without IT involvement — but they have grown into
-general-purpose cloud access governance platforms.</p>
+general-purpose cloud access governance platforms, and today they are
+usually delivered as one component of a SASE or Security Service Edge
+platform (Chapter 4).</p>
 <p>CASBs operate in two architectural patterns, often combined:</p>
 <ul>
 <li><p><strong>API-based CASBs</strong> integrate with the SaaS
@@ -714,8 +757,10 @@ traffic in real time. They can block prohibited actions before they
 happen — preventing an upload of sensitive data, blocking access to an
 unsanctioned cloud app, or requiring step-up authentication for a
 high-risk action. Proxy mode is more powerful but introduces a critical
-path that must be highly available, and may not work for traffic from
-unmanaged devices or thick clients that bypass the proxy.</p></li>
+path that must be highly available. A forward proxy usually needs an
+agent or proxy setting on a managed device; a reverse proxy (reached
+through single sign-on redirection) can cover unmanaged devices but
+often breaks thick clients and native apps.</p></li>
 </ul>
 <p>CASBs typically deliver value across four functional pillars:
 <strong>visibility</strong> (discovering what cloud services are in
@@ -724,8 +769,8 @@ use), <strong>compliance</strong> (enforcing policy on regulated data),
 <strong>threat protection</strong> (anomaly detection and
 account-takeover defense).</p>
 <p><strong>Shadow IT detection</strong> is one of the most consistently
-valuable CASB use cases. By analyzing egress firewall logs or DNS query
-data, the CASB can identify cloud services that employees are using
+valuable CASB use cases. By analyzing egress firewall, web proxy, or DNS
+logs, the CASB can identify cloud services that employees are using
 without IT approval — the marketing intern who started uploading
 customer lists to a free file-sharing site, the engineer who set up a
 personal AWS account to “just test something,” the team that began
@@ -744,13 +789,12 @@ classified as Restricted. The upload is blocked. The coordinator’s
 browser shows: <em>“This upload was blocked by your organization’s data
 loss prevention policy. If you believe this is an error, contact IT
 Security.”</em></p>
-<p>Simultaneously the CASB logs the event: user identity, filename,
-destination (personal Google Drive, not the company’s sanctioned Google
-Workspace tenant), matched DLP policy, and timestamp. The event surfaces
-in the SOC’s Shadow IT dashboard as an attempt to move Restricted data
-to an unsanctioned cloud destination. The helpdesk explains the correct
-path — the company’s encrypted email gateway — the record is closed, and
-no data leaves the organization.</p>
+<p>The CASB also logs the user identity, filename, destination (personal
+Google Drive, not the company’s sanctioned Google Workspace tenant),
+matched DLP policy, and timestamp, and the event surfaces in the SOC’s
+Shadow IT dashboard. The helpdesk points the coordinator to the
+company’s encrypted email gateway, and no data leaves the
+organization.</p>
 </blockquote>
 <h3 id="api-authorization-logging-and-rate-limiting">API Authorization,
 Logging, and Rate Limiting</h3>
@@ -760,23 +804,31 @@ gateway</strong> is a centralized control point that all API traffic
 passes through, providing a uniform place to enforce security and
 operational policies.</p>
 <p><img src="../assets/images/ch07_api_gateway.png"
-alt="An API gateway centralizes authentication, authorization, rate limiting, request validation, and observability — so individual microservices can focus on business logic without re-implementing security controls." />
+alt="Web, mobile, partner, and IoT clients pass through a WAF and DDoS layer into an API gateway that handles authentication, authorization scopes, rate limiting, request validation, logging, and routing. The gateway validates tokens with an identity provider, sends access logs to a SIEM, and routes requests to auth, orders, payments, and inventory services." />
 <em>Figure 7.2: An API gateway centralizes authentication,
-authorization, rate limiting, request validation, and observability — so
-individual microservices can focus on business logic without
-re-implementing security controls.</em></p>
+coarse-grained authorization, rate limiting, request validation, and
+observability at one choke point. It does not replace checks in the
+services behind it: each microservice should still verify the caller and
+enforce object-level authorization.</em></p>
 <p>The security functions an API gateway typically performs include:</p>
 <ul>
 <li><p><strong>Authentication.</strong> Verifying the identity of the
 client, usually via OAuth 2.0 access tokens, JWTs, mutual TLS, or API
-keys. The gateway is where tokens are validated against the identity
-provider, so individual services can trust the identity claims passed
-through.</p></li>
+keys (which identify an application but are weak as the only proof of
+identity). The gateway is where tokens are validated against the
+identity provider, so individual services can trust the identity claims
+passed through.</p></li>
 <li><p><strong>Authorization.</strong> Enforcing scopes, roles, or
 attribute-based policies. A token may be valid (authenticated) but not
 permitted to call a specific endpoint (unauthorized). The gateway
 evaluates these policies and rejects unauthorized calls without
-bothering the backend.</p></li>
+bothering the backend. It can enforce coarse rules (this token may call
+<code>GET /orders</code>), but object-level checks — may <em>this</em>
+user read order 1234? — belong in the service; broken object-level
+authorization tops the OWASP API Security Top 10 (2023 edition) <span
+class="citation" data-cites="owasp-api-top10-2023">(<a
+href="#ref-owasp-api-top10-2023" role="doc-biblioref">OWASP Foundation
+2023</a>)</span>.</p></li>
 <li><p><strong>Rate limiting and quotas.</strong> Throttling requests
 per client per unit time to prevent abuse, denial of service, and
 runaway costs. Rate limits are usually applied per API key or per
@@ -802,19 +854,23 @@ controls that, in its absence, every service would have to implement
 individually — and inevitably implement inconsistently. Authentication,
 authorization, rate limiting, and validation should be solved
 <em>once</em>, at the gateway, rather than reinvented per service.
-Backend services then focus on business logic with the assumption that
-requests reaching them have already been authenticated and
-shape-checked.</p>
+Backend services can then focus on business logic — provided they are
+reachable only through the gateway and still verify the caller’s token
+or service identity (the Zero Trust principle from Chapter 4) rather
+than trusting the network path.</p>
 </blockquote>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong> <strong>The Capital One AWS SSRF
 Breach</strong></p>
 <p>In July 2019, Capital One disclosed a breach affecting the personal
-information of approximately 100 million U.S. customers and 6 million
-Canadian customers. Names, addresses, credit scores, balances, Social
-Security numbers, and bank account numbers were exfiltrated. The breach
-is significant not only for its scale but because it laid out, in
-unusually clear terms, how cloud-specific design choices interact with
+information of approximately 100 million people in the United States and
+6 million in Canada, mostly credit card applicants and customers from
+2005 through early 2019. Names, addresses, credit scores, credit limits,
+and balances were taken, plus smaller sets of sensitive identifiers:
+about 140,000 Social Security numbers, 1 million Canadian Social
+Insurance Numbers, and 80,000 linked bank account numbers. The breach is
+significant not only for its scale but because it laid out, in unusually
+clear terms, how cloud-specific design choices interact with
 cloud-specific attack techniques <span class="citation"
 data-cites="capitalone-breach-2019 doj-paige-thompson-2022">(<a
 href="#ref-capitalone-breach-2019" role="doc-biblioref">Capital One
@@ -855,16 +911,42 @@ customer side. AWS’s infrastructure was not breached. The combination of
 an over-permissioned compute role and an unprotected metadata service
 turned a single application-layer flaw into a hundred-million-record
 disclosure.</p>
-<p>AWS subsequently introduced <strong>IMDSv2</strong>, which requires a
-session-based authentication step before metadata can be retrieved.
-IMDSv2 makes the SSRF-to-metadata path significantly harder, and it is
-now the default for new EC2 launches. But IMDSv2 is not a substitute for
-least-privilege IAM roles, network policies, and SSRF-resistant code —
-it is one layer of defense in depth, and any modern cloud architecture
-should be assuming all of those layers operate together <span
-class="citation" data-cites="aws-imdsv2-2019">(<a
-href="#ref-aws-imdsv2-2019" role="doc-biblioref">MacCárthaigh
-2019</a>)</span>.</p>
+<p>In November 2019 AWS introduced <strong>IMDSv2</strong>, which
+requires a caller to first send an HTTP <code>PUT</code> request to
+obtain a short-lived session token, then present that token in a header
+on every metadata request. A simple SSRF flaw that can only make a
+server send <code>GET</code> requests cannot complete that handshake;
+the token response is limited to one network hop by default, and
+<code>PUT</code> requests carrying an <code>X-Forwarded-For</code>
+header are rejected <span class="citation"
+data-cites="aws-imdsv2-2019">(<a href="#ref-aws-imdsv2-2019"
+role="doc-biblioref">MacCárthaigh 2019</a>)</span>. IMDSv2 is the
+default on Amazon Linux 2023, and an account can make it the Region-wide
+default for new instances, but older images and instances may still
+accept the legacy IMDSv1 unless v2 is required <span class="citation"
+data-cites="aws-imdsv2-default-2023 aws-imdsv2-account-default-2024">(<a
+href="#ref-aws-imdsv2-default-2023" role="doc-biblioref">Amazon Web
+Services 2023a</a>, <a href="#ref-aws-imdsv2-account-default-2024"
+role="doc-biblioref">2024</a>)</span>. Even so, IMDSv2 is one layer of
+defense in depth, not a substitute for least-privilege IAM roles,
+network controls, and SSRF-resistant code.</p>
+<p>The consequences landed on Capital One’s side of the line. The
+attacker, Paige Thompson, was convicted in June 2022 of wire fraud and
+computer-intrusion offenses and sentenced that October to time served
+and five years of probation <span class="citation"
+data-cites="doj-paige-thompson-2022">(<a
+href="#ref-doj-paige-thompson-2022" role="doc-biblioref">U.S. Department
+of Justice 2022</a>)</span>. The U.S. Office of the Comptroller of the
+Currency had already fined the bank $80 million in August 2020 for
+failing to establish effective risk assessment processes before moving
+significant IT operations to the cloud <span class="citation"
+data-cites="occ-capitalone-penalty-2020">(<a
+href="#ref-occ-capitalone-penalty-2020" role="doc-biblioref">Office of
+the Comptroller of the Currency 2020</a>)</span>, and a customer class
+action settled for $190 million <span class="citation"
+data-cites="capitalone-class-settlement-2022">(<a
+href="#ref-capitalone-class-settlement-2022" role="doc-biblioref">Top
+Class Actions 2022</a>)</span>.</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 7.4</strong></p>
@@ -890,9 +972,11 @@ validation</strong> are four of the core gateway functions. The chapter
 also adds logging and tracing.</li>
 <li><strong>Proxy-based CASB.</strong> It is inspecting and blocking the
 action in real time, before the data reaches the SaaS provider.</li>
-<li><strong>IMDSv2, least-privilege IAM roles, and tighter downstream
-access controls</strong> are the key defenses. The chapter also stresses
-SSRF-resistant code and layered network restrictions.</li>
+<li><strong>IMDSv2, a least-privilege IAM role for the WAF host, and
+SSRF-resistant code</strong> (validating or blocking requests to
+internal addresses such as <code>169.254.169.254</code>) are the key
+defenses. Network egress restrictions and alerts on unusual S3 reads add
+further layers.</li>
 </ol>
 </details>
 <h3 id="beyond-rate-limiting-cost-controls-and-ddos">Beyond Rate
@@ -904,9 +988,9 @@ bills by triggering expensive operations, a pattern sometimes called a
 <strong>denial of wallet</strong> attack. Quotas, budget alerts, and
 circuit breakers in the API gateway help cap exposure.
 <strong>Cloud-native DDoS protection</strong> services (AWS Shield,
-Azure DDoS Protection, Cloudflare) operate at the network and
-application layer and absorb volumetric attacks before they reach the
-gateway.</p>
+Azure DDoS Protection, Google Cloud Armor, or edge providers such as
+Cloudflare) operate at the network and application layer and absorb
+volumetric attacks before they reach the gateway.</p>
 <hr />
 <h2 id="how-do-we-protect-cloud-data">How Do We Protect Cloud Data?</h2>
 <p>Cloud data security spans three lifecycle stages — at rest, in
@@ -925,7 +1009,8 @@ for many of the highest-profile breaches of the past decade. Defenses
 include:</p>
 <ul>
 <li><strong>Default-deny configurations</strong> at the account or
-organization level (AWS Block Public Access, Azure Storage Firewall)
+organization level (AWS S3 Block Public Access, Azure’s setting that
+disables anonymous blob access, Google Cloud’s public access prevention)
 that prevent any storage resource from being made public unless
 explicitly overridden.</li>
 <li><strong>Continuous configuration monitoring</strong> through Cloud
@@ -948,8 +1033,8 @@ policies based on the data’s classification and the destination.</p>
 storage after it has been “deleted.” On traditional hardware, secure
 deletion involves overwriting or destroying the storage medium. In the
 cloud, the underlying storage is shared, and a customer cannot
-physically destroy it. The dominant control is <strong>cryptographic
-erasure</strong>: data is encrypted with a key that the customer
+physically destroy it. The dominant control is cryptographic erasure,
+introduced above: data is encrypted with a key that the customer
 controls, and “deletion” is implemented by destroying the key. Without
 the key, the encrypted bytes — wherever they may still be stored on
 provider-managed disks — are unrecoverable. This is the same principle
@@ -966,12 +1051,13 @@ Detective, and Preventative Cloud Controls</h3>
 on-premises controls, with cloud-specific implementations. The SecurityX
 exam expects familiarity with all three:</p>
 <ul>
-<li><p><strong>Preventative controls</strong> stop misconfigurations or
-incidents before they happen. Examples: IAM policies that deny actions
-outright, organization-level guardrails (AWS Service Control Policies,
-Azure Policy, GCP Organization Policies), policy-as-code in IaC
-pipelines, network ACLs that restrict ingress paths,
-default-encryption-on settings.</p></li>
+<li><p><strong>Preventative controls</strong> block a non-compliant
+action at the moment it is attempted. Examples: IAM policies that deny
+actions outright, organization-level guardrails (AWS Service Control
+Policies, Azure Policy in deny mode, GCP Organization Policies), network
+ACLs that restrict ingress paths, and default-on encryption or
+public-access blocks that individual engineers cannot switch
+off.</p></li>
 <li><p><strong>Detective controls</strong> identify issues that have
 already occurred (or are occurring) so that they can be responded to.
 Examples: cloud-native logging services (AWS CloudTrail, Azure Activity
@@ -979,21 +1065,32 @@ Log, GCP Cloud Audit Logs), Cloud Security Posture Management (CSPM)
 services that continuously assess configuration drift, anomaly detection
 through services like Amazon GuardDuty and Microsoft Defender for Cloud,
 intrusion detection at the VPC level.</p></li>
-<li><p><strong>Proactive controls</strong> (sometimes blended with
-preventative) take action <em>based on observed state</em> to keep the
-environment healthy. Examples: automated remediation that closes a
-public bucket the moment it is opened, conditional access that requires
-step-up MFA when risk signals appear, <strong>Cloud-Native Application
-Protection Platform (CNAPP)</strong> tools that combine CSPM, CWPP
-(Cloud Workload Protection Platform), and IaC scanning into a unified
-product, and <strong>threat hunting playbooks</strong> that proactively
-investigate hypothetical attack paths.</p></li>
+<li><p><strong>Proactive controls</strong> act <em>before</em> a
+resource exists, or anticipate threats rather than react to them.
+Examples: policy-as-code and IaC scanning that reject a non-compliant
+template before it is deployed (AWS Control Tower implements its
+proactive controls as CloudFormation Hooks that check resources before
+they are provisioned <span class="citation"
+data-cites="aws-controltower-control-behavior">(<a
+href="#ref-aws-controltower-control-behavior"
+role="doc-biblioref">Amazon Web Services, n.d.</a>)</span>), threat
+modeling, and threat hunting that investigates hypothetical attack paths
+before any alert fires. They only help when changes actually pass
+through them, so they are paired with the other two families.</p></li>
 </ul>
+<p>Automated remediation that closes a public bucket the moment it is
+opened is a <em>responsive</em> control that rides on top of detective
+ones. Many vendors bundle these capabilities into a <strong>Cloud-Native
+Application Protection Platform (CNAPP)</strong>, which combines CSPM,
+workload protection (CWPP), cloud entitlement management (CIEM), and IaC
+scanning in one product.</p>
 <p>A well-architected cloud security program uses all three families in
-concert: preventative controls keep most issues from happening;
-detective controls catch what slips through; proactive controls automate
-the response so that small misconfigurations do not become large
-incidents.</p>
+concert: proactive controls keep bad configurations from being deployed,
+preventative controls block risky actions as they happen, and detective
+controls catch what slips through. Vendors do not always draw these
+lines identically; on the exam, the <em>timing</em> a scenario describes
+— before deployment, at the moment of the action, or after the fact —
+identifies the family.</p>
 <h3
 id="customer-to-cloud-connectivity-for-hybrid-architectures">Customer-to-Cloud
 Connectivity for Hybrid Architectures</h3>
@@ -1016,14 +1113,15 @@ public internet, latency is predictable, and bandwidth is contracted.
 These connections are typically paired with VPN as a backup.</p></li>
 <li><p><strong>Cloud-to-cloud and SD-WAN.</strong> Modern enterprises
 increasingly run multi-cloud and use SD-WAN overlays or service-mesh
-topologies (covered in Chapter 4 under SASE) to securely interconnect
-cloud regions and on-premises sites.</p></li>
+topologies (SD-WAN and SASE are covered in Chapter 4) to securely
+interconnect cloud regions and on-premises sites.</p></li>
 </ul>
 <p>Whichever connectivity model is chosen, <strong>traffic should be
 encrypted end-to-end at the application or transport layer</strong>, not
-relied upon to be “private” because it traverses a private circuit.
-Defense in depth applies: a misconfigured BGP advertisement or a
-compromised provider device should not expose plaintext traffic.</p>
+relied upon to be “private” because it traverses a private circuit —
+dedicated circuits are isolated, not automatically encrypted. Defense in
+depth applies: a misconfigured BGP advertisement or a compromised
+provider device should not expose plaintext traffic.</p>
 <h3 id="cloud-service-integration-and-adoption">Cloud Service
 Integration and Adoption</h3>
 <p>Adopting a new cloud service — whether a SaaS application, a managed
@@ -1031,12 +1129,17 @@ PaaS, or a third-party integration — should follow a deliberate process
 rather than a developer’s curiosity:</p>
 <ol type="1">
 <li><strong>Vendor security assessment.</strong> Does the provider
-publish a SOC 2 Type II report? An ISO 27001 certification? A
-penetration testing summary? Are SBoMs available? Where is data stored,
-and under what jurisdictions?</li>
+publish a SOC 2 Type II report? An ISO 27001 certification? An entry in
+the Cloud Security Alliance’s STAR registry, built on its Cloud Controls
+Matrix? A penetration testing summary? Are SBoMs available? Where is
+data stored, and under what jurisdictions?</li>
 <li><strong>Compliance review.</strong> Does the service support the
 regulatory frameworks relevant to your data (HIPAA BAA, PCI DSS,
-FedRAMP, GDPR data processing addendum)?</li>
+FedRAMP, GDPR data processing addendum)? Contracts matter as much as
+certificates: HIPAA requires a signed business associate agreement
+before a provider handles protected health information, and PCI DSS
+expects you to document which requirements the provider manages, which
+you manage, and which are shared.</li>
 <li><strong>Architectural integration plan.</strong> How does the
 service authenticate users — does it federate with your IdP? What APIs
 will it call into your environment, and through which gateway? What data
@@ -1046,27 +1149,32 @@ reach your SIEM? What anomalies should trigger alerts?</li>
 <li><strong>Exit strategy.</strong> How will you extract data, terminate
 the integration, and verify deletion if the relationship ends?</li>
 </ol>
-<p>For government and regulated industries, <strong>FedRAMP</strong> is
-often a prerequisite for any cloud service used by federal agencies. The
-reusable assessment package is based on NIST SP 800-53 controls, but it
-does not replace an agency’s own Authorization to Operate decision <span
-class="citation"
+<p>For government and regulated industries, <strong>FedRAMP</strong>
+(the Federal Risk and Authorization Management Program) is often a
+prerequisite for any cloud service used by federal agencies. It is a
+standardized security assessment of a cloud offering, built on NIST SP
+800-53 controls, whose results agencies can reuse — but it does not
+replace an agency’s own risk decision about using the service for a
+particular mission <span class="citation"
 data-cites="nist-sp800-53r5-2020 fedramp-authorization-designations-2026">(<a
 href="#ref-nist-sp800-53r5-2020" role="doc-biblioref">Joint Task Force
 2020</a>; <a href="#ref-fedramp-authorization-designations-2026"
 role="doc-biblioref">Federal Risk and Authorization Management Program
-2026</a>)</span>. FedRAMP is also in the middle of a terminology shift:
-2026 program notices are moving the public language from “authorization”
-toward <strong>FedRAMP Certification</strong> and certification classes,
-so architects should verify which naming scheme a vendor, assessor, or
-agency is using at any given moment <span class="citation"
-data-cites="fedramp-authorization-designations-2026">(<a
-href="#ref-fedramp-authorization-designations-2026"
-role="doc-biblioref">Federal Risk and Authorization Management Program
-2026</a>)</span>. Similar frameworks exist internationally — IRAP in
-Australia, C5 in Germany, ENS in Spain — and integrating these
-requirements into cloud architecture early avoids painful
-re-architecture later.</p>
+2026a</a>)</span>. The program is also mid-overhaul. Under its
+Consolidated Rules for 2026, FedRAMP renames “authorization” as
+<strong>FedRAMP Certification</strong>, relabels its familiar baselines
+as lettered certification classes (A through D, with Class A replacing
+the old “FedRAMP Ready” entry point), and adds an automated “20x” path
+beside the traditional Rev5 path. Early adoption began in July 2026, and
+the rules are scheduled to become mandatory on January 1, 2027 <span
+class="citation" data-cites="fedramp-cr26-2026">(<a
+href="#ref-fedramp-cr26-2026" role="doc-biblioref">Federal Risk and
+Authorization Management Program 2026b</a>)</span>. Because the change
+is recent, vendors, agencies, and exam materials may still say “FedRAMP
+Authorized” and “Moderate,” so confirm which scheme applies. Similar
+frameworks exist internationally — IRAP in Australia, C5 in Germany, ENS
+in Spain — and integrating these requirements into cloud architecture
+early avoids painful re-architecture later.</p>
 <blockquote class="callout-thought">
 <p><strong class="callout-title">Thought Question</strong> Your organization has just
 adopted a new SaaS marketing analytics platform. The vendor offers SAML
@@ -1086,46 +1194,35 @@ defense in depth — but they redistribute the work of achieving them. The
 cloud provider takes on the layers below your workload; you take on
 everything above. When customers misunderstand this division, they make
 the kind of mistakes that fill breach reports.</p>
-<p>We began with the <strong>shared responsibility model</strong>, the
-foundational mental model of cloud security. The provider runs the
-infrastructure of the cloud; the customer runs everything in the cloud.
-As you move from IaaS to PaaS to SaaS, the provider takes on more — but
-data classification, identity, and configuration always remain the
-customer’s job. We layered onto this the choice of customer-managed
-vs. cloud-managed encryption keys, with BYOK and HYOK as advanced
-options for the most sensitive deployments.</p>
-<p>We then examined the workloads themselves. <strong>Container
-security</strong> spans image, registry, runtime, and orchestrator
-concerns — with Kubernetes as the dominant orchestrator and tools like
-Trivy, Cosign, OPA, and Falco filling in the security toolbox.
-<strong>Serverless functions</strong> abstract away the OS but introduce
-new concerns around function permissions, event triggers, and ephemeral
-observability. The dominant serverless misconfiguration is
-over-permissioned execution roles; the dominant defense is
-least-privilege automation built into the deployment pipeline.</p>
-<p>We covered <strong>secure cloud delivery</strong>: short-lived
-OIDC-federated pipeline credentials, dedicated least-privilege pipeline
-roles, IaC tools like Terraform and Ansible, and policy-as-code scanners
-that reject misconfigurations before they reach production.</p>
-<p>We surveyed <strong>cloud access governance</strong>.
-<strong>CASBs</strong> sit between users and SaaS applications,
-providing visibility into shadow IT, real-time policy enforcement, DLP,
-and threat detection — operating in API mode, proxy mode, or both.
-<strong>API gateways</strong> centralize authentication, authorization,
-rate limiting, request validation, and observability so that backend
-services do not have to. The Capital One breach illustrated what happens
-when these governance layers are weak: a single application-layer SSRF
-combined with an over-permissioned EC2 role and an unauthenticated
-metadata service produced a hundred-million-record disclosure.</p>
-<p>Finally, we looked at <strong>cloud data security</strong>
-end-to-end: exposure through public storage misconfigurations, leakage
-through legitimate-but-misused channels, remanence addressed through
-cryptographic erasure, and insecure storage resources addressed through
-default-on encryption and continuous monitoring. We mapped these to the
-<strong>preventative / detective / proactive</strong> control families
-and walked through hybrid connectivity options, cloud service
-integration discipline, and the role of authorization frameworks like
-<strong>FedRAMP</strong> in regulated environments.</p>
+<p>We began with the <strong>shared responsibility model</strong>: the
+provider runs the infrastructure <em>of</em> the cloud, the customer
+runs everything <em>in</em> it, and data classification, identity, and
+configuration are always the customer’s job. Customer-managed keys, with
+BYOK and HYOK for the most sensitive deployments, extend that control to
+encryption.</p>
+<p><strong>Container security</strong> spans image, registry, runtime,
+and orchestrator concerns, with Kubernetes as the dominant orchestrator.
+<strong>Serverless functions</strong> abstract away the OS but make
+execution-role permissions and event triggers the main attack surface;
+the dominant misconfiguration is the over-permissioned role.
+<strong>Secure delivery</strong> means short-lived OIDC-federated
+pipeline credentials, least-privilege pipeline roles, IaC with Terraform
+and Ansible, and policy-as-code that rejects misconfigurations before
+production.</p>
+<p><strong>CASBs</strong> sit between users and SaaS applications,
+providing shadow IT visibility, real-time enforcement, DLP, and threat
+detection in API mode, proxy mode, or both. <strong>API
+gateways</strong> centralize authentication, authorization, rate
+limiting, validation, and logging. The Capital One breach showed what
+happens when these layers are weak: one application-layer SSRF, an
+over-permissioned EC2 role, and a metadata service that required no
+session token produced a hundred-million-record disclosure.</p>
+<p>Finally, <strong>cloud data security</strong>: exposure through
+public storage, leakage through legitimate-but-misused channels, and
+remanence addressed through cryptographic erasure. We mapped controls to
+the <strong>proactive / preventative / detective</strong> families and
+covered hybrid connectivity, service adoption discipline, and assurance
+frameworks like <strong>FedRAMP</strong>.</p>
 <p>The throughline of cloud security is simple to state and difficult to
 execute: know exactly where your responsibility starts, automate every
 control you can, and assume that anything you have not explicitly
@@ -1147,14 +1244,23 @@ and configuration.</li>
 controlled by the customer in a cloud KMS, enabling cryptographic
 deletion.</li>
 <li><strong>BYOK / HYOK (Bring/Hold Your Own Key):</strong> Key
-management patterns where the customer imports or externally retains
-encryption keys.</li>
+management patterns where the customer imports key material into the
+provider’s KMS (BYOK) or keeps keys in an external HSM the cloud must
+call (HYOK).</li>
+<li><strong>BYOL (Bring Your Own License):</strong> Model in which the
+customer supplies the software license and carries its compliance and
+audit obligations.</li>
 <li><strong>Container Orchestration:</strong> Automated scheduling,
 networking, and lifecycle management of containers, dominated by
 Kubernetes.</li>
-<li><strong>Pod Security Standards:</strong> Kubernetes mechanism for
-enforcing container-level security constraints (non-root, dropped
-capabilities, read-only filesystem).</li>
+<li><strong>Pod Security Standards:</strong> Kubernetes policy profiles
+(Privileged, Baseline, Restricted) for pod-level constraints; enforced
+by Pod Security Admission, which replaced PodSecurityPolicy.</li>
+<li><strong>Admission Controller:</strong> Kubernetes API-server
+component that can reject non-compliant objects, such as privileged pods
+or unsigned images.</li>
+<li><strong>Workload Identity:</strong> A per-pod cloud identity that
+replaces credentials inherited from the node.</li>
 <li><strong>Network Policy:</strong> Kubernetes resource that restricts
 which pods may communicate with which other pods.</li>
 <li><strong>Serverless / FaaS:</strong> Compute model where the platform
@@ -1163,9 +1269,10 @@ invokes customer functions on demand without persistent servers.</li>
 to a serverless function; least privilege here is critical.</li>
 <li><strong>Infrastructure as Code (IaC):</strong> Practice of
 describing cloud infrastructure in declarative, version-controlled
-configuration files (Terraform, ARM, CloudFormation).</li>
+configuration files (Terraform/OpenTofu, ARM/Bicep,
+CloudFormation).</li>
 <li><strong>Policy-as-Code:</strong> IaC scanning that enforces security
-policy automatically (Checkov, tfsec, OPA).</li>
+policy automatically (Checkov, Trivy, OPA).</li>
 <li><strong>OIDC Federation (CI/CD):</strong> Pattern in which a
 pipeline obtains short-lived cloud credentials via OpenID Connect rather
 than storing static keys.</li>
@@ -1181,8 +1288,8 @@ observability of API traffic.</li>
 that causes a server to make attacker-controlled requests, particularly
 dangerous against cloud metadata services.</li>
 <li><strong>IMDS (Instance Metadata Service):</strong> Internal cloud
-endpoint exposing instance role credentials; IMDSv2 mitigates SSRF
-abuse.</li>
+endpoint exposing instance role credentials; IMDSv2 requires a
+<code>PUT</code>-issued session token, which mitigates SSRF abuse.</li>
 <li><strong>Data Exposure:</strong> Cloud storage resource accessible to
 unauthorized parties, typically due to misconfiguration.</li>
 <li><strong>Data Leakage:</strong> Loss of data through legitimate
@@ -1192,15 +1299,18 @@ deletion; addressed in the cloud through cryptographic erasure.</li>
 <li><strong>CSPM (Cloud Security Posture Management):</strong> Tooling
 that continuously assesses cloud configuration against security
 baselines.</li>
+<li><strong>Proactive / Preventative / Detective Controls:</strong>
+Control families that act before deployment, block risky actions as they
+happen, and find problems after the fact.</li>
 <li><strong>CNAPP (Cloud-Native Application Protection
 Platform):</strong> Unified platform combining CSPM, workload
-protection, and IaC scanning.</li>
+protection, entitlement management, and IaC scanning.</li>
 <li><strong>Direct Connect / ExpressRoute / Cloud Interconnect:</strong>
 Private dedicated connectivity options between customer networks and
 cloud providers.</li>
-<li><strong>FedRAMP:</strong> U.S. government authorization framework
-for cloud services used by federal agencies, based on NIST SP
-800-53.</li>
+<li><strong>FedRAMP:</strong> U.S. federal program standardizing
+security assessment of cloud services, based on NIST SP 800-53; being
+renamed FedRAMP Certification (classes A–D).</li>
 </ul>
 <h3 id="practice-based-questions">Practice-Based Questions</h3>
 <div class="pbq-promo">
@@ -1334,11 +1444,12 @@ the details of how those four fields interact.</p>
 <ol type="1">
 <li>Go to the AWS IAM identity-based policy examples at <a
 href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_examples.html">docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_examples.html</a>.
-Pick one policy from the <strong>Amazon S3</strong> or <strong>AWS
-IAM</strong> section. Good starter choices: “Allows full S3 access, but
-explicitly denies access to the Production bucket if the administrator
-has not signed in using MFA within the last thirty minutes,” or “Limits
-terminating Amazon EC2 instances to a specific IP address range.”</li>
+Pick one policy from the <strong>Amazon S3</strong>, <strong>Amazon
+EC2</strong>, or <strong>AWS IAM</strong> section. Good starter choices:
+“Allows full S3 access, but explicitly denies access to the Production
+bucket if the administrator has not signed in using MFA within the last
+thirty minutes,” or “Limits terminating Amazon EC2 instances to a
+specific IP address range.”</li>
 <li>Open the JSON. Identify, for each statement: the
 <code>Effect</code>, the <code>Action</code> (which API calls it
 covers), the <code>Resource</code> (which ARNs it applies to), and any
@@ -1389,6 +1500,31 @@ invest the next dollar of cloud security work.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
+<div id="ref-aws-imdsv2-default-2023" class="csl-entry" role="listitem">
+Amazon Web Services. 2023a. <em>Amazon EC2 Instance Metadata Service
+IMDSv2 by Default</em>. <span>AWS News Blog</span>. <a
+href="https://aws.amazon.com/blogs/aws/amazon-ec2-instance-metadata-service-imdsv2-by-default/">https://aws.amazon.com/blogs/aws/amazon-ec2-instance-metadata-service-imdsv2-by-default/</a>.
+</div>
+<div id="ref-aws-s3-default-security-2023" class="csl-entry"
+role="listitem">
+Amazon Web Services. 2023b. <em>Amazon S3 Now Applies Two Security Best
+Practices to All New Buckets by Default</em>. <span>AWS What’s
+New</span>. <a
+href="https://aws.amazon.com/about-aws/whats-new/2023/04/amazon-s3-security-best-practices-buckets-default/">https://aws.amazon.com/about-aws/whats-new/2023/04/amazon-s3-security-best-practices-buckets-default/</a>.
+</div>
+<div id="ref-aws-imdsv2-account-default-2024" class="csl-entry"
+role="listitem">
+Amazon Web Services. 2024. <em>Set IMDSv2 as Default for All New
+Instance Launches in Your Account</em>. <span>AWS What’s New</span>. <a
+href="https://aws.amazon.com/about-aws/whats-new/2024/03/set-imdsv2-default-new-instance-launches/">https://aws.amazon.com/about-aws/whats-new/2024/03/set-imdsv2-default-new-instance-launches/</a>.
+</div>
+<div id="ref-aws-controltower-control-behavior" class="csl-entry"
+role="listitem">
+Amazon Web Services. n.d. <em>Control Behavior and Guidance (Preventive,
+Detective, and Proactive Controls)</em>. <span>AWS Control Tower
+Controls Reference Guide</span>. Accessed October 29, 2026. <a
+href="https://docs.aws.amazon.com/controltower/latest/controlreference/control-behavior.html">https://docs.aws.amazon.com/controltower/latest/controlreference/control-behavior.html</a>.
+</div>
 <div id="ref-capitalone-breach-2019" class="csl-entry" role="listitem">
 Capital One Financial Corporation. 2019. <em>Capital One Announces Data
 Security Incident</em>. <a
@@ -1396,9 +1532,21 @@ href="https://investor.capitalone.com/news-releases/news-release-details/capital
 </div>
 <div id="ref-fedramp-authorization-designations-2026" class="csl-entry"
 role="listitem">
-Federal Risk and Authorization Management Program. 2026. <em>Initial
+Federal Risk and Authorization Management Program. 2026a. <em>Initial
 Outcome from RFC-0020 FedRAMP Authorization Designations</em>. <a
 href="https://www.fedramp.gov/notices/0004/">https://www.fedramp.gov/notices/0004/</a>.
+</div>
+<div id="ref-fedramp-cr26-2026" class="csl-entry" role="listitem">
+Federal Risk and Authorization Management Program. 2026b. <em>Propelling
+Change: FedRAMP Launches Consolidated Rules for 2026</em>. <a
+href="https://www.fedramp.gov/2026-06-25-propelling-change-fedramp-launches-consolidated-rules-for-2026/">https://www.fedramp.gov/2026-06-25-propelling-change-fedramp-launches-consolidated-rules-for-2026/</a>.
+</div>
+<div id="ref-gcp-deployment-manager-deprecation" class="csl-entry"
+role="listitem">
+Google Cloud. n.d. <em>Deployment Manager Deprecations and End of
+Support</em>. <span>Google Cloud Documentation</span>. Accessed October
+29, 2026. <a
+href="https://docs.cloud.google.com/deployment-manager/docs/deprecations">https://docs.cloud.google.com/deployment-manager/docs/deprecations</a>.
 </div>
 <div id="ref-nist-sp800-53r5-2020" class="csl-entry" role="listitem">
 Joint Task Force. 2020. <em>Security and Privacy Controls for
@@ -1412,6 +1560,29 @@ Firewalls, Reverse Proxies, and SSRF Vulnerabilities with Enhancements
 to the EC2 Instance Metadata Service</em>. <span>AWS Security
 Blog</span>. <a
 href="https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/">https://aws.amazon.com/blogs/security/defense-in-depth-open-firewalls-reverse-proxies-ssrf-vulnerabilities-ec2-instance-metadata-service/</a>.
+</div>
+<div id="ref-occ-capitalone-penalty-2020" class="csl-entry"
+role="listitem">
+Office of the Comptroller of the Currency. 2020. <em>OCC Assesses $80
+Million Civil Money Penalty Against Capital One</em>. <span>News Release
+2020-101</span>. <a
+href="https://www.occ.gov/news-issuances/news-releases/2020/nr-occ-2020-101.html">https://www.occ.gov/news-issuances/news-releases/2020/nr-occ-2020-101.html</a>.
+</div>
+<div id="ref-owasp-api-top10-2023" class="csl-entry" role="listitem">
+OWASP Foundation. 2023. <em><span>OWASP API Security Top 10 –
+2023</span></em>. <a
+href="https://owasp.org/API-Security/editions/2023/en/0x11-t10/">https://owasp.org/API-Security/editions/2023/en/0x11-t10/</a>.
+</div>
+<div id="ref-k8s-psa-stable-2022" class="csl-entry" role="listitem">
+Project, Kubernetes. 2022. <em>Kubernetes V1.25: Pod Security Admission
+Controller in Stable</em>. <span>Kubernetes Blog</span>. <a
+href="https://kubernetes.io/blog/2022/08/25/pod-security-admission-stable/">https://kubernetes.io/blog/2022/08/25/pod-security-admission-stable/</a>.
+</div>
+<div id="ref-capitalone-class-settlement-2022" class="csl-entry"
+role="listitem">
+Top Class Actions. 2022. <em>Capital One Data Breach $190M Class Action
+Settlement</em>. <a
+href="https://topclassactions.com/lawsuit-settlements/closed-settlements/capital-one-data-breach-190m-class-action-settlement/">https://topclassactions.com/lawsuit-settlements/closed-settlements/capital-one-data-breach-190m-class-action-settlement/</a>.
 </div>
 <div id="ref-doj-paige-thompson-2022" class="csl-entry" role="listitem">
 U.S. Department of Justice. 2022. <em>United States v. Paige

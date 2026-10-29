@@ -91,9 +91,9 @@ def create_shared_responsibility():
 
 
 def create_api_gateway():
-    fig, ax = plt.subplots(figsize=(14.5, 8))
+    fig, ax = plt.subplots(figsize=(14.5, 9.5))
     ax.set_xlim(0, 14.5)
-    ax.set_ylim(0, 9)
+    ax.set_ylim(-1.0, 10.4)
     ax.axis('off')
 
     # Clients on the left
@@ -103,18 +103,20 @@ def create_api_gateway():
     rounded_box(ax, 0.3, 2.0, 1.8, 0.9, 'IoT Device', SURFACE_ALT, fontsize=10)
 
     # WAF / DDoS layer
-    rounded_box(ax, 2.8, 3.5, 1.8, 3.5, 'WAF\n+\nDDoS\nProtection', ROSE, fontsize=11)
+    rounded_box(ax, 2.8, 2.0, 1.8, 5.4, 'WAF\n+\nDDoS\nProtection', ROSE, fontsize=11)
 
     # API Gateway (central)
-    rounded_box(ax, 5.2, 2.3, 3.4, 5.4, 'API Gateway', CYAN, text_color=TEXT_DARK, fontsize=14)
+    rounded_box(ax, 5.2, 2.3, 3.4, 5.4, '', CYAN, text_color=TEXT_DARK, fontsize=14)
+    ax.text(6.9, 7.2, 'API Gateway', ha='center', va='center', color=TEXT_DARK,
+            fontsize=14, fontweight='bold')
     # Functions inside the gateway
     inner_funcs = [
-        ('Authentication (OAuth / JWT)', 6.7),
-        ('Authorization / Scopes',        6.0),
-        ('Rate Limiting & Quotas',         5.3),
-        ('Request Validation',             4.6),
-        ('Logging / Tracing',              3.9),
-        ('Routing / Versioning',           3.2),
+        ('Authentication (OAuth / JWT)', 6.5),
+        ('Authorization / Scopes',        5.8),
+        ('Rate Limiting & Quotas',         5.1),
+        ('Request Validation',             4.4),
+        ('Logging / Tracing',              3.7),
+        ('Routing / Versioning',           3.0),
     ]
     for text, ypos in inner_funcs:
         ax.text(6.9, ypos, '• ' + text, ha='center', va='center',
@@ -127,24 +129,26 @@ def create_api_gateway():
     rounded_box(ax, 9.3, 2.8, 2.3, 1.0, 'Inventory Service', SURFACE_ALT, fontsize=10)
 
     # Identity / observability sidecar
-    rounded_box(ax, 12.0, 5.4, 2.2, 1.0, 'Identity Provider', PURPLE, text_color=TEXT_DARK, fontsize=10)
-    rounded_box(ax, 12.0, 4.1, 2.2, 1.0, 'SIEM / Logs',       SURFACE, fontsize=10)
+    rounded_box(ax, 5.8, 8.8, 2.2, 1.0, 'Identity Provider', PURPLE, text_color=TEXT_DARK, fontsize=10)
+    rounded_box(ax, 5.8, 0.4, 2.2, 1.0, 'SIEM / Logs',       SURFACE, fontsize=10)
 
     # Arrows: clients -> WAF -> Gateway -> backends
     for ypos in [6.95, 5.45, 3.95, 2.45]:
         arrow(ax, (2.1, ypos), (2.8, ypos), color=SLATE)
-    arrow(ax, (4.6, 5.25), (5.2, 5.25), color=SLATE)
+    arrow(ax, (4.6, 5.0), (5.2, 5.0), color=SLATE)
     for ypos in [7.2, 5.9, 4.6, 3.3]:
         arrow(ax, (8.6, 5.0), (9.3, ypos), color=SLATE, lw=1.6)
 
-    # Gateway -> IdP and SIEM
-    arrow(ax, (8.6, 5.9), (12.0, 5.9), color=PURPLE, lw=1.5)
-    arrow(ax, (8.6, 4.6), (12.0, 4.6), color=SLATE, lw=1.5)
+    # Gateway <-> IdP (token validation) and Gateway -> SIEM (logs), routed clear of the backend boxes
+    arrow(ax, (6.9, 7.8), (6.9, 8.7), color=PURPLE, lw=1.8, style='<|-|>')
+    ax.text(7.05, 8.25, 'validate tokens', ha='left', va='center', fontsize=9, color=SLATE, style='italic')
+    arrow(ax, (6.9, 2.2), (6.9, 1.5), color=SLATE, lw=1.8)
+    ax.text(7.05, 1.85, 'access logs, traces', ha='left', va='center', fontsize=9, color=SLATE, style='italic')
 
     # Bottom note
-    ax.text(7.25, 1.3,
+    ax.text(7.25, -0.3,
             'The API Gateway centralizes authentication, authorization, rate limiting, validation, and observability —\n'
-            'so individual services can focus on business logic without re-implementing security controls.',
+            'at one choke point; each service still verifies the caller and enforces object-level authorization.',
             ha='center', fontsize=10, color=SLATE, style='italic')
 
     plt.title('API Gateway Architecture', fontsize=16, fontweight='bold', pad=14)
