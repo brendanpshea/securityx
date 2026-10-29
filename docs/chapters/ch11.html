@@ -1125,124 +1125,93 @@ into one investigation.
 </div>
 </div>
 <h3 id="synthesis-activities">Synthesis Activities</h3>
-<p>These are open-ended activities meant to extend the chapter beyond
-what a search engine — or a chatbot — can answer on its own. Each works
-individually or in a group; the goal is the conversation, the debate, or
-the artifact, not a paper about it. Activities marked with <em>No one to
-interview?</em> or <em>Studying alone?</em> sidebars include AI-based
-alternatives — used here as a sparring partner, role-player, or
-facilitator, not as a source.</p>
+<p>These open-ended activities extend the chapter beyond what a search
+engine or chatbot can answer. Each works alone or in a group, and the
+goal is the conversation, debate, or artifact itself. Sidebars show how
+to use a chatbot as a practice partner, never as a source (Chapter 0
+explains how).</p>
 <h4 id="conduct-an-interview-1-hour">Conduct an Interview <em>(1
 hour)</em></h4>
-<p>Talk to someone who works in security operations — a SOC analyst
-(tier 1, 2, or 3), detection engineer, threat hunter, SIEM
-administrator, or SOC manager. A few questions worth asking, in roughly
-this order:</p>
+<p>Talk to someone who works in security operations: a SOC analyst,
+detection engineer, threat hunter, or SOC manager. Questions worth
+asking:</p>
 <ul>
-<li>Walk me through your last shift. What did the alert queue actually
-look like, and how many of the alerts mattered?</li>
-<li>How do you tell the difference between a true positive, a false
-positive, and a “true positive that nobody cares about”?</li>
-<li>What does threat hunting look like in your environment — scheduled,
-ad-hoc, or aspirational?</li>
+<li>Walk me through your last shift. What did the queue actually look
+like, and how many alerts mattered?</li>
+<li>What does threat hunting look like in your environment: scheduled,
+ad hoc, or aspirational?</li>
 <li>When you write a new detection rule, how do you decide it’s good
-enough to deploy? What tells you it’s bad after it ships?</li>
-<li>What’s one thing the SOC textbooks and certs get wrong about how
-this work actually goes?</li>
+enough to deploy, and what tells you it’s bad after it ships?</li>
 </ul>
 <p>Listen for the gap between SOC-as-described (analysts triaging
 high-signal alerts, hunters finding the missed adversary) and
-SOC-as-lived, where alert fatigue, tooling sprawl, and the gap between
-detection coverage and reality are the real story.</p>
+SOC-as-lived: alert fatigue, tooling sprawl, and coverage gaps.</p>
 <blockquote>
-<p><em>No one to interview?</em> Run the conversation with a chatbot in
-role. A prompt that works: <em>“You are a senior detection engineer at a
-mid-sized SOC. You have spent four years writing and tuning detections,
-and you have lived through one incident where a missing detection cost
-the team weeks of dwell time. I’m interviewing you for a class. Answer
-in character. When I ask something a real detection engineer would not
-actually know — especially about vendor-specific SIEM internals you do
-not work in — say so.”</em> The rehearsal exposes which of your
-questions confuse SOC analyst work, detection engineering, and threat
-hunting as if they were the same job.</p>
+<p><em>No one to interview?</em> Rehearse with a chatbot playing a
+senior detection engineer at a mid-sized SOC. The rehearsal exposes
+which of your questions confuse analyst work, detection engineering, and
+threat hunting.</p>
 </blockquote>
 <h4 id="hold-a-debate-1-hour">Hold a Debate <em>(1 hour)</em></h4>
 <p>Pick the position you find <em>least</em> sympathetic and argue it as
-well as you can:</p>
+well as you can (in class, assign positions and go live):</p>
 <ul>
-<li>A modern SOC’s primary investment should be in threat hunting, not
-in alert triage. Reactive detection has been a losing battle for two
-decades. Reallocate the budget toward hypothesis-driven hunts and accept
-that the alert queue will get worse before the metrics get better.</li>
-<li>Threat hunting is a vanity exercise that consistently fails to
-scale. The work that actually reduces risk is unglamorous: tune the
-detections you have, close the visibility gaps, fix the noisy rules, and
-follow up every alert until you understand it. Hunting is what
-under-staffed SOCs do to make themselves feel important.</li>
-<li>The whole framing is wrong. Detection versus hunting is the wrong
-axis. The axis that matters is <em>coverage</em>: whether your telemetry
-covers the surfaces attackers actually use today — identity, SaaS, cloud
-control plane — or only the ones easy SIEM connectors made it cheap to
-collect a decade ago (Windows endpoint, firewall, DNS).</li>
+<li>A modern SOC’s primary investment should be threat hunting, not
+alert triage. Reactive detection has been a losing battle for two
+decades; shift budget to hypothesis-driven hunts and accept a worse
+alert queue before the metrics improve.</li>
+<li>Threat hunting is a vanity exercise that fails to scale. Risk falls
+when you tune detections, fix noisy rules, and follow up every alert.
+Hunting is what under-staffed SOCs do to feel important.</li>
+<li>The whole framing is wrong. The axis that matters is
+<em>coverage</em>: whether your telemetry covers the surfaces attackers
+use today (identity, SaaS, cloud control plane) or only those SIEM
+connectors made cheap a decade ago (Windows endpoint, firewall,
+DNS).</li>
 </ul>
-<p>The exercise only works if you defend the position you don’t already
-hold. In class, assign positions and go live; the surprise of having to
-think on your feet is the point.</p>
 <blockquote>
-<p><em>Studying alone?</em> Sketch your argument, then ask a chatbot to
-attack it from the opposite position. A prompt that produces real
-sparring: <em>“Take the opposite position from the argument below and
-attack it as aggressively as a senior SOC director who deeply disagrees.
-Cite real dwell-time reports (Mandiant M-Trends, CrowdStrike), real
-hunt-program failures and successes, real shifts in attacker tradecraft.
-Don’t be polite. After each of my replies, escalate.”</em> The goal
-isn’t to beat the model. It’s to find out which parts of your case fold
-under pressure.</p>
+<p><em>Studying alone?</em> Have a chatbot attack your argument as a
+senior SOC director, citing real dwell-time reports (Mandiant M-Trends,
+CrowdStrike), hunt-program failures and successes, and shifts in
+attacker tradecraft.</p>
 </blockquote>
 <h4 id="track-a-current-debate-20-min">Track a Current Debate <em>(20
 min)</em></h4>
 <p>Find a security operations or threat-hunting event from the last six
-months. Good hunting grounds: the annual Mandiant M-Trends and
-CrowdStrike Global Threat Reports, MITRE ATT&amp;CK matrix updates and
-new technique additions, CISA Joint Cybersecurity Advisories that
-include detection guidance, recent threat-hunting writeups from major
-SOCs and CTI teams, and SIEM/XDR vendor consolidation news. Be ready to
-explain to a classmate, in two minutes, what happened, which ATT&amp;CK
-technique was decisive, and what other SOCs are doing differently as a
-result. Bring two primary sources you’d point them to if they wanted to
-read further.</p>
+months. Good starting points: MITRE ATT&amp;CK updates, CISA Joint
+Cybersecurity Advisories with detection guidance, and annual threat
+reports such as Mandiant M-Trends. Be ready to explain to a classmate,
+in two minutes, what happened, which ATT&amp;CK technique was decisive,
+and what other SOCs are changing as a result. Bring two primary
+sources.</p>
 <h4 id="lab-artifact-read-a-real-sigma-rule-20-min">Lab Artifact: Read a
 Real Sigma Rule <em>(20 min)</em></h4>
 <p>Sigma is the closest thing security operations has to an open,
-vendor-neutral detection format. Reading a real Sigma rule forces you to
-think like a detection engineer: what telemetry source, what selector
-logic, what assumptions about normal behavior.</p>
+vendor-neutral detection format. Reading a real rule makes you think
+like a detection engineer.</p>
 <ol type="1">
-<li>Go to the SigmaHQ repository at <a
+<li>Go to <a
 href="https://github.com/SigmaHQ/sigma">github.com/SigmaHQ/sigma</a>.
-Browse into <code>rules/</code> and pick a rule that maps to a MITRE
-ATT&amp;CK technique you find interesting — credential dumping, lateral
-movement, evading defenses, persistence. Process-creation rules under
-<code>rules/windows/process_creation/</code> are a good place to start
-because they read like English.</li>
+Browse into <code>rules/</code> and pick a rule that maps to an
+ATT&amp;CK technique you find interesting (credential dumping, lateral
+movement, evading defenses, persistence). Process-creation rules under
+<code>rules/windows/process_creation/</code> read like English, so start
+there.</li>
 <li>Open the rule’s YAML. Identify, in your own words: the
-<strong>logsource</strong> (what telemetry has to be collected for this
-rule to fire), the <strong>detection</strong> logic (the selector
-conditions), the <strong>ATT&amp;CK technique(s)</strong> referenced,
-the <strong>level</strong> (informational / low / medium / high /
-critical), and any <strong>false-positive notes</strong> the author
-included.</li>
-<li>In plain English, write what this rule would alert on, and what the
-analyst would see in their queue when it fires.</li>
-<li>Now do the harder part: figure out how to evade it. Name two ways an
-attacker could perform the same underlying technique without tripping
-this specific rule. (Process renaming? Different command-line flags?
-Living-off-the-land binary swap? Different parent process?) For each
-evasion, identify one additional detection that would have to exist to
-close the gap.</li>
-<li>Then answer: is this rule worth deploying as written, or would you
-tune it first? What false-positive rate would you expect in a real
-environment, and how would you find out?</li>
+<strong>logsource</strong> (the telemetry that must be collected for it
+to fire), the <strong>detection</strong> logic, the <strong>ATT&amp;CK
+technique(s)</strong>, the <strong>level</strong> (informational to
+critical), and any <strong>false-positive notes</strong>.</li>
+<li>In plain English, write what this rule would alert on and what the
+analyst would see when it fires.</li>
+<li>Now do the harder part: evade it. Name two ways an attacker could
+perform the same technique without tripping this rule (process renaming,
+different flags, a living-off-the-land binary swap, a different parent
+process). For each, identify one additional detection that would close
+the gap.</li>
+<li>Is this rule worth deploying as written, or would you tune it first?
+What false-positive rate would you expect in a real environment, and how
+would you find out?</li>
 </ol>
 <p><strong>Safety:</strong> This is a read-only exercise on public
 detection rules. <em>Do not attempt to test the evasions you identify
@@ -1251,47 +1220,36 @@ detection engineer, not to operate like an adversary.</p>
 <h4 id="draft-a-detection-2-hours">Draft a Detection <em>(2+
 hours)</em></h4>
 <p>Pick one MITRE ATT&amp;CK technique and write a Sigma-style detection
-rule for it from scratch. The output is not a polished production rule;
-it is an honest attempt to encode the logic, the assumptions, and the
-gaps.</p>
-<p>Choose a technique that is concrete enough to detect from a single
-telemetry source:</p>
+rule for it from scratch. The goal is an honest attempt at encoding the
+logic, assumptions, and gaps, not a production rule. Choose a technique
+you can detect from one telemetry source:</p>
 <ul>
-<li><strong>T1059.001 — PowerShell.</strong> Encoded command execution
-(<code>-EncodedCommand</code>) by an unusual parent process.</li>
+<li><strong>T1059.001 — PowerShell.</strong> Encoded commands
+(<code>-EncodedCommand</code>) launched by an unusual parent
+process.</li>
 <li><strong>T1078.004 — Cloud Accounts.</strong> An IAM principal
-authenticating from a country that principal has not previously
-authenticated from in the last 90 days.</li>
+authenticating from a country it has not used in 90 days.</li>
 <li><strong>T1003.001 — LSASS Memory.</strong> A process other than
-known credential management tooling opening a handle to
-<code>lsass.exe</code> with read access.</li>
-<li><strong>T1566.002 — Spearphishing Link.</strong> A user clicking a
-URL in an email whose link destination domain was registered within the
-last 7 days.</li>
+known credential tooling opening a handle to <code>lsass.exe</code> with
+read access.</li>
+<li><strong>T1566.002 — Spearphishing Link.</strong> A user clicking an
+emailed URL whose domain is under 7 days old.</li>
 </ul>
-<p>For your chosen technique, write (in YAML or in plain pseudo-code
-that mirrors Sigma structure):</p>
+<p>Write (in YAML or Sigma-shaped pseudo-code):</p>
 <ul>
-<li>The <strong>logsource</strong> the rule depends on, named explicitly
-(Sysmon EventID 1, AWS CloudTrail, Microsoft Defender for Cloud Apps,
-etc.).</li>
-<li>The <strong>selector conditions</strong> that would fire the
-rule.</li>
-<li>Any <strong>filters</strong> that exclude expected benign
-behavior.</li>
-<li>Your honest <strong>false-positive notes</strong> — what legitimate
-activity would trip this rule and how often you’d expect it.</li>
-<li>The <strong>ATT&amp;CK technique ID and tactic</strong> the rule
-maps to.</li>
+<li>The <strong>logsource</strong>, named explicitly (Sysmon EventID 1,
+AWS CloudTrail, Microsoft Defender for Cloud Apps, etc.).</li>
+<li>The <strong>selector conditions</strong> that fire the rule, and any
+<strong>filters</strong> that exclude expected benign behavior.</li>
+<li>Honest <strong>false-positive notes</strong>: what legitimate
+activity would trip it, and how often.</li>
+<li>The <strong>ATT&amp;CK technique ID and tactic</strong>.</li>
 </ul>
-<p>Then write a short paragraph: how would you validate this rule before
-deploying it broadly? What would the rollout plan look like — purely
-log-only for a week, then a low-volume alert tier, then escalation? And
-what would tell you, after deployment, that the rule was working — or
-that it was just adding noise?</p>
-<p>The point of writing the rule from scratch is to feel how much hidden
-knowledge a single line of YAML carries. Detection engineering looks
-simple in the textbook and is unforgiving in practice.</p>
+<p>Then write a short paragraph on how you would validate and roll out
+the rule (log-only for a week, a low-volume alert tier, then escalation)
+and tell whether it was working or just adding noise. Detection
+engineering looks simple in the textbook and is unforgiving in
+practice.</p>
 <h1 class="unnumbered" id="bibliography">References</h1>
 <div id="refs" class="references csl-bib-body hanging-indent"
 role="list">
