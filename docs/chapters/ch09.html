@@ -56,18 +56,17 @@ firewall rule, a flat VLAN, a domain controller still running on Windows
 Server 2012, an unsigned email that lands in a CFO’s inbox, an EDR agent
 quietly disabled six months ago and never re-enrolled — these are not
 exotic problems. They are mundane, ubiquitous, and the proximate cause
-of most successful breaches.</p>
+of many successful breaches.</p>
 <p>We start with <strong>change and configuration management</strong>,
-because every other control in this chapter depends on knowing what you
-have. We then move to <strong>endpoint security</strong>, where modern
-EDR has replaced signature-based antivirus as the primary defense. From
-there we troubleshoot the network layer (routing, switching, VPNs,
-IDS/IPS), the core network services everyone takes for granted (DNS,
-TLS, email, DDoS), and finally the increasingly important domain of
-<strong>mobile and remote device management</strong>. The throughline is
-that competent operations beat clever architecture: the question is
-rarely “do we have the right tool?” but “is the tool we have actually
-deployed, configured correctly, and producing usable signal?”</p>
+because every other control depends on knowing what you have. Then come
+<strong>endpoint security</strong>, where modern EDR has replaced
+signature-based antivirus as the primary defense; network
+troubleshooting (routing, VPNs, IDS/IPS); the core services everyone
+takes for granted (DNS, TLS, email, DDoS); and <strong>mobile and remote
+device management</strong>. The throughline is that competent operations
+beat clever architecture: the question is rarely “do we have the right
+tool?” but “is it deployed, configured correctly, and producing usable
+signal?”</p>
 <hr />
 <h2 id="how-do-we-manage-infrastructure-changes">How Do We Manage
 Infrastructure Changes?</h2>
@@ -107,8 +106,11 @@ Tuesday.”</li>
 <p><strong>Configuration management</strong> is the data side of the
 same problem: each system has a <em>desired state</em> (declared in a
 tool like Ansible, Puppet, Chef, Salt, or a Terraform / IaC pipeline)
-and an <em>actual state</em> (what is really on the machine). Drift
-between them is the fertile ground in which most security failures
+and an <em>actual state</em> (what is really on the machine). The
+desired state starts from a <strong>baseline</strong>, an approved
+hardened configuration such as a CIS Benchmark profile, and
+<strong>configuration drift</strong> is any unapproved departure from
+it. Drift is the fertile ground in which many security failures
 grow.</p>
 <blockquote class="callout-example">
 <p><strong class="callout-title">Example</strong></p>
@@ -140,10 +142,16 @@ guess based on who remembers the sprint.</p>
 Lifecycle, Inventory, and CMDB</h3>
 <p>The <strong>Configuration Management Database (CMDB)</strong> is the
 system of record for every asset and every relationship between assets.
-A good CMDB answers questions like: which servers run this application?
-Which VLAN are they in? Which patch group? Who is the business owner?
-Which compliance scope (PCI, HIPAA, SOX) does each asset fall under?
-When does the support contract expire?</p>
+Each hardware, virtual, software, or cloud asset is stored as a
+<strong>configuration item (CI)</strong> with attributes and links to
+other CIs. A good CMDB answers questions like: which servers run this
+application? Which VLAN are they in? Which patch group? Who is the
+business owner? Which compliance scope (PCI, HIPAA, SOX) does each asset
+fall under? When does the support contract expire?
+<strong>Inventory</strong> is the raw list of what exists; the CMDB adds
+ownership and relationships. Neither stays accurate by hand, so mature
+teams feed them with automated discovery (scans, cloud APIs, directory
+sync, EDR and MDM enrollment).</p>
 <p>The <strong>asset management lifecycle</strong> runs from procurement
 through disposal:</p>
 <ul>
@@ -154,14 +162,14 @@ assigned an owner.</li>
 reviewed against baseline configurations. EDR agents, log shippers, and
 management tooling are confirmed enrolled.</li>
 <li><strong>Maintenance and reassignment.</strong> When a system changes
-role or owner, the CMDB record is updated. Failure to do this is the
-single most common source of “stale” inventory.</li>
+role or owner, the CMDB record is updated. Failure to do this is a
+leading source of “stale” inventory.</li>
 <li><strong>End-of-life and decommissioning.</strong> Drives are
 sanitized (per Chapter 8), licenses are reclaimed, the asset is marked
-decommissioned in the CMDB. Forgotten end-of-life systems — devices that
-were “disconnected” but still on the network, still vulnerable, and
-still trusted by adjacent systems — are a recurring pattern in serious
-breaches.</li>
+decommissioned in the CMDB, and its DNS records, firewall rules,
+certificates, and service accounts are removed. Forgotten end-of-life
+systems — “disconnected” devices still on the network, still vulnerable,
+and still trusted by neighbors — recur in serious breaches.</li>
 </ul>
 <blockquote class="callout-key-point">
 <p><strong class="callout-title">Key Point</strong> Every security control in this chapter
@@ -176,8 +184,7 @@ trust.</p>
 not know about — is the usual source of “wait, <em>that</em> server got
 hit?” moments after a breach. A weekly automated reconciliation between
 the CMDB, the cloud provider’s inventory APIs, the Active Directory
-computer list, and the EDR console is more valuable than most teams
-realize.</p>
+computer list, and the EDR console catches most of it.</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 9.1</strong></p>
@@ -187,10 +194,9 @@ change-management workflow described in the chapter?</li>
 <li><strong>Discriminate.</strong> A VM exists in the cloud provider
 inventory and the EDR console, but not in the CMDB. What operational
 problem does that reveal?</li>
-<li><strong>Apply.</strong> A team requests an inbound firewall rule to
-TCP 6443 from the entire DevOps VLAN to a Kubernetes API server. Name
-two corrections Juliet’s change process made before approval in the
-example.</li>
+<li><strong>Apply.</strong> In the TCP 6443 example, name one correction
+made at the CAB review and one safeguard applied during
+implementation.</li>
 </ol>
 </blockquote>
 <details>
@@ -200,12 +206,14 @@ example.</li>
 <ol type="1">
 <li><strong>Request and impact assessment, approval, implementation in a
 defined window, and post-implementation review.</strong></li>
-<li><strong>Shadow IT or CMDB drift.</strong> The environment contains
-an asset the system of record does not accurately reflect.</li>
-<li><strong>The rule was narrowed to specific CI/CD runner IPs</strong>
-and <strong>verification included both a successful allowed connection
-and a confirmed rejection from a non-approved source</strong>. The exact
-change was then recorded in the ticket.</li>
+<li><strong>CMDB drift.</strong> The VM is real and monitored, but its
+owner, patch group, and compliance scope are unrecorded; it may be
+shadow IT. Reconciliation should have flagged it.</li>
+<li><strong>At CAB review</strong>, the rule was narrowed from the
+shared DevOps VLAN to three CI/CD runner IPs. <strong>During
+implementation</strong>, tests confirmed both a successful connection
+from an approved runner and a rejection from a non-approved source, and
+the exact rule was logged in the ticket.</li>
 </ol>
 </details>
 <hr />
@@ -247,12 +255,13 @@ tree.</em></p>
 <p>Host-based defenses fall along a spectrum:</p>
 <ul>
 <li><strong>HIDS / HIPS (Host-based Intrusion Detection / Prevention
-System).</strong> Older terminology; HIDS <em>detects</em> and alerts,
-HIPS <em>prevents</em> by blocking. Most modern EDRs perform both
-functions but the distinction is still useful when reading vendor
-documentation or audit reports.</li>
-<li><strong>Host firewall.</strong> Per-host packet filter (Windows
-Defender Firewall, iptables, nftables, pf). Crucial for limiting lateral
+System).</strong> HIDS <em>detects</em> and alerts; HIPS
+<em>prevents</em> by blocking. Typical functions include file-integrity
+monitoring and log analysis (open-source examples: Wazuh, OSSEC, AIDE).
+Modern EDRs perform both, but the terms persist in exams and audit
+reports.</li>
+<li><strong>Host firewall.</strong> Per-host packet filter (the built-in
+Windows firewall, iptables, nftables, pf). Crucial for limiting lateral
 movement: a workstation has no business accepting SMB or RDP from
 another workstation, and a host firewall enforces that even if the
 network firewall has a permissive internal policy.</li>
@@ -332,23 +341,33 @@ can do once on the endpoint:</p>
 <li><strong>Endpoint Privilege Management (EPM).</strong> Removes local
 administrator rights from users and elevates only specific approved
 applications on demand. Tools include CyberArk EPM, BeyondTrust, and
-Microsoft’s own LAPS / Endpoint Privilege Management features.</li>
+Microsoft Intune Endpoint Privilege Management. Windows LAPS complements
+them by giving every machine a unique, rotated local administrator
+password.</li>
 <li><strong>Application control / allowlisting.</strong> Only approved
-executables run; everything else is blocked. Windows Defender
-Application Control (WDAC) and AppLocker on Windows; SELinux execmod and
-equivalent on Linux. Difficult to deploy on developer workstations, very
-effective on fixed-purpose servers and kiosks.</li>
-<li><strong>SELinux / AppArmor.</strong> Mandatory access control for
-Linux. Each process runs under a confined policy that limits which
-files, sockets, and capabilities it may use, so a compromised service
-cannot freely read <code>/etc/shadow</code> even if it is running as
-root.</li>
-<li><strong>Attack Surface Reduction (ASR).</strong> A specific Windows
-feature that disables risky behaviors at the OS level: Office macros
-launching child processes, <code>mshta</code> running unsigned scripts,
-USB-borne untrusted executables. ASR rules are cheap, broadly
-applicable, and routinely disabled “because they break a vendor tool” —
-exactly the conversation security teams should be having.</li>
+executables run; everything else is blocked. App Control for Business
+(formerly Windows Defender Application Control, WDAC) and AppLocker on
+Windows; tools such as fapolicyd, plus SELinux or AppArmor policy, on
+Linux. Difficult to deploy on developer workstations, very effective on
+fixed-purpose servers and kiosks.</li>
+<li><strong>SELinux / AppArmor.</strong> <strong>Mandatory access
+control (MAC)</strong> for Linux: each process runs under a confined
+policy limiting the files, sockets, and capabilities it may use, so a
+compromised service cannot freely read <code>/etc/shadow</code> even as
+root. SELinux (label-based; RHEL, Fedora, Android) runs in
+<em>enforcing</em>, <em>permissive</em> (logs only), or
+<em>disabled</em> mode; AppArmor (path-based; Ubuntu, SUSE) is simpler
+to write. The classic mistake is setting SELinux to permissive to “fix”
+an application error instead of correcting the policy.</li>
+<li><strong>Attack Surface Reduction (ASR).</strong> Shrinking what an
+attacker can reach (unneeded services, ports, software, accounts) and
+<em>monitoring</em> for newly exposed assets. On Windows, Microsoft
+Defender’s <strong>ASR rules</strong> are one implementation, blocking
+behaviors such as Office applications launching child processes,
+obfuscated scripts, untrusted executables on USB, and credential theft
+from LSASS. They are cheap, broadly applicable, and routinely disabled
+“because they break a vendor tool” — exactly the conversation security
+teams should be having. Test new rules in audit mode first.</li>
 </ul>
 <h3
 id="credential-dumping-privilege-escalation-unauthorized-execution-and-defensive-evasion">Credential
@@ -358,35 +377,43 @@ Evasion</h3>
 compromise map cleanly onto the MITRE ATT&amp;CK framework:</p>
 <ul>
 <li><strong>Credential dumping (T1003).</strong> Tools like Mimikatz
-extract NTLM hashes, Kerberos tickets, and cached credentials from LSASS
-memory. Defenses: Credential Guard, LSASS Protected Process Light,
+extract NTLM hashes, Kerberos tickets, and cached credentials from the
+memory of LSASS, the Windows process that holds logged-on users’
+credentials. Defenses: Credential Guard, LSASS Protected Process Light,
 removing local admin, EDR detections for LSASS read.</li>
 <li><strong>Privilege escalation.</strong> Exploiting kernel CVEs,
 abusing misconfigured services with weak file permissions, token
 impersonation. Defenses: prompt patching, least-privilege service
 accounts, EDR detections for token theft.</li>
-<li><strong>Unauthorized execution.</strong> Living-off-the-land
-binaries (<code>certutil.exe</code>, <code>regsvr32.exe</code>,
-<code>wmic.exe</code>, PowerShell <code>Invoke-Expression</code>) used
-to download and run code. Defenses: PowerShell Constrained Language
-Mode, ASR rules, application allowlisting.</li>
+<li><strong>Unauthorized execution.</strong> <strong>Living-off-the-land
+binaries (LOLBins)</strong> — built-in tools such as
+<code>certutil.exe</code>, <code>regsvr32.exe</code>,
+<code>mshta.exe</code>, and PowerShell <code>Invoke-Expression</code> —
+are used to download and run code. Defenses: PowerShell Constrained
+Language Mode, ASR rules, application allowlisting.</li>
+<li><strong>Process injection (T1055).</strong> Running malicious code
+inside a legitimate process (DLL injection, process hollowing) to borrow
+its privileges and trusted name. Defenses: EDR detection of
+cross-process memory writes and remote-thread creation, ASR rules, least
+privilege.</li>
 <li><strong>Defensive evasion.</strong> Disabling EDR services, clearing
-event logs, BYOVD (bring your own vulnerable driver) attacks that load a
-signed-but-buggy driver to terminate security agents from the kernel.
-Defenses: tamper protection, vulnerable-driver blocklists, SIEM alerts
-on EDR-service-stopped events.</li>
+event logs, <strong>BYOVD (bring your own vulnerable driver)</strong>
+attacks that load a signed-but-buggy driver to terminate security agents
+from the kernel. Defenses: tamper protection, vulnerable-driver
+blocklists, SIEM alerts on EDR-service-stopped events.</li>
 </ul>
 <h3 id="browser-isolation-and-configuration-management">Browser
 Isolation and Configuration Management</h3>
 <p>The web browser is the modern endpoint’s single largest attack
 surface. Two complementary controls have emerged:</p>
 <ul>
-<li><strong>Browser isolation.</strong> All web rendering happens in a
-remote container (or a local VM); only pixels stream back to the user.
-Even if a malicious web page exploits a renderer vulnerability, the
-compromise is contained inside the disposable isolation environment.
-Cloudflare Browser Isolation, Menlo Security, and Microsoft Edge for
-Business with Application Guard are common implementations.</li>
+<li><strong>Browser isolation.</strong> Web content is rendered away
+from the endpoint, in a remote container or a disposable local VM, and
+only a safe stream of pixels or sanitized draw commands reaches the
+user’s browser. Even if a malicious page exploits a renderer
+vulnerability, the compromise stays inside the disposable environment.
+Cloudflare Browser Isolation, Menlo Security, and Zscaler Browser
+Isolation are common implementations.</li>
 <li><strong>Browser configuration management.</strong> Centralized
 policy through Chrome Enterprise, Edge for Business, or Firefox ESR —
 controlling extensions, certificate trust stores, password storage,
@@ -406,15 +433,13 @@ repacked:</p>
 <li>That process performs a sequence of large
 <code>ReadProcessMemory</code> calls covering the address ranges where
 credential structures live.</li>
-<li>The process writes a file with high-entropy contents to disk or
-transmits a comparable blob to an external IP.</li>
+<li>The process writes a memory dump (such as <code>lsass.dmp</code>) to
+disk or transmits a comparable blob to an external IP.</li>
 </ol>
-<p>No single one of those steps is unambiguous evidence of an attack.
-The <em>sequence</em> is — which is precisely the kind of multi-step
-pattern signature-based AV cannot express but a behavior-based EDR
-backend can. The defensive payoff: even an attacker using a freshly
-compiled, never-before-seen credential-dumping tool trips the same
-behavioral fingerprint.</p>
+<p>No single step is unambiguous evidence of an attack. The
+<em>sequence</em> is — a multi-step pattern signature-based AV cannot
+express but a behavior-based EDR backend can. Even a freshly compiled,
+never-before-seen dumping tool trips the same fingerprint.</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 9.2</strong></p>
@@ -423,7 +448,7 @@ behavioral fingerprint.</p>
 that traditional antivirus generally does not?</li>
 <li><strong>Discriminate.</strong> <code>powershell.exe</code> opens
 <code>lsass.exe</code>, performs large <code>ReadProcessMemory</code>
-calls, and writes a high-entropy blob. What attack activity is this, and
+calls, and writes a memory-dump file. What attack activity is this, and
 what detection model catches it best?</li>
 <li><strong>Apply.</strong> A fixed-purpose server still lets users keep
 local admin rights and run arbitrary unsigned utilities. Name two
@@ -458,54 +483,82 @@ connectivity. The architect’s job is to recognize the failure modes and
 produce systems that fail loudly rather than silently.</p>
 <h3 id="resolving-ipsids-false-positives">Resolving IPS/IDS False
 Positives</h3>
-<p><strong>Intrusion Detection / Prevention Systems</strong> sit on a
-network segment and inspect traffic against a rule library — Snort,
-Suricata, Zeek, or commercial offerings from Palo Alto, Cisco, Fortinet.
-Their tuning problems are universal:</p>
+<p>A network <strong>Intrusion Detection System (IDS)</strong> inspects
+traffic against a rule library and alerts, usually from a copy of the
+traffic (a SPAN port or TAP); an <strong>Intrusion Prevention System
+(IPS)</strong> sits <em>inline</em> and can drop packets. Common engines
+are Snort, Suricata, and Zeek, plus commercial offerings from Palo Alto,
+Cisco, and Fortinet. Their tuning problems are universal:</p>
 <ul>
 <li><strong>False positives</strong> happen when a legitimate traffic
 pattern matches an attack signature. A vulnerability scanner running
-internally will trip dozens of IPS rules; failing to whitelist its
-source IP creates noise that hides real signal.</li>
+internally will trip dozens of IPS rules; failing to suppress those
+specific alerts for the scanner’s address creates noise that hides real
+signal. (Suppress the expected rules for that IP, not all alerts from
+it.)</li>
 <li><strong>False negatives</strong> are worse but harder to see — the
 attack happened, the IPS did not flag it. Sources include encrypted
 traffic the IPS cannot inspect, asymmetric routing where the sensor sees
 only half the conversation, fragmented or out-of-order flows the rule
-engine does not reassemble correctly, and outdated rule sets.</li>
+engine does not reassemble correctly, outdated rule sets, and a
+<strong>lack of rules</strong> for the protocol or technique in
+question.</li>
+<li><strong>Rule misconfigurations.</strong> A wrong network variable
+(such as Snort’s <code>HOME_NET</code>), noisy rules disabled instead of
+tuned, or <code>alert</code> actions left where <code>drop</code> was
+intended. Treat rule changes as production changes.</li>
 <li><strong>Placement matters.</strong> An IPS at the internet edge sees
 north-south traffic; it cannot detect lateral movement between two
 servers in the same VLAN. East-west visibility requires either internal
 sensors, host-based detection, or network segmentation that forces
-traffic through inspection points.</li>
+traffic through inspection points. An inline IPS also needs a deliberate
+<em>fail-open</em> or <em>fail-closed</em> choice for when the device
+itself fails.</li>
 </ul>
-<p>The remedy is a tuning loop: investigate every alert for at least the
-first thirty days, mark legitimate traffic patterns as exclusions, and
-keep rule sets current — Emerging Threats and Talos publish daily
-updates.</p>
+<p>The remedy is a tuning loop: investigate every alert during the
+initial tuning period (typically several weeks), mark legitimate traffic
+patterns as exclusions, and keep rule sets current — Emerging Threats
+and Talos publish frequent updates.</p>
 <h3
 id="correcting-routing-switching-vpntunnel-and-acl-errors">Correcting
 Routing, Switching, VPN/Tunnel, and ACL Errors</h3>
 <p>Network misconfigurations break in characteristic ways:</p>
 <ul>
 <li><strong>Asymmetric routing.</strong> Outbound packets take one path;
-return packets take another. Stateful firewalls drop the asymmetric
-half, often producing the maddening symptom of “connections that work
-for ten seconds and then hang.” The fix is consistent routing through
-the firewall pair, often via PBR (policy-based routing) or by collapsing
-the upstream paths.</li>
+return packets take another. A stateful firewall that sees only one
+direction of a flow treats the other direction’s packets as invalid and
+drops them, producing connections that never complete or stall
+midstream. The fix is consistent routing through the firewall pair,
+often via PBR (policy-based routing), by collapsing the upstream paths,
+or through firewall state sharing.</li>
 <li><strong>VLAN trunking errors.</strong> A trunk port misconfigured as
-access — or vice versa — produces sporadic connectivity. A VLAN-hopping
-attack (double-tagging) exploits switch behavior on a misconfigured
-trunk to reach segments that should be inaccessible.</li>
-<li><strong>VPN MTU/MSS mismatches.</strong> Tunnels add overhead. An
-IPsec VPN with default 1500-byte MTU on the LAN side will fragment large
-packets, and any NAT device that drops fragments produces “small pages
-load, large pages hang” complaints. The fix is MSS clamping (1380–1400
-bytes is typical for IPsec).</li>
+access — or vice versa — produces sporadic connectivity. <strong>VLAN
+hopping</strong> abuses loose trunk settings: <em>switch spoofing</em>
+negotiates a trunk through DTP, and <em>double tagging</em> abuses the
+native VLAN. Fixes: explicit port modes, DTP off, an unused native VLAN.
+Spanning-tree mistakes (no BPDU guard or root guard) allow loops or a
+rogue root bridge.</li>
+<li><strong>VPN MTU/MSS mismatches.</strong> Tunnels add overhead, so
+full-size packets no longer fit. If a device drops the fragments, or a
+firewall blocks the ICMP “fragmentation needed” messages Path MTU
+Discovery relies on, large packets silently vanish: “small pages load,
+large pages hang.” The fix is <strong>MSS clamping</strong>, lowering
+the TCP segment size the tunnel advertises (roughly 1350–1400 bytes is
+typical for IPsec).</li>
+<li><strong>VPN negotiation failures.</strong> Tunnels that never come
+up usually trace to mismatched IKE/IPsec proposals (encryption, hash, or
+DH group), wrong pre-shared keys or expired certificates, or blocked NAT
+traversal (UDP 4500).</li>
 <li><strong>ACL ordering.</strong> Most firewall and ACL engines
 evaluate top-down with first-match. A permissive rule above a
 restrictive rule silently overrides it. Audit rules in order, not as a
-set.</li>
+set, and end every list with an explicit, logged deny.</li>
+<li><strong>Insecure routing.</strong> Routing protocols that trust any
+neighbor let an attacker inject routes and pull traffic through a device
+they control: unauthenticated OSPF or RIP on user-facing ports, BGP with
+no prefix filters or RPKI validation (behind many hijacks and leaks),
+and enabled IP source routing. Authenticate adjacencies, filter and
+validate BGP prefixes, and disable source routing.</li>
 </ul>
 <h3
 id="lateral-movement-paths-remote-administration-abuse-and-identity-impacting-infrastructure-drift">Lateral
@@ -541,7 +594,8 @@ Observability and Sensor Coverage</h3>
 observability layers:</p>
 <ul>
 <li><strong>NetFlow / IPFIX / sFlow.</strong> Per-flow metadata
-(5-tuple, byte counts, durations) at every router or switch.</li>
+(5-tuple, byte counts, durations) at every router or switch (sFlow
+samples packets rather than tracking every flow).</li>
 <li><strong>Packet capture.</strong> Full-fidelity capture at
 chokepoints (perimeter, between trust zones, in front of crown-jewel
 applications). Storage is expensive; rolling buffers and selective
@@ -550,77 +604,95 @@ triggers help.</li>
 extraordinarily high-leverage source — most malware beacons resolve a
 domain before connecting, so DNS catches what later layers miss.</li>
 <li><strong>TLS metadata (JA3/JA4 fingerprints, SNI).</strong> Even when
-content is encrypted, fingerprints of the TLS client itself are
-surprisingly distinctive and stable across malware families.</li>
+content is encrypted, the way a client builds its TLS handshake (JA3,
+and the more robust JA4) fingerprints the software behind it, and SNI
+names the destination (though Encrypted Client Hello is gradually hiding
+it).</li>
+<li><strong>Endpoint and server logs.</strong> Windows event logs,
+Sysmon, and Linux <code>auditd</code> forwarded in near real time to a
+SIEM, so an attacker who clears the local logs cannot erase the
+history.</li>
 </ul>
 <blockquote class="callout-case-study">
 <p><strong class="callout-title">Case Study</strong></p>
 <p><em>WannaCry (May 2017): Network Propagation Through Unpatched
 SMB</em></p>
-<p>On Friday, May 12, 2017, a piece of self-propagating ransomware named
+<p>On Friday, May 12, 2017, self-propagating ransomware named
 <strong>WannaCry</strong> began spreading across the internet at
 unprecedented speed. Within 24 hours it had infected more than 230,000
 computers in 150 countries — including the UK National Health Service
-(NHS), which had to cancel an estimated 19,000 appointments and turn
-ambulances away from affected hospitals; Spain’s Telefónica; FedEx;
-Renault; Russian banks; German railway displays; and a long list of
-other organizations whose Friday afternoon ended in ransom screens <span
-class="citation" data-cites="msrc-wannacry-2017 nao-wannacry-2017">(<a
+(NHS), which cancelled an estimated 19,000 appointments and diverted
+ambulances from affected hospitals; Telefónica; FedEx; Renault; Russia’s
+Interior Ministry; and a long list of other organizations whose Friday
+afternoon ended in ransom screens <span class="citation"
+data-cites="msrc-wannacry-2017 nao-wannacry-2017">(<a
 href="#ref-msrc-wannacry-2017" role="doc-biblioref">Microsoft Security
 Response Center 2017</a>; <a href="#ref-nao-wannacry-2017"
 role="doc-biblioref">National Audit Office 2017</a>)</span>.</p>
 <p>The technical pattern was a textbook case of every theme in this
-section. The exploit at the core was <strong>EternalBlue</strong>, a
-vulnerability in Microsoft’s SMBv1 protocol that had been developed and
-weaponized by the U.S. National Security Agency, then leaked publicly by
-the Shadow Brokers group in April 2017. Microsoft had released the patch
-(MS17-010) in March — <em>two months before WannaCry</em> — but the
-patch had not been applied widely. The NHS in particular was running
-large numbers of Windows XP and Windows 7 systems behind under-resourced
-IT teams, with SMBv1 enabled and exposed across flat internal networks
-where workstations could freely talk SMB to one another <span
-class="citation" data-cites="msrc-wannacry-2017 nao-wannacry-2017">(<a
+section. The exploit at the core was <strong>EternalBlue</strong>, which
+targeted a flaw in Microsoft’s SMBv1 implementation (CVE-2017-0144). It
+was widely reported to have been developed by the U.S. National Security
+Agency and was leaked publicly by the Shadow Brokers group in April
+2017. Microsoft had released the patch (MS17-010) in March — <em>two
+months before WannaCry</em> — but many organizations had not applied it.
+The NHS in particular was running large numbers of unpatched Windows 7
+systems (and some Windows XP) behind under-resourced IT teams, with
+SMBv1 enabled and, at many sites, internal networks flat enough for
+workstations to talk SMB to one another <span class="citation"
+data-cites="msrc-wannacry-2017 nao-wannacry-2017">(<a
 href="#ref-msrc-wannacry-2017" role="doc-biblioref">Microsoft Security
 Response Center 2017</a>; <a href="#ref-nao-wannacry-2017"
 role="doc-biblioref">National Audit Office 2017</a>)</span>.</p>
-<p>Once a single host inside an organization was compromised — typically
-through an exposed SMB port reachable from the internet, or through an
-infected mobile device crossing the perimeter — the worm scanned the
-local subnet for port 445 and propagated to every unpatched Windows host
-it could reach. Inside the NHS, this propagation took <em>minutes</em>
-across hospital-wide networks. The flat network topology turned a
-single-host compromise into an enterprise outage.</p>
-<p>The malware was finally halted, more or less by accident, when
-British researcher <strong>Marcus Hutchins</strong> (working under the
-handle MalwareTech) discovered an unregistered domain inside its code
-that the malware contacted before encrypting. The domain functioned as a
-kill switch — Hutchins registered it for $10.69, and every infection
-that successfully resolved the domain immediately ceased encryption.
-Variants of the malware that removed the kill switch surfaced within
-days, but the initial wave was already contained.</p>
+<p>Once a single host was compromised, the worm scanned for port 445 —
+both random internet addresses and the local subnet — and propagated to
+every unpatched Windows host it could reach, with no user click
+required. Where internal networks were flat, a single-host compromise
+became an enterprise outage.</p>
+<p>The first wave was halted, more or less by accident, when British
+researcher <strong>Marcus Hutchins</strong> (working under the handle
+MalwareTech) discovered an unregistered domain inside the malware’s code
+that it contacted before encrypting. The domain functioned as a kill
+switch — Hutchins registered it for $10.69, and every infection that
+successfully resolved the domain immediately ceased encryption. Variants
+with the kill switch removed were reported within days, but the initial
+wave was already contained. In December 2017 the U.S. and U.K.
+governments attributed the attack to North Korea, and in 2018 the U.S.
+Department of Justice charged a North Korean programmer, Park Jin Hyok,
+of the Lazarus Group, in a complaint covering WannaCry <span
+class="citation" data-cites="doj-park-jin-hyok-2018">(<a
+href="#ref-doj-park-jin-hyok-2018" role="doc-biblioref">U.S. Department
+of Justice, U.S. Attorney’s Office for the Central District of
+California 2018</a>)</span>.</p>
 <p>The post-incident lessons are exactly the operational disciplines
 this chapter has been arguing for:</p>
 <ol type="1">
 <li><strong>Patching matters even when it is inconvenient.</strong>
-MS17-010 had been available for two months. The NHS’s failure to deploy
-it was an operational decision driven by old vendor dependencies and
-undersized IT budgets — not a missing capability.</li>
-<li><strong>Network segmentation contains blast radius.</strong>
-Hospitals where workstation-to-workstation SMB was filtered saw
-localized outages. Hospitals where it was not saw enterprise-wide
-encryption.</li>
-<li><strong>End-of-life systems are time bombs.</strong> Windows XP had
-been out of support for three years. The systems running it were “too
-critical to upgrade” — and therefore guaranteed to be the worst-affected
-when something like WannaCry arrived. Microsoft eventually released an
-emergency XP patch <em>for free</em>, an unprecedented move that itself
-is a measure of how badly the long tail of EOL systems shapes incidents
-<span class="citation" data-cites="msrc-wannacry-2017">(<a
-href="#ref-msrc-wannacry-2017" role="doc-biblioref">Microsoft Security
-Response Center 2017</a>)</span>.</li>
+MS17-010 had been available for two months. The failure to deploy it was
+an operational problem — legacy dependencies, thin budgets, and no
+central body able to mandate action — not a missing capability. Before
+the attack, NHS Digital had assessed 88 of England’s 236 trusts on site,
+and none had passed its cyber-security assessment <span class="citation"
+data-cites="nao-wannacry-2017">(<a href="#ref-nao-wannacry-2017"
+role="doc-biblioref">National Audit Office 2017</a>)</span>.</li>
+<li><strong>Network segmentation contains blast radius.</strong> The
+worm needed a reachable port 445. Every filtered path between
+workstations was a place it could not go; every flat network was a place
+it could go anywhere.</li>
+<li><strong>Unpatched and end-of-life systems are time bombs.</strong>
+Windows XP had been out of support for three years, but analyses of
+infected machines found that most were unpatched, still-supported
+Windows 7 systems; XP machines more often crashed than were encrypted.
+The lesson is patch discipline as much as lifecycle. Microsoft still
+took the “highly unusual step” of releasing updates for platforms in
+custom support only, including XP and Server 2003 <span class="citation"
+data-cites="msrc-wannacry-2017">(<a href="#ref-msrc-wannacry-2017"
+role="doc-biblioref">Microsoft Security Response Center
+2017</a>)</span>.</li>
 <li><strong>Egress and DNS visibility help even mid-attack.</strong>
-Hutchins’s kill-switch discovery was possible because researchers were
-looking at DNS queries from infected hosts in real time.</li>
+Once Hutchins registered the kill-switch domain, DNS queries from
+infected hosts around the world flowed to his sinkhole, letting
+researchers watch the outbreak in real time.</li>
 </ol>
 </blockquote>
 <blockquote class="callout-quick-check">
@@ -667,19 +739,22 @@ Security (DNSSEC, Poisoning, Sinkholing, Zone Transfers)</h3>
 any step of the recursive lookup can be forged.</p>
 <ul>
 <li><strong>DNSSEC</strong> signs DNS records using public-key
-cryptography rooted at the DNS root zone. Resolvers that validate DNSSEC
-reject forged responses. Adoption has been slower than hoped — DNSSEC
-adds operational complexity and key management — but it is the only
-end-to-end protection against DNS forgery.</li>
+cryptography rooted at the DNS root zone. It provides authenticity and
+integrity, not confidentiality: validating resolvers reject forged or
+tampered responses, but queries remain readable. Adoption has been
+slower than hoped — DNSSEC adds operational complexity and key
+management — but it is the main protection against DNS forgery.</li>
 <li><strong>DNS poisoning / cache poisoning.</strong> An attacker
 injects a forged answer into a recursive resolver’s cache. The Kaminsky
 attack (2008) was the canonical demonstration. Modern resolvers mitigate
-by randomizing source ports and case-randomizing query labels.</li>
+by randomizing query IDs and source ports (some also randomize the case
+of the query name), and DNSSEC validation rejects forged answers
+outright.</li>
 <li><strong>DNS sinkholing.</strong> A defensive technique in which the
 corporate resolver returns deliberately invalid answers (or a controlled
-“sinkhole” address) for known-bad domains. Used against C2
-infrastructure, malicious advertising domains, and DGA-generated
-names.</li>
+“sinkhole” address) for known-bad domains. Often implemented with DNS
+Response Policy Zones (RPZ) and used against C2 infrastructure,
+malicious advertising domains, and DGA-generated names.</li>
 <li><strong>Zone transfers (AXFR/IXFR).</strong> Bulk replication of DNS
 zone data between authoritative servers. Should be restricted by IP
 and/or TSIG. Open AXFR queries on public-facing nameservers leak the
@@ -697,21 +772,37 @@ of which the architect should be able to diagnose from
 <code>openssl s_client</code> or a packet capture:</p>
 <ul>
 <li><strong>Cipher / version mismatch.</strong> The client offers
-ciphers the server does not support, or a corporate proxy enforces TLS
+ciphers or versions the server does not support: the server may have
+correctly disabled TLS 1.0/1.1 <span class="citation"
+data-cites="rfc8996-2021">(<a href="#ref-rfc8996-2021"
+role="doc-biblioref">Moriarty and Farrell 2021</a>)</span> and legacy
+suites such as RC4 and 3DES, or a corporate proxy may enforce TLS
 1.2-only against a service that has moved to 1.3-only. Solution: align
-supported versions; favor TLS 1.3 with a 1.2 fallback during
-transition.</li>
+supported versions, favor TLS 1.3 with a 1.2 fallback during transition,
+and upgrade old clients rather than re-enabling weak suites.</li>
 <li><strong>Untrusted issuer.</strong> The server’s certificate chains
 to a CA the client does not trust. Common in internal deployments where
 a private CA is missing from a server’s or container image’s trust
-store.</li>
+store, or where a TLS-inspection proxy re-signs traffic with a CA the
+application does not trust. A server that omits its intermediate
+certificate causes the same symptom.</li>
 <li><strong>Hostname mismatch.</strong> The certificate’s SAN does not
 include the requested hostname. Fix the SAN list, not the client.</li>
 <li><strong>Expired or not-yet-valid certificate.</strong> The Mad
-Hatter case study from Chapter 8. Expiration monitoring is the
-operational answer.</li>
-<li><strong>Revoked certificate.</strong> Caught by OCSP / OCSP stapling
-(Chapter 8).</li>
+Hatter case study from Chapter 8. Expiration monitoring and automated
+renewal (ACME) are the operational answers, and they matter more each
+year: public TLS certificates are capped at 200 days since March 2026,
+100 days from March 2027, and 47 days from March 2029 <span
+class="citation" data-cites="cabf-sc081-2025">(<a
+href="#ref-cabf-sc081-2025" role="doc-biblioref">CA/Browser Forum
+2025</a>)</span>.</li>
+<li><strong>Revoked certificate.</strong> Detected through CRLs or OCSP
+/ OCSP stapling (Chapter 8). The public web is shifting from OCSP toward
+CRLs, so check which mechanism your clients actually use <span
+class="citation" data-cites="cabf-sc063-2023 letsencrypt-ocsp-2025">(<a
+href="#ref-cabf-sc063-2023" role="doc-biblioref">CA/Browser Forum
+2023</a>; <a href="#ref-letsencrypt-ocsp-2025"
+role="doc-biblioref">Let’s Encrypt 2025</a>)</span>.</li>
 <li><strong>Clock skew.</strong> A client whose clock is hours off
 rejects valid certificates. NTP/Chrony hygiene matters more than people
 expect.</li>
@@ -723,20 +814,37 @@ have been bolted on, and they only work <em>together</em>:</p>
 <ul>
 <li><strong>SPF (Sender Policy Framework).</strong> A DNS TXT record
 listing the IP addresses authorized to send email for a domain.
-Receivers check the connecting IP against the list. SPF authenticates
-the sending <em>server</em>, not the message.</li>
+Receivers check the connecting IP against the list for the <em>envelope
+sender</em> (<code>MAIL FROM</code>) domain, which is not necessarily
+the <code>From:</code> address users see. SPF authenticates the sending
+<em>server</em>, not the message, and breaks on forwarding. It also
+allows at most ten DNS lookups, so too many <code>include:</code>
+entries cause a permanent error, a classic troubleshooting case.</li>
 <li><strong>DKIM (DomainKeys Identified Mail).</strong> The sending
 server computes a cryptographic signature over selected headers and the
 body, then publishes its public key in DNS. Receivers verify the
-signature. DKIM authenticates the <em>message itself</em> and survives
-forwarding.</li>
+signature. DKIM authenticates the <em>message itself</em> and normally
+survives forwarding unless the forwarder alters the signed content. The
+signature names the signing domain (<code>d=</code>) and a
+<em>selector</em> that locates the public key
+(<code>selector._domainkey.domain</code>).</li>
 <li><strong>DMARC (Domain-based Message Authentication, Reporting, and
-Conformance).</strong> A DNS-published policy that tells receivers what
-to do when SPF <em>or</em> DKIM fails <em>and</em> the result is not
-“aligned” with the visible <code>From:</code> domain. Policies are
-<code>none</code> (monitor only), <code>quarantine</code> (junk folder),
-and <code>reject</code> (refuse delivery). DMARC also produces aggregate
-reports back to the domain owner so misconfigurations are visible.</li>
+Conformance).</strong> A DNS-published policy that ties SPF and DKIM to
+the visible <code>From:</code> domain <span class="citation"
+data-cites="rfc7489-dmarc-2015">(<a href="#ref-rfc7489-dmarc-2015"
+role="doc-biblioref">Kucherawy and Zwicky 2015</a>)</span>. A message
+passes if SPF <em>or</em> DKIM both <strong>passes</strong> and is
+<strong>aligned</strong>: the domain SPF authenticated (the envelope
+sender) or DKIM signed (<code>d=</code>) must match the
+<code>From:</code> domain. If neither does, the receiver applies the
+policy: <code>none</code> (monitor only), <code>quarantine</code> (junk
+folder), or <code>reject</code> (refuse delivery). Domains normally
+start at <code>none</code>, read the reports, fix legitimate senders
+they forgot, and only then tighten. <code>rua</code> reports are
+<em>aggregate</em> summaries of all mail claiming the domain, passing
+and failing; <code>ruf</code> reports are copies of individual
+<em>failures</em>, which many large receivers do not send for privacy
+reasons.</li>
 </ul>
 <p><img src="../assets/images/ch09_email_auth.png"
 alt="SPF, DKIM, and DMARC are layered defenses against email spoofing. SPF authenticates the sending IP, DKIM authenticates the message contents, and DMARC ties both back to the visible From: domain — telling the receiving server which policy to apply on failure." />
@@ -747,8 +855,27 @@ message contents, and DMARC ties both back to the visible
 apply on failure.</em></p>
 <p><strong>S/MIME</strong> — covered in Chapter 8 — is a different layer
 entirely: it provides end-to-end signing and encryption between specific
-senders and recipients using X.509 certificates. SPF/DKIM/DMARC protect
-the <em>channel</em>; S/MIME protects the <em>content</em>.</p>
+senders and recipients using X.509 certificates. SPF/DKIM/DMARC
+authenticate the sending <em>domain</em>; S/MIME authenticates an
+individual <em>person</em> and, when used for encryption, keeps content
+confidential from everyone but the recipient.</p>
+<p>These controls are now baseline requirements. Since February 2024,
+Google and Yahoo have required bulk senders (Google’s threshold is
+5,000+ messages a day) to authenticate with SPF and DKIM, publish DMARC,
+and support one-click unsubscribe, and Microsoft began enforcing similar
+rules for Outlook.com in May 2025 <span class="citation"
+data-cites="google-email-sender-guidelines-2024 microsoft-outlook-bulk-senders-2025">(<a
+href="#ref-google-email-sender-guidelines-2024"
+role="doc-biblioref">Google 2024</a>; <a
+href="#ref-microsoft-outlook-bulk-senders-2025"
+role="doc-biblioref">Microsoft Outlook Team 2025</a>)</span>. Two
+optional layers build on them: <strong>MTA-STS</strong> lets a domain
+require TLS with a valid certificate for inbound mail, blocking
+downgrade attacks between mail servers <span class="citation"
+data-cites="rfc8461-mta-sts-2018">(<a href="#ref-rfc8461-mta-sts-2018"
+role="doc-biblioref">Margolis et al. 2018</a>)</span>, and
+<strong>BIMI</strong> shows a verified brand logo, but only for domains
+enforcing DMARC at <code>quarantine</code> or <code>reject</code>.</p>
 <table>
 <caption>Table 9.2: Common email attack types and the controls that
 materially reduce them. Email security is layered: no single control
@@ -790,14 +917,16 @@ lookalike detection</td>
 <tr>
 <th scope="row" style="text-align: left;">Compromised internal account</th>
 <td style="text-align: left;">Real authenticated send</td>
-<td style="text-align: left;">UEBA + impossible-travel + DLP egress
-rules</td>
+<td style="text-align: left;">Phishing-resistant MFA + UEBA /
+impossible-travel detection + DLP egress rules</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Reply-chain hijack</th>
-<td style="text-align: left;">Insertion into legitimate thread</td>
-<td style="text-align: left;">DMARC + content scanning + EDR on
-attachment opens</td>
+<td style="text-align: left;">Attacker with a stolen mailbox (or
+lookalike domain) replies inside a real thread</td>
+<td style="text-align: left;">Mailbox MFA + thread-anomaly detection +
+link and attachment sandboxing (DMARC still passes when the sender is
+genuinely compromised)</td>
 </tr>
 <tr>
 <th scope="row" style="text-align: left;">Malicious attachment</th>
@@ -818,34 +947,42 @@ browser isolation, FIDO2</td>
 <p><em>What SPF, DKIM, and DMARC look like in DNS — and what happens
 when a spoofed message arrives</em></p>
 <p>Three DNS records protect <code>verona-health.org</code>:</p>
-<pre><code>verona-health.org         TXT  &quot;v=spf1 include:_spf.google.com ip4:203.0.113.20 -all&quot;
-google._domainkey.v-h.org TXT  &quot;v=DKIM1; k=rsa; p=MIIBIjANBgkq...&quot;
-_dmarc.verona-health.org  TXT  &quot;v=DMARC1; p=reject; rua=mailto:dmarc@verona-health.org&quot;</code></pre>
+<pre><code>verona-health.org                    TXT  &quot;v=spf1 include:_spf.google.com ip4:203.0.113.20 -all&quot;
+google._domainkey.verona-health.org  TXT  &quot;v=DKIM1; k=rsa; p=MIIBIjANBgkq...&quot;
+_dmarc.verona-health.org             TXT  &quot;v=DMARC1; p=reject; rua=mailto:dmarc@verona-health.org&quot;</code></pre>
 <p>The SPF record authorizes Google’s mail servers and one specific IP
 (<code>203.0.113.20</code>) to send for the domain; anything else is a
 hard fail (<code>-all</code>). The DKIM record publishes the public key
-used to verify the cryptographic signature attached to every outbound
-message. The DMARC record instructs receiving servers to
-<strong>reject</strong> any message where neither SPF nor DKIM aligns
-with the visible <code>From:</code> domain — and to send aggregate
-failure reports back to the security team.</p>
-<p>When a phishing campaign attempts to send “From:
-cfo@verona-health.org” from a rented VPS in Eastern Europe, the
-receiving mail server checks the VPS IP against SPF (not listed), checks
-the DKIM signature (absent or invalid), finds neither aligns, and
-rejects the message outright before it reaches the inbox. The CFO’s name
-never shows up in any employee’s mailbox from that source. The DMARC
-aggregate report logged the attempt and surfaced it in the security
-team’s weekly review.</p>
+(selector <code>google</code>) used to verify the cryptographic
+signature attached to every outbound message. The DMARC record instructs
+receiving servers to <strong>reject</strong> any message that lacks an
+<em>aligned</em> pass — an SPF or DKIM pass whose authenticated domain
+matches the visible <code>From:</code> domain — and to send aggregate
+reports back to the security team.</p>
+<p>When a phishing campaign sends “From: cfo@verona-health.org” from a
+rented VPS, one of two things happens. If the attacker forges the
+envelope sender too, SPF fails because the VPS IP is not listed. If the
+attacker uses their own domain as the envelope sender, SPF may
+<em>pass</em> — but for the attacker’s domain, which does not match the
+<code>From:</code> domain, so the pass is not aligned. Either way, the
+attacker cannot produce a DKIM signature for
+<code>verona-health.org</code> without its private key. With no aligned
+pass, DMARC applies <code>p=reject</code> and the message never reaches
+the inbox, and the aggregate report logs the attempt for the security
+team’s weekly review. (Verona reached <code>p=reject</code> only after
+months at <code>p=none</code>, using those reports to find legitimate
+senders it had forgotten.)</p>
 </blockquote>
 <blockquote class="callout-quick-check">
 <p><strong class="callout-title">Quick Check 9.4</strong></p>
 <ol type="1">
 <li><strong>Recall.</strong> What do SPF, DKIM, and DMARC each validate
-or enforce?</li>
-<li><strong>Discriminate.</strong> A public authoritative nameserver
-answers AXFR requests from anyone on the internet. What reconnaissance
-exposure does that create?</li>
+or enforce? Separately, what does an authoritative nameserver that
+answers AXFR requests from anyone on the internet expose?</li>
+<li><strong>Discriminate.</strong> A bulk-mail vendor’s messages pass
+SPF and DKIM for the vendor’s own domain, but their visible
+<code>From:</code> address is <code>@verona-health.org</code>. Under
+<code>p=reject</code>, are they delivered? Why?</li>
 <li><strong>Apply.</strong> A phishing campaign sends mail that appears
 to come from the CFO’s domain using a rented VPS. Name three layered
 controls from the section that should block or blunt that attack.</li>
@@ -859,15 +996,19 @@ controls from the section that should block or blunt that attack.</li>
 <li><strong>SPF</strong> validates authorized sending IPs,
 <strong>DKIM</strong> validates the message signature, and
 <strong>DMARC</strong> aligns those checks with the visible
-<code>From:</code> domain and tells receivers what to do on
-failure.</li>
-<li>It exposes the <strong>entire zone contents</strong>, leaking the
+<code>From:</code> domain and tells receivers what to do on failure. An
+open AXFR exposes the <strong>entire zone contents</strong>, leaking the
 organization’s naming map and host inventory for reconnaissance.</li>
-<li><strong>DMARC with aligned SPF or DKIM</strong>,
-<strong>secure-email controls such as lookalike detection or
-sandboxing</strong>, and <strong>post-delivery controls such as browser
-isolation or FIDO2-resistant credential theft mitigation</strong> all
-reduce the attack’s chance of succeeding.</li>
+<li><strong>No.</strong> The checks passed, but for the vendor’s domain,
+so neither is <em>aligned</em> with <code>From:</code>. The fix is a
+DKIM key for <code>verona-health.org</code> (or a delegated subdomain)
+at the vendor.</li>
+<li><strong>DMARC with aligned SPF or DKIM</strong> (stops direct
+spoofing), <strong>secure-email controls such as lookalike-domain
+detection and link or attachment sandboxing</strong>, and
+<strong>post-delivery controls such as browser isolation and
+phishing-resistant FIDO2 authentication</strong> (which defeat
+credential theft) all reduce the attack’s chance of succeeding.</li>
 </ol>
 </details>
 <h3 id="dosddos-and-resource-exhaustion">DoS/DDoS and Resource
@@ -881,18 +1022,22 @@ sources simultaneously, defeating simple IP blocking. Categories:</p>
 (UDP floods, DNS or NTP amplification). Mitigated upstream — at the ISP,
 the cloud provider’s scrubbing center, or services like AWS Shield,
 Cloudflare, or Akamai Prolexic.</li>
-<li><strong>Protocol.</strong> Exhausting connection state (SYN floods,
-slowloris). Mitigated by SYN cookies, connection limits, and stateful
-proxy layers.</li>
+<li><strong>Protocol.</strong> Exhausting connection state in servers,
+firewalls, and load balancers (SYN floods, ACK floods). Mitigated by SYN
+cookies, connection limits, and stateful proxy layers.</li>
 <li><strong>Application-layer (Layer 7).</strong> Targeted requests that
 look legitimate but exhaust application resources — expensive search
-queries, unauthenticated POST floods. Mitigated by WAFs, rate limits,
-CAPTCHA, and adaptive defenses tuned per endpoint.</li>
+queries, unauthenticated POST floods, slow-request attacks such as
+Slowloris, and the HTTP/2 Rapid Reset floods of 2023. Mitigated by WAFs,
+rate limits, CAPTCHA, and adaptive defenses tuned per endpoint.</li>
 </ul>
 <p>The general defense is <strong>layered absorption</strong>: a CDN +
 WAF in front, rate limits at the API gateway, autoscaling backends with
 circuit breakers, and an incident playbook that includes upstream
-provider contacts before the attack happens.</p>
+provider contacts before the attack happens. <strong>Resource
+exhaustion</strong> also happens without an attacker (a memory leak, a
+full log volume, an exhausted DHCP scope), so quotas and capacity alerts
+belong to the same defense.</p>
 <hr />
 <h2 id="how-do-we-manage-mobile-and-remote-devices">How Do We Manage
 Mobile and Remote Devices?</h2>
@@ -905,10 +1050,11 @@ Containment</h3>
 <p><strong>Mobile Device Management (MDM)</strong> — and the broader
 category of <strong>Unified Endpoint Management (UEM)</strong> — gives
 IT a central control plane over enrolled devices. Microsoft Intune,
-Jamf, VMware Workspace ONE, and Google Workspace MDM are common
-platforms. NIST’s current enterprise mobile-device and BYOD guidance
-treats centralized management, policy enforcement, and app/container
-controls as foundational safeguards <span class="citation"
+Jamf, Omnissa Workspace ONE (formerly VMware), and Google’s endpoint
+management in Google Workspace are common platforms. NIST’s current
+enterprise mobile-device and BYOD guidance treats centralized
+management, policy enforcement, and app/container controls as
+foundational safeguards <span class="citation"
 data-cites="nist-sp800-124r2-2023 nist-sp1800-22-2023">(<a
 href="#ref-nist-sp800-124r2-2023" role="doc-biblioref">Howell et al.
 2023</a>; <a href="#ref-nist-sp1800-22-2023" role="doc-biblioref">Boeckl
@@ -920,26 +1066,26 @@ certificate, and policy profiles delivered automatically.</li>
 apps; block specific risky apps; require apps to be installed from
 managed stores.</li>
 <li><strong>Compliance enforcement.</strong> Require disk encryption,
-biometric unlock, current OS version, no jailbreak/root, EDR present and
-reporting; non-compliant devices lose conditional access (Chapter 5)
-<span class="citation"
-data-cites="nist-sp800-124r2-2023 nist-sp1800-22-2023 nist-sp800-207-2020 nist-sp800-63-4-2025">(<a
+biometric unlock, current OS version, no jailbreak/root, a mobile threat
+defense or EDR agent present and reporting; non-compliant devices lose
+conditional access (Chapter 5) <span class="citation"
+data-cites="nist-sp800-124r2-2023 nist-sp1800-22-2023 nist-sp800-207-2020">(<a
 href="#ref-nist-sp800-124r2-2023" role="doc-biblioref">Howell et al.
 2023</a>; <a href="#ref-nist-sp1800-22-2023" role="doc-biblioref">Boeckl
 et al. 2023</a>; <a href="#ref-nist-sp800-207-2020"
-role="doc-biblioref">Rose et al. 2020</a>; <a
-href="#ref-nist-sp800-63-4-2025" role="doc-biblioref">Temoshok et al.
-2025</a>)</span>.</li>
+role="doc-biblioref">Rose et al. 2020</a>)</span>.</li>
 <li><strong>Selective wipe.</strong> On a BYOD device, wipe only the
 corporate container — work email, files, app data — without touching the
 user’s personal photos and contacts. Critical for the
 legal-and-employee-relations side of BYOD.</li>
 <li><strong>App containerization.</strong> Work data lives in a
-sandboxed container (Android Work Profile, iOS Managed Apps, Microsoft
-Intune App Protection); copy/paste and screenshots from work apps to
-personal apps are blocked.</li>
+sandboxed container: an Android Enterprise work profile, an iPhone or
+iPad enrolled with Apple User Enrollment (managed data kept separate
+from personal data), or apps governed by Intune App Protection policies,
+which work even on unenrolled devices. Copy/paste, screenshots, and
+“save to” actions from work apps into personal apps are blocked.</li>
 </ul>
-<p>The <strong>two deployment models</strong> that matter:</p>
+<p>The deployment models that matter fall into two camps:</p>
 <ul>
 <li><strong>COBO (Corporate-Owned, Business-Only) / COPE
 (Corporate-Owned, Personally Enabled).</strong> The company owns the
@@ -969,22 +1115,22 @@ incidents are reported to IT roughly once a month and to the privacy
 office almost never.</p>
 <p>Juliet’s program runs in four phases over six months.</p>
 <p><strong>Phase 1 — Policy.</strong> Verona’s legal team writes a BYOD
-acceptable-use agreement. The crucial provisions: the company has the
-right to wipe the corporate container on demand; the company will
-<em>not</em> access personal data, location, or browsing; lost or stolen
-devices must be reported within 24 hours; jailbroken devices are
-prohibited; the user is responsible for keeping the device’s OS within
-two major versions of current. Each enrolling user must e-sign the
-agreement before MDM enrollment proceeds.</p>
+acceptable-use agreement. The crucial provisions: the company may wipe
+the corporate container on demand; the company will <em>not</em> access
+personal data, location, or browsing; lost or stolen devices must be
+reported within 24 hours; jailbroken devices are prohibited; and the OS
+must stay within two major versions of current. Each user e-signs the
+agreement before enrollment proceeds.</p>
 <p><strong>Phase 2 — Technology.</strong> Microsoft Intune is the chosen
-MDM, integrated with Entra ID (Azure AD) for conditional access. The
-corporate container approach (Intune App Protection on iOS, Work Profile
-on Android) is mandated; full-device management is offered as an option
-for the small number of executives who are issued company-paid phones.
-EHR access requires a managed device, FIDO2 or Authenticator app MFA,
-recent OS, encryption enabled, and EDR (Defender for Endpoint Mobile)
-reporting. A non-compliant device is blocked at sign-in by conditional
-access <span class="citation"
+MDM, integrated with Microsoft Entra ID (formerly Azure AD) for
+conditional access. The corporate container approach (Intune App
+Protection on iOS, Work Profile on Android) is mandated; full-device
+management is offered as an option for the small number of executives
+who are issued company-paid phones. EHR access requires a managed
+device, FIDO2 or Authenticator app MFA, recent OS, encryption enabled,
+and a mobile threat-defense agent (Defender for Endpoint on iOS and
+Android) reporting. A non-compliant device is blocked at sign-in by
+conditional access <span class="citation"
 data-cites="nist-sp800-124r2-2023 nist-sp1800-22-2023 nist-sp800-207-2020 nist-sp800-63b-2025">(<a
 href="#ref-nist-sp800-124r2-2023" role="doc-biblioref">Howell et al.
 2023</a>; <a href="#ref-nist-sp1800-22-2023" role="doc-biblioref">Boeckl
@@ -993,24 +1139,24 @@ role="doc-biblioref">Rose et al. 2020</a>; <a
 href="#ref-nist-sp800-63b-2025" role="doc-biblioref">National Institute
 of Standards and Technology 2025</a>)</span>.</p>
 <p><strong>Phase 3 — Pilot and rollout.</strong> The pilot covers two
-clinical units (forty users) for thirty days, with daily check-ins and a
-fast-feedback Slack channel. Two issues surface: (1) some older Android
-devices can’t run the required EDR agent, and (2) the mandatory PIN
-policy interferes with one-handed phone use during patient care. Juliet
-adjusts: a hardship process for old devices (corporate device issued
-instead) and a tap-to-unlock biometric option that satisfies the spirit
+clinical units (forty users) for thirty days. Two issues surface: (1)
+some older Android devices can’t run the required security agent, and
+(2) the mandatory PIN interferes with one-handed phone use during
+patient care. Juliet adjusts: a hardship process (corporate device
+issued instead) and a biometric unlock option that satisfies the spirit
 of the PIN requirement. Rollout proceeds in waves of 500 users per
 week.</p>
 <p><strong>Phase 4 — Operations.</strong> A monthly report from Intune
 feeds into the security council: enrollment rate, compliance posture,
 incident counts (lost devices, attempted access from non-compliant
 devices), and selective wipes performed. The first month’s report shows
-38 lost-phone reports — a 4× increase over previous numbers — which
-Juliet correctly interprets not as a worsening problem but as an
-<em>improving reporting culture</em>. Each of the 38 phones received a
-selective wipe within an hour of being reported; in two cases the phone
-reconnected to a network long enough for the wipe command to succeed
-before the thief could pull the SIM.</p>
+38 lost-phone reports — against roughly one a month before the program —
+which Juliet correctly interprets not as a worsening problem but as an
+<em>improving reporting culture</em>. A selective-wipe command was
+issued for each phone within an hour of its report. Online phones were
+wiped almost immediately; for those switched off or out of coverage, the
+command waited until the device next reached a network — one reason the
+policy demands a report within 24 hours.</p>
 <p>Six months in, Verona Health has 3,700 enrolled devices, zero
 successful unauthorized EHR mobile accesses, and a CFO whose phone bill
 dropped by $180,000 a year. The CISO writes a one-paragraph note for the
@@ -1029,18 +1175,23 @@ endpoints are running an EDR that has not been disabled, the network is
 segmented enough that one compromised host does not become every host,
 the DNS and email infrastructure are configured to reject forgery, and
 every device that touches corporate data — including the ones in
-employees’ pockets — is enrolled, posture-checked, and wipeable. Most of
-this chapter is not about clever tools. It is about the management
-discipline of deploying, configuring, and maintaining the tools an
-organization already has.</p>
+employees’ pockets — is enrolled, posture-checked, and wipeable. The
+common thread is management discipline: deploying, configuring, and
+maintaining the tools an organization already has.</p>
 <h3 id="key-terms-review">Key Terms Review</h3>
 <ul>
 <li><strong>Change Management:</strong> Formal process for proposing,
 approving, scheduling, implementing, and reviewing modifications to
 production systems.</li>
+<li><strong>Change Advisory Board (CAB):</strong> The group that
+reviews, approves, defers, or rejects proposed non-standard
+changes.</li>
+<li><strong>Configuration Management:</strong> Keeping systems in a
+known, approved state (a baseline) and detecting configuration drift
+from it.</li>
 <li><strong>Configuration Management Database (CMDB):</strong> The
-system of record for assets and relationships among them; the substrate
-every other security control depends on.</li>
+system of record for assets (configuration items) and relationships
+among them; the substrate every other security control depends on.</li>
 <li><strong>Asset Management Lifecycle:</strong> Procurement → operation
 → maintenance → decommissioning, recorded against the CMDB.</li>
 <li><strong>EDR (Endpoint Detection and Response):</strong>
@@ -1050,38 +1201,50 @@ cloud analytics backend, and active response capabilities.</li>
 with network, identity, email, and cloud telemetry for cross-domain
 detection.</li>
 <li><strong>HIDS / HIPS:</strong> Host-based intrusion detection /
-prevention systems; legacy terminology now subsumed by EDR.</li>
+prevention systems (file-integrity monitoring, log analysis, blocking);
+older terminology whose functions EDR platforms now include.</li>
 <li><strong>Host Firewall:</strong> Per-host packet filter; critical for
 limiting lateral movement.</li>
 <li><strong>Endpoint Privilege Management (EPM):</strong> Removes local
 administrator rights and elevates approved applications on demand.</li>
 <li><strong>Application Allowlisting:</strong> Only approved executables
-run (WDAC, AppLocker, equivalents).</li>
+run (App Control for Business / WDAC, AppLocker, fapolicyd).</li>
 <li><strong>SELinux / AppArmor:</strong> Linux mandatory access control
-confining processes to defined policies.</li>
-<li><strong>Attack Surface Reduction (ASR):</strong> Windows feature set
-disabling specific risky behaviors at the OS level.</li>
+confining processes to defined policies; SELinux runs in enforcing,
+permissive, or disabled mode.</li>
+<li><strong>Attack Surface Reduction (ASR):</strong> Removing what an
+attacker can reach and monitoring for new exposure; on Windows, Defender
+ASR rules block specific risky behaviors at the OS level.</li>
 <li><strong>Credential Dumping:</strong> Extraction of credentials from
 process memory or system stores (Mimikatz, LSASS read).</li>
 <li><strong>Living-off-the-Land Binaries (LOLBins):</strong> Built-in OS
 tools used by attackers to avoid dropping new files
-(<code>certutil</code>, <code>regsvr32</code>, <code>wmic</code>,
+(<code>certutil</code>, <code>regsvr32</code>, <code>mshta</code>,
 PowerShell).</li>
+<li><strong>Process Injection:</strong> Running malicious code inside
+the memory of a legitimate process to borrow its privileges and
+hide.</li>
 <li><strong>BYOVD:</strong> Bring Your Own Vulnerable Driver — loading a
 signed but buggy driver to disable kernel-protected security
 agents.</li>
 <li><strong>Browser Isolation:</strong> Remote rendering of web content
 so renderer compromises cannot reach the user’s endpoint.</li>
-<li><strong>IDS / IPS:</strong> Network detection / prevention systems
-running rule-based and behavioral analysis at chokepoints.</li>
+<li><strong>IDS / IPS:</strong> Network intrusion detection
+(out-of-band, alerts) / prevention (inline, can block) systems running
+rule-based and behavioral analysis at chokepoints.</li>
 <li><strong>Asymmetric Routing:</strong> Outbound and return traffic
 taking different paths; commonly breaks stateful firewalls.</li>
 <li><strong>VLAN Hopping:</strong> Attack exploiting trunk-port
 misconfiguration to reach segments that should be unreachable.</li>
 <li><strong>MSS Clamping:</strong> TCP option adjustment to avoid
 fragmentation across VPN tunnels with smaller MTU.</li>
+<li><strong>Insecure Routing:</strong> Routing protocols or
+configurations that accept unauthenticated or unvalidated updates,
+enabling route injection and hijacking.</li>
 <li><strong>Microsegmentation:</strong> Per-workload network policy
 enforced at the host or hypervisor.</li>
+<li><strong>DNS Cache Poisoning:</strong> Injecting a forged answer into
+a resolver’s cache so users are sent to attacker-chosen addresses.</li>
 <li><strong>DNSSEC:</strong> Cryptographic signing of DNS records to
 prevent forgery.</li>
 <li><strong>DNS Sinkholing:</strong> Defensive DNS responses redirecting
@@ -1095,9 +1258,11 @@ IPs authorized to send email for a domain.</li>
 <li><strong>DKIM (DomainKeys Identified Mail):</strong> Cryptographic
 signature over email headers and body verified via DNS-published public
 keys.</li>
-<li><strong>DMARC:</strong> Policy framework aligning SPF / DKIM with
-the visible <code>From:</code> domain and instructing receivers how to
-handle failures.</li>
+<li><strong>DMARC:</strong> Policy framework requiring an aligned SPF or
+DKIM pass for the visible <code>From:</code> domain and instructing
+receivers how to handle failures.</li>
+<li><strong>S/MIME:</strong> Certificate-based signing and encryption of
+individual email messages between specific senders and recipients.</li>
 <li><strong>DDoS — Volumetric / Protocol / Application:</strong> Three
 categories of denial-of-service attack, each requiring different
 mitigations.</li>
@@ -1199,10 +1364,14 @@ and endpoint control of the last decade. Any organization without modern
 EDR is operating blind, regardless of how mature their network controls
 look on paper.</li>
 <li>EDR has become a vendor monoculture risk. The same agent runs on
-every laptop in the company; a vulnerability or supply chain compromise
-in that agent — as has already happened — is a near-instant
-enterprise-wide compromise. The historical wisdom of diverse, layered
-controls has been quietly abandoned.</li>
+every laptop in the company; a faulty update, vulnerability, or supply
+chain compromise in that agent is a near-instant enterprise-wide failure
+— as the July 2024 CrowdStrike content-update outage, which Microsoft
+estimated crashed about 8.5 million Windows devices, showed <span
+class="citation" data-cites="microsoft-crowdstrike-2024">(<a
+href="#ref-microsoft-crowdstrike-2024" role="doc-biblioref">Weston
+2024</a>)</span>. The historical wisdom of diverse, layered controls has
+been quietly abandoned.</li>
 <li>The whole framing is wrong. EDR and modern endpoint controls solve
 last decade’s problem (malware on laptops) while attackers have moved to
 identity, SaaS, and cloud control planes. Investing further in endpoint
@@ -1307,6 +1476,21 @@ Device Security: Bring Your Own Device (BYOD)</em>. NIST SP 1800-22.
 <span>National Institute of Standards and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.1800-22">https://doi.org/10.6028/NIST.SP.1800-22</a>.
 </div>
+<div id="ref-cabf-sc063-2023" class="csl-entry" role="listitem">
+CA/Browser Forum. 2023. <em>Ballot SC-063v4: Make OCSP Optional, Require
+CRLs, and Incentivize Automation</em>. <a
+href="https://cabforum.org/2023/07/14/ballot-sc063v4-make-ocsp-optional-require-crls-and-incentivize-automation">https://cabforum.org/2023/07/14/ballot-sc063v4-make-ocsp-optional-require-crls-and-incentivize-automation</a>.
+</div>
+<div id="ref-cabf-sc081-2025" class="csl-entry" role="listitem">
+CA/Browser Forum. 2025. <em>Ballot SC-081v3: Introduce Schedule of
+Reducing Validity and Data Reuse Periods</em>. <a
+href="https://cabforum.org/2025/04/11/ballot-sc081v3-introduce-schedule-of-reducing-validity-and-data-reuse-periods/">https://cabforum.org/2025/04/11/ballot-sc081v3-introduce-schedule-of-reducing-validity-and-data-reuse-periods/</a>.
+</div>
+<div id="ref-google-email-sender-guidelines-2024" class="csl-entry"
+role="listitem">
+Google. 2024. <em>Email Sender Guidelines</em>. <a
+href="https://support.google.com/a/answer/81126">https://support.google.com/a/answer/81126</a>.
+</div>
 <div id="ref-nist-sp800-124r2-2023" class="csl-entry" role="listitem">
 Howell, Gema, Joshua Franklin, Vincent Sritapan, Murugiah Souppaya, and
 Karen Scarfone. 2023. <em>Guidelines for Managing the Security of Mobile
@@ -1314,10 +1498,40 @@ Devices in the Enterprise</em>. NIST SP 800-124 Rev. 2. <span>National
 Institute of Standards and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.800-124r2">https://doi.org/10.6028/NIST.SP.800-124r2</a>.
 </div>
+<div id="ref-rfc7489-dmarc-2015" class="csl-entry" role="listitem">
+Kucherawy, Murray, and Elizabeth Zwicky. 2015. <em>Domain-Based Message
+Authentication, Reporting, and Conformance (DMARC)</em>. RFC 7489.
+<span>Internet Engineering Task Force</span>. <a
+href="https://doi.org/10.17487/RFC7489">https://doi.org/10.17487/RFC7489</a>.
+</div>
+<div id="ref-letsencrypt-ocsp-2025" class="csl-entry" role="listitem">
+Let’s Encrypt. 2025. <em>OCSP Service Has Reached End of Life</em>. <a
+href="https://letsencrypt.org/2025/08/06/ocsp-service-has-reached-end-of-life">https://letsencrypt.org/2025/08/06/ocsp-service-has-reached-end-of-life</a>.
+</div>
+<div id="ref-rfc8461-mta-sts-2018" class="csl-entry" role="listitem">
+Margolis, Daniel, Mark Risher, Binu Ramakrishnan, Alexander Brotman, and
+Janet Jones. 2018. <em>SMTP MTA Strict Transport Security
+(MTA-STS)</em>. RFC 8461. <span>Internet Engineering Task Force</span>.
+<a
+href="https://doi.org/10.17487/RFC8461">https://doi.org/10.17487/RFC8461</a>.
+</div>
+<div id="ref-microsoft-outlook-bulk-senders-2025" class="csl-entry"
+role="listitem">
+Microsoft Outlook Team. 2025. <em>Strengthening Email Ecosystem:
+Outlook’s New Requirements for High-Volume Senders</em>. Microsoft Tech
+Community blog. <a
+href="https://techcommunity.microsoft.com/blog/outlook/strengthening-email-ecosystem-outlook%E2%80%99s-new-requirements-for-high%E2%80%90volume-senders/4399730">https://techcommunity.microsoft.com/blog/outlook/strengthening-email-ecosystem-outlook%E2%80%99s-new-requirements-for-high%E2%80%90volume-senders/4399730</a>.
+</div>
 <div id="ref-msrc-wannacry-2017" class="csl-entry" role="listitem">
 Microsoft Security Response Center. 2017. <em>Customer Guidance for
 WannaCrypt Attacks</em>. <a
 href="https://www.microsoft.com/en-us/msrc/blog/2017/05/customer-guidance-for-wannacrypt-attacks">https://www.microsoft.com/en-us/msrc/blog/2017/05/customer-guidance-for-wannacrypt-attacks</a>.
+</div>
+<div id="ref-rfc8996-2021" class="csl-entry" role="listitem">
+Moriarty, Kathleen, and Stephen Farrell. 2021. <em>Deprecating TLS 1.0
+and TLS 1.1</em>. RFC 8996. <span>Internet Engineering Task
+Force</span>. <a
+href="https://doi.org/10.17487/RFC8996">https://doi.org/10.17487/RFC8996</a>.
 </div>
 <div id="ref-nao-wannacry-2017" class="csl-entry" role="listitem">
 National Audit Office. 2017. <em>Investigation: WannaCry Cyber Attack
@@ -1335,11 +1549,18 @@ Rose, Scott, Oliver Borchert, Stu Mitchell, and Sean Connelly. 2020.
 Institute of Standards and Technology</span>. <a
 href="https://doi.org/10.6028/NIST.SP.800-207">https://doi.org/10.6028/NIST.SP.800-207</a>.
 </div>
-<div id="ref-nist-sp800-63-4-2025" class="csl-entry" role="listitem">
-Temoshok, D., R. Galluzzo, C. LaSalle, et al. 2025. <em>Digital Identity
-Guidelines</em>. NIST SP 800-63-4. <span>National Institute of Standards
-and Technology</span>. <a
-href="https://doi.org/10.6028/NIST.SP.800-63-4">https://doi.org/10.6028/NIST.SP.800-63-4</a>.
+<div id="ref-doj-park-jin-hyok-2018" class="csl-entry" role="listitem">
+U.S. Department of Justice, U.S. Attorney’s Office for the Central
+District of California. 2018. <em>North Korean Regime-Backed Programmer
+Charged with Conspiracy to Conduct Multiple Cyberattacks and
+Intrusions</em>. <a
+href="https://www.justice.gov/usao-cdca/pr/north-korean-regime-backed-programmer-charged-conspiracy-conduct-multiple-cyberattacks">https://www.justice.gov/usao-cdca/pr/north-korean-regime-backed-programmer-charged-conspiracy-conduct-multiple-cyberattacks</a>.
+</div>
+<div id="ref-microsoft-crowdstrike-2024" class="csl-entry"
+role="listitem">
+Weston, David. 2024. <em>Helping Our Customers Through the CrowdStrike
+Outage</em>. Microsoft blog. <a
+href="https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/">https://blogs.microsoft.com/blog/2024/07/20/helping-our-customers-through-the-crowdstrike-outage/</a>.
 </div>
 </div>
 
