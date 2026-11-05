@@ -735,13 +735,16 @@ access to backend databases or external APIs. If the LLM needs to
 execute an action (like sending an email), it must generate a structured
 request that is intercepted and explicitly approved by a human or a
 secondary, deterministic security tool.</li>
-<li><strong>Dual-LLM Architecture:</strong> Instead of sending the
-user’s prompt directly to the primary LLM, organizations route the input
-through a secondary, smaller LLM that is explicitly trained
+<li><strong>Guard Model (Input Screening):</strong> Instead of sending
+the user’s prompt directly to the primary LLM, organizations route the
+input through a secondary, smaller model that is explicitly trained
 <em>only</em> to detect malicious intent or jailbreak attempts. If the
-secondary LLM flags the input, the connection is dropped before the
+guard model flags the input, the connection is dropped before the
 primary LLM even sees it. Like any filter, it can be evaded, so it
-lowers risk without eliminating it.</li>
+lowers risk without eliminating it. (Don’t confuse this with the
+<em>Dual LLM pattern</em>, a different design: a privileged model that
+can take actions never reads untrusted content, and a quarantined model
+that does read it has no tools.)</li>
 <li><strong>Structured Prompting (Parameterized Inputs):</strong>
 Similar to parameterized queries in SQL, developers should strictly
 separate the system instructions from the user data using clear
@@ -1238,8 +1241,8 @@ attack where an adversary embeds a malicious, hidden payload into a
 document that is later ingested by a RAG system, compromising the AI
 without direct interaction.</li>
 <li><strong>Semantic Firewall:</strong> A defense-in-depth strategy
-(including dual-LLM architectures and privilege separation) designed to
-protect the trust boundaries around an LLM.</li>
+(including guard models and privilege separation) designed to protect
+the trust boundaries around an LLM.</li>
 <li><strong>Insecure Output Handling:</strong> An OWASP Top 10 for LLMs
 vulnerability (renamed Improper Output Handling in 2025) where a
 downstream system (like a web portal) blindly trusts and executes the

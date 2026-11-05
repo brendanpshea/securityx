@@ -226,11 +226,14 @@ application code.</li>
 scanners, internal penetration tests, and developer experiments should
 be enumerable so they do not trip detections.</li>
 <li><strong>Measure false-positive rate (FPR) per detection.</strong> A
-<strong>false positive</strong> is an alert on benign activity; a rule
-with a 95% FPR is doing more harm than good and should be tuned or
-retired. A <strong>false negative</strong>, a real attack that raises no
-alert, is the opposite error, and over-aggressive tuning creates
-it.</li>
+<strong>false positive</strong> is an alert on benign activity, and a
+rule’s FPR here is the share of its alerts that turn out benign.
+(Statisticians call that share the <em>false discovery rate</em> and
+reserve “false-positive rate” for the share of all benign events that
+raise an alert; SOC teams usually mean the first.) A rule with a 95% FPR
+is doing more harm than good and should be tuned or retired. A
+<strong>false negative</strong>, a real attack that raises no alert, is
+the opposite error, and over-aggressive tuning creates it.</li>
 </ul>
 <p>Two data-quality problems distort all of this. <strong>Event
 duplication</strong> — the same event arriving through overlapping
